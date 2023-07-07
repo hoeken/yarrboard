@@ -1,0 +1,50 @@
+Input: 28.8v
+Load: 3ohm resistor
+
+Valefod LM2596 DC to DC #1
+
+Input Current Draw: .398
+Output: 4.88
+Wattage: 11.46w
+Output Current: 1.63
+Temps:
+
+LM2596 = 98C
+Diode = 117C
+
+
+Valefod LM2596 DC to DC #2
+
+Input Current Draw: .406
+Output: 4.89
+Wattage: 11.69W
+Output Current: 1.63
+Temps: 
+
+LM2596 = 104C
+Diode = 112C
+
+
+Weewooday DC to DC
+
+Input Current Draw: .297a
+Output: 4.79v
+Wattage: 8.55
+Output Current: 1.60
+Temps:
+
+Inductor: 59.1C
+Chip: 101.5C
+
+eBoot Mini MP1584EN
+
+31v: OK
+
+Input Current Draw: .338
+Output: 4.839v
+Wattage: 9.73w
+Output Current: = 2.01w
+Temps:
+
+Diode: 102C
+Chip: 92C
