@@ -1,11 +1,5 @@
-/* Wi-Fi STA Connect and Disconnect Example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-   
+/*
+  Gnarboard v1
 */
 #include <WiFi.h>
 #include <ArduinoJson.h> // Include ArduinoJson Library
@@ -15,11 +9,11 @@ const char* version = "Gnarboard v1.0.0";
 String uuid;
 
 const byte channelCount = 8;
-const byte pwmPins[channelCount] = {32, 33, 25, 26, 27, 14, 13, 17};
+const byte outputPins[channelCount] = {32, 33, 25, 26, 27, 14, 13, 17};
 //const byte analogPins[channelCount] = {};
 
 bool channelState[channelCount] = {false, false, false, false, false, false, false, false};
-byte channelPwm[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
+float channelDutyCycle[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
 float channelAmperage[channelCount];
 
 const char* ssid     = "Wind.Ninja";
@@ -42,8 +36,8 @@ void setup()
   //intitialize our output pins.
   for (byte i=0; i<channelCount; i++)
   {
-    pinMode(pwmPins[i], OUTPUT);
-    analogWrite(pwmPins[i], 0);
+    pinMode(outputPins[i], OUTPUT);
+    analogWrite(outputPins[i], 0);
 
     channelAmperage[i] = 0.0;
   }
@@ -67,6 +61,8 @@ void loop()
   // websocket server method that handles all clients
   webSocket.loop(); 
 
+  updateChannels();
+
   readAmperages();
 
   //lookup our info periodically  
@@ -75,19 +71,6 @@ void loop()
   {
     //read and send out our json update
     sendUpdate();
-
-    //test our pin.
-    if (toggle_state)
-    {
-      channelState[0] = true;
-      analogWrite(23, 255);
-    }
-    else 
-    {
-      channelState[0] = false;
-      analogWrite(23, 0);
-    }
-    toggle_state = !toggle_state;
 
     // Use the snapshot to set track time until next event
     previousMillis = currentMillis;   
@@ -116,20 +99,53 @@ void handleReceivedMessage(char *payload) {
   deserializeJson(doc, payload);
   //JsonObject root = doc.as<JsonObject>();
 
-  const char* cmd = doc["cmd"];
-  int channelId = doc["id"];
+  //const char* command = doc["cmd"];
+  String cmd = doc["cmd"];
+  byte cid = doc["id"];
 
-  Serial.print("Command: ");
-  Serial.println(cmd);
+  //is it a valid channel?
+  if (cid < 0 || cid >= channelCount)
+  {
+    sendError("Invalid ID");
+    return;
+  }
 
-  Serial.print("Id: ");
-  Serial.println(channelId);
+  //change state?
+  if (cmd.equals("state"))
+  {
+    bool state = doc["value"];
+    channelState[cid] = state;
+  }
+  //change duty cycle?
+  else if (cmd.equals("duty_cycle"))
+  {
+    float value = doc["value"];
+    channelDutyCycle[cid] = value;
+  }
+  //wrong command.
+  else
+  {
+      sendError("Invalid command.");
+  }
+}
 
-  //Serial.print("Id: ");
-  //Serial.println(id);
+void sendError(String error)
+{
+  Serial.print("Error: ");
+  Serial.println(error);
 
-  //Serial.println(String(doc["cmd"]));
-  //Serial.println(String(doc["channels"][0]["id"]));
+  StaticJsonDocument<500> doc;
+
+  // create an object
+  JsonObject object = doc.to<JsonObject>();
+
+  object["error"] = error;
+
+  // serialize the object and save teh result to teh string variable.
+  serializeJson(doc, jsonString); 
+  //Serial.println( jsonString );
+  webSocket.broadcastTXT(jsonString); 
+  jsonString = ""; // clear the String.
 }
 
 void sendBoardInfo()
@@ -139,15 +155,20 @@ void sendBoardInfo()
   // create an object
   JsonObject object = doc.to<JsonObject>();
 
+  //our identifying info
   object["name"] = version;
   object["uuid"] = uuid;
+  object["msg"] = "config";
 
-  /*
+  //send our configuration
   for (byte i=0; i<channelCount; i++)
   {
-    object["loads"][i]["state"] = channelState[i];
+    object["loads"][i]["id"] = i;
+    object["loads"][i]["type"] = "mosfet";
+    object["loads"][i]["hasPWM"] = true;
+    object["loads"][i]["hasCurrent"] = true;
+    object["loads"][i]["softFuse"] = 20.0;
   }
-  */
   
   // serialize the object and save teh result to teh string variable.
   serializeJson(doc, jsonString); 
@@ -165,11 +186,14 @@ void sendUpdate()
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
+
+  object["msg"] = "update";
+
   for (byte i=0; i<channelCount; i++)
   {
     object["loads"][i]["id"] = i;
     object["loads"][i]["state"] = channelState[i];
-    object["loads"][i]["duty_cycle"] = (float)channelPwm[i] / 255.0;
+    object["loads"][i]["duty_cycle"] = channelDutyCycle[i];
     object["loads"][i]["current"] = channelAmperage[i];
   }
 
@@ -200,7 +224,7 @@ void connectToWifi()
 
   // Will try for about 10 seconds (20x 500ms)
   int tryDelay = 500;
-  int numberOfTries = 20;
+  int numberOfTries = 1000;
 
   // Wait for the WiFi event
   while (true) {
@@ -243,6 +267,21 @@ void connectToWifi()
       } else {
         numberOfTries--;
       }
+  }
+}
+
+void updateChannels()
+{
+  for (byte i=0; i<channelCount; i++)
+  {
+    if (channelState[i])
+    {
+      analogWrite(outputPins[i], (byte)(channelDutyCycle[i] * 255));
+    }
+    else
+    {
+      analogWrite(outputPins[i], 0);
+    }
   }
 }
 
