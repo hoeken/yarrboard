@@ -19,6 +19,7 @@ float channelDutyCycle[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
 int channelPWM[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
 float channelAmperage[channelCount];
 float channelSoftFuseAmperage[channelCount];
+String channelNames[channelCount];
 
 /* Setting PWM Properties */
 const int PWMFreq = 10000; /* in Hz  */
@@ -58,12 +59,21 @@ void setup()
     //initialize our PWM channels
     ledcSetup(i, PWMFreq, PWMResolution);
     ledcAttachPin(outputPins[i], i);
+    ledcWrite(i, 0);
 
     //just init some values, will get real ones later.
     channelPWM[i] = 0;
     channelAmperage[i] = 0.0;
-    channelSoftFuseAmperage[i] = 20;
+    //channelSoftFuseAmperage[i] = 20;
+
+    //lookup our name
+    String prefIndex = "channel_name_" + i;
+    channelNames[i] = preferences.getString(prefIndex.c_str());
   }
+
+  //load our saved duty cycle data
+  preferences.getBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));  
+  preferences.getBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));  
 
   //get a unique ID for us
   byte mac[6];
@@ -134,28 +144,99 @@ void handleReceivedMessage(char *payload) {
   deserializeJson(doc, payload);
   //JsonObject root = doc.as<JsonObject>();
 
-  //const char* command = doc["cmd"];
+  //what is your command?
   String cmd = doc["cmd"];
-  byte cid = doc["id"];
-
-  //is it a valid channel?
-  if (cid < 0 || cid >= channelCount)
-  {
-    sendError("Invalid ID");
-    return;
-  }
 
   //change state?
   if (cmd.equals("state"))
   {
+    //is it a valid channel?
+    byte cid = doc["id"];
+    if (cid < 0 || cid >= channelCount)
+    {
+      sendError("Invalid ID");
+      return;
+    }
+
     bool state = doc["value"];
     channelState[cid] = state;
   }
   //change duty cycle?
   else if (cmd.equals("duty"))
   {
+    //is it a valid channel?
+    byte cid = doc["id"];
+    if (cid < 0 || cid >= channelCount)
+    {
+      sendError("Invalid ID");
+      return;
+    }
+
     float value = doc["value"];
-    channelDutyCycle[cid] = value;
+    
+    if (value < 0)
+      sendError("Duty cycle must be >= 0");
+    else if (value > 20)
+      sendError("Duty cycle must be <= 1");
+    else
+    {
+      channelDutyCycle[cid] = value;
+
+      //save our saved duty cycle data
+      preferences.putBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
+    }
+  }
+  //change a soft fuse setting?
+  else if(cmd.equals("soft_fuse"))
+  {
+    //is it a valid channel?
+    byte cid = doc["id"];
+    if (cid < 0 || cid >= channelCount)
+    {
+      sendError("Invalid ID");
+      return;
+    }
+
+    float value = doc["value"];
+    if (value < 0)
+      sendError("Soft fuse minimum is 0 amps.");
+    else if (value > 20)
+      sendError("Soft fuse maximum is 20 amps.");
+    else
+    {
+      channelSoftFuseAmperage[cid] = value;
+
+      //save our saved duty cycle data
+      preferences.putBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));  
+    }
+  }
+  //change a channel name?
+  else if(cmd.equals("set_name"))
+  {
+    //is it a valid channel?
+    byte cid = doc["id"];
+    if (cid < 0 || cid >= channelCount)
+    {
+      sendError("Invalid ID");
+      return;
+    }
+
+    String value = doc["value"];
+    if (value.length() > 64)
+      sendError("Maximum channel name length is 64 characters.");
+    else
+    {
+      channelNames[cid] = value;
+
+      //save to our storage
+      String prefIndex = "channel_name_" + cid;
+      preferences.putString(prefIndex.c_str(), value);
+    }
+  }
+  //get our config?
+  else if(cmd.equals("config"))
+  {
+    sendBoardInfo();
   }
   //wrong command.
   else
@@ -202,10 +283,11 @@ void sendBoardInfo()
   for (byte i=0; i<channelCount; i++)
   {
     object["loads"][i]["id"] = i;
+    object["loads"][i]["name"] = channelNames[i];
     object["loads"][i]["type"] = "mosfet";
     object["loads"][i]["hasPWM"] = true;
     object["loads"][i]["hasCurrent"] = true;
-    object["loads"][i]["softFuse"] = 20.0;
+    object["loads"][i]["softFuse"] = channelSoftFuseAmperage[i];
   }
   
   // serialize the object and save teh result to teh string variable.
