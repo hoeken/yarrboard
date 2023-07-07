@@ -1,0 +1,14 @@
+Code:
+
+* implement external ADC
+* allow setting soft fuses + checking that with ADC
+* allow storing of soft fuses + duty_cycle into FLASH
+* more error checking of input
+
+Electronics:
+
+* test code with leds on all pins
+* test breadboarded mosfet circuit - opto vs npn transistor
+* test and decide on ADC
+* test and decide on current sensor
+* start schematic and pcb design
