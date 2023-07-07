@@ -40,7 +40,7 @@ void loop() {
 
   digitalWrite(led, HIGH);
   digitalWrite(mosfet, HIGH);
-  delay(2000);
+  delay(1000);
 
   amps = getAmperage();
   watts = amps * 28.8;
@@ -52,7 +52,7 @@ void loop() {
   
   digitalWrite(led, LOW);
   digitalWrite(mosfet, LOW);
-  delay(2000);
+  delay(4000);
 
   amps = getAmperage();
   watts = amps * 28.8;
@@ -72,9 +72,9 @@ float getAmperage()
   {
     AcsValue = analogRead(sensorIn);     //Read current sensor values   
     Samples = Samples + AcsValue;  //Add samples together
-    delay (3); // let ADC settle before next sample 3ms
+    delay(2); // let ADC settle before next sample 3ms
   }
-  AvgAcs=Samples/5.0;//Taking Average of Samples
+  AvgAcs=Samples / 5.0; //Taking Average of Samples
 
   //AvgAcs = analogRead(sensorIn);     //Read current sensor values   
 
@@ -90,7 +90,10 @@ float getAmperage()
   Serial.print(" V ---  ");
 
   //result = (readValue * 3.3) / 4096.0 / mVperAmp; //ESP32 ADC resolution 4096
-  amps = (1.65 - (AvgAcs * (3.3 / 4096.0))) / 0.100;
+  //1.65 = midpoint voltage
+  //3.3 / 4096 = convert reading to volts
+  //0.100 * 0.66 = ACS712 20A outputs 0.1v per amp, but we had to voltage divide to 3.3v
+  amps = (1.65 - volts) / (0.100 * 0.66);
 
   Serial.print(amps);
   Serial.print(" A ---  ");

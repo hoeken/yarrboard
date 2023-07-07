@@ -1,99 +1,147 @@
-#include <WiFiNINA.h>
-#include "wifi_secrets.h"
+/* Wi-Fi STA Connect and Disconnect Example
 
+   This example code is in the Public Domain (or CC0 licensed, at your option.)
 
-const byte pwmPins[8] = {2, 3, 5, 6, 9, 10, 11, 12};
-const byte analogPins[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+   Unless required by applicable law or agreed to in writing, this
+   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+   CONDITIONS OF ANY KIND, either express or implied.
+   
+*/
+#include <WiFi.h>
+#include <ArduinoJson.h> // Include ArduinoJson Library
+#include <WebSocketsServer.h>  // Include Websocket Library
 
-char ssid[] = "Wind.Ninja";  // your network SSID (name)
-char pass[] = "chickenloop"; // your network password (use for WPA, or use as key for WEP)
+const char* ssid     = "Wind.Ninja";
+const char* password = "chickenloop";
 
-int status = WL_IDLE_STATUS;             // the Wi-Fi radio's status
-int ledState = LOW;                       //ledState used to set the LED
-unsigned long previousMillisInfo = 0;     //will store last time Wi-Fi information was updated
-unsigned long previousMillisLED = 0;      // will store the last time LED was updated
-const int intervalInfo = 5000;            // interval at which to update the board information
+WebSocketsServer webSocket = WebSocketsServer(80);  //create instance for webSocket server on port"81"
+String jsonString; // Temporary storage for the JSON String
+
+int interval = 1000; // virtual delay
+unsigned long previousMillis = 0; // Tracks the time since last event fired
 
 void setup()
 {
-  //setup our pwm pins and default them to off
-  for (byte i=0; i<8; i++)
-  {
-    pinMode(pwmPins[i], OUTPUT);
-    analogWrite(pwmPins[i], 0);
-  }
+    Serial.begin(115200);
+    delay(10);
 
-  //this board supports 12 bits analog read.
-  analogReadResolution(12);
+  connectToWifi();
 
-  //Initialize serial and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial);
-
-  // set the LED as output
-  pinMode(LED_BUILTIN, OUTPUT);
-
-  // attempt to connect to Wi-Fi network:
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to network: ");
-    Serial.println(ssid);
-
-    // Connect to WPA/WPA2 network:
-    status = WiFi.begin(ssid, pass);
-
-    // wait 10 seconds for connection:
-    delay(10000);
-  }
-
-  // you're connected now, so print out the data:
-  Serial.println("You're connected to the network");
-  Serial.println("---------------------------------------");
+  webSocket.begin();  // init the Websocketserver
+  webSocket.onEvent(webSocketEvent);  // init the webSocketEvent function when a websocket event occurs 
 }
 
 void loop()
 {
-  unsigned long currentMillisInfo = millis();
+  webSocket.loop(); // websocket server methode that handles all Client
+  
+  unsigned long currentMillis = millis(); // call millis  and Get snapshot of time
 
-  // check if the time after the last update is bigger the interval
-  if (currentMillisInfo - previousMillisInfo >= intervalInfo) {
-    previousMillisInfo = currentMillisInfo;
+  //lookup our info periodically  
+  if ((unsigned long)(currentMillis - previousMillis) >= interval) { // How much time has passed, accounting for rollover with subtraction!
+    previousMillis = currentMillis;   // Use the snapshot to set track time until next event
 
-    Serial.println("Board Information:");
-    // print your board's IP address:
-    IPAddress ip = WiFi.localIP();
-    Serial.print("IP Address: ");
-    Serial.println(ip);
-
-    // print your network's SSID:
-    Serial.println();
-    Serial.println("Network Information:");
-    Serial.print("SSID: ");
-    Serial.println(WiFi.SSID());
-
-    // print the received signal strength:
-    long rssi = WiFi.RSSI();
-    Serial.print("signal strength (RSSI):");
-    Serial.println(rssi);
-    Serial.println("---------------------------------------");
+    sendUpdate();
   }
-  
-  unsigned long currentMillisLED = millis();
-  
-  // measure the signal strength and convert it into a time interval
-  int intervalLED = WiFi.RSSI() * -10;
- 
-  // check if the time after the last blink is bigger the interval 
-  if (currentMillisLED - previousMillisLED >= intervalLED) {
-    previousMillisLED = currentMillisLED;
+}
 
-    // if the LED is off turn it on and vice-versa:
-    if (ledState == LOW) {
-      ledState = HIGH;
-    } else {
-      ledState = LOW;
-    }
+// This function gets a call when a WebSocket event occurs
+void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
+  switch (type) {
+    case WStype_DISCONNECTED: // enum that read status this is used for debugging.
+      Serial.print("WS Type ");
+      Serial.print(type);
+      Serial.println(": DISCONNECTED");
+      break;
+    case WStype_CONNECTED:  // Check if a WebSocket client is connected or not
+      Serial.print("WS Type ");
+      Serial.print(type);
+      Serial.println(": CONNECTED");
+      break;
+    case WStype_TEXT: // check responce from client
+      Serial.println(); // the payload variable stores teh status internally
+      //Serial.println(payload);
+      break;
+  }
+}
 
-    // set the LED with the ledState of the variable:
-    digitalWrite(LED_BUILTIN, ledState);
+void sendUpdate()
+{
+  StaticJsonDocument<2048> doc;
+
+  // create an object
+  JsonObject object = doc.to<JsonObject>();
+  for (int i=0; i<7; i++)
+  {
+    object["state"][i] = false;
+    object["current"][i] = 0.43;
+  }
+
+  serializeJson(doc, jsonString); // serialize the object and save teh result to teh string variable.
+  Serial.println( jsonString ); // print the string for debugging.
+  webSocket.broadcastTXT(jsonString); // send the JSON object through the websocket
+  jsonString = ""; // clear the String.
+}
+
+void connectToWifi()
+{
+  // We start by connecting to a WiFi network
+  // To debug, please enable Core Debug Level to Verbose
+
+  Serial.println();
+  Serial.print("[WiFi] Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  // Auto reconnect is set true as default
+  // To set auto connect off, use the following function
+  //    WiFi.setAutoReconnect(false);
+
+  // Will try for about 10 seconds (20x 500ms)
+  int tryDelay = 500;
+  int numberOfTries = 20;
+
+  // Wait for the WiFi event
+  while (true) {
+      
+      switch(WiFi.status()) {
+        case WL_NO_SSID_AVAIL:
+          Serial.println("[WiFi] SSID not found");
+          break;
+        case WL_CONNECT_FAILED:
+          Serial.print("[WiFi] Failed - WiFi not connected! Reason: ");
+          return;
+          break;
+        case WL_CONNECTION_LOST:
+          Serial.println("[WiFi] Connection was lost");
+          break;
+        case WL_SCAN_COMPLETED:
+          Serial.println("[WiFi] Scan is completed");
+          break;
+        case WL_DISCONNECTED:
+          Serial.println("[WiFi] WiFi is disconnected");
+          break;
+        case WL_CONNECTED:
+          Serial.println("[WiFi] WiFi is connected!");
+          Serial.print("[WiFi] IP address: ");
+          Serial.println(WiFi.localIP());
+          return;
+          break;
+        default:
+          Serial.print("[WiFi] WiFi Status: ");
+          Serial.println(WiFi.status());
+          break;
+      }
+      delay(tryDelay);
+      
+      if(numberOfTries <= 0){
+        Serial.print("[WiFi] Failed to connect to WiFi!");
+        // Use disconnect function to force stop trying to connect
+        WiFi.disconnect();
+        return;
+      } else {
+        numberOfTries--;
+      }
   }
 }
