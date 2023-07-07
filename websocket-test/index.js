@@ -43,7 +43,7 @@ async function exercisePins()
                 "value": true
             }));
 
-            await delay(100)
+            //await delay(1)
         }
 
         for (i=0; i<8; i++)
@@ -53,7 +53,9 @@ async function exercisePins()
                 "id": i,
                 "value": false
             }));
-           	await delay(100)
+           	//await delay(1)
         }
+
+        await delay(0.1)
     }
 }

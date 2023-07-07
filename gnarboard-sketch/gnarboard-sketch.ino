@@ -10,7 +10,7 @@ String uuid;
 
 const byte channelCount = 8;
 const byte outputPins[channelCount] = {32, 33, 25, 26, 27, 14, 13, 17};
-//const byte analogPins[channelCount] = {};
+const byte analogPins[channelCount] = {4, 4, 4, 4, 4, 4, 4, 4};
 
 bool channelState[channelCount] = {false, false, false, false, false, false, false, false};
 float channelDutyCycle[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -22,9 +22,12 @@ const char* password = "chickenloop";
 WebSocketsServer webSocket = WebSocketsServer(80);  //create instance for webSocket server on port"81"
 String jsonString; // Temporary storage for the JSON String
 
-int interval = 2000; // virtual delay
+int interval = 1000; // virtual delay
 unsigned long previousMillis = 0; // Tracks the time since last event fired
 bool toggle_state = false;
+
+unsigned int handledMessages = 0;
+unsigned int lastHandledMessages = 0;
 
 void setup()
 {
@@ -63,17 +66,26 @@ void loop()
 
   updateChannels();
 
-  readAmperages();
-
   //lookup our info periodically  
   unsigned long currentMillis = millis();
-  if ((unsigned long)(currentMillis - previousMillis) >= interval)
+  unsigned long deltaMillis = (currentMillis - previousMillis);
+  if (deltaMillis >= interval)
   {
+    //this is a bit slow, so only do it once per update
+    readAmperages();
+
     //read and send out our json update
     sendUpdate();
 
     // Use the snapshot to set track time until next event
     previousMillis = currentMillis;   
+
+    //how fast are we?
+    Serial.print("Messages / sec: ");
+    Serial.println(handledMessages - lastHandledMessages);
+    
+    //for keeping track.
+    lastHandledMessages = handledMessages;
   }
 }
 
@@ -88,7 +100,7 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
       sendBoardInfo();
       break;
     case WStype_TEXT: // check response from client
-      Serial.printf("[WebSocket] Message: %s\n", payload);
+      //Serial.printf("[WebSocket] Message: %s\n", payload);
       handleReceivedMessage((char*)payload);
       break;
   }
@@ -127,6 +139,9 @@ void handleReceivedMessage(char *payload) {
   {
       sendError("Invalid command.");
   }
+
+  //keep track!
+  handledMessages++;
 }
 
 void sendError(String error)
@@ -289,7 +304,8 @@ void readAmperages()
 {
   for (byte i=0; i<channelCount; i++)
   {
-    channelAmperage[i] = i;
+    //channelAmperage[i] = i;
+    channelAmperage[i] = getAmperage(analogPins[i]);
   }
 }
 
@@ -310,23 +326,22 @@ float getAmperage(byte sensorPin)
 
   float amps;
 
-  Serial.print(sensorPin);
-  Serial.print(" PIN | ");
+  //Serial.print(sensorPin);
+  //Serial.print(" PIN | ");
 
   int mv = analogReadMilliVolts(sensorPin);
-  Serial.print(mv);
-  Serial.print(" mV | ");
+  //Serial.print(mv);
+  //Serial.print(" mV | ");
 
-
-  Serial.print(AvgAcs);
-  Serial.print(" ADC | ");
+  //Serial.print(AvgAcs);
+  //Serial.print(" ADC | ");
 
   float volts;
   //volts = AvgAcs * (3.3 / 4096.0);
   volts = AvgAcs * (5.0 / 3.3);
 
-  Serial.print(volts);
-  Serial.print(" V | ");
+  //Serial.print(volts);
+  //Serial.print(" V | ");
 
   //result = (readValue * 3.3) / 4096.0 / mVperAmp; //ESP32 ADC resolution 4096
   //1.65 = midpoint voltage
@@ -335,9 +350,9 @@ float getAmperage(byte sensorPin)
   //amps = (1.65 - volts) / (0.100 * 0.66);
   amps = (2.5 - volts) / 0.100;
 
-  Serial.print(amps);
-  Serial.print(" A");
-  Serial.println();
+  //Serial.print(amps);
+  //Serial.print(" A");
+  //Serial.println();
 
   return amps;
  }
