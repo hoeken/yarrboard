@@ -11,37 +11,80 @@
 #include <ArduinoJson.h> // Include ArduinoJson Library
 #include <WebSocketsServer.h>  // Include Websocket Library
 
+const char* version = "Gnarboard v1.0.0";
+
+const byte channelCount = 6;
+const byte pwmPins[channelCount] = {23, 22, 21, 19, 18, 17};
+const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33};
+
+byte pwmState[channelCount] = {0, 0, 0, 0, 0, 0};
+
+
 const char* ssid     = "Wind.Ninja";
 const char* password = "chickenloop";
 
 WebSocketsServer webSocket = WebSocketsServer(80);  //create instance for webSocket server on port"81"
 String jsonString; // Temporary storage for the JSON String
 
-int interval = 1000; // virtual delay
+int interval = 2000; // virtual delay
 unsigned long previousMillis = 0; // Tracks the time since last event fired
+bool toggle_state = false;
 
 void setup()
 {
-    Serial.begin(115200);
-    delay(10);
+  //startup our serial
+  Serial.begin(115200);
+  delay(10);
+  Serial.println(version);
 
+  //intitialize our output pins.
+  for (byte i=0; i<channelCount; i++)
+  {
+    pinMode(pwmPins[i], OUTPUT);
+    analogWrite(pwmPins[i], 0);    
+  }
+
+  for (byte i=0; i<channelCount; i++)
+  {
+    true;
+    //analogSetPinAttenuation(analogPins[i], ADC_ATTEN_DB_11);
+  }
+
+  //get an IP address
   connectToWifi();
 
+  //start our websocket server.
   webSocket.begin();  // init the Websocketserver
   webSocket.onEvent(webSocketEvent);  // init the webSocketEvent function when a websocket event occurs 
 }
 
 void loop()
 {
-  webSocket.loop(); // websocket server methode that handles all Client
+  // websocket server method that handles all clients
+  webSocket.loop(); 
   
-  unsigned long currentMillis = millis(); // call millis  and Get snapshot of time
-
   //lookup our info periodically  
-  if ((unsigned long)(currentMillis - previousMillis) >= interval) { // How much time has passed, accounting for rollover with subtraction!
-    previousMillis = currentMillis;   // Use the snapshot to set track time until next event
-
+  unsigned long currentMillis = millis();
+  if ((unsigned long)(currentMillis - previousMillis) >= interval)
+  {
+    //read and send out our json update
     sendUpdate();
+
+    //test our pin.
+    if (toggle_state)
+    {
+      pwmState[0] = 255;
+      analogWrite(23, 255);
+    }
+    else 
+    {
+      pwmState[0] = 0;
+      analogWrite(23, 0);
+    }
+    toggle_state = !toggle_state;
+
+    // Use the snapshot to set track time until next event
+    previousMillis = currentMillis;   
   }
 }
 
@@ -71,10 +114,10 @@ void sendUpdate()
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
-  for (int i=0; i<7; i++)
+  for (byte i=0; i<channelCount; i++)
   {
-    object["state"][i] = false;
-    object["current"][i] = 0.43;
+    object["loads"][i]["state"] = pwmState[i];
+    object["loads"][i]["current"] = getAmperage(analogPins[i]);
   }
 
   serializeJson(doc, jsonString); // serialize the object and save teh result to teh string variable.
@@ -145,3 +188,52 @@ void connectToWifi()
       }
   }
 }
+
+float getAmperage(byte sensorPin)
+{
+  float AcsValue=0.0, Samples=0.0, AvgAcs=0.0, AcsValueF=0.0;
+  for (int x = 0; x < 5; x++)
+  {
+    //AcsValue = analogRead(sensorPin);     //Read current sensor values   
+    AcsValue = (float)analogReadMilliVolts(sensorPin) / 1000.0;
+
+    Samples = Samples + AcsValue;  //Add samples together
+    delay(5); // let ADC settle before next sample
+  }
+  AvgAcs=Samples / 5.0; //Taking Average of Samples
+
+  //AvgAcs = analogRead(sensorPin);     //Read current sensor values   
+
+  float amps;
+
+  Serial.print(sensorPin);
+  Serial.print(" PIN | ");
+
+  int mv = analogReadMilliVolts(sensorPin);
+  Serial.print(mv);
+  Serial.print(" mV | ");
+
+
+  Serial.print(AvgAcs);
+  Serial.print(" ADC | ");
+
+  float volts;
+  //volts = AvgAcs * (3.3 / 4096.0);
+  volts = AvgAcs * (5.0 / 3.3);
+
+  Serial.print(volts);
+  Serial.print(" V | ");
+
+  //result = (readValue * 3.3) / 4096.0 / mVperAmp; //ESP32 ADC resolution 4096
+  //1.65 = midpoint voltage
+  //3.3 / 4096 = convert reading to volts
+  //0.100 * 0.66 = ACS712 20A outputs 0.1v per amp, but we had to voltage divide to 3.3v
+  //amps = (1.65 - volts) / (0.100 * 0.66);
+  amps = (2.5 - volts) / 0.100;
+
+  Serial.print(amps);
+  Serial.print(" A");
+  Serial.println();
+
+  return amps;
+ }

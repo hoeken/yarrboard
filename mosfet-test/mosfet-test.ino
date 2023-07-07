@@ -15,8 +15,10 @@
 
 int led = 18;         // the PWM pin the LED is attached to
 int mosfet = 16;         // the PWM pin the LED is attached to
+//int mosfet = 23;         // the PWM pin the LED is attached to
 
-const int sensorIn = 4;      // pin where the OUT pin from sensor is connected on Arduino
+//const int sensorIn = 4;      // pin where the OUT pin from sensor is connected on Arduino
+const int sensorIn = 36;      // pin where the OUT pin from sensor is connected on Arduino
 float amps = 0;
 float watts = 0;
 
@@ -29,6 +31,12 @@ void setup() {
 
   pinMode(led, OUTPUT);
   pinMode(mosfet, OUTPUT);
+
+  pinMode(sensorIn, INPUT);
+  analogReadResolution(12);
+  analogSetWidth(12);
+  analogSetAttenuation(ADC_11db);
+  adcAttachPin(sensorIn);
 }
 
 // the loop routine runs over and over again forever:
