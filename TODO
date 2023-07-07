@@ -1,8 +1,11 @@
 Code:
 
 * implement external ADC
+* allow turning off of duty cycle memory (per channel?)
 * check current against soft fuse
 * more error checking of input
+* would be nice to revisit the webserver w/ a simple UI for config and control of the board.
+* would be nice to have a way of setting up the wifi: https://randomnerdtutorials.com/esp32-wi-fi-manager-asyncwebserver/
 
 Electronics:
 
@@ -11,3 +14,5 @@ Electronics:
 * test and decide on ADC
 * test and decide on current sensor
 * start schematic and pcb design
+	* add a row of breakout headers for testing
+	* do we have room for digital inputs?
