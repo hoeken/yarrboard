@@ -12,13 +12,15 @@
 #include <WebSocketsServer.h>  // Include Websocket Library
 
 const char* version = "Gnarboard v1.0.0";
+String uuid;
 
-const byte channelCount = 6;
-const byte pwmPins[channelCount] = {23, 22, 21, 19, 18, 17};
-const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33};
+const byte channelCount = 8;
+const byte pwmPins[channelCount] = {32, 33, 25, 26, 27, 14, 13, 17};
+//const byte analogPins[channelCount] = {};
 
-byte pwmState[channelCount] = {0, 0, 0, 0, 0, 0};
-
+bool channelState[channelCount] = {false, false, false, false, false, false, false, false};
+byte channelPwm[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
+float channelAmperage[channelCount];
 
 const char* ssid     = "Wind.Ninja";
 const char* password = "chickenloop";
@@ -41,28 +43,32 @@ void setup()
   for (byte i=0; i<channelCount; i++)
   {
     pinMode(pwmPins[i], OUTPUT);
-    analogWrite(pwmPins[i], 0);    
+    analogWrite(pwmPins[i], 0);
+
+    channelAmperage[i] = 0.0;
   }
 
-  for (byte i=0; i<channelCount; i++)
-  {
-    true;
-    //analogSetPinAttenuation(analogPins[i], ADC_ATTEN_DB_11);
-  }
+  //get a unique ID for us
+  byte mac[6];
+  WiFi.macAddress(mac);
+  uuid = String(mac[0],HEX) +String(mac[1],HEX) +String(mac[2],HEX) +String(mac[3],HEX) + String(mac[4],HEX) + String(mac[5],HEX);
+  Serial.println(uuid);
 
   //get an IP address
   connectToWifi();
 
   //start our websocket server.
-  webSocket.begin();  // init the Websocketserver
-  webSocket.onEvent(webSocketEvent);  // init the webSocketEvent function when a websocket event occurs 
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
 }
 
 void loop()
 {
   // websocket server method that handles all clients
   webSocket.loop(); 
-  
+
+  readAmperages();
+
   //lookup our info periodically  
   unsigned long currentMillis = millis();
   if ((unsigned long)(currentMillis - previousMillis) >= interval)
@@ -73,12 +79,12 @@ void loop()
     //test our pin.
     if (toggle_state)
     {
-      pwmState[0] = 255;
+      channelState[0] = true;
       analogWrite(23, 255);
     }
     else 
     {
-      pwmState[0] = 0;
+      channelState[0] = false;
       analogWrite(23, 0);
     }
     toggle_state = !toggle_state;
@@ -92,20 +98,65 @@ void loop()
 void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
   switch (type) {
     case WStype_DISCONNECTED: // enum that read status this is used for debugging.
-      Serial.print("WS Type ");
-      Serial.print(type);
-      Serial.println(": DISCONNECTED");
+      Serial.println("[WebSocket] Disconnected");
       break;
     case WStype_CONNECTED:  // Check if a WebSocket client is connected or not
-      Serial.print("WS Type ");
-      Serial.print(type);
-      Serial.println(": CONNECTED");
+      Serial.println("[WebSocket] Connected");
+      sendBoardInfo();
       break;
-    case WStype_TEXT: // check responce from client
-      Serial.println(); // the payload variable stores teh status internally
-      //Serial.println(payload);
+    case WStype_TEXT: // check response from client
+      Serial.printf("[WebSocket] Message: %s\n", payload);
+      handleReceivedMessage((char*)payload);
       break;
   }
+}
+
+void handleReceivedMessage(char *payload) {
+  StaticJsonDocument<200> doc;
+  deserializeJson(doc, payload);
+  //JsonObject root = doc.as<JsonObject>();
+
+  const char* cmd = doc["cmd"];
+  int channelId = doc["id"];
+
+  Serial.print("Command: ");
+  Serial.println(cmd);
+
+  Serial.print("Id: ");
+  Serial.println(channelId);
+
+  //Serial.print("Id: ");
+  //Serial.println(id);
+
+  //Serial.println(String(doc["cmd"]));
+  //Serial.println(String(doc["channels"][0]["id"]));
+}
+
+void sendBoardInfo()
+{
+  StaticJsonDocument<2048> doc;
+
+  // create an object
+  JsonObject object = doc.to<JsonObject>();
+
+  object["name"] = version;
+  object["uuid"] = uuid;
+
+  /*
+  for (byte i=0; i<channelCount; i++)
+  {
+    object["loads"][i]["state"] = channelState[i];
+  }
+  */
+  
+  // serialize the object and save teh result to teh string variable.
+  serializeJson(doc, jsonString); 
+  
+  //Serial.println( jsonString );
+
+  // send the JSON object through the websocket
+  webSocket.broadcastTXT(jsonString); 
+  jsonString = ""; // clear the String.
 }
 
 void sendUpdate()
@@ -116,13 +167,19 @@ void sendUpdate()
   JsonObject object = doc.to<JsonObject>();
   for (byte i=0; i<channelCount; i++)
   {
-    object["loads"][i]["state"] = pwmState[i];
-    object["loads"][i]["current"] = getAmperage(analogPins[i]);
+    object["loads"][i]["id"] = i;
+    object["loads"][i]["state"] = channelState[i];
+    object["loads"][i]["duty_cycle"] = (float)channelPwm[i] / 255.0;
+    object["loads"][i]["current"] = channelAmperage[i];
   }
 
-  serializeJson(doc, jsonString); // serialize the object and save teh result to teh string variable.
-  Serial.println( jsonString ); // print the string for debugging.
-  webSocket.broadcastTXT(jsonString); // send the JSON object through the websocket
+  // serialize the object and save teh result to teh string variable.
+  serializeJson(doc, jsonString); 
+  
+  //Serial.println( jsonString );
+
+  // send the JSON object through the websocket
+  webSocket.broadcastTXT(jsonString); 
   jsonString = ""; // clear the String.
 }
 
@@ -186,6 +243,14 @@ void connectToWifi()
       } else {
         numberOfTries--;
       }
+  }
+}
+
+void readAmperages()
+{
+  for (byte i=0; i<channelCount; i++)
+  {
+    channelAmperage[i] = i;
   }
 }
 
