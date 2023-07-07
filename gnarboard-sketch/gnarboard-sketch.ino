@@ -117,7 +117,7 @@ void handleReceivedMessage(char *payload) {
     channelState[cid] = state;
   }
   //change duty cycle?
-  else if (cmd.equals("duty_cycle"))
+  else if (cmd.equals("duty"))
   {
     float value = doc["value"];
     channelDutyCycle[cid] = value;
@@ -193,7 +193,7 @@ void sendUpdate()
   {
     object["loads"][i]["id"] = i;
     object["loads"][i]["state"] = channelState[i];
-    object["loads"][i]["duty_cycle"] = channelDutyCycle[i];
+    object["loads"][i]["duty"] = channelDutyCycle[i];
     object["loads"][i]["current"] = channelAmperage[i];
   }
 
