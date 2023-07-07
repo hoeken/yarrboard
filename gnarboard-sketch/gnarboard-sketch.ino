@@ -2,30 +2,43 @@
   Gnarboard v1
 */
 #include <WiFi.h>
-#include <ArduinoJson.h> // Include ArduinoJson Library
-#include <WebSocketsServer.h>  // Include Websocket Library
+#include <ArduinoJson.h>
+#include <WebSocketsServer.h>
+#include <Preferences.h>
 
+//identify yourself!
 const char* version = "Gnarboard v1.0.0";
 String uuid;
 
+//keep track of our channel info.
 const byte channelCount = 8;
 const byte outputPins[channelCount] = {32, 33, 25, 26, 27, 14, 13, 17};
 const byte analogPins[channelCount] = {4, 4, 4, 4, 4, 4, 4, 4};
-
 bool channelState[channelCount] = {false, false, false, false, false, false, false, false};
 float channelDutyCycle[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
+int channelPWM[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
 float channelAmperage[channelCount];
+float channelSoftFuseAmperage[channelCount];
 
-const char* ssid     = "Wind.Ninja";
-const char* password = "chickenloop";
+/* Setting PWM Properties */
+const int PWMFreq = 10000; /* in Hz  */
+const int PWMResolution = 12;
+const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
 
+//storage for more permanent stuff.
+Preferences preferences;
+
+//wifi login info.
+String ssid;
+String password;
+
+//our server variable
 WebSocketsServer webSocket = WebSocketsServer(80);  //create instance for webSocket server on port"81"
 String jsonString; // Temporary storage for the JSON String
 
+//for tracking our loop
 int interval = 1000; // virtual delay
 unsigned long previousMillis = 0; // Tracks the time since last event fired
-bool toggle_state = false;
-
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
 
@@ -36,13 +49,20 @@ void setup()
   delay(10);
   Serial.println(version);
 
+  //for storing stuff to flash
+  preferences.begin("gnarboard", false);
+
   //intitialize our output pins.
   for (byte i=0; i<channelCount; i++)
   {
-    pinMode(outputPins[i], OUTPUT);
-    analogWrite(outputPins[i], 0);
+    //initialize our PWM channels
+    ledcSetup(i, PWMFreq, PWMResolution);
+    ledcAttachPin(outputPins[i], i);
 
+    //just init some values, will get real ones later.
+    channelPWM[i] = 0;
     channelAmperage[i] = 0.0;
+    channelSoftFuseAmperage[i] = 20;
   }
 
   //get a unique ID for us
@@ -64,8 +84,6 @@ void loop()
   // websocket server method that handles all clients
   webSocket.loop(); 
 
-  updateChannels();
-
   //lookup our info periodically  
   unsigned long currentMillis = millis();
   unsigned long deltaMillis = (currentMillis - previousMillis);
@@ -81,9 +99,12 @@ void loop()
     previousMillis = currentMillis;   
 
     //how fast are we?
-    Serial.print("Messages / sec: ");
-    Serial.println(handledMessages - lastHandledMessages);
-    
+    Serial.print("delta: ");
+    Serial.print(deltaMillis);
+    Serial.print(" | msg/s: ");
+    Serial.print(handledMessages - lastHandledMessages);
+    Serial.println();
+
     //for keeping track.
     lastHandledMessages = handledMessages;
   }
@@ -102,6 +123,8 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
     case WStype_TEXT: // check response from client
       //Serial.printf("[WebSocket] Message: %s\n", payload);
       handleReceivedMessage((char*)payload);
+      updateChannels();
+
       break;
   }
 }
@@ -224,20 +247,16 @@ void sendUpdate()
 
 void connectToWifi()
 {
-  // We start by connecting to a WiFi network
-  // To debug, please enable Core Debug Level to Verbose
+  ssid = preferences.getString("ssid", "Wind.Ninja"); 
+  password = preferences.getString("password", "chickenloop");
 
-  Serial.println();
   Serial.print("[WiFi] Connecting to ");
   Serial.println(ssid);
 
-  WiFi.begin(ssid, password);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid.c_str(), password.c_str());
 
-  // Auto reconnect is set true as default
-  // To set auto connect off, use the following function
-  //    WiFi.setAutoReconnect(false);
-
-  // Will try for about 10 seconds (20x 500ms)
+  // How long to try
   int tryDelay = 500;
   int numberOfTries = 1000;
 
@@ -273,15 +292,17 @@ void connectToWifi()
           break;
       }
       delay(tryDelay);
-      
+
+      /*      
       if(numberOfTries <= 0){
-        Serial.print("[WiFi] Failed to connect to WiFi!");
+        Serial.print(".");
         // Use disconnect function to force stop trying to connect
         WiFi.disconnect();
         return;
       } else {
         numberOfTries--;
       }
+      */
   }
 }
 
@@ -291,7 +312,14 @@ void updateChannels()
   {
     if (channelState[i])
     {
-      analogWrite(outputPins[i], (byte)(channelDutyCycle[i] * 255));
+      int pwm = (int)(channelDutyCycle[i] * MAX_DUTY_CYCLE);
+      if (pwm != channelPWM[i])
+      {
+        ledcWrite(i, pwm);
+        //analogWrite(outputPins[i], pwm);
+        channelPWM[i] = pwm;
+        //Serial.println(pwm);
+      }
     }
     else
     {

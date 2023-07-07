@@ -1,5 +1,6 @@
 Code:
 
+* investigate the pwm code: https://www.electronicshub.org/esp32-pwm-tutorial/
 * implement external ADC
 * allow setting soft fuses + checking that with ADC
 * allow storing of soft fuses + duty_cycle into FLASH

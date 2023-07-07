@@ -13,7 +13,8 @@ client.onerror = function() {
 client.onopen = function() {
     console.log('WebSocket Client Connected');
 
-    setTimeout(exercisePins, 1000);
+    //setTimeout(exercisePins, 1000);
+    setTimeout(fadePin, 1000);
 };
 
 client.onclose = function() {
@@ -57,5 +58,41 @@ async function exercisePins()
         }
 
         await delay(0.1)
+    }
+}
+
+async function fadePin()
+{
+    let steps = 20;
+    let d = 100;
+ 
+    client.send(JSON.stringify({
+        "cmd": "state",
+        "id": 7,
+        "value": true
+    }));
+
+    while (true) {
+        for (i=0; i<=steps; i++)
+        {
+            client.send(JSON.stringify({
+                "cmd": "duty",
+                "id": 7,
+                "value": (i / steps) * 0.1
+            }));
+
+            await delay(d)
+        }
+
+        for (i=steps; i>=0; i--)
+        {
+            client.send(JSON.stringify({
+                "cmd": "duty",
+                "id": 7,
+                "value": (i / steps) * 0.1
+            }));
+
+            await delay(d)
+        }
     }
 }
