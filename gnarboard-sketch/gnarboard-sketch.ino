@@ -12,13 +12,15 @@ String uuid;
 
 //keep track of our channel info.
 const byte channelCount = 8;
-const byte outputPins[channelCount] = {32, 33, 25, 26, 27, 14, 13, 17};
-const byte analogPins[channelCount] = {4, 4, 4, 4, 4, 4, 4, 4};
-bool channelState[channelCount] = {false, false, false, false, false, false, false, false};
-float channelDutyCycle[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
-int channelPWM[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
-float channelAmperage[channelCount];
-float channelSoftFuseAmperage[channelCount];
+const byte outputPins[channelCount] = {25, 26, 27, 14, 12, 13, 17, 16};
+const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33, 4, 2};
+
+//state information for all our channels.`  1 
+bool   channelState[channelCount] = {false, false, false, false, false, false, false, false};
+float  channelDutyCycle[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
+int    channelPWM[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
+float  channelAmperage[channelCount];
+float  channelSoftFuseAmperage[channelCount];
 String channelNames[channelCount];
 
 /* Setting PWM Properties */
