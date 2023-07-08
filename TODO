@@ -6,6 +6,7 @@ Code:
 * more error checking of input
 * would be nice to revisit the webserver w/ a simple UI for config and control of the board.
 * would be nice to have a way of setting up the wifi: https://randomnerdtutorials.com/esp32-wi-fi-manager-asyncwebserver/
+* leave the gate open for N2K compatability: https://github.com/AK-Homberger/ESP32-Evo-Remote-Pilot-NMEA2000/blob/master/ESP32EvoPilotRemote/ESP32EvoPilotRemote.ino
 
 Electronics:
 
