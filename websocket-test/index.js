@@ -38,7 +38,7 @@ async function speedTest()
         client.send(JSON.stringify({
             "cmd": "config"
         }));
-        await delay(0.5)
+        await delay(3)
     }
 }
 
