@@ -491,10 +491,22 @@ void updateChannelsMCP3208()
     Serial.print(volts);
     Serial.print(" V | ");
 
-    float amps = (1.65 - volts) / (0.100 * 0.66);
+    float amps = 0.0;
+    //amps = (1.65 - volts) / (0.100 * 0.66); //ACS712 5V
+    //amps = (volts - (3.3 * 0.1)) / (0.200); //TMCS1108A3U
+    //amps = (volts - (3.3 * 0.1)) / (0.100); //TMCS1108A2U
+    //amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
+    //amps = (volts - (3.3 * 0.5)) / (0.066);  //MCS1802-20
+    //amps = (volts - 0.650) / (0.100);       //CT427-xSN820DR
+
     Serial.print(amps);
     Serial.print(" A");
 
     channelAmperage[channel] = amps;
   }
+}
+
+float TMCS1108A3U_v2a(float volts)
+{
+  
 }
