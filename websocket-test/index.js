@@ -2,7 +2,7 @@
 
 var W3CWebSocket = require('websocket').w3cwebsocket;
 
-var client = new W3CWebSocket('ws://192.168.1.229:80');
+var client = new W3CWebSocket('ws://192.168.1.229:8080');
 
 const delay = (millis) => new Promise(resolve => setTimeout(resolve, millis)) 
 
@@ -17,6 +17,7 @@ client.onopen = function() {
     //setTimeout(fadePin, 1000);
     //setTimeout(setFuses, 1000);
     //setTimeout(setNames, 1000);
+    setTimeout(togglePin, 1000);
 };
 
 client.onclose = function() {
@@ -96,6 +97,33 @@ async function exercisePins()
             }));
            	await delay(200)
         }
+    }
+}
+
+async function togglePin()
+{
+    client.send(JSON.stringify({
+        "cmd": "duty",
+        "id": 0,
+        "value": 1
+    }));
+
+    while (true) {
+        client.send(JSON.stringify({
+            "cmd": "state",
+            "id": 0,
+            "value": true
+        }));
+
+        await delay(2500)
+
+        client.send(JSON.stringify({
+            "cmd": "state",
+            "id": 0,
+            "value": false
+        }));
+
+        await delay(2500)
     }
 }
 

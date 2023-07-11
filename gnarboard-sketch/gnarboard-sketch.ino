@@ -12,7 +12,7 @@
 #include <SPIFFS.h>             // Standard library
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
 #include <WebSocketsServer.h>   // WebSockets by Markus Sattler via library manager
-#include <MCP_ADC.h>            // MCP_ADC by Rob Tillaart via libary manager
+#include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
 #include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
 #include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
 #include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
@@ -32,14 +32,13 @@ const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33, 4, 2};
 //state information for all our channels.`  1 
 bool   channelState[channelCount] = {false, false, false, false, false, false, false, false};
 float  channelDutyCycle[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
-int    channelPWM[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
 float  channelAmperage[channelCount];
 float  channelSoftFuseAmperage[channelCount];
 String channelNames[channelCount];
 
 /* Setting PWM Properties */
-const int PWMFreq = 10000; /* in Hz  */
-const int PWMResolution = 12;
+const int PWMFreq = 5000; /* in Hz  */
+const int PWMResolution = 8;
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
 
 //storage for more permanent stuff.
@@ -144,12 +143,14 @@ void setup()
   for (byte i=0; i<channelCount; i++)
   {
     //initialize our PWM channels
-    ledcSetup(i, PWMFreq, PWMResolution);
-    ledcAttachPin(outputPins[i], i);
-    ledcWrite(i, 0);
+    //ledcSetup(i, PWMFreq, PWMResolution);
+    //ledcAttachPin(outputPins[i], i);
+    //ledcWrite(i, 0);
+
+    pinMode(outputPins[i], OUTPUT);
+    analogWrite(outputPins[i], 0);
 
     //just init some values, will get real ones later.
-    channelPWM[i] = 0;
     channelAmperage[i] = 0.0;
     //channelSoftFuseAmperage[i] = 20;
 
@@ -157,6 +158,9 @@ void setup()
     String prefIndex = "channel_name_" + i;
     channelNames[i] = preferences.getString(prefIndex.c_str());
   }
+
+  //setup our adc
+  setupADC();
 
   //load our saved duty cycle data
   preferences.getBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));  
@@ -208,6 +212,11 @@ void setup()
   NMEA2000.Open();
 }
 
+void setupADC()
+{
+  setupMCP3208();
+}
+
 void loop()
 {
   // websocket server method that handles all clients
@@ -252,8 +261,6 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
     case WStype_TEXT: // check response from client
       //Serial.printf("[WebSocket] Message: %s\n", payload);
       handleReceivedMessage((char*)payload);
-      updateChannels();
-
       break;
   }
 }
@@ -277,8 +284,12 @@ void handleReceivedMessage(char *payload) {
       return;
     }
 
+    //what is our new state?
     bool state = doc["value"];
     channelState[cid] = state;
+
+    //change our output pin to reflect
+    updateChannelState(cid);
   }
   //change duty cycle?
   else if (cmd.equals("duty"))
@@ -304,6 +315,9 @@ void handleReceivedMessage(char *payload) {
       //save our saved duty cycle data
       preferences.putBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
     }
+
+    //change our output pin to reflect
+    updateChannelState(cid);
   }
   //change a soft fuse setting?
   else if(cmd.equals("soft_fuse"))
@@ -507,38 +521,37 @@ void connectToWifi()
   }
 }
 
-void updateChannels()
+void updateChannelState(int channelId)
 {
-  for (byte i=0; i<channelCount; i++)
+  if (channelState[channelId])
   {
-    if (channelState[i])
-    {
-      int pwm = (int)(channelDutyCycle[i] * MAX_DUTY_CYCLE);
-      if (pwm != channelPWM[i])
-      {
-        ledcWrite(i, pwm);
-        //analogWrite(outputPins[i], pwm);
-        channelPWM[i] = pwm;
-        //Serial.println(pwm);
-      }
-    }
-    else
-    {
-      analogWrite(outputPins[i], 0);
-    }
+    int pwm = (int)(channelDutyCycle[channelId] * MAX_DUTY_CYCLE);
+    //ledcWrite(channelId, pwm);
+    analogWrite(outputPins[channelId], pwm);
+  }
+  else
+  {
+    //ledcWrite(outputPins[channelId], pow(2, PWMResolution));
+    analogWrite(outputPins[channelId], 0);
   }
 }
 
 void readAmperages()
 {
+  //readInternalADC();
+  updateChannelsMCP3208();
+}
+
+void readInternalADC()
+{
   for (byte i=0; i<channelCount; i++)
   {
     //channelAmperage[i] = i;
-    channelAmperage[i] = getAmperage(analogPins[i]);
+    channelAmperage[i] = getAmperageInternal(analogPins[i]);
   }
 }
 
-float getAmperage(byte sensorPin)
+float getAmperageInternal(byte sensorPin)
 {
   float AcsValue=0.0, Samples=0.0, AvgAcs=0.0, AcsValueF=0.0;
   for (int x = 0; x < 5; x++)
@@ -586,42 +599,51 @@ float getAmperage(byte sensorPin)
   return amps;
 }
 
-MCP3008 mcp1; 
+MCP3208 adc;
 void setupMCP3208()
 {
-  mcp1.begin(5);
-  mcp1.setSPIspeed(4000000);
+  adc.begin();
+}
 
+uint16_t readMCP3208Channel(byte channel, byte samples = 32)
+{
+  uint32_t value = 0;
+
+  for (byte i=0; i<samples; i++)
+  {
+    value += adc.readADC(channel);
+  }
+  value = value / samples;
+
+  return (uint16_t)value;
 }
 
 void updateChannelsMCP3208()
 {
-  for (int channel = 0 ; channel < channelCount; channel++)
+  for (byte channel = 0 ; channel < channelCount; channel++)
   {
-    uint16_t val = mcp1.analogRead(channel);
-    Serial.print(val);
-    Serial.print(" ADC | ");
+    uint16_t val = readMCP3208Channel(channel);
+    //Serial.print(val);
+    //Serial.print(" ADC | ");
 
     float volts = val * (3.3 / 4096.0);
-    Serial.print(volts);
-    Serial.print(" V | ");
+    volts = volts / 0.6875;
+    //Serial.print(volts);
+    //Serial.print(" V | ");
 
     float amps = 0.0;
-    //amps = (1.65 - volts) / (0.100 * 0.66); //ACS712 5V
+    amps = (2.5 - volts) / (0.100); //ACS712 5V w/ voltage divider
     //amps = (volts - (3.3 * 0.1)) / (0.200); //TMCS1108A3U
     //amps = (volts - (3.3 * 0.1)) / (0.100); //TMCS1108A2U
     //amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
     //amps = (volts - (3.3 * 0.5)) / (0.066);  //MCS1802-20
     //amps = (volts - 0.650) / (0.100);       //CT427-xSN820DR
 
-    Serial.print(amps);
-    Serial.print(" A");
+    //Serial.print(amps);
+    //Serial.print(" A | ");
 
     channelAmperage[channel] = amps;
   }
+  //Serial.println();
 }
 
-float TMCS1108A3U_v2a(float volts)
-{
-  
-}
