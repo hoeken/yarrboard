@@ -32,9 +32,11 @@ const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33, 4, 2};
 //state information for all our channels.`  1 
 bool   channelState[channelCount];
 bool   channelTripped[channelCount];
-double  channelDutyCycle[channelCount];
-double  channelAmperage[channelCount];
-double  channelSoftFuseAmperage[channelCount];
+float  channelDutyCycle[channelCount];
+float  channelAmperage[channelCount];
+float  channelSoftFuseAmperage[channelCount];
+float  channelAmpHour[channelCount];
+
 String channelNames[channelCount];
 
 /* Setting PWM Properties */
@@ -50,12 +52,15 @@ String ssid;
 String password;
 
 //our server variable
+//#define ARDUINOJSON_USE_DOUBLE 1
 WebSocketsServer webSocket = WebSocketsServer(8080);  //create instance for webSocket server
 String jsonString; // Temporary storage for the JSON String
 
 //for tracking our loop
-int interval = 1000; // virtual delay
-unsigned long previousMillis = 0; // Tracks the time since last event fired
+int adcInterval = 250; // virtual delay
+int messageInterval = 1000; // virtual delay
+unsigned long previousADCMillis = 0; // Tracks the time since last event fired
+unsigned long previousMessageMillis = 0; // Tracks the time since last event fired
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
 
@@ -147,6 +152,7 @@ void setup()
     channelState[i] = false;
     channelDutyCycle[i] = 0.0;
     channelTripped[i] = false;
+    channelAmpHour[i] = 0.0;
 
     //initialize our PWM channels
     //ledcSetup(i, PWMFreq, PWMResolution);
@@ -185,6 +191,11 @@ void setup()
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
 
+  //setupNMEA2000();
+}
+
+void setupNMEA2000()
+{
   // Reserve enough buffer for sending all messages. This does not work on small memory devices like Uno or Mega
   NMEA2000.SetN2kCANReceiveFrameBufSize(150);
   NMEA2000.SetN2kCANMsgBufSize(8);
@@ -228,32 +239,44 @@ void loop()
   // websocket server method that handles all clients
   webSocket.loop(); 
 
-  //lookup our info periodically  
-  unsigned long currentMillis = millis();
-  unsigned long deltaMillis = (currentMillis - previousMillis);
-  if (deltaMillis >= interval)
+  //run our ADC on a faster loop
+  int adcDelta = millis() - previousADCMillis;
+  if (adcDelta >= adcInterval)
   {
     //this is a bit slow, so only do it once per update
     readAmperages();
 
+    //record our total consumption
+    for (byte i=0; i<channelCount; i++)
+      channelAmpHour[i] += channelAmperage[i] * ((float)adcDelta / 3600000.0);
+
     //are our loads ok?
     checkSoftFuses();
 
+    // Use the snapshot to set track time until next event
+    previousADCMillis = millis();
+  }
+  
+  //lookup our info periodically  
+  int messageDelta = millis() - previousMessageMillis;
+  if (messageDelta >= messageInterval)
+  {
     //read and send out our json update
     sendUpdate();
 
-    // Use the snapshot to set track time until next event
-    previousMillis = currentMillis;   
-
     //how fast are we?
-    Serial.print("delta: ");
-    Serial.print(deltaMillis);
-    Serial.print(" | msg/s: ");
-    Serial.print(handledMessages - lastHandledMessages);
-    Serial.println();
+    //Serial.print("msg/s: ");
+    //Serial.print(handledMessages - lastHandledMessages);
+    //Serial.println();
 
     //for keeping track.
     lastHandledMessages = handledMessages;
+
+    // Use the snapshot to set track time until next event
+    previousMessageMillis = millis();
+
+    Serial.print("Message Delta: ");
+    Serial.println(messageDelta);
   }
 }
 
@@ -268,7 +291,7 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
       sendBoardInfo();
       break;
     case WStype_TEXT: // check response from client
-      //Serial.printf("[WebSocket] Message: %s\n", payload);
+      Serial.printf("[WebSocket] Message: %s\n", payload);
       handleReceivedMessage((char*)payload);
       break;
   }
@@ -315,7 +338,7 @@ void handleReceivedMessage(char *payload) {
       return;
     }
 
-    double value = doc["value"];
+    float value = doc["value"];
     
     if (value < 0)
       sendError("Duty cycle must be >= 0");
@@ -343,7 +366,7 @@ void handleReceivedMessage(char *payload) {
       return;
     }
 
-    double value = doc["value"];
+    float value = doc["value"];
     if (value < 0)
       sendError("Soft fuse minimum is 0 amps.");
     else if (value > 20)
@@ -461,6 +484,7 @@ void sendUpdate()
     object["loads"][i]["state"] = channelState[i];
     object["loads"][i]["duty"] = round2(channelDutyCycle[i]);
     object["loads"][i]["current"] = round2(channelAmperage[i]);
+    object["loads"][i]["aH"] = round3(channelAmpHour[i]);
 
     if (channelTripped[i])
       object["loads"][i]["soft_fuse_tripped"] = true;
@@ -477,8 +501,17 @@ void sendUpdate()
 }
 
 double round2(double value) {
-   return (int)(value * 100 + 0.5) / 100.0;
+   return (long)(value * 100 + 0.5) / 100.0;
 }
+
+double round3(double value) {
+   return (long)(value * 1000 + 0.5) / 1000.0;
+}
+
+double round4(double value) {
+   return (long)(value * 10000 + 0.5) / 10000.0;
+}
+
 
 void connectToWifi()
 {
@@ -572,13 +605,13 @@ void readInternalADC()
   }
 }
 
-double getAmperageInternal(byte sensorPin)
+float getAmperageInternal(byte sensorPin)
 {
-  double AcsValue=0.0, Samples=0.0, AvgAcs=0.0, AcsValueF=0.0;
+  float AcsValue=0.0, Samples=0.0, AvgAcs=0.0, AcsValueF=0.0;
   for (int x = 0; x < 5; x++)
   {
     //AcsValue = analogRead(sensorPin);     //Read current sensor values   
-    AcsValue = (double)analogReadMilliVolts(sensorPin) / 1000.0;
+    AcsValue = (float)analogReadMilliVolts(sensorPin) / 1000.0;
 
     Samples = Samples + AcsValue;  //Add samples together
     delay(5); // let ADC settle before next sample
@@ -587,7 +620,7 @@ double getAmperageInternal(byte sensorPin)
 
   //AvgAcs = analogRead(sensorPin);     //Read current sensor values   
 
-  double amps;
+  float amps;
 
   //Serial.print(sensorPin);
   //Serial.print(" PIN | ");
@@ -599,7 +632,7 @@ double getAmperageInternal(byte sensorPin)
   //Serial.print(AvgAcs);
   //Serial.print(" ADC | ");
 
-  double volts;
+  float volts;
   //volts = AvgAcs * (3.3 / 4096.0);
   volts = AvgAcs * (5.0 / 3.3);
 
@@ -626,15 +659,20 @@ void setupMCP3208()
   adc.begin();
 }
 
-uint16_t readMCP3208Channel(byte channel, byte samples = 32)
+uint16_t readMCP3208Channel(byte channel, byte samples = 8)
 {
   uint32_t value = 0;
 
-  for (byte i=0; i<samples; i++)
+  if (samples > 1)
   {
-    value += adc.readADC(channel);
+    for (byte i=0; i<samples; i++)
+    {
+      value += adc.readADC(channel);
+    }
+    value = value / samples;
   }
-  value = value / samples;
+  else
+    value = adc.readADC(channel);
 
   return (uint16_t)value;
 }
@@ -644,24 +682,28 @@ void updateChannelsMCP3208()
   for (byte channel = 0 ; channel < channelCount; channel++)
   {
     uint16_t val = readMCP3208Channel(channel);
-    //Serial.print(val);
-    //Serial.print(" ADC | ");
 
-    double volts = val * (3.3 / 4096.0);
-    volts = volts / 0.6875;
-    //Serial.print(volts);
-    //Serial.print(" V | ");
-
-    double amps = 0.0;
-    amps = (2.5 - volts) / (0.100); //ACS712 5V w/ voltage divider
-    //amps = (volts - (3.3 * 0.1)) / (0.200); //TMCS1108A3U
+    float volts = val * (3.3 / 4096.0);
+    
+    float amps = 0.0;
+    //volts = volts / 0.6875;
+    //amps = (2.5 - volts) / (0.100); //ACS712 5V w/ voltage divider
+    amps = (volts - (3.3 * 0.1)) / (0.200); //TMCS1108A3U
     //amps = (volts - (3.3 * 0.1)) / (0.100); //TMCS1108A2U
     //amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
     //amps = (volts - (3.3 * 0.5)) / (0.066);  //MCS1802-20
     //amps = (volts - 0.650) / (0.100);       //CT427-xSN820DR
 
-    //Serial.print(amps);
-    //Serial.print(" A | ");
+    /*
+    Serial.print(channel);
+    Serial.print(" CH | ");
+    Serial.print(val);
+    Serial.print(" ADC | ");
+    Serial.print(volts);
+    Serial.print(" V | ");
+    Serial.print(amps);
+    Serial.print(" A | ");
+    */
 
     channelAmperage[channel] = amps;
   }
