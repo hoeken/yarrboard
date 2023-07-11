@@ -5,6 +5,8 @@
 #include <ArduinoJson.h>
 #include <WebSocketsServer.h>
 #include <Preferences.h>
+#include <MCP_ADC.h>
+
 
 //identify yourself!
 const char* version = "Gnarboard v1.0.0";
@@ -467,4 +469,32 @@ float getAmperage(byte sensorPin)
   //Serial.println();
 
   return amps;
- }
+}
+
+MCP3008 mcp1; 
+void setupMCP3208()
+{
+  mcp1.begin(5);
+  mcp1.setSPIspeed(4000000);
+
+}
+
+void updateChannelsMCP3208()
+{
+  for (int channel = 0 ; channel < channelCount; channel++)
+  {
+    uint16_t val = mcp1.analogRead(channel);
+    Serial.print(val);
+    Serial.print(" ADC | ");
+
+    float volts = val * (3.3 / 4096.0);
+    Serial.print(volts);
+    Serial.print(" V | ");
+
+    float amps = (1.65 - volts) / (0.100 * 0.66);
+    Serial.print(amps);
+    Serial.print(" A");
+
+    channelAmperage[channel] = amps;
+  }
+}
