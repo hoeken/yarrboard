@@ -1,14 +1,24 @@
 /*
   Gnarboard v1
+  
+  Author: Zach Hoeken <hoeken@gmail.com>
+  Website: https://github.com/hoeken/Gnarboard
+  License: GPLv3
+
 */
-#include <WiFi.h>
-#include <ArduinoJson.h>
-#include <WebSocketsServer.h>
-#include <Preferences.h>
-#include <MCP_ADC.h>
-#include <ESPAsyncWebServer.h> // https://github.com/me-no-dev/ESPAsyncWebServer/
-#include <AsyncTCP.h> // https://github.com/me-no-dev/AsyncTCP/
-#include "SPIFFS.h"
+
+#include <WiFi.h>               // Standard library
+#include <Preferences.h>        // Standard library
+#include <SPIFFS.h>             // Standard library
+#include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
+#include <WebSocketsServer.h>   // WebSockets by Markus Sattler via library manager
+#include <MCP_ADC.h>            // MCP_ADC by Rob Tillaart via libary manager
+#include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
+#include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
+#include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
+#include <NMEA2000_CAN.h>       // https://github.com/ttlappalainen/NMEA2000 via .zip
+#include <N2kMsg.h>             // same ^^^
+#include <N2kDeviceList.h>      // same ^^^
 
 //identify yourself!
 const char* version = "Gnarboard v1.0.0";
@@ -57,6 +67,23 @@ IPAddress localIP;
 IPAddress localGateway;
 //IPAddress localGateway(192, 168, 1, 1); //hardcoded
 IPAddress subnet(255, 255, 0, 0);
+
+//NMEA2000 stuff
+int NodeAddress = 0;  // To store last Node Address
+const unsigned long TransmitMessages[] PROGMEM = {126208UL,   // Set Pilot Mode
+                                                  126720UL,   // Send Key Command
+                                                  65288UL,    // Send Seatalk Alarm State
+                                                  0
+                                                 };
+
+const unsigned long ReceiveMessages[] PROGMEM = { 127250UL,   // Read Heading
+                                                  65288UL,    // Read Seatalk Alarm State
+                                                  65379UL,    // Read Pilot Mode
+                                                  0
+                                                };
+
+tN2kDeviceList *pN2kDeviceList;
+short pilotSourceAddress = -1;
 
 // Initialize SPIFFS
 void initSPIFFS() {
@@ -147,6 +174,38 @@ void setup()
   //start our websocket server.
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
+
+  // Reserve enough buffer for sending all messages. This does not work on small memory devices like Uno or Mega
+  NMEA2000.SetN2kCANReceiveFrameBufSize(150);
+  NMEA2000.SetN2kCANMsgBufSize(8);
+  
+  // Set Product information
+  NMEA2000.SetProductInformation("00000001", // Manufacturer's Model serial code
+                                 100, // Manufacturer's product code
+                                 "Evo Pilot Remote",  // Manufacturer's Model ID
+                                 "1.0.0.0",  // Manufacturer's Software version code
+                                 "1.0.0.0" // Manufacturer's Model version
+                                );
+  
+  // Set device information
+  NMEA2000.SetDeviceInformation(0, // Unique number. Use e.g. Serial number.
+                                132, // Device function=Analog to NMEA 2000 Gateway. See codes on http://www.nmea.org/Assets/20120726%20nmea%202000%20class%20&%20function%20codes%20v%202.00.pdf
+                                25, // Device class=Inter/Intranetwork Device. See codes on  http://www.nmea.org/Assets/20120726%20nmea%202000%20class%20&%20function%20codes%20v%202.00.pdf
+                                2046 // Just choosen free from code list on http://www.nmea.org/Assets/20121020%20nmea%202000%20registration%20list.pdf
+                               );
+
+  
+  // If you also want to see all traffic on the bus use N2km_ListenAndNode instead of N2km_NodeOnly below
+  NMEA2000.SetMode(tNMEA2000::N2km_NodeOnly, NodeAddress); //N2km_NodeOnly N2km_ListenAndNode
+  NMEA2000.ExtendTransmitMessages(TransmitMessages);
+  NMEA2000.ExtendReceiveMessages(ReceiveMessages);
+
+  //NMEA2000.SetMsgHandler(RaymarinePilot::HandleNMEA2000Msg);
+
+    pN2kDeviceList = new tN2kDeviceList(&NMEA2000);
+  //NMEA2000.SetDebugMode(tNMEA2000::dm_ClearText); // Uncomment this, so you can test code without CAN bus chips on Arduino Mega
+  NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
+  NMEA2000.Open();
 }
 
 void loop()
