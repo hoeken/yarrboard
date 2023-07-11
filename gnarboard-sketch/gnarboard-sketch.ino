@@ -12,7 +12,7 @@
 //#include <SPIFFS.h>             // Standard library
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
 #include <WebSocketsServer.h>   // WebSockets by Markus Sattler via library manager
-#include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
+//#include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
 //#include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
 //#include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
 //#include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
@@ -24,7 +24,7 @@
 const char* version = "Gnarboard v1.0.0";
 String uuid;
 
-//keep track of our channel info.
+//ke ep track of our channel info.
 const byte channelCount = 8;
 const byte outputPins[channelCount] = {25, 26, 27, 14, 12, 13, 17, 16};
 const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33, 4, 2};
@@ -36,7 +36,6 @@ float  channelDutyCycle[channelCount];
 float  channelAmperage[channelCount];
 float  channelSoftFuseAmperage[channelCount];
 float  channelAmpHour[channelCount];
-
 String channelNames[channelCount];
 
 /* Setting PWM Properties */
@@ -237,7 +236,7 @@ void setupNMEA2000()
 
 void setupADC()
 {
-  setupMCP3208();
+  //setupMCP3208();
 }
 
 void loop()
@@ -279,11 +278,11 @@ void loop()
     // Use the snapshot to set track time until next event
     previousMessageMillis = millis();
 
-    Serial.print("^");
-    Serial.print(messageDelta);
-    Serial.print("ms | msg/s: ");
-    Serial.print(handledMessages - lastHandledMessages);
-    Serial.println();
+    //Serial.print("^");
+    //Serial.print(messageDelta);
+    //Serial.print("ms | msg/s: ");
+    //Serial.print(handledMessages - lastHandledMessages);
+    //Serial.println();
   }
 }
 
@@ -308,7 +307,7 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
 }
 
 void handleReceivedMessage(char *payload) {
-  StaticJsonDocument<500> doc;
+  StaticJsonDocument<2048> doc;
   deserializeJson(doc, payload);
   //JsonObject root = doc.as<JsonObject>();
 
@@ -432,7 +431,7 @@ void sendError(String error)
   Serial.print("Error: ");
   Serial.println(error);
 
-  StaticJsonDocument<500> doc;
+  StaticJsonDocument<1000> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -448,7 +447,7 @@ void sendError(String error)
 
 void sendBoardInfo()
 {
-  StaticJsonDocument<2048> doc;
+  StaticJsonDocument<5000> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -481,7 +480,7 @@ void sendBoardInfo()
 
 void sendUpdate()
 {
-  StaticJsonDocument<2048> doc;
+  StaticJsonDocument<5000> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -603,66 +602,10 @@ void updateChannelState(int channelId)
 void readAmperages()
 {
   //readInternalADC();
-  updateChannelsMCP3208();
+  //updateChannelsMCP3208();
 }
 
-void readInternalADC()
-{
-  for (byte i=0; i<channelCount; i++)
-  {
-    //channelAmperage[i] = i;
-    channelAmperage[i] = getAmperageInternal(analogPins[i]);
-  }
-}
-
-float getAmperageInternal(byte sensorPin)
-{
-  float AcsValue=0.0, Samples=0.0, AvgAcs=0.0, AcsValueF=0.0;
-  for (int x = 0; x < 5; x++)
-  {
-    //AcsValue = analogRead(sensorPin);     //Read current sensor values   
-    AcsValue = (float)analogReadMilliVolts(sensorPin) / 1000.0;
-
-    Samples = Samples + AcsValue;  //Add samples together
-    delay(5); // let ADC settle before next sample
-  }
-  AvgAcs=Samples / 5.0; //Taking Average of Samples
-
-  //AvgAcs = analogRead(sensorPin);     //Read current sensor values   
-
-  float amps;
-
-  //Serial.print(sensorPin);
-  //Serial.print(" PIN | ");
-
-  int mv = analogReadMilliVolts(sensorPin);
-  //Serial.print(mv);
-  //Serial.print(" mV | ");
-
-  //Serial.print(AvgAcs);
-  //Serial.print(" ADC | ");
-
-  float volts;
-  //volts = AvgAcs * (3.3 / 4096.0);
-  volts = AvgAcs * (5.0 / 3.3);
-
-  //Serial.print(volts);
-  //Serial.print(" V | ");
-
-  //result = (readValue * 3.3) / 4096.0 / mVperAmp; //ESP32 ADC resolution 4096
-  //1.65 = midpoint voltage
-  //3.3 / 4096 = convert reading to volts
-  //0.100 * 0.66 = ACS712 20A outputs 0.1v per amp, but we had to voltage divide to 3.3v
-  //amps = (1.65 - volts) / (0.100 * 0.66);
-  amps = (2.5 - volts) / 0.100;
-
-  //Serial.print(amps);
-  //Serial.print(" A");
-  //Serial.println();
-
-  return amps;
-}
-
+/*
 MCP3208 adc;
 void setupMCP3208()
 {
@@ -704,21 +647,22 @@ void updateChannelsMCP3208()
     //amps = (volts - (3.3 * 0.5)) / (0.066);  //MCS1802-20
     //amps = (volts - 0.650) / (0.100);       //CT427-xSN820DR
 
-    /*
-    Serial.print(channel);
-    Serial.print(" CH | ");
-    Serial.print(val);
-    Serial.print(" ADC | ");
-    Serial.print(volts);
-    Serial.print(" V | ");
-    Serial.print(amps);
-    Serial.print(" A | ");
-    */
+    
+    //Serial.print(channel);
+    //Serial.print(" CH | ");
+    //Serial.print(val);
+    //Serial.print(" ADC | ");
+    //Serial.print(volts);
+    //Serial.print(" V | ");
+    //Serial.print(amps);
+    //Serial.print(" A | ");
 
     channelAmperage[channel] = amps;
   }
   //Serial.println();
 }
+
+*/
 
 void checkSoftFuses()
 {
