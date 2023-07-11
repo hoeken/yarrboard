@@ -17,7 +17,8 @@ client.onopen = function() {
     //setTimeout(fadePin, 1000);
     //setTimeout(setFuses, 1000);
     //setTimeout(setNames, 1000);
-    setTimeout(togglePin, 1000);
+    //setTimeout(togglePin, 1000);
+    setTimeout(speedTest, 1000);
 };
 
 client.onclose = function() {
@@ -30,6 +31,16 @@ client.onmessage = function(e) {
         console.log(data);
     }
 };
+
+async function speedTest()
+{
+    while(true) {
+        client.send(JSON.stringify({
+            "cmd": "config"
+        }));
+        await delay(0.5)
+    }
+}
 
 async function setNames()
 {
