@@ -115,7 +115,7 @@ async function togglePin()
             "value": true
         }));
 
-        await delay(2500)
+        await delay(1000)
 
         client.send(JSON.stringify({
             "cmd": "state",
@@ -123,7 +123,7 @@ async function togglePin()
             "value": false
         }));
 
-        await delay(2500)
+        await delay(1000)
     }
 }
 

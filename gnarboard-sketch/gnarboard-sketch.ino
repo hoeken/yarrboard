@@ -9,16 +9,16 @@
 
 #include <WiFi.h>               // Standard library
 #include <Preferences.h>        // Standard library
-#include <SPIFFS.h>             // Standard library
+//#include <SPIFFS.h>             // Standard library
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
 #include <WebSocketsServer.h>   // WebSockets by Markus Sattler via library manager
 #include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
-#include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
-#include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
-#include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
-#include <NMEA2000_CAN.h>       // https://github.com/ttlappalainen/NMEA2000 via .zip
-#include <N2kMsg.h>             // same ^^^
-#include <N2kDeviceList.h>      // same ^^^
+//#include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
+//#include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
+//#include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
+//#include <NMEA2000_CAN.h>       // https://github.com/ttlappalainen/NMEA2000 via .zip
+//#include <N2kMsg.h>             // same ^^^
+//#include <N2kDeviceList.h>      // same ^^^
 
 //identify yourself!
 const char* version = "Gnarboard v1.0.0";
@@ -52,7 +52,6 @@ String ssid;
 String password;
 
 //our server variable
-//#define ARDUINOJSON_USE_DOUBLE 1
 WebSocketsServer webSocket = WebSocketsServer(8080);  //create instance for webSocket server
 String jsonString; // Temporary storage for the JSON String
 
@@ -65,6 +64,7 @@ unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
 
 // Create AsyncWebServer object on port 80
+/*
 AsyncWebServer server(80);
 IPAddress localIP;
 //IPAddress localIP(192, 168, 1, 200); // hardcoded
@@ -72,7 +72,9 @@ IPAddress localIP;
 IPAddress localGateway;
 //IPAddress localGateway(192, 168, 1, 1); //hardcoded
 IPAddress subnet(255, 255, 0, 0);
+*/
 
+/*
 //NMEA2000 stuff
 int NodeAddress = 0;  // To store last Node Address
 const unsigned long TransmitMessages[] PROGMEM = {126208UL,   // Set Pilot Mode
@@ -89,7 +91,9 @@ const unsigned long ReceiveMessages[] PROGMEM = { 127250UL,   // Read Heading
 
 tN2kDeviceList *pN2kDeviceList;
 short pilotSourceAddress = -1;
+*/
 
+/*
 // Initialize SPIFFS
 void initSPIFFS() {
   if (!SPIFFS.begin(true)) {
@@ -131,6 +135,7 @@ void writeFile(fs::FS &fs, const char * path, const char * message){
     Serial.println("- write failed");
   }
 }
+*/
 
 void setup()
 {
@@ -140,7 +145,7 @@ void setup()
   Serial.println(version);
 
   //where our websites are stored
-  initSPIFFS();
+  //initSPIFFS();
 
   //for storing stuff to flash
   preferences.begin("gnarboard", false);
@@ -153,18 +158,17 @@ void setup()
     channelDutyCycle[i] = 0.0;
     channelTripped[i] = false;
     channelAmpHour[i] = 0.0;
+    channelAmperage[i] = 0.0;
+    channelSoftFuseAmperage[i] = 20.0;
 
     //initialize our PWM channels
     //ledcSetup(i, PWMFreq, PWMResolution);
     //ledcAttachPin(outputPins[i], i);
     //ledcWrite(i, 0);
 
+    //initialize our PWM channels
     pinMode(outputPins[i], OUTPUT);
     analogWrite(outputPins[i], 0);
-
-    //just init some values, will get real ones later.
-    channelAmperage[i] = 0.0;
-    //channelSoftFuseAmperage[i] = 20;
 
     //lookup our name
     String prefIndex = "channel_name_" + i;
@@ -196,6 +200,7 @@ void setup()
 
 void setupNMEA2000()
 {
+  /*
   // Reserve enough buffer for sending all messages. This does not work on small memory devices like Uno or Mega
   NMEA2000.SetN2kCANReceiveFrameBufSize(150);
   NMEA2000.SetN2kCANMsgBufSize(8);
@@ -227,6 +232,7 @@ void setupNMEA2000()
   //NMEA2000.SetDebugMode(tNMEA2000::dm_ClearText); // Uncomment this, so you can test code without CAN bus chips on Arduino Mega
   NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
   NMEA2000.Open();
+  */
 }
 
 void setupADC()
@@ -265,8 +271,6 @@ void loop()
     sendUpdate();
 
     //how fast are we?
-    //Serial.print("msg/s: ");
-    //Serial.print(handledMessages - lastHandledMessages);
     //Serial.println();
 
     //for keeping track.
@@ -275,8 +279,11 @@ void loop()
     // Use the snapshot to set track time until next event
     previousMessageMillis = millis();
 
-    Serial.print("Message Delta: ");
-    Serial.println(messageDelta);
+    Serial.print("^");
+    Serial.print(messageDelta);
+    Serial.print("ms | msg/s: ");
+    Serial.print(handledMessages - lastHandledMessages);
+    Serial.println();
   }
 }
 
@@ -294,11 +301,14 @@ void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
       Serial.printf("[WebSocket] Message: %s\n", payload);
       handleReceivedMessage((char*)payload);
       break;
+    default:
+      Serial.print("[WebSocket] Unknown: ");
+      Serial.println(type);
   }
 }
 
 void handleReceivedMessage(char *payload) {
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<500> doc;
   deserializeJson(doc, payload);
   //JsonObject root = doc.as<JsonObject>();
 
