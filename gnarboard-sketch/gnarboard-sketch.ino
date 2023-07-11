@@ -6,7 +6,9 @@
 #include <WebSocketsServer.h>
 #include <Preferences.h>
 #include <MCP_ADC.h>
-
+#include <ESPAsyncWebServer.h> // https://github.com/me-no-dev/ESPAsyncWebServer/
+#include <AsyncTCP.h> // https://github.com/me-no-dev/AsyncTCP/
+#include "SPIFFS.h"
 
 //identify yourself!
 const char* version = "Gnarboard v1.0.0";
@@ -38,7 +40,7 @@ String ssid;
 String password;
 
 //our server variable
-WebSocketsServer webSocket = WebSocketsServer(80);  //create instance for webSocket server on port"81"
+WebSocketsServer webSocket = WebSocketsServer(8080);  //create instance for webSocket server
 String jsonString; // Temporary storage for the JSON String
 
 //for tracking our loop
@@ -47,12 +49,66 @@ unsigned long previousMillis = 0; // Tracks the time since last event fired
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
 
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(80);
+IPAddress localIP;
+//IPAddress localIP(192, 168, 1, 200); // hardcoded
+// Set your Gateway IP address
+IPAddress localGateway;
+//IPAddress localGateway(192, 168, 1, 1); //hardcoded
+IPAddress subnet(255, 255, 0, 0);
+
+// Initialize SPIFFS
+void initSPIFFS() {
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An error has occurred while mounting SPIFFS");
+  }
+  Serial.println("SPIFFS mounted successfully");
+}
+
+// Read File from SPIFFS
+String readFile(fs::FS &fs, const char * path){
+  Serial.printf("Reading file: %s\r\n", path);
+
+  File file = fs.open(path);
+  if(!file || file.isDirectory()){
+    Serial.println("- failed to open file for reading");
+    return String();
+  }
+  
+  String fileContent;
+  while(file.available()){
+    fileContent = file.readStringUntil('\n');
+    break;     
+  }
+  return fileContent;
+}
+
+// Write file to SPIFFS
+void writeFile(fs::FS &fs, const char * path, const char * message){
+  Serial.printf("Writing file: %s\r\n", path);
+
+  File file = fs.open(path, FILE_WRITE);
+  if(!file){
+    Serial.println("- failed to open file for writing");
+    return;
+  }
+  if(file.print(message)){
+    Serial.println("- file written");
+  } else {
+    Serial.println("- write failed");
+  }
+}
+
 void setup()
 {
   //startup our serial
   Serial.begin(115200);
   delay(10);
   Serial.println(version);
+
+  //where our websites are stored
+  initSPIFFS();
 
   //for storing stuff to flash
   preferences.begin("gnarboard", false);
