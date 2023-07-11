@@ -30,10 +30,11 @@ const byte outputPins[channelCount] = {25, 26, 27, 14, 12, 13, 17, 16};
 const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33, 4, 2};
 
 //state information for all our channels.`  1 
-bool   channelState[channelCount] = {false, false, false, false, false, false, false, false};
-float  channelDutyCycle[channelCount] = {0, 0, 0, 0, 0, 0, 0, 0};
-float  channelAmperage[channelCount];
-float  channelSoftFuseAmperage[channelCount];
+bool   channelState[channelCount];
+bool   channelTripped[channelCount];
+double  channelDutyCycle[channelCount];
+double  channelAmperage[channelCount];
+double  channelSoftFuseAmperage[channelCount];
 String channelNames[channelCount];
 
 /* Setting PWM Properties */
@@ -142,6 +143,11 @@ void setup()
   //intitialize our output pins.
   for (byte i=0; i<channelCount; i++)
   {
+    //init our storage variables.
+    channelState[i] = false;
+    channelDutyCycle[i] = 0.0;
+    channelTripped[i] = false;
+
     //initialize our PWM channels
     //ledcSetup(i, PWMFreq, PWMResolution);
     //ledcAttachPin(outputPins[i], i);
@@ -230,6 +236,9 @@ void loop()
     //this is a bit slow, so only do it once per update
     readAmperages();
 
+    //are our loads ok?
+    checkSoftFuses();
+
     //read and send out our json update
     sendUpdate();
 
@@ -288,6 +297,10 @@ void handleReceivedMessage(char *payload) {
     bool state = doc["value"];
     channelState[cid] = state;
 
+    //reset soft fuse when we turn on
+    if (state)
+      channelTripped[cid] = false;
+
     //change our output pin to reflect
     updateChannelState(cid);
   }
@@ -302,7 +315,7 @@ void handleReceivedMessage(char *payload) {
       return;
     }
 
-    float value = doc["value"];
+    double value = doc["value"];
     
     if (value < 0)
       sendError("Duty cycle must be >= 0");
@@ -330,7 +343,7 @@ void handleReceivedMessage(char *payload) {
       return;
     }
 
-    float value = doc["value"];
+    double value = doc["value"];
     if (value < 0)
       sendError("Soft fuse minimum is 0 amps.");
     else if (value > 20)
@@ -420,7 +433,7 @@ void sendBoardInfo()
     object["loads"][i]["type"] = "mosfet";
     object["loads"][i]["hasPWM"] = true;
     object["loads"][i]["hasCurrent"] = true;
-    object["loads"][i]["softFuse"] = channelSoftFuseAmperage[i];
+    object["loads"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
   }
   
   // serialize the object and save teh result to teh string variable.
@@ -446,8 +459,11 @@ void sendUpdate()
   {
     object["loads"][i]["id"] = i;
     object["loads"][i]["state"] = channelState[i];
-    object["loads"][i]["duty"] = channelDutyCycle[i];
-    object["loads"][i]["current"] = channelAmperage[i];
+    object["loads"][i]["duty"] = round2(channelDutyCycle[i]);
+    object["loads"][i]["current"] = round2(channelAmperage[i]);
+
+    if (channelTripped[i])
+      object["loads"][i]["soft_fuse_tripped"] = true;
   }
 
   // serialize the object and save teh result to teh string variable.
@@ -458,6 +474,10 @@ void sendUpdate()
   // send the JSON object through the websocket
   webSocket.broadcastTXT(jsonString); 
   jsonString = ""; // clear the String.
+}
+
+double round2(double value) {
+   return (int)(value * 100 + 0.5) / 100.0;
 }
 
 void connectToWifi()
@@ -523,7 +543,8 @@ void connectToWifi()
 
 void updateChannelState(int channelId)
 {
-  if (channelState[channelId])
+  //it has to be set to on and soft fuse not tripped.
+  if (channelState[channelId] && !channelTripped[channelId])
   {
     int pwm = (int)(channelDutyCycle[channelId] * MAX_DUTY_CYCLE);
     //ledcWrite(channelId, pwm);
@@ -551,13 +572,13 @@ void readInternalADC()
   }
 }
 
-float getAmperageInternal(byte sensorPin)
+double getAmperageInternal(byte sensorPin)
 {
-  float AcsValue=0.0, Samples=0.0, AvgAcs=0.0, AcsValueF=0.0;
+  double AcsValue=0.0, Samples=0.0, AvgAcs=0.0, AcsValueF=0.0;
   for (int x = 0; x < 5; x++)
   {
     //AcsValue = analogRead(sensorPin);     //Read current sensor values   
-    AcsValue = (float)analogReadMilliVolts(sensorPin) / 1000.0;
+    AcsValue = (double)analogReadMilliVolts(sensorPin) / 1000.0;
 
     Samples = Samples + AcsValue;  //Add samples together
     delay(5); // let ADC settle before next sample
@@ -566,7 +587,7 @@ float getAmperageInternal(byte sensorPin)
 
   //AvgAcs = analogRead(sensorPin);     //Read current sensor values   
 
-  float amps;
+  double amps;
 
   //Serial.print(sensorPin);
   //Serial.print(" PIN | ");
@@ -578,7 +599,7 @@ float getAmperageInternal(byte sensorPin)
   //Serial.print(AvgAcs);
   //Serial.print(" ADC | ");
 
-  float volts;
+  double volts;
   //volts = AvgAcs * (3.3 / 4096.0);
   volts = AvgAcs * (5.0 / 3.3);
 
@@ -626,12 +647,12 @@ void updateChannelsMCP3208()
     //Serial.print(val);
     //Serial.print(" ADC | ");
 
-    float volts = val * (3.3 / 4096.0);
+    double volts = val * (3.3 / 4096.0);
     volts = volts / 0.6875;
     //Serial.print(volts);
     //Serial.print(" V | ");
 
-    float amps = 0.0;
+    double amps = 0.0;
     amps = (2.5 - volts) / (0.100); //ACS712 5V w/ voltage divider
     //amps = (volts - (3.3 * 0.1)) / (0.200); //TMCS1108A3U
     //amps = (volts - (3.3 * 0.1)) / (0.100); //TMCS1108A2U
@@ -647,3 +668,13 @@ void updateChannelsMCP3208()
   //Serial.println();
 }
 
+void checkSoftFuses()
+{
+  for (byte channel = 0 ; channel < channelCount; channel++)
+  {
+    if (abs(channelAmperage[channel]) >= channelSoftFuseAmperage[channel])
+      channelTripped[channel] = true;
+    else if (abs(channelAmperage[channel]) >= 20.0)
+      channelTripped[channel] = true;
+  }
+}

@@ -1,13 +1,16 @@
 Code:
 
-* implement external ADC
-* allow turning off of duty cycle memory (per channel?)
-* check current against soft fuse
+* choose current measurement IC
 * record aH
 * make a stats page command
 * more error checking of input
-* would be nice to revisit the webserver w/ a simple UI for config and control of the board.
-* would be nice to have a way of setting up the wifi: https://randomnerdtutorials.com/esp32-wi-fi-manager-asyncwebserver/
+* wifi credential setup: https://randomnerdtutorials.com/esp32-wi-fi-manager-asyncwebserver/
+* webserver w/ a simple UI for config and control of the board.
+* allow turning off of duty cycle memory (per channel?)
+* why does ledcwrite not work properly?
+
+Long Term:
+
 * leave the gate open for N2K compatability: https://github.com/AK-Homberger/ESP32-Evo-Remote-Pilot-NMEA2000/blob/master/ESP32EvoPilotRemote/ESP32EvoPilotRemote.ino
 
 Electronics:
