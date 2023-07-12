@@ -42,6 +42,9 @@ const int PWMFreq = 5000; /* in Hz  */
 const int PWMResolution = 8;
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
 
+//object for our adc
+MCP3208 adc;
+
 //storage for more permanent stuff.
 Preferences preferences;
 
@@ -229,6 +232,9 @@ void setupADC()
   setupMCP3208();
 }
 
+unsigned long t1;
+unsigned long t2;
+
 void loop()
 {
   // websocket server method that handles all clients
@@ -239,7 +245,13 @@ void loop()
   if (adcDelta >= adcInterval)
   {
     //this is a bit slow, so only do it once per update
+
+    //t1 = micros();
     readAmperages();
+    //t2 = micros();
+    //Serial.print("ADC: ");
+    //Serial.print((float)(t2 - t1) / 1000.0);
+    //Serial.println("ms");
 
     //record our total consumption
     for (byte i=0; i<channelCount; i++)
@@ -257,22 +269,24 @@ void loop()
   if (messageDelta >= messageInterval)
   {
     //read and send out our json update
+    t1 = micros();
     sendUpdate();
+    t2 = micros();
+    //Serial.print("Send Message: ");
+    //Serial.print((float)(t2 - t1) / 1000.0);
+    //Serial.println("ms");
 
     //how fast are we?
-    //Serial.println();
-
-    //for keeping track.
-    lastHandledMessages = handledMessages;
-
-    // Use the snapshot to set track time until next event
-    previousMessageMillis = millis();
-
-    Serial.print("^");
     Serial.print(messageDelta);
     Serial.print("ms | msg/s: ");
     Serial.print(handledMessages - lastHandledMessages);
     Serial.println();
+
+    //Serial.println(ESP.getFreeHeap());
+
+    //for keeping track.
+    lastHandledMessages = handledMessages;
+    previousMessageMillis = millis();
   }
 }
 
@@ -527,6 +541,7 @@ void connectToWifi()
   Serial.print("[WiFi] Connecting to ");
   Serial.println(ssid);
 
+  WiFi.useStaticBuffers(true); //from: https://github.com/espressif/arduino-esp32/issues/7183
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid.c_str(), password.c_str());
 
@@ -596,19 +611,12 @@ void updateChannelState(int channelId)
   }
 }
 
-void readAmperages()
-{
-  //readInternalADC();
-  updateChannelsMCP3208();
-}
-
-MCP3208 adc;
 void setupMCP3208()
 {
   adc.begin();
 }
 
-uint16_t readMCP3208Channel(byte channel, byte samples = 8)
+uint16_t readMCP3208Channel(byte channel, byte samples = 4)
 {
   uint32_t value = 0;
 
@@ -626,7 +634,7 @@ uint16_t readMCP3208Channel(byte channel, byte samples = 8)
   return (uint16_t)value;
 }
 
-void updateChannelsMCP3208()
+void readAmperages()
 {
   for (byte channel = 0 ; channel < channelCount; channel++)
   {
@@ -642,7 +650,6 @@ void updateChannelsMCP3208()
     //amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
     //amps = (volts - (3.3 * 0.5)) / (0.066);  //MCS1802-20
     //amps = (volts - 0.650) / (0.100);       //CT427-xSN820DR
-
     
     //Serial.print(channel);
     //Serial.print(" CH | ");
@@ -657,6 +664,7 @@ void updateChannelsMCP3208()
   }
   //Serial.println();
 }
+
 
 void checkSoftFuses()
 {

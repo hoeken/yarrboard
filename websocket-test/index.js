@@ -126,6 +126,7 @@ async function togglePin()
             "id": 0,
             "value": true
         }));
+        console.log("on");
 
         await delay(1000)
 
@@ -134,6 +135,7 @@ async function togglePin()
             "id": 0,
             "value": false
         }));
+        console.log("off");
 
         await delay(1000)
     }
