@@ -1,11 +1,11 @@
 Code:
 
+* investigate mcp3208 libraries in more depth
 * choose current measurement IC
 * make a stats page command
 * more error checking of input
 * wifi credential setup: https://randomnerdtutorials.com/esp32-wi-fi-manager-asyncwebserver/
 * webserver w/ a simple UI for config and control of the board.
-* allow turning off of duty cycle memory (per channel?)
 * why does ledcwrite not work properly?
 
 Long Term:

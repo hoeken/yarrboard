@@ -54,23 +54,13 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 //for tracking our loop
-int adcInterval = 250; // virtual delay
-int messageInterval = 1000; // virtual delay
+int adcInterval = 250;     // virtual delay
 unsigned long previousADCMillis = 0; // Tracks the time since last event fired
+
+int messageInterval = 1000; // virtual delay
 unsigned long previousMessageMillis = 0; // Tracks the time since last event fired
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
-
-// Create AsyncWebServer object on port 80
-/*
-AsyncWebServer server(80);
-IPAddress localIP;
-//IPAddress localIP(192, 168, 1, 200); // hardcoded
-// Set your Gateway IP address
-IPAddress localGateway;
-//IPAddress localGateway(192, 168, 1, 1); //hardcoded
-IPAddress subnet(255, 255, 0, 0);
-*/
 
 /*
 //NMEA2000 stuff
