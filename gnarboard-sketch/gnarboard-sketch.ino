@@ -9,11 +9,12 @@
 
 #include <WiFi.h>               // Standard library
 #include <Preferences.h>        // Standard library
-//#include <SPIFFS.h>             // Standard library
+#include <ESPmDNS.h>            // Standard library
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
 #include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
 #include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
 #include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
+//#include <SPIFFS.h>             // Standard library
 //#include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
 //#include <NMEA2000_CAN.h>       // https://github.com/ttlappalainen/NMEA2000 via .zip
 //#include <N2kMsg.h>             // same ^^^
@@ -185,9 +186,20 @@ void setup()
   //get an IP address
   connectToWifi();
 
+  //setup our local name.
+  if(!MDNS.begin("gnarboard")) {
+     Serial.println("Error starting mDNS");
+     return;
+  }
+
   // Start server
   ws.onEvent(onEvent);
   server.addHandler(&ws);
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", "Hello World");
+  });
+
   server.begin();
 
   //setupNMEA2000();
