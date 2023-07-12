@@ -11,7 +11,7 @@
 #include <Preferences.h>        // Standard library
 //#include <SPIFFS.h>             // Standard library
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
-//#include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
+#include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
 #include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
 #include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
 //#include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
@@ -236,7 +236,7 @@ void setupNMEA2000()
 
 void setupADC()
 {
-  //setupMCP3208();
+  setupMCP3208();
 }
 
 void loop()
@@ -310,7 +310,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
     data[len] = 0;
-    Serial.printf("[WebSocket] Message: %s\n", data);
+    //Serial.printf("[WebSocket] Message: %s\n", data);
     handleReceivedMessage((char*)data);
   }
 }
@@ -609,10 +609,9 @@ void updateChannelState(int channelId)
 void readAmperages()
 {
   //readInternalADC();
-  //updateChannelsMCP3208();
+  updateChannelsMCP3208();
 }
 
-/*
 MCP3208 adc;
 void setupMCP3208()
 {
@@ -668,8 +667,6 @@ void updateChannelsMCP3208()
   }
   //Serial.println();
 }
-
-*/
 
 void checkSoftFuses()
 {
