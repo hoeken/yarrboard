@@ -32,6 +32,7 @@ const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33, 4, 2};
 bool   channelState[channelCount];
 bool   channelTripped[channelCount];
 float  channelDutyCycle[channelCount];
+bool   channelSaveDutyCycle[channelCount];
 float  channelAmperage[channelCount];
 float  channelSoftFuseAmperage[channelCount];
 float  channelAmpHour[channelCount];
@@ -151,6 +152,7 @@ void setup()
     channelAmpHour[i] = 0.0;
     channelAmperage[i] = 0.0;
     channelSoftFuseAmperage[i] = 20.0;
+    channelSaveDutyCycle[i] = true;
 
     //initialize our PWM channels
     //ledcSetup(i, PWMFreq, PWMResolution);
@@ -386,8 +388,12 @@ void handleReceivedMessage(char *payload) {
     {
       channelDutyCycle[cid] = value;
 
-      //save our saved duty cycle data
-      preferences.putBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
+      //do we save our saved duty cycle data?
+      if (channelSaveDutyCycle[cid])
+      {
+        Serial.println("Saving");
+        preferences.putBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
+      }
     }
 
     //change our output pin to reflect
@@ -416,6 +422,20 @@ void handleReceivedMessage(char *payload) {
       //save our saved duty cycle data
       preferences.putBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));  
     }
+  }
+  //save our duty cycle?
+  else if(cmd.equals("save_duty_cycle"))
+  {
+    //is it a valid channel?
+    byte cid = doc["id"];
+    if (cid < 0 || cid >= channelCount)
+    {
+      sendError("Invalid ID");
+      return;
+    }
+
+    bool value = doc["value"];
+    channelSaveDutyCycle[cid] = value;
   }
   //change a channel name?
   else if(cmd.equals("set_name"))
@@ -497,6 +517,7 @@ void sendBoardInfo()
     object["loads"][i]["hasPWM"] = true;
     object["loads"][i]["hasCurrent"] = true;
     object["loads"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
+    object["loads"][i]["saveDutyCycle"] = channelSaveDutyCycle[i];
   }
   
   // serialize the object and save teh result to teh string variable.

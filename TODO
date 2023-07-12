@@ -1,6 +1,5 @@
 Code:
 
-* investigate mcp3208 libraries in more depth
 * choose current measurement IC
 * make a stats page command
 * more error checking of input

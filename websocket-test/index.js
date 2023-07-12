@@ -142,9 +142,16 @@ async function togglePin()
 async function fadePin()
 {
     let steps = 20;
-    let d = 10;
+    let d = 5;
     let channel = 6;
- 
+    let max_duty = 0.1;
+
+    client.send(JSON.stringify({
+        "cmd": "save_duty_cycle",
+        "id": channel,
+        "value": false
+    }));
+
     client.send(JSON.stringify({
         "cmd": "state",
         "id": channel,
@@ -157,7 +164,7 @@ async function fadePin()
             client.send(JSON.stringify({
                 "cmd": "duty",
                 "id": channel,
-                "value": (i / steps) * 0.1
+                "value": (i / steps) * max_duty
             }));
 
             await delay(d)
@@ -168,7 +175,7 @@ async function fadePin()
             client.send(JSON.stringify({
                 "cmd": "duty",
                 "id": channel,
-                "value": (i / steps) * 0.1
+                "value": (i / steps) * max_duty
             }));
 
             await delay(d)
