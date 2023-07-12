@@ -2,7 +2,8 @@
 
 var W3CWebSocket = require('websocket').w3cwebsocket;
 
-var client = new W3CWebSocket('ws://192.168.1.229:8080');
+//var client = new W3CWebSocket('ws://192.168.1.229:8080');
+var client = new W3CWebSocket('ws://192.168.1.229/ws');
 
 const delay = (millis) => new Promise(resolve => setTimeout(resolve, millis)) 
 
@@ -38,7 +39,7 @@ async function speedTest()
         client.send(JSON.stringify({
             "cmd": "config"
         }));
-        await delay(3)
+        await delay(8)
     }
 }
 
