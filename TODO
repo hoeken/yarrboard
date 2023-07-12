@@ -1,7 +1,6 @@
 Code:
 
 * new connection should only have config message sent to it, not all.
-* add ability to toggle on/off
 * add ability to set duty cycle
 * add ability to name channels
 * make it look better

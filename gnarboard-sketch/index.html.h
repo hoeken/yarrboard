@@ -2,7 +2,7 @@ const char index_html_data[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Gnarboard</title>
+  <title>Gnarboard v1.0.0</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script> 
@@ -17,23 +17,23 @@ const char index_html_data[] PROGMEM = R"rawliteral(
 
     socket.onmessage = function(event) {
       const msg = JSON.parse(event.data);
-      console.log(msg);
+      //console.log(msg);
 
       if (msg.msg == 'config')
       {
         $('#nameHeader').html(msg.name);
         $('#stats').html(`Uptime:${msg.uptime}<br/>Messages: ${msg.totalMessages}<br/>UUID: ${msg.uuid}`);
 
-        $('#channels').html();
+        $('#channelTable').html("<tr><th>State</th><th>Name</th><th>Duty</th><th>Current</th></tr>");
         for (ch of msg.channels)
         {
-          $('#channels').append(`<div id="channel${ch.id}" class="channelRow"></div>`);
-          $('#channel' + ch.id).append(`<span id="channelName${ch.id}" class="channelName">${ch.name}</span>`);
-          $('#channel' + ch.id).append(`<span><button id="channelState${ch.id}" class="channelState"></button></span>`);
-          $('#channel' + ch.id).append(`<span id="channelDutyCycle${ch.id}" class="channelDutyCycle"></span>`);
-          $('#channel' + ch.id).append(`<span id="channelCurrent${ch.id}" class="channelCurrent"></span>`);
-          $('#channel' + ch.id).append(`<span id="channelAmpHours${ch.id}" class="channelAmpHours"></span>`);
-          $('#channel' + ch.id).append(`<span id="channelError${ch.id}" class="channelError"></span>`);
+          $('#channelTable').append(`<tr id="channel${ch.id}" class="channelRow"></tr>`);
+          $('#channel' + ch.id).append(`<td><button id="channelState${ch.id}" class="channelState" onclick="toggle_state(${ch.id})"></button></td>`);
+          $('#channel' + ch.id).append(`<td id="channelName${ch.id}" class="channelName">${ch.name}</td>`);
+          $('#channel' + ch.id).append(`<td id="channelDutyCycle${ch.id}" class="channelDutyCycle"></td>`);
+          $('#channel' + ch.id).append(`<td id="channelCurrent${ch.id}" class="channelCurrent"></td>`);
+          //$('#channel' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="channelAmpHours"></td>`);
+          $('#channel' + ch.id).append(`<td id="channelError${ch.id}" class="channelError"></td>`);
         }
       }
       
@@ -55,9 +55,13 @@ const char index_html_data[] PROGMEM = R"rawliteral(
             $('#channelState' + ch.id).addClass("buttonOff");
           }
 
-          $('#channelDutyCycle' + ch.id).html((ch.duty * 100) + "%");
-          $('#channelCurrent' + ch.id).html(`${ch.current}A`);
-          $('#channelAmpHours' + ch.id).html(`${ch.aH}aH`);
+          let duty = Math.round(ch.duty * 100);
+          //let current = Math.round(ch.current * 100) / 100;
+          let current = ch.current.toFixed(2);
+          let aH = Math.round(ch.aH * 100) / 100;
+          $('#channelDutyCycle' + ch.id).html(`${duty}%`);
+          $('#channelCurrent' + ch.id).html(`${current}A`);
+          //$('#channelAmpHours' + ch.id).html(`${aH}aH`);
 
           if (msg.soft_fuse_tripped)
             $('#channelError' + ch.id).html("Soft Fuse Tripped");
@@ -78,9 +82,24 @@ const char index_html_data[] PROGMEM = R"rawliteral(
     socket.onerror = function(error) {
       console.log(`[error]`);
     };
+
+    function toggle_state(id)
+    {
+      let new_state = false;
+      if ($("#channelState" + id).text() == "OFF")
+        new_state = true;
+
+      socket.send(JSON.stringify({
+        "cmd": "state",
+        "id": id,
+        "value": new_state
+      }));
+    }
   </script>
   <h1 id="nameHeader">Gnarboard v1.0.0</h1>
-  <p id="channels"></p>
+  <div id="channelContainer">
+    <table id="channelTable"></table>
+  </div>
   <p id="time"></p>
   <p id="stats"></p>
 </body>

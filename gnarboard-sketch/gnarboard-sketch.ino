@@ -28,22 +28,22 @@
 //#include <N2kDeviceList.h>    // same ^^^
 
 //identify yourself!
-const char* version = "Gnarboard v1.0.0";
+const char *version = "Gnarboard v1.0.0";
 String uuid;
 
 //ke ep track of our channel info.
 const byte channelCount = 8;
-const byte outputPins[channelCount] = {25, 26, 27, 14, 12, 13, 17, 16};
-const byte analogPins[channelCount] = {36, 39, 34, 35, 32, 33, 4, 2};
+const byte outputPins[channelCount] = { 25, 26, 27, 14, 12, 13, 17, 16 };
+const byte analogPins[channelCount] = { 36, 39, 34, 35, 32, 33, 4, 2 };
 
-//state information for all our channels.`  1 
-bool   channelState[channelCount];
-bool   channelTripped[channelCount];
-float  channelDutyCycle[channelCount];
-bool   channelSaveDutyCycle[channelCount];
-float  channelAmperage[channelCount];
-float  channelSoftFuseAmperage[channelCount];
-float  channelAmpHour[channelCount];
+//state information for all our channels.`  1
+bool channelState[channelCount];
+bool channelTripped[channelCount];
+float channelDutyCycle[channelCount];
+bool channelSaveDutyCycle[channelCount];
+float channelAmperage[channelCount];
+float channelSoftFuseAmperage[channelCount];
+float channelAmpHour[channelCount];
 String channelNames[channelCount];
 
 /* Setting PWM Properties */
@@ -66,21 +66,21 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 //for tracking our ADC loop
-int adcInterval = 100;     // virtual delay
-unsigned long previousADCMillis = 0; // Tracks the time since last event fired
+int adcInterval = 100;                // virtual delay
+unsigned long previousADCMillis = 0;  // Tracks the time since last event fired
 
 //for tracking our message loop
-int messageInterval = 250; // virtual delay
-unsigned long previousMessageMillis = 0; // Tracks the time since last event fired
+int messageInterval = 250;                // virtual delay
+unsigned long previousMessageMillis = 0;  // Tracks the time since last event fired
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
 unsigned long totalHandledMessages = 0;
 
 //time variables
-const char* ntpServer1 = "pool.ntp.org";
-const char* ntpServer2 = "time.nist.gov";
-const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 0;
+const char *ntpServer1 = "pool.ntp.org";
+const char *ntpServer2 = "time.nist.gov";
+const long gmtOffset_sec = 0;
+const int daylightOffset_sec = 0;
 struct tm timeinfo;
 
 /*
@@ -102,10 +102,9 @@ tN2kDeviceList *pN2kDeviceList;
 short pilotSourceAddress = -1;
 */
 
-void setup()
-{
+void setup() {
   unsigned long setup_t1 = micros();
-  
+
   //startup our serial
   Serial.begin(115200);
   delay(10);
@@ -113,18 +112,17 @@ void setup()
 
   // set notification call-back function
   sntp_set_time_sync_notification_cb(timeAvailable);
-  sntp_servermode_dhcp(1);    // (optional)
+  sntp_servermode_dhcp(1);  // (optional)
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
 
   //for storing stuff to flash
   preferences.begin("gnarboard", false);
 
   //intitialize our output pins.
-  for (byte i=0; i<channelCount; i++)
-  {
+  for (byte i = 0; i < channelCount; i++) {
     //init our storage variables.
     channelState[i] = false;
-    channelDutyCycle[i] = 0.0;
+    channelDutyCycle[i] = 1.0;
     channelTripped[i] = false;
     channelAmpHour[i] = 0.0;
     channelAmperage[i] = 0.0;
@@ -149,22 +147,22 @@ void setup()
   setupADC();
 
   //load our saved duty cycle data
-  preferences.getBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));  
-  preferences.getBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));  
+  preferences.getBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
+  preferences.getBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));
 
   //get a unique ID for us
   byte mac[6];
   WiFi.macAddress(mac);
-  uuid = String(mac[0],HEX) +String(mac[1],HEX) +String(mac[2],HEX) +String(mac[3],HEX) + String(mac[4],HEX) + String(mac[5],HEX);
+  uuid = String(mac[0], HEX) + String(mac[1], HEX) + String(mac[2], HEX) + String(mac[3], HEX) + String(mac[4], HEX) + String(mac[5], HEX);
   Serial.println(uuid);
 
   //get an IP address
   connectToWifi();
 
   //setup our local name.
-  if(!MDNS.begin("gnarboard")) {
-     Serial.println("Error starting mDNS");
-     return;
+  if (!MDNS.begin("gnarboard")) {
+    Serial.println("Error starting mDNS");
+    return;
   }
 
   // Start server
@@ -172,16 +170,16 @@ void setup()
   server.addHandler(&ws);
 
   // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/html", index_html_data);
   });
 
   // Route for root / web page
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/css", stylesheet_css_data);
   });
 
-/*
+  /*
   // Route for root / web page
   server.on("/jquery.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/javascript", jquery_js_data);
@@ -199,14 +197,12 @@ void setup()
 }
 
 // Callback function (get's called when time adjusts via NTP)
-void timeAvailable(struct timeval *t)
-{
+void timeAvailable(struct timeval *t) {
   Serial.print("NTP update: ");
   printLocalTime();
 }
 
-void setupNMEA2000()
-{
+void setupNMEA2000() {
   /*
   // Reserve enough buffer for sending all messages. This does not work on small memory devices like Uno or Mega
   NMEA2000.SetN2kCANReceiveFrameBufSize(150);
@@ -242,13 +238,11 @@ void setupNMEA2000()
   */
 }
 
-void setupADC()
-{
+void setupADC() {
   setupMCP3208();
 }
 
-void loop()
-{
+void loop() {
   unsigned long t1;
   unsigned long t2;
 
@@ -257,8 +251,7 @@ void loop()
 
   //run our ADC on a faster loop
   int adcDelta = millis() - previousADCMillis;
-  if (adcDelta >= adcInterval)
-  {
+  if (adcDelta >= adcInterval) {
     //this is a bit slow, so only do it once per update
 
     //t1 = micros();
@@ -269,8 +262,10 @@ void loop()
     //Serial.println("ms");
 
     //record our total consumption
-    for (byte i=0; i<channelCount; i++)
-      channelAmpHour[i] += channelAmperage[i] * ((float)adcDelta / 3600000.0);
+    for (byte i = 0; i < channelCount; i++) {
+      if (channelAmperage > 0)
+        channelAmpHour[i] += channelAmperage[i] * ((float)adcDelta / 3600000.0);
+    }
 
     //are our loads ok?
     checkSoftFuses();
@@ -278,11 +273,10 @@ void loop()
     // Use the snapshot to set track time until next event
     previousADCMillis = millis();
   }
-  
-  //lookup our info periodically  
+
+  //lookup our info periodically
   int messageDelta = millis() - previousMessageMillis;
-  if (messageDelta >= messageInterval)
-  {
+  if (messageDelta >= messageInterval) {
     //read and send out our json update
     t1 = micros();
     sendUpdate();
@@ -323,15 +317,14 @@ if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interva
 */
 }
 
-void printLocalTime(){
+void printLocalTime() {
 
-  if(!getLocalTime(&timeinfo))
-  {
+  if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return;
   }
-  
-  char buffer [80];
+
+  char buffer[80];
   strftime(buffer, 80, "%FT%T%z", &timeinfo);
   Serial.println(buffer);
 
@@ -384,12 +377,11 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
-  AwsFrameInfo *info = (AwsFrameInfo*)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
-  {
+  AwsFrameInfo *info = (AwsFrameInfo *)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
     //Serial.printf("[WebSocket] Message: %s\n", data);
-    handleReceivedMessage((char*)data);
+    handleReceivedMessage((char *)data);
   }
 }
 
@@ -402,12 +394,10 @@ void handleReceivedMessage(char *payload) {
   String cmd = doc["cmd"];
 
   //change state?
-  if (cmd.equals("state"))
-  {
+  if (cmd.equals("state")) {
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount)
-    {
+    if (cid < 0 || cid >= channelCount) {
       sendError("Invalid ID");
       return;
     }
@@ -424,29 +414,25 @@ void handleReceivedMessage(char *payload) {
     updateChannelState(cid);
   }
   //change duty cycle?
-  else if (cmd.equals("duty"))
-  {
+  else if (cmd.equals("duty")) {
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount)
-    {
+    if (cid < 0 || cid >= channelCount) {
       sendError("Invalid ID");
       return;
     }
 
     float value = doc["value"];
-    
+
     if (value < 0)
       sendError("Duty cycle must be >= 0");
     else if (value > 20)
       sendError("Duty cycle must be <= 1");
-    else
-    {
+    else {
       channelDutyCycle[cid] = value;
 
       //do we save our saved duty cycle data?
-      if (channelSaveDutyCycle[cid])
-      {
+      if (channelSaveDutyCycle[cid]) {
         Serial.println("Saving");
         preferences.putBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
       }
@@ -456,12 +442,10 @@ void handleReceivedMessage(char *payload) {
     updateChannelState(cid);
   }
   //change a soft fuse setting?
-  else if(cmd.equals("soft_fuse"))
-  {
+  else if (cmd.equals("soft_fuse")) {
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount)
-    {
+    if (cid < 0 || cid >= channelCount) {
       sendError("Invalid ID");
       return;
     }
@@ -471,21 +455,18 @@ void handleReceivedMessage(char *payload) {
       sendError("Soft fuse minimum is 0 amps.");
     else if (value > 20)
       sendError("Soft fuse maximum is 20 amps.");
-    else
-    {
+    else {
       channelSoftFuseAmperage[cid] = value;
 
       //save our saved duty cycle data
-      preferences.putBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));  
+      preferences.putBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));
     }
   }
   //save our duty cycle?
-  else if(cmd.equals("save_duty_cycle"))
-  {
+  else if (cmd.equals("save_duty_cycle")) {
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount)
-    {
+    if (cid < 0 || cid >= channelCount) {
       sendError("Invalid ID");
       return;
     }
@@ -494,12 +475,10 @@ void handleReceivedMessage(char *payload) {
     channelSaveDutyCycle[cid] = value;
   }
   //change a channel name?
-  else if(cmd.equals("set_name"))
-  {
+  else if (cmd.equals("set_name")) {
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount)
-    {
+    if (cid < 0 || cid >= channelCount) {
       sendError("Invalid ID");
       return;
     }
@@ -507,8 +486,7 @@ void handleReceivedMessage(char *payload) {
     String value = doc["value"];
     if (value.length() > 64)
       sendError("Maximum channel name length is 64 characters.");
-    else
-    {
+    else {
       channelNames[cid] = value;
 
       //save to our storage
@@ -517,13 +495,11 @@ void handleReceivedMessage(char *payload) {
     }
   }
   //get our config?
-  else if(cmd.equals("config"))
-  {
+  else if (cmd.equals("config")) {
     sendBoardInfo();
   }
   //wrong command.
-  else
-  {
+  else {
     Serial.print("Invalid command: ");
     Serial.println(cmd);
     //sendError("Invalid command.");
@@ -534,9 +510,8 @@ void handleReceivedMessage(char *payload) {
   totalHandledMessages++;
 }
 
-void sendError(String error)
-{
-  String jsonString; // Temporary storage for the JSON String
+void sendError(String error) {
+  String jsonString;  // Temporary storage for the JSON String
   StaticJsonDocument<1000> doc;
 
   Serial.print("Error: ");
@@ -548,13 +523,12 @@ void sendError(String error)
   object["error"] = error;
 
   // serialize the object and save teh result to teh string variable.
-  serializeJson(doc, jsonString); 
+  serializeJson(doc, jsonString);
   Serial.println(jsonString);
   ws.textAll(jsonString);
 }
 
-void sendBoardInfo()
-{
+void sendBoardInfo() {
   String jsonString;
   StaticJsonDocument<5000> doc;
 
@@ -569,8 +543,7 @@ void sendBoardInfo()
   object["uptime"] = millis();
 
   //send our configuration
-  for (byte i=0; i<channelCount; i++)
-  {
+  for (byte i = 0; i < channelCount; i++) {
     object["channels"][i]["id"] = i;
     object["channels"][i]["name"] = channelNames[i];
     object["channels"][i]["type"] = "mosfet";
@@ -579,18 +552,17 @@ void sendBoardInfo()
     object["channels"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
     object["channels"][i]["saveDutyCycle"] = channelSaveDutyCycle[i];
   }
-  
+
   // serialize the object and save teh result to teh string variable.
-  serializeJson(doc, jsonString); 
-  
+  serializeJson(doc, jsonString);
+
   //Serial.println( jsonString );
 
   // send the JSON object through the websocket
   ws.textAll(jsonString);
 }
 
-void sendUpdate()
-{
+void sendUpdate() {
   StaticJsonDocument<5000> doc;
   String jsonString;
 
@@ -599,15 +571,13 @@ void sendUpdate()
 
   object["msg"] = "update";
 
-  if(getLocalTime(&timeinfo))
-  {
-    char buffer [80];
+  if (getLocalTime(&timeinfo)) {
+    char buffer[80];
     strftime(buffer, 80, "%FT%T%z", &timeinfo);
     object["time"] = buffer;
   }
 
-  for (byte i=0; i<channelCount; i++)
-  {
+  for (byte i = 0; i < channelCount; i++) {
     object["channels"][i]["id"] = i;
     object["channels"][i]["state"] = channelState[i];
     object["channels"][i]["duty"] = round2(channelDutyCycle[i]);
@@ -619,27 +589,26 @@ void sendUpdate()
   }
 
   // serialize the object and save teh result to teh string variable.
-  serializeJson(doc, jsonString); 
+  serializeJson(doc, jsonString);
   //Serial.println( jsonString );
   ws.textAll(jsonString);
 }
 
 double round2(double value) {
-   return (long)(value * 100 + 0.5) / 100.0;
+  return (long)(value * 100 + 0.5) / 100.0;
 }
 
 double round3(double value) {
-   return (long)(value * 1000 + 0.5) / 1000.0;
+  return (long)(value * 1000 + 0.5) / 1000.0;
 }
 
 double round4(double value) {
-   return (long)(value * 10000 + 0.5) / 10000.0;
+  return (long)(value * 10000 + 0.5) / 10000.0;
 }
 
 
-void connectToWifi()
-{
-  ssid = preferences.getString("ssid", "Wind.Ninja"); 
+void connectToWifi() {
+  ssid = preferences.getString("ssid", "Wind.Ninja");
   password = preferences.getString("password", "chickenloop");
 
   Serial.print("[WiFi] Connecting to ");
@@ -647,7 +616,7 @@ void connectToWifi()
 
   WiFi.setSleep(false);
   WiFi.setHostname("gnarboard");
-  WiFi.useStaticBuffers(true); //from: https://github.com/espressif/arduino-esp32/issues/7183
+  WiFi.useStaticBuffers(true);  //from: https://github.com/espressif/arduino-esp32/issues/7183
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid.c_str(), password.c_str());
 
@@ -657,38 +626,38 @@ void connectToWifi()
 
   // Wait for the WiFi event
   while (true) {
-      
-      switch(WiFi.status()) {
-        case WL_NO_SSID_AVAIL:
-          Serial.println("[WiFi] SSID not found");
-          break;
-        case WL_CONNECT_FAILED:
-          Serial.print("[WiFi] Failed - WiFi not connected! Reason: ");
-          return;
-          break;
-        case WL_CONNECTION_LOST:
-          Serial.println("[WiFi] Connection was lost");
-          break;
-        case WL_SCAN_COMPLETED:
-          Serial.println("[WiFi] Scan is completed");
-          break;
-        case WL_DISCONNECTED:
-          Serial.println("[WiFi] WiFi is disconnected");
-          break;
-        case WL_CONNECTED:
-          Serial.println("[WiFi] WiFi is connected!");
-          Serial.print("[WiFi] IP address: ");
-          Serial.println(WiFi.localIP());
-          return;
-          break;
-        default:
-          Serial.print("[WiFi] WiFi Status: ");
-          Serial.println(WiFi.status());
-          break;
-      }
-      delay(tryDelay);
 
-      /*      
+    switch (WiFi.status()) {
+      case WL_NO_SSID_AVAIL:
+        Serial.println("[WiFi] SSID not found");
+        break;
+      case WL_CONNECT_FAILED:
+        Serial.print("[WiFi] Failed - WiFi not connected! Reason: ");
+        return;
+        break;
+      case WL_CONNECTION_LOST:
+        Serial.println("[WiFi] Connection was lost");
+        break;
+      case WL_SCAN_COMPLETED:
+        Serial.println("[WiFi] Scan is completed");
+        break;
+      case WL_DISCONNECTED:
+        Serial.println("[WiFi] WiFi is disconnected");
+        break;
+      case WL_CONNECTED:
+        Serial.println("[WiFi] WiFi is connected!");
+        Serial.print("[WiFi] IP address: ");
+        Serial.println(WiFi.localIP());
+        return;
+        break;
+      default:
+        Serial.print("[WiFi] WiFi Status: ");
+        Serial.println(WiFi.status());
+        break;
+    }
+    delay(tryDelay);
+
+    /*      
       if(numberOfTries <= 0){
         Serial.print(".");
         // Use disconnect function to force stop trying to connect
@@ -701,62 +670,51 @@ void connectToWifi()
   }
 }
 
-void updateChannelState(int channelId)
-{
+void updateChannelState(int channelId) {
   //it has to be set to on and soft fuse not tripped.
-  if (channelState[channelId] && !channelTripped[channelId])
-  {
+  if (channelState[channelId] && !channelTripped[channelId]) {
     int pwm = (int)(channelDutyCycle[channelId] * MAX_DUTY_CYCLE);
     //ledcWrite(channelId, pwm);
     analogWrite(outputPins[channelId], pwm);
-  }
-  else
-  {
+  } else {
     //ledcWrite(outputPins[channelId], pow(2, PWMResolution));
     analogWrite(outputPins[channelId], 0);
   }
 }
 
-void setupMCP3208()
-{
+void setupMCP3208() {
   adc.begin();
 }
 
-uint16_t readMCP3208Channel(byte channel, byte samples = 64)
-{
+uint16_t readMCP3208Channel(byte channel, byte samples = 64) {
   uint32_t value = 0;
 
-  if (samples > 1)
-  {
-    for (byte i=0; i<samples; i++)
-    {
+  if (samples > 1) {
+    for (byte i = 0; i < samples; i++) {
       value += adc.readADC(channel);
     }
     value = value / samples;
-  }
-  else
+  } else
     value = adc.readADC(channel);
 
   return (uint16_t)value;
 }
 
-void readAmperages()
-{
-  for (byte channel = 0 ; channel < channelCount; channel++)
-  {
+void readAmperages() {
+  for (byte channel = 0; channel < channelCount; channel++) {
     uint16_t val = readMCP3208Channel(channel);
 
     float volts = val * (3.3 / 4096.0);
-    
+
     float amps = 0.0;
     //volts = volts / 0.6875;
     //amps = (2.5 - volts) / (0.100); //ACS712 5V w/ voltage divider
-    amps = (volts - (3.3 * 0.1)) / (0.200); //TMCS1108A3U
+    amps = (volts - (3.3 * 0.1)) / (0.200);  //TMCS1108A3U
     //amps = (volts - (3.3 * 0.1)) / (0.100); //TMCS1108A2U
     //amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
     //amps = (volts - (3.3 * 0.5)) / (0.066);  //MCS1802-20
     //amps = (volts - 0.650) / (0.100);       //CT427-xSN820DR
-    
+
     //Serial.print(channel);
     //Serial.print(" CH | ");
     //Serial.print(val);
@@ -772,10 +730,8 @@ void readAmperages()
 }
 
 
-void checkSoftFuses()
-{
-  for (byte channel = 0 ; channel < channelCount; channel++)
-  {
+void checkSoftFuses() {
+  for (byte channel = 0; channel < channelCount; channel++) {
     if (abs(channelAmperage[channel]) >= channelSoftFuseAmperage[channel])
       channelTripped[channel] = true;
     else if (abs(channelAmperage[channel]) >= 20.0)
