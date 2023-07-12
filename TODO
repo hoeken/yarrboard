@@ -4,10 +4,11 @@ Code:
 * more error checking of input
 * wifi credential setup: https://randomnerdtutorials.com/esp32-wi-fi-manager-asyncwebserver/
 * webserver w/ a simple UI for config and control of the board.
-* why does ledcwrite not work properly?
 
 Long Term:
 
+* add OTA update functionality: https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
+* why does ledcwrite not work properly?
 * leave the gate open for N2K compatability: https://github.com/AK-Homberger/ESP32-Evo-Remote-Pilot-NMEA2000/blob/master/ESP32EvoPilotRemote/ESP32EvoPilotRemote.ino
 
 Electronics:

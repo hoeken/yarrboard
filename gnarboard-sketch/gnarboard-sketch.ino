@@ -10,6 +10,8 @@
 #include <WiFi.h>               // Standard library
 #include <Preferences.h>        // Standard library
 #include <ESPmDNS.h>            // Standard library
+#include "time.h"
+#include "sntp.h"
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
 #include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
 #include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
@@ -58,15 +60,23 @@ String password;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
-//for tracking our loop
+//for tracking our ADC loop
 int adcInterval = 100;     // virtual delay
 unsigned long previousADCMillis = 0; // Tracks the time since last event fired
 
+//for tracking our message loop
 int messageInterval = 250; // virtual delay
 unsigned long previousMessageMillis = 0; // Tracks the time since last event fired
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
 unsigned long totalHandledMessages = 0;
+
+//time variables
+const char* ntpServer1 = "pool.ntp.org";
+const char* ntpServer2 = "time.nist.gov";
+const long  gmtOffset_sec = 0;
+const int   daylightOffset_sec = 0;
+struct tm timeinfo;
 
 /*
 //NMEA2000 stuff
@@ -133,10 +143,17 @@ void writeFile(fs::FS &fs, const char * path, const char * message){
 
 void setup()
 {
+  unsigned long setup_t1 = micros();
+  
   //startup our serial
   Serial.begin(115200);
   delay(10);
   Serial.println(version);
+
+  // set notification call-back function
+  sntp_set_time_sync_notification_cb(timeAvailable);
+  sntp_servermode_dhcp(1);    // (optional)
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
 
   //where our websites are stored
   //initSPIFFS();
@@ -203,6 +220,18 @@ void setup()
   server.begin();
 
   //setupNMEA2000();
+
+  unsigned long setup_t2 = micros();
+  Serial.print("Boot time: ");
+  Serial.print((float)(setup_t2 - setup_t1) / 1000.0);
+  Serial.println("ms");
+}
+
+// Callback function (get's called when time adjusts via NTP)
+void timeAvailable(struct timeval *t)
+{
+  Serial.print("NTP update: ");
+  printLocalTime();
 }
 
 void setupNMEA2000()
@@ -247,11 +276,11 @@ void setupADC()
   setupMCP3208();
 }
 
-unsigned long t1;
-unsigned long t2;
-
 void loop()
 {
+  unsigned long t1;
+  unsigned long t2;
+
   // websocket server method that handles all clients
   ws.cleanupClients();
 
@@ -292,10 +321,10 @@ void loop()
     //Serial.println("ms");
 
     //how fast are we?
-    Serial.print(messageDelta);
-    Serial.print("ms | msg/s: ");
-    Serial.print(handledMessages - lastHandledMessages);
-    Serial.println();
+    //Serial.print(messageDelta);
+    //Serial.print("ms | msg/s: ");
+    //Serial.print(handledMessages - lastHandledMessages);
+    //Serial.println();
 
     //Serial.print("Heap: ");
     //Serial.println(ESP.getFreeHeap());
@@ -306,6 +335,8 @@ void loop()
     //for keeping track.
     lastHandledMessages = handledMessages;
     previousMessageMillis = millis();
+
+    printLocalTime();
   }
 
   /*
@@ -319,6 +350,47 @@ if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interva
   previousMillis = currentMillis;
 }
 */
+}
+
+void printLocalTime(){
+
+  if(!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  
+  char buffer [80];
+  strftime(buffer, 80, "%FT%T%z", &timeinfo);
+  Serial.println(buffer);
+
+  /*
+  Serial.print("Day of week: ");
+  Serial.println(&timeinfo, "%A");
+  Serial.print("Month: ");
+  Serial.println(&timeinfo, "%B");
+  Serial.print("Day of Month: ");
+  Serial.println(&timeinfo, "%d");
+  Serial.print("Year: ");
+  Serial.println(&timeinfo, "%Y");
+  Serial.print("Hour: ");
+  Serial.println(&timeinfo, "%H");
+  Serial.print("Hour (12 hour format): ");
+  Serial.println(&timeinfo, "%I");
+  Serial.print("Minute: ");
+  Serial.println(&timeinfo, "%M");
+  Serial.print("Second: ");
+  Serial.println(&timeinfo, "%S");
+
+  Serial.println("Time variables");
+  char timeHour[3];
+  strftime(timeHour,3, "%H", &timeinfo);
+  Serial.println(timeHour);
+  char timeWeekDay[10];
+  strftime(timeWeekDay,10, "%A", &timeinfo);
+  Serial.println(timeWeekDay);
+  Serial.println();
+  */
 }
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
@@ -481,7 +553,9 @@ void handleReceivedMessage(char *payload) {
   //wrong command.
   else
   {
-      sendError("Invalid command.");
+    Serial.print("Invalid command: ");
+    Serial.println(cmd);
+    //sendError("Invalid command.");
   }
 
   //keep track!
@@ -492,11 +566,10 @@ void handleReceivedMessage(char *payload) {
 void sendError(String error)
 {
   String jsonString; // Temporary storage for the JSON String
+  StaticJsonDocument<1000> doc;
 
   Serial.print("Error: ");
   Serial.println(error);
-
-  StaticJsonDocument<1000> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -505,7 +578,7 @@ void sendError(String error)
 
   // serialize the object and save teh result to teh string variable.
   serializeJson(doc, jsonString); 
-  //Serial.println( jsonString );
+  Serial.println(jsonString);
   ws.textAll(jsonString);
 }
 
@@ -522,6 +595,7 @@ void sendBoardInfo()
   object["uuid"] = uuid;
   object["msg"] = "config";
   object["totalMessages"] = totalHandledMessages;
+  object["uptime"] = millis();
 
   //send our configuration
   for (byte i=0; i<channelCount; i++)
@@ -553,6 +627,13 @@ void sendUpdate()
   JsonObject object = doc.to<JsonObject>();
 
   object["msg"] = "update";
+
+  if(getLocalTime(&timeinfo))
+  {
+    char buffer [80];
+    strftime(buffer, 80, "%FT%T%z", &timeinfo);
+    object["time"] = buffer;
+  }
 
   for (byte i=0; i<channelCount; i++)
   {

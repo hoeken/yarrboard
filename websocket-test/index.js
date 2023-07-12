@@ -135,7 +135,7 @@ async function togglePin()
             "value": false
         }));
 
-        await delay(1000)
+        await delay(2000)
     }
 }
 
