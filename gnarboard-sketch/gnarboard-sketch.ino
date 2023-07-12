@@ -1,5 +1,5 @@
 /*
-  Gnarboard v1
+  Gnarboard v1.0.0
   
   Author: Zach Hoeken <hoeken@gmail.com>
   Website: https://github.com/hoeken/Gnarboard
@@ -7,20 +7,25 @@
 
 */
 
-#include <WiFi.h>               // Standard library
-#include <Preferences.h>        // Standard library
-#include <ESPmDNS.h>            // Standard library
-#include "time.h"
-#include "sntp.h"
+#include <WiFi.h>               // esp32 standard library
+#include <Preferences.h>        // esp32 standard library
+#include <ESPmDNS.h>            // esp32 standard library
+#include "time.h"               // esp32 standard library
+#include "sntp.h"               // esp32 standard library
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
 #include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
 #include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
 #include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
-//#include <SPIFFS.h>             // Standard library
-//#include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
-//#include <NMEA2000_CAN.h>       // https://github.com/ttlappalainen/NMEA2000 via .zip
-//#include <N2kMsg.h>             // same ^^^
-//#include <N2kDeviceList.h>      // same ^^^
+
+//I couldn't get SPIFFS to work, so doing this hack.
+#include "index.html.h"
+#include "style.css.h"
+//#include "jquery.js.h"
+
+//#include <NMEA2000.h>         // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
+//#include <NMEA2000_CAN.h>     // https://github.com/ttlappalainen/NMEA2000 via .zip
+//#include <N2kMsg.h>           // same ^^^
+//#include <N2kDeviceList.h>    // same ^^^
 
 //identify yourself!
 const char* version = "Gnarboard v1.0.0";
@@ -97,50 +102,6 @@ tN2kDeviceList *pN2kDeviceList;
 short pilotSourceAddress = -1;
 */
 
-/*
-// Initialize SPIFFS
-void initSPIFFS() {
-  if (!SPIFFS.begin(true)) {
-    Serial.println("An error has occurred while mounting SPIFFS");
-  }
-  Serial.println("SPIFFS mounted successfully");
-}
-
-// Read File from SPIFFS
-String readFile(fs::FS &fs, const char * path){
-  Serial.printf("Reading file: %s\r\n", path);
-
-  File file = fs.open(path);
-  if(!file || file.isDirectory()){
-    Serial.println("- failed to open file for reading");
-    return String();
-  }
-  
-  String fileContent;
-  while(file.available()){
-    fileContent = file.readStringUntil('\n');
-    break;     
-  }
-  return fileContent;
-}
-
-// Write file to SPIFFS
-void writeFile(fs::FS &fs, const char * path, const char * message){
-  Serial.printf("Writing file: %s\r\n", path);
-
-  File file = fs.open(path, FILE_WRITE);
-  if(!file){
-    Serial.println("- failed to open file for writing");
-    return;
-  }
-  if(file.print(message)){
-    Serial.println("- file written");
-  } else {
-    Serial.println("- write failed");
-  }
-}
-*/
-
 void setup()
 {
   unsigned long setup_t1 = micros();
@@ -154,9 +115,6 @@ void setup()
   sntp_set_time_sync_notification_cb(timeAvailable);
   sntp_servermode_dhcp(1);    // (optional)
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
-
-  //where our websites are stored
-  //initSPIFFS();
 
   //for storing stuff to flash
   preferences.begin("gnarboard", false);
@@ -213,9 +171,22 @@ void setup()
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
+  // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", "Hello World");
+    request->send_P(200, "text/html", index_html_data);
   });
+
+  // Route for root / web page
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/css", stylesheet_css_data);
+  });
+
+/*
+  // Route for root / web page
+  server.on("/jquery.js", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/javascript", jquery_js_data);
+  });
+*/
 
   server.begin();
 
