@@ -15,10 +15,10 @@ client.onopen = function() {
     console.log('WebSocket Client Connected');
 
     //setTimeout(exercisePins, 3000);
-    //setTimeout(fadePin, 1000);
+    setTimeout(fadePin, 1000);
     //setTimeout(setFuses, 1000);
     //setTimeout(setNames, 1000);
-    setTimeout(togglePin, 1000);
+    //setTimeout(togglePin, 1000);
     //setTimeout(speedTest, 1000);
 };
 
@@ -126,7 +126,6 @@ async function togglePin()
             "id": 0,
             "value": true
         }));
-        console.log("on");
 
         await delay(1000)
 
@@ -135,7 +134,6 @@ async function togglePin()
             "id": 0,
             "value": false
         }));
-        console.log("off");
 
         await delay(1000)
     }
@@ -144,11 +142,12 @@ async function togglePin()
 async function fadePin()
 {
     let steps = 20;
-    let d = 100;
+    let d = 10;
+    let channel = 6;
  
     client.send(JSON.stringify({
         "cmd": "state",
-        "id": 7,
+        "id": channel,
         "value": true
     }));
 
@@ -157,7 +156,7 @@ async function fadePin()
         {
             client.send(JSON.stringify({
                 "cmd": "duty",
-                "id": 7,
+                "id": channel,
                 "value": (i / steps) * 0.1
             }));
 
@@ -168,7 +167,7 @@ async function fadePin()
         {
             client.send(JSON.stringify({
                 "cmd": "duty",
-                "id": 7,
+                "id": channel,
                 "value": (i / steps) * 0.1
             }));
 

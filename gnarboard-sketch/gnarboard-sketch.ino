@@ -57,10 +57,10 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 //for tracking our loop
-int adcInterval = 250;     // virtual delay
+int adcInterval = 100;     // virtual delay
 unsigned long previousADCMillis = 0; // Tracks the time since last event fired
 
-int messageInterval = 1000; // virtual delay
+int messageInterval = 250; // virtual delay
 unsigned long previousMessageMillis = 0; // Tracks the time since last event fired
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
@@ -282,12 +282,28 @@ void loop()
     Serial.print(handledMessages - lastHandledMessages);
     Serial.println();
 
+    //Serial.print("Heap: ");
     //Serial.println(ESP.getFreeHeap());
+
+    //Serial.print("RRSI: ");
+    //Serial.println(WiFi.RSSI());
 
     //for keeping track.
     lastHandledMessages = handledMessages;
     previousMessageMillis = millis();
   }
+
+  /*
+  unsigned long currentMillis = millis();
+// if WiFi is down, try reconnecting
+if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
+  Serial.print(millis());
+  Serial.println("Reconnecting to WiFi...");
+  WiFi.disconnect();
+  WiFi.reconnect();
+  previousMillis = currentMillis;
+}
+*/
 }
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
@@ -541,6 +557,8 @@ void connectToWifi()
   Serial.print("[WiFi] Connecting to ");
   Serial.println(ssid);
 
+  WiFi.setSleep(false);
+  WiFi.setHostname("gnarboard");
   WiFi.useStaticBuffers(true); //from: https://github.com/espressif/arduino-esp32/issues/7183
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid.c_str(), password.c_str());
