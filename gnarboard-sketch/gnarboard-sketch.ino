@@ -65,6 +65,7 @@ int messageInterval = 250; // virtual delay
 unsigned long previousMessageMillis = 0; // Tracks the time since last event fired
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
+unsigned long totalHandledMessages = 0;
 
 /*
 //NMEA2000 stuff
@@ -473,6 +474,7 @@ void handleReceivedMessage(char *payload) {
 
   //keep track!
   handledMessages++;
+  totalHandledMessages++;
 }
 
 void sendError(String error)
@@ -507,17 +509,18 @@ void sendBoardInfo()
   object["name"] = version;
   object["uuid"] = uuid;
   object["msg"] = "config";
+  object["totalMessages"] = totalHandledMessages;
 
   //send our configuration
   for (byte i=0; i<channelCount; i++)
   {
-    object["loads"][i]["id"] = i;
-    object["loads"][i]["name"] = channelNames[i];
-    object["loads"][i]["type"] = "mosfet";
-    object["loads"][i]["hasPWM"] = true;
-    object["loads"][i]["hasCurrent"] = true;
-    object["loads"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
-    object["loads"][i]["saveDutyCycle"] = channelSaveDutyCycle[i];
+    object["channels"][i]["id"] = i;
+    object["channels"][i]["name"] = channelNames[i];
+    object["channels"][i]["type"] = "mosfet";
+    object["channels"][i]["hasPWM"] = true;
+    object["channels"][i]["hasCurrent"] = true;
+    object["channels"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
+    object["channels"][i]["saveDutyCycle"] = channelSaveDutyCycle[i];
   }
   
   // serialize the object and save teh result to teh string variable.
@@ -541,14 +544,14 @@ void sendUpdate()
 
   for (byte i=0; i<channelCount; i++)
   {
-    object["loads"][i]["id"] = i;
-    object["loads"][i]["state"] = channelState[i];
-    object["loads"][i]["duty"] = round2(channelDutyCycle[i]);
-    object["loads"][i]["current"] = round2(channelAmperage[i]);
-    object["loads"][i]["aH"] = round3(channelAmpHour[i]);
+    object["channels"][i]["id"] = i;
+    object["channels"][i]["state"] = channelState[i];
+    object["channels"][i]["duty"] = round2(channelDutyCycle[i]);
+    object["channels"][i]["current"] = round2(channelAmperage[i]);
+    object["channels"][i]["aH"] = round3(channelAmpHour[i]);
 
     if (channelTripped[i])
-      object["loads"][i]["soft_fuse_tripped"] = true;
+      object["channels"][i]["soft_fuse_tripped"] = true;
   }
 
   // serialize the object and save teh result to teh string variable.
@@ -655,7 +658,7 @@ void setupMCP3208()
   adc.begin();
 }
 
-uint16_t readMCP3208Channel(byte channel, byte samples = 4)
+uint16_t readMCP3208Channel(byte channel, byte samples = 64)
 {
   uint32_t value = 0;
 
