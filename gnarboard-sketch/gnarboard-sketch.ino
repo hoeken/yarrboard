@@ -11,10 +11,9 @@
 #include <Preferences.h>        // Standard library
 //#include <SPIFFS.h>             // Standard library
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
-#include <WebSocketsServer.h>   // WebSockets by Markus Sattler via library manager
 //#include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
-//#include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
-//#include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
+#include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
+#include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
 //#include <NMEA2000.h>           // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
 //#include <NMEA2000_CAN.h>       // https://github.com/ttlappalainen/NMEA2000 via .zip
 //#include <N2kMsg.h>             // same ^^^
@@ -50,9 +49,9 @@ Preferences preferences;
 String ssid;
 String password;
 
-//our server variable
-WebSocketsServer webSocket = WebSocketsServer(8080);  //create instance for webSocket server
-String jsonString; // Temporary storage for the JSON String
+//our server variables
+AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
 
 //for tracking our loop
 int adcInterval = 250; // virtual delay
@@ -190,9 +189,10 @@ void setup()
   //get an IP address
   connectToWifi();
 
-  //start our websocket server.
-  webSocket.begin();
-  webSocket.onEvent(webSocketEvent);
+  // Start server
+  ws.onEvent(onEvent);
+  server.addHandler(&ws);
+  server.begin();
 
   //setupNMEA2000();
 }
@@ -242,7 +242,7 @@ void setupADC()
 void loop()
 {
   // websocket server method that handles all clients
-  webSocket.loop(); 
+  ws.cleanupClients();
 
   //run our ADC on a faster loop
   int adcDelta = millis() - previousADCMillis;
@@ -278,31 +278,40 @@ void loop()
     // Use the snapshot to set track time until next event
     previousMessageMillis = millis();
 
-    //Serial.print("^");
-    //Serial.print(messageDelta);
-    //Serial.print("ms | msg/s: ");
-    //Serial.print(handledMessages - lastHandledMessages);
-    //Serial.println();
+    Serial.print("^");
+    Serial.print(messageDelta);
+    Serial.print("ms | msg/s: ");
+    Serial.print(handledMessages - lastHandledMessages);
+    Serial.println();
   }
 }
 
-// This function gets a call when a WebSocket event occurs
-void webSocketEvent(byte num, WStype_t type, uint8_t * payload, size_t length) {
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+             void *arg, uint8_t *data, size_t len) {
   switch (type) {
-    case WStype_DISCONNECTED: // enum that read status this is used for debugging.
-      Serial.println("[WebSocket] Disconnected");
-      break;
-    case WStype_CONNECTED:  // Check if a WebSocket client is connected or not
-      Serial.println("[WebSocket] Connected");
+    case WS_EVT_CONNECT:
+      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
       sendBoardInfo();
       break;
-    case WStype_TEXT: // check response from client
-      Serial.printf("[WebSocket] Message: %s\n", payload);
-      handleReceivedMessage((char*)payload);
+    case WS_EVT_DISCONNECT:
+      Serial.printf("WebSocket client #%u disconnected\n", client->id());
       break;
-    default:
-      Serial.print("[WebSocket] Unknown: ");
-      Serial.println(type);
+    case WS_EVT_DATA:
+      handleWebSocketMessage(arg, data, len);
+      break;
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+      break;
+  }
+}
+
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+  AwsFrameInfo *info = (AwsFrameInfo*)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
+  {
+    data[len] = 0;
+    Serial.printf("[WebSocket] Message: %s\n", data);
+    handleReceivedMessage((char*)data);
   }
 }
 
@@ -428,6 +437,8 @@ void handleReceivedMessage(char *payload) {
 
 void sendError(String error)
 {
+  String jsonString; // Temporary storage for the JSON String
+
   Serial.print("Error: ");
   Serial.println(error);
 
@@ -441,12 +452,12 @@ void sendError(String error)
   // serialize the object and save teh result to teh string variable.
   serializeJson(doc, jsonString); 
   //Serial.println( jsonString );
-  webSocket.broadcastTXT(jsonString); 
-  jsonString = ""; // clear the String.
+  ws.textAll(jsonString);
 }
 
 void sendBoardInfo()
 {
+  String jsonString;
   StaticJsonDocument<5000> doc;
 
   // create an object
@@ -474,13 +485,13 @@ void sendBoardInfo()
   //Serial.println( jsonString );
 
   // send the JSON object through the websocket
-  webSocket.broadcastTXT(jsonString); 
-  jsonString = ""; // clear the String.
+  ws.textAll(jsonString);
 }
 
 void sendUpdate()
 {
   StaticJsonDocument<5000> doc;
+  String jsonString;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -501,12 +512,8 @@ void sendUpdate()
 
   // serialize the object and save teh result to teh string variable.
   serializeJson(doc, jsonString); 
-  
   //Serial.println( jsonString );
-
-  // send the JSON object through the websocket
-  webSocket.broadcastTXT(jsonString); 
-  jsonString = ""; // clear the String.
+  ws.textAll(jsonString);
 }
 
 double round2(double value) {

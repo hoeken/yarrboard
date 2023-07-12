@@ -18,8 +18,8 @@ client.onopen = function() {
     //setTimeout(fadePin, 1000);
     //setTimeout(setFuses, 1000);
     //setTimeout(setNames, 1000);
-    //setTimeout(togglePin, 1000);
-    setTimeout(speedTest, 1000);
+    setTimeout(togglePin, 1000);
+    //setTimeout(speedTest, 1000);
 };
 
 client.onclose = function() {
