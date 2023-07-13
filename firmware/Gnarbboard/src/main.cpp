@@ -12,15 +12,11 @@
 #include <ESPmDNS.h>            // esp32 standard library
 #include "time.h"               // esp32 standard library
 #include "sntp.h"               // esp32 standard library
+#include <SPIFFS.h>             // esp32 standard library
 #include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
 #include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
 #include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
 #include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
-
-//I couldn't get SPIFFS to work, so doing this hack.
-#include "index.html.h"
-#include "style.css.h"
-//#include "jquery.js.h"
 
 //#include <NMEA2000.h>         // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
 //#include <NMEA2000_CAN.h>     // https://github.com/ttlappalainen/NMEA2000 via .zip
@@ -191,26 +187,30 @@ void setup() {
     return;
   }
 
+  // Initialize SPIFFS
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+
   // Start server
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "text/html", index_html_data);
+    request->send(SPIFFS, "/index.html", "text/html");
   });
 
-  // Route for root / web page
+  // Our stylesheet
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "text/css", stylesheet_css_data);
+    request->send(SPIFFS, "/style.css", "text/css");
   });
 
-  /*
-  // Route for root / web page
-  server.on("/jquery.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/javascript", jquery_js_data);
+  // Our jquery library
+  server.on("/jquery.slim.js", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/jquery.slim.js", "text/javascript");
   });
-*/
 
   server.begin();
 
