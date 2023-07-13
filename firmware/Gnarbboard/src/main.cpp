@@ -41,6 +41,8 @@ float channelAmperage[channelCount];
 float channelSoftFuseAmperage[channelCount];
 float channelAmpHour[channelCount];
 String channelNames[channelCount];
+unsigned int channelStateChangeCount[channelCount];
+unsigned int channelSoftFuseTripCount[channelCount];
 
 /* Setting PWM Properties */
 const int PWMFreq = 5000; /* in Hz  */
@@ -102,27 +104,31 @@ short pilotSourceAddress = -1;
 //  Function definitions
 //
 void setupNMEA2000();
-void timeAvailable(struct timeval *t);
+void setupADC();
 void setupNMEA2000();
+void connectToWifi() ;
+
+void timeAvailable(struct timeval *t);
 void printLocalTime();
+
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) ;
-void handleReceivedMessage(char *payload);
-void sendError(String error);
-void sendBoardInfo();
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client);
+void handleReceivedMessage(char *payload, AsyncWebSocketClient *client);
+
 void sendUpdate();
+void sendConfigJSON(AsyncWebSocketClient *client);
+void sendStatsJSON(AsyncWebSocketClient *client);
+void sendErrorJSON(String error, AsyncWebSocketClient *client);
+
 double round2(double value);
 double round3(double value);
 double round4(double value);
-void connectToWifi() ;
+
 void updateChannelState(int channelId);
 void setupMCP3208();
 uint16_t readMCP3208Channel(byte channel, byte samples = 64);
 void readAmperages();
 void checkSoftFuses();
-void setupADC();
-
-
 
 void setup() {
   unsigned long setup_t1 = micros();
@@ -150,6 +156,8 @@ void setup() {
     channelAmperage[i] = 0.0;
     channelSoftFuseAmperage[i] = 20.0;
     channelSaveDutyCycle[i] = true;
+    channelStateChangeCount[i] = 0;
+    channelSoftFuseTripCount[i] = 0;
 
     //initialize our PWM channels
     //ledcSetup(i, PWMFreq, PWMResolution);
@@ -297,19 +305,14 @@ void loop() {
 
   //run our ADC on a faster loop
   int adcDelta = millis() - previousADCMillis;
-  if (adcDelta >= adcInterval) {
+  if (adcDelta >= adcInterval)
+  {
     //this is a bit slow, so only do it once per update
-
-    //t1 = micros();
     readAmperages();
-    //t2 = micros();
-    //Serial.print("ADC: ");
-    //Serial.print((float)(t2 - t1) / 1000.0);
-    //Serial.println("ms");
-
+  
     //record our total consumption
     for (byte i = 0; i < channelCount; i++) {
-      if (channelAmperage > 0)
+      if (channelAmperage[i] > 0)
         channelAmpHour[i] += channelAmperage[i] * ((float)adcDelta / 3600000.0);
     }
 
@@ -324,28 +327,13 @@ void loop() {
   int messageDelta = millis() - previousMessageMillis;
   if (messageDelta >= messageInterval) {
     //read and send out our json update
-    t1 = micros();
     sendUpdate();
-    t2 = micros();
-    //Serial.print("Send Message: ");
-    //Serial.print((float)(t2 - t1) / 1000.0);
-    //Serial.println("ms");
-
+  
     //how fast are we?
     //Serial.print(messageDelta);
     //Serial.print("ms | msg/s: ");
     //Serial.print(handledMessages - lastHandledMessages);
     //Serial.println();
-
-    //Serial.print("Heap: ");
-    //Serial.println(ESP.getFreeHeap());
-    //ESP.getHeapSize();
-    //ESP.getFreeHeap();
-    //ESP.getMinFreeHeap();
-    //ESP.getMaxAllocHeap();
-
-    //Serial.print("RRSI: ");
-    //Serial.println(WiFi.RSSI());
 
     //for keeping track.
     lastHandledMessages = handledMessages;
@@ -367,44 +355,16 @@ if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interva
 */
 }
 
-void printLocalTime() {
-
+void printLocalTime()
+{
   if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return;
   }
 
-  char buffer[80];
-  strftime(buffer, 80, "%FT%T%z", &timeinfo);
+  char buffer[40];
+  strftime(buffer, 40, "%FT%T%z", &timeinfo);
   Serial.println(buffer);
-
-  /*
-  Serial.print("Day of week: ");
-  Serial.println(&timeinfo, "%A");
-  Serial.print("Month: ");
-  Serial.println(&timeinfo, "%B");
-  Serial.print("Day of Month: ");
-  Serial.println(&timeinfo, "%d");
-  Serial.print("Year: ");
-  Serial.println(&timeinfo, "%Y");
-  Serial.print("Hour: ");
-  Serial.println(&timeinfo, "%H");
-  Serial.print("Hour (12 hour format): ");
-  Serial.println(&timeinfo, "%I");
-  Serial.print("Minute: ");
-  Serial.println(&timeinfo, "%M");
-  Serial.print("Second: ");
-  Serial.println(&timeinfo, "%S");
-
-  Serial.println("Time variables");
-  char timeHour[3];
-  strftime(timeHour,3, "%H", &timeinfo);
-  Serial.println(timeHour);
-  char timeWeekDay[10];
-  strftime(timeWeekDay,10, "%A", &timeinfo);
-  Serial.println(timeWeekDay);
-  Serial.println();
-  */
 }
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
@@ -412,13 +372,13 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   switch (type) {
     case WS_EVT_CONNECT:
       Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      sendBoardInfo();
+      sendConfigJSON(client);
       break;
     case WS_EVT_DISCONNECT:
       Serial.printf("WebSocket client #%u disconnected\n", client->id());
       break;
     case WS_EVT_DATA:
-      handleWebSocketMessage(arg, data, len);
+      handleWebSocketMessage(arg, data, len, client);
       break;
     case WS_EVT_PONG:
     case WS_EVT_ERROR:
@@ -426,16 +386,16 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   }
 }
 
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client) {
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
     //Serial.printf("[WebSocket] Message: %s\n", data);
-    handleReceivedMessage((char *)data);
+    handleReceivedMessage((char *)data, client);
   }
 }
 
-void handleReceivedMessage(char *payload) {
+void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
   StaticJsonDocument<2048> doc;
   deserializeJson(doc, payload);
   //JsonObject root = doc.as<JsonObject>();
@@ -448,12 +408,18 @@ void handleReceivedMessage(char *payload) {
     //is it a valid channel?
     byte cid = doc["id"];
     if (cid < 0 || cid >= channelCount) {
-      sendError("Invalid ID");
+      sendErrorJSON("Invalid ID", client);
       return;
     }
 
     //what is our new state?
     bool state = doc["value"];
+
+    //keep track of how many toggles
+    if (state && channelState[cid] != state)
+      channelStateChangeCount[cid]++;
+
+    //record our new state
     channelState[cid] = state;
 
     //reset soft fuse when we turn on
@@ -468,16 +434,16 @@ void handleReceivedMessage(char *payload) {
     //is it a valid channel?
     byte cid = doc["id"];
     if (cid < 0 || cid >= channelCount) {
-      sendError("Invalid ID");
+      sendErrorJSON("Invalid ID", client);
       return;
     }
 
     float value = doc["value"];
 
     if (value < 0)
-      sendError("Duty cycle must be >= 0");
+      sendErrorJSON("Duty cycle must be >= 0", client);
     else if (value > 20)
-      sendError("Duty cycle must be <= 1");
+      sendErrorJSON("Duty cycle must be <= 1", client);
     else {
       channelDutyCycle[cid] = value;
 
@@ -496,15 +462,15 @@ void handleReceivedMessage(char *payload) {
     //is it a valid channel?
     byte cid = doc["id"];
     if (cid < 0 || cid >= channelCount) {
-      sendError("Invalid ID");
+      sendErrorJSON("Invalid ID", client);
       return;
     }
 
     float value = doc["value"];
     if (value < 0)
-      sendError("Soft fuse minimum is 0 amps.");
+      sendErrorJSON("Soft fuse minimum is 0 amps.", client);
     else if (value > 20)
-      sendError("Soft fuse maximum is 20 amps.");
+      sendErrorJSON("Soft fuse maximum is 20 amps.", client);
     else {
       channelSoftFuseAmperage[cid] = value;
 
@@ -517,7 +483,7 @@ void handleReceivedMessage(char *payload) {
     //is it a valid channel?
     byte cid = doc["id"];
     if (cid < 0 || cid >= channelCount) {
-      sendError("Invalid ID");
+      sendErrorJSON("Invalid ID", client);
       return;
     }
 
@@ -529,13 +495,13 @@ void handleReceivedMessage(char *payload) {
     //is it a valid channel?
     byte cid = doc["id"];
     if (cid < 0 || cid >= channelCount) {
-      sendError("Invalid ID");
+      sendErrorJSON("Invalid ID", client);
       return;
     }
 
     String value = doc["value"];
     if (value.length() > 64)
-      sendError("Maximum channel name length is 64 characters.");
+      sendErrorJSON("Maximum channel name length is 64 characters.", client);
     else {
       channelNames[cid] = value;
 
@@ -546,13 +512,17 @@ void handleReceivedMessage(char *payload) {
   }
   //get our config?
   else if (cmd.equals("config")) {
-    sendBoardInfo();
+    sendConfigJSON(client);
+  }
+  //get our config?
+  else if (cmd.equals("stats")) {
+    sendStatsJSON(client);
   }
   //wrong command.
   else {
     Serial.print("Invalid command: ");
     Serial.println(cmd);
-    //sendError("Invalid command.");
+    //sendErrorJSON("Invalid command.");
   }
 
   //keep track!
@@ -560,7 +530,7 @@ void handleReceivedMessage(char *payload) {
   totalHandledMessages++;
 }
 
-void sendError(String error) {
+void sendErrorJSON(String error, AsyncWebSocketClient *client) {
   String jsonString;  // Temporary storage for the JSON String
   StaticJsonDocument<1000> doc;
 
@@ -574,11 +544,10 @@ void sendError(String error) {
 
   // serialize the object and save teh result to teh string variable.
   serializeJson(doc, jsonString);
-  Serial.println(jsonString);
-  ws.textAll(jsonString);
+  ws.text(client->id(), jsonString);
 }
 
-void sendBoardInfo() {
+void sendConfigJSON(AsyncWebSocketClient *client) {
   String jsonString;
   StaticJsonDocument<5000> doc;
 
@@ -609,7 +578,39 @@ void sendBoardInfo() {
   //Serial.println( jsonString );
 
   // send the JSON object through the websocket
-  ws.textAll(jsonString);
+  ws.text(client->id(), jsonString);
+}
+
+void sendStatsJSON(AsyncWebSocketClient *client)
+{
+  //stuff for working with json
+  String jsonString;
+  StaticJsonDocument<5000> doc;
+  JsonObject object = doc.to<JsonObject>();
+
+  //some basic statistics and info
+  object["msg"] = "stats";
+  object["uuid"] = uuid;
+  object["messages"] = totalHandledMessages;
+  object["uptime"] = millis();
+  object["heap_size"] = ESP.getHeapSize();
+  object["free_heap"] = ESP.getFreeHeap();
+  object["min_free_heap"] = ESP.getMinFreeHeap();
+  object["max_alloc_heap"] = ESP.getMaxAllocHeap();
+  object["rssi"] = WiFi.RSSI();
+
+  //info about each of our channels
+  for (byte i = 0; i < channelCount; i++) {
+    object["channels"][i]["id"] = i;
+    object["channels"][i]["name"] = channelNames[i];
+    object["channels"][i]["aH"] = channelAmpHour[i];
+    object["channels"][i]["state_change_count"] = channelStateChangeCount[i];
+    object["channels"][i]["soft_fuse_trip_count"] = channelSoftFuseTripCount[i];
+  }
+
+  //okay prep our json and send it off
+  serializeJson(doc, jsonString);
+  ws.text(client->id(), jsonString);
 }
 
 void sendUpdate() {
@@ -779,11 +780,18 @@ void readAmperages() {
   //Serial.println();
 }
 
-void checkSoftFuses() {
-  for (byte channel = 0; channel < channelCount; channel++) {
-    if (abs(channelAmperage[channel]) >= channelSoftFuseAmperage[channel])
-      channelTripped[channel] = true;
-    else if (abs(channelAmperage[channel]) >= 20.0)
-      channelTripped[channel] = true;
+void checkSoftFuses()
+{
+  for (byte channel = 0; channel < channelCount; channel++)
+  {
+    if (!channelTripped[channel])
+    {
+      if (abs(channelAmperage[channel]) >= channelSoftFuseAmperage[channel] || abs(channelAmperage[channel]) >= 20.0)
+      {
+        channelTripped[channel] = true;
+        channelState[channel] = false;
+        channelSoftFuseTripCount[channel]++;
+      }
+    }
   }
 }

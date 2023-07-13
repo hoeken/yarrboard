@@ -63,38 +63,56 @@
             <div id="configPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <h5>Board Configuration</h5>
             </div>
-            <div id="statsPage" style="display:none" class="pageContainer mt-3 mx-2">
-                <h5>Statistics</h5>
-                <table id="channelTable" class="table">
-                    <tr>
-                        <th>Uptime:</th>
-                        <td id="uptime"></td>
-                    </tr>
-                    <tr>
-                        <th>Messages:</th>
-                        <td id="messages"></td>
-                    </tr>
-                    <tr>
-                        <th>UUID:</th>
-                        <td id="uuid"></td>
-                    </tr>
-                    <tr>
-                        <th>Heap Size:</th>
-                        <td id="heap_size"></td>
-                    </tr>
-                    <tr>
-                        <th>Free Heap:</th>
-                        <td id="free_heap"></td>
-                    </tr>
-                    <tr>
-                        <th>Minimum Free Heap:</th>
-                        <td id="min_free_heap"></td>
-                    </tr>
-                    <tr>
-                        <th>WiFi RSSI:</th>
-                        <td id="wifi_rssi"></td>
-                    </tr>
-                </table>
+            <div id="statsPage" style="display:none" class="pageContainer row mt-3 mx-2">
+                <div class="col-sm">
+                    <h5>Channel Statistics</h5>
+                    <table id="channelStatsTable" class="table">
+                        <tr>
+                            <th>Channel</th>
+                            <th class="text-end">aH</th>
+                            <th class="text-end">On Count</th>
+                            <th class="text-end">Trip Count</th>
+                        </tr>
+                        <tbody id="channelStatsTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="col-sm">
+                    <h5>Board Statistics</h5>
+                    <table id="statsTable" class="table">
+                        <tr>
+                            <th>Uptime:</th>
+                            <td id="uptime"></td>
+                        </tr>
+                        <tr>
+                            <th>Messages:</th>
+                            <td id="messages"></td>
+                        </tr>
+                        <tr>
+                            <th>Heap Size:</th>
+                            <td id="heap_size"></td>
+                        </tr>
+                        <tr>
+                            <th>Free Heap:</th>
+                            <td id="free_heap"></td>
+                        </tr>
+                        <tr>
+                            <th>Minimum Free Heap:</th>
+                            <td id="min_free_heap"></td>
+                        </tr>
+                        <tr>
+                            <th>Max Alloc Heap:</th>
+                            <td id="max_alloc_heap"></td>
+                        </tr>
+                        <tr>
+                            <th>WiFi RSSI:</th>
+                            <td id="rssi"></td>
+                        </tr>
+                        <tr>
+                            <th>UUID:</th>
+                            <td id="uuid"></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
             <div id="networkPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <h5>Network Configuration</h5>

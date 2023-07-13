@@ -15,7 +15,7 @@ client.onopen = function() {
     console.log('WebSocket Client Connected');
 
     //setTimeout(exercisePins, 3000);
-    setTimeout(fadePin, 1000);
+    //setTimeout(fadePin, 1000);
     //setTimeout(setFuses, 1000);
     //setTimeout(setNames, 1000);
     //setTimeout(togglePin, 1000);
@@ -29,7 +29,8 @@ client.onclose = function() {
 client.onmessage = function(e) {
     if (typeof e.data === 'string') {
         let data = JSON.parse(e.data);
-        console.log(data);
+        if (data.msg != "update")
+            console.log(data);
     }
 };
 

@@ -1,10 +1,10 @@
 Firmware:
 
-* new connection should only have config message sent to it, not all.
 * more error checking of input
 * choose current measurement IC
 * investigate why she's crashing
 * big code cleanup
+* record number of soft fuse trips in preferences
 
 Website:
 
@@ -31,6 +31,9 @@ Website:
     * add ssl stuff?
 * Firmware page
     * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
+
+* add an error box on connection drop
+* add reconnection stuff.
 
 Long Term:
 
