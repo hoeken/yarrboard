@@ -202,14 +202,29 @@ void setup() {
     request->send(SPIFFS, "/index.html", "text/html");
   });
 
+  // Route for root / web page
+  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/favicon.ico", "image/x-icon");
+  });
+
   // Our stylesheet
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/style.css", "text/css");
   });
 
+  // Our stylesheet
+  server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/bootstrap.min.css", "text/css");
+  });
+
   // Our jquery library
   server.on("/jquery.slim.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/jquery.slim.js", "text/javascript");
+  });
+
+  // Our bootstrap js library
+  server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/bootstrap.min.js", "text/javascript");
   });
 
   server.begin();
