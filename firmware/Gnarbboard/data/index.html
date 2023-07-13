@@ -20,23 +20,29 @@
     <div class="col-lg-8 mx-auto">
         <nav class="navbar sticky-top navbar-expand-md bg-body-tertiary navbar-light bg-light">
             <div class="container-fluid">
-                <span class="navbar-brand">Gnarboard</span>
+                <a class="navbar-brand" href="#control">Gnarboard</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Control</a>
+                            <a class="nav-link active" aria-current="page" href="#control">Control</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Statistics</a>
+                            <a class="nav-link" href="#stats">Stats</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Settings</a>
+                            <a class="nav-link" href="#config">Config</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Network</a>
+                            <a class="nav-link" href="#network">Network</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#firmware">Firmware</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#logout">Logout</a>
                         </li>
                     </ul>
                 </div>
@@ -55,8 +61,10 @@
                 </table>
             </div>
             <div id="statsContainer" style="display:none"></div>
-            <div id="settingsContainer" style="display:none"></div>
+            <div id="configContainer" style="display:none"></div>
             <div id="networkContainer" style="display:none"></div>
+            <div id="firmwareContainer" style="display:none"></div>
+            <div id="loginContainer" style="display:none"></div>
         </main>
         <footer class="p-4 text-body-secondary text-center">
             <a href="https://github.com/hoeken/Gnarboard">Gnarboard</a> by Zach Hoeken &middot; &copy; 2023
