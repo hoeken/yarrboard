@@ -26,30 +26,30 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#control">Control</a>
+                        <li id="controlNav" class="nav-item">
+                            <a class="nav-link active" onclick="open_page('control')" aria-current="page" href="#control">Control</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#stats">Stats</a>
+                        <li id="statsNav" class="nav-item">
+                            <a class="nav-link" onclick="open_page('stats')" href="#stats">Stats</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#config">Config</a>
+                        <li id="configNav" class="nav-item">
+                            <a class="nav-link" onclick="open_page('config')" href="#config">Config</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#network">Network</a>
+                        <li id="networkNav" class="nav-item">
+                            <a class="nav-link" onclick="open_page('network')" href="#network">Network</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#firmware">Firmware</a>
+                        <li id="firmwareNav" class="nav-item">
+                            <a class="nav-link" onclick="open_page('firmware')" href="#firmware">Firmware</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#logout">Logout</a>
+                        <li id="loginNav" class="nav-item">
+                            <a class="nav-link" onclick="open_page('login')" href="#logout">Logout</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
         <main>
-            <div id="channelContainer">
+            <div id="controlContainer" class="pageContainer">
                 <table id="channelTable" class="table">
                     <tr>
                         <th class="text-center">State</th>
@@ -60,11 +60,21 @@
                     <tbody id="channelTableBody"></tbody>
                 </table>
             </div>
-            <div id="statsContainer" style="display:none"></div>
-            <div id="configContainer" style="display:none"></div>
-            <div id="networkContainer" style="display:none"></div>
-            <div id="firmwareContainer" style="display:none"></div>
-            <div id="loginContainer" style="display:none"></div>
+            <div id="statsContainer" style="display:none" class="pageContainer">
+                <h5>Statistics</h5>
+            </div>
+            <div id="configContainer" style="display:none" class="pageContainer">
+                <h5>Board Configuration</h5>
+            </div>
+            <div id="networkContainer" style="display:none" class="pageContainer">
+                <h5>Network Configuration</h5>
+            </div>
+            <div id="firmwareContainer" style="display:none" class="pageContainer">
+                <h5>Firmware Upload</h5>
+            </div>
+            <div id="loginContainer" style="display:none" class="pageContainer">
+                <h5>Login</h5>
+            </div>
         </main>
         <footer class="p-4 text-body-secondary text-center">
             <a href="https://github.com/hoeken/Gnarboard">Gnarboard</a> by Zach Hoeken &middot; &copy; 2023

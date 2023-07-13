@@ -75,7 +75,6 @@ function start_gnarboard() {
       
 }
 
-
 function toggle_state(id)
 {
   let new_state = false;
@@ -87,4 +86,15 @@ function toggle_state(id)
     "id": id,
     "value": new_state
   }));
+}
+
+function open_page(page)
+{
+    console.log(page);
+    
+    $('.nav-link').removeClass("active");
+    $(`#{page}Nav a`).addClass("active");
+
+    $("div.pageContainer").hide();
+    $(`#${page}Container`).show();
 }
