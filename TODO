@@ -1,20 +1,3 @@
-Code:
-
-* new connection should only have config message sent to it, not all.
-* add ability to set duty cycle
-* add ability to name channels
-* make it look better
-* add ability to change board name
-* wifi credential setup: https://randomnerdtutorials.com/esp32-wi-fi-manager-asyncwebserver/
-* choose current measurement IC
-* more error checking of input
-
-Long Term:
-
-* add OTA update functionality: https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
-* why does ledcwrite not work properly?
-* leave the gate open for N2K compatability: https://github.com/AK-Homberger/ESP32-Evo-Remote-Pilot-NMEA2000/blob/master/ESP32EvoPilotRemote/ESP32EvoPilotRemote.ino
-
 Electronics:
 
 * test voltage divider to get bus voltage

@@ -1,0 +1,36 @@
+Firmware:
+
+* new connection should only have config message sent to it, not all.
+* more error checking of input
+* choose current measurement IC
+
+Website:
+
+* Control page
+    * add ability to set duty cycle
+* Statistics page
+    * Messages handled
+    * Uptime
+    * UUID
+    * Heap stuff
+    * Wifi Signal
+    * More ESP data?
+* Settings page
+    * add ability to name channels
+    * enable/disable dimming
+    * soft fuse setting
+* Network page
+    * wifi mode: AP or client
+        * AP: name / password
+        * Client: name / password
+    * mdns hostname (gnarboard.local)
+    * password protect the gnarboard
+    * add ssl stuff?
+* Firmware page
+    * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
+
+Long Term:
+
+* add OTA update functionality: https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
+* give ledcwrite and higher res pwm a chance
+* control via N2K bus
