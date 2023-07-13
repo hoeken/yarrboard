@@ -339,6 +339,10 @@ void loop() {
 
     //Serial.print("Heap: ");
     //Serial.println(ESP.getFreeHeap());
+    //ESP.getHeapSize();
+    //ESP.getFreeHeap();
+    //ESP.getMinFreeHeap();
+    //ESP.getMaxAllocHeap();
 
     //Serial.print("RRSI: ");
     //Serial.println(WiFi.RSSI());

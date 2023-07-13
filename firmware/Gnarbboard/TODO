@@ -16,7 +16,7 @@ Website:
     * UUID
     * Heap stuff
     * Wifi Signal
-    * More ESP data?
+    * More ESP data? - https://github.com/espressif/arduino-esp32/blob/master/cores/esp32/Esp.h
 * Config page
     * change the board name
     * name channels

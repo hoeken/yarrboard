@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gnarboard v1.0.0</title>
+    <title>Gnarboard</title>
     <!-- Icon source: https://icon-icons.com -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
     <script src="gnarboard.js"></script>
     <script src="jquery.slim.js"></script> 
@@ -20,7 +20,7 @@
     <div class="col-lg-8 mx-auto">
         <nav class="navbar sticky-top navbar-expand-md bg-body-tertiary navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#control">Gnarboard</a>
+                <a id="boardName" class="navbar-brand" onclick="open_page('control')" href="#control">Gnarboard</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
                 </button>
@@ -29,11 +29,11 @@
                         <li id="controlNav" class="nav-item">
                             <a class="nav-link active" onclick="open_page('control')" aria-current="page" href="#control">Control</a>
                         </li>
-                        <li id="statsNav" class="nav-item">
-                            <a class="nav-link" onclick="open_page('stats')" href="#stats">Stats</a>
-                        </li>
                         <li id="configNav" class="nav-item">
                             <a class="nav-link" onclick="open_page('config')" href="#config">Config</a>
+                        </li>
+                        <li id="statsNav" class="nav-item">
+                            <a class="nav-link" onclick="open_page('stats')" href="#stats">Stats</a>
                         </li>
                         <li id="networkNav" class="nav-item">
                             <a class="nav-link" onclick="open_page('network')" href="#network">Network</a>
@@ -49,7 +49,7 @@
             </div>
         </nav>
         <main>
-            <div id="controlContainer" class="pageContainer">
+            <div id="controlPage" class="pageContainer">
                 <table id="channelTable" class="table">
                     <tr>
                         <th class="text-center">State</th>
@@ -60,24 +60,54 @@
                     <tbody id="channelTableBody"></tbody>
                 </table>
             </div>
-            <div id="statsContainer" style="display:none" class="pageContainer">
-                <h5>Statistics</h5>
-            </div>
-            <div id="configContainer" style="display:none" class="pageContainer">
+            <div id="configPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <h5>Board Configuration</h5>
             </div>
-            <div id="networkContainer" style="display:none" class="pageContainer">
+            <div id="statsPage" style="display:none" class="pageContainer mt-3 mx-2">
+                <h5>Statistics</h5>
+                <table id="channelTable" class="table">
+                    <tr>
+                        <th>Uptime:</th>
+                        <td id="uptime"></td>
+                    </tr>
+                    <tr>
+                        <th>Messages:</th>
+                        <td id="messages"></td>
+                    </tr>
+                    <tr>
+                        <th>UUID:</th>
+                        <td id="uuid"></td>
+                    </tr>
+                    <tr>
+                        <th>Heap Size:</th>
+                        <td id="heap_size"></td>
+                    </tr>
+                    <tr>
+                        <th>Free Heap:</th>
+                        <td id="free_heap"></td>
+                    </tr>
+                    <tr>
+                        <th>Minimum Free Heap:</th>
+                        <td id="min_free_heap"></td>
+                    </tr>
+                    <tr>
+                        <th>WiFi RSSI:</th>
+                        <td id="wifi_rssi"></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="networkPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <h5>Network Configuration</h5>
             </div>
-            <div id="firmwareContainer" style="display:none" class="pageContainer">
+            <div id="firmwarePage" style="display:none" class="pageContainer mt-3 mx-2">
                 <h5>Firmware Upload</h5>
             </div>
-            <div id="loginContainer" style="display:none" class="pageContainer">
+            <div id="loginPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <h5>Login</h5>
             </div>
         </main>
         <footer class="p-4 text-body-secondary text-center">
-            <a href="https://github.com/hoeken/Gnarboard">Gnarboard</a> by Zach Hoeken &middot; &copy; 2023
+            <a href="https://github.com/hoeken/Gnarboard">Gnarboard v1.0.0</a> by Zach Hoeken &middot; &copy; 2023
         </footer>
     </div>
 </body>

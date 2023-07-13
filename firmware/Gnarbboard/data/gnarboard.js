@@ -1,30 +1,47 @@
 var socket = new WebSocket("ws://" + window.location.host + "/ws");
+var current_page = "control";
+var current_config;
 
-function start_gnarboard() {
+function start_gnarboard()
+{
+    //check to see if we want a certain page
+    if (window.location.hash)
+    {
+        const pages = ["control", "config", "stats", "network", "firmware", "login"]
+        console.log(window.location.hash);
+        let page = window.location.hash.substring(1);
+        if (pages.includes(page))
+            open_page(page);
+    }
+
     socket.onopen = function(e) {
         console.log("[open] Connection established");
     };
       
-      socket.onmessage = function(event) {
+    socket.onmessage = function(event)
+    {
         const msg = JSON.parse(event.data);
-        //console.log(msg);
+
       
         if (msg.msg == 'config')
         {
-          $('#nameHeader').html(msg.name);
-          $('#statsContainer').html(`Uptime:${msg.uptime}<br/>Messages: ${msg.totalMessages}<br/>UUID: ${msg.uuid}`);
-      
-          $('#channelTableBody').html("");
-          for (ch of msg.channels)
-          {
-            $('#channelTableBody').append(`<tr id="channel${ch.id}" class="channelRow"></tr>`);
-            $('#channel' + ch.id).append(`<td class="text-center"><button id="channelState${ch.id}" type="button" class="btn btn-sm" onclick="toggle_state(${ch.id})"></button></td>`);
-            $('#channel' + ch.id).append(`<td id="channelName${ch.id}" class="channelName">${ch.name}</td>`);
-            $('#channel' + ch.id).append(`<td id="channelDutyCycle${ch.id}" class="text-end"></td>`);
-            $('#channel' + ch.id).append(`<td id="channelCurrent${ch.id}" class="text-end"></td>`);
-            //$('#channel' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
-            $('#channel' + ch.id).append(`<td id="channelError${ch.id}" class="channelError"></td>`);
-          }
+            current_config = msg;
+
+            $("#boardName").html(msg.name);
+            $("#uptime").html(msg.uptime);
+            $("#messages").html(msg.totalMessages);
+            $("#uuid").html(msg.uuid);
+        
+            $('#channelTableBody').html("");
+            for (ch of msg.channels)
+            {
+                $('#channelTableBody').append(`<tr id="channel${ch.id}" class="channelRow"></tr>`);
+                $('#channel' + ch.id).append(`<td class="text-center"><button id="channelState${ch.id}" type="button" class="btn btn-sm" onclick="toggle_state(${ch.id})"></button></td>`);
+                $('#channel' + ch.id).append(`<td id="channelName${ch.id}" class="channelName">${ch.name}</td>`);
+                $('#channel' + ch.id).append(`<td id="channelDutyCycle${ch.id}" class="text-end"></td>`);
+                $('#channel' + ch.id).append(`<td id="channelCurrent${ch.id}" class="text-end"></td>`);
+                $('#channel' + ch.id).append(`<td id="channelError${ch.id}" class="channelError"></td>`);
+            }
         }
         
         if (msg.msg == 'update')
@@ -90,11 +107,11 @@ function toggle_state(id)
 
 function open_page(page)
 {
-    console.log(page);
-    
+    current_page = page;
+
     $('.nav-link').removeClass("active");
-    $(`#{page}Nav a`).addClass("active");
+    $(`#${page}Nav a`).addClass("active");
 
     $("div.pageContainer").hide();
-    $(`#${page}Container`).show();
+    $(`#${page}Page`).show();
 }
