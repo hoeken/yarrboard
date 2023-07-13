@@ -217,6 +217,11 @@ void setup() {
     request->send(SPIFFS, "/bootstrap.min.css", "text/css");
   });
 
+  // Our js library
+  server.on("/gnarboard.js", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/gnarboard.js", "text/javascript");
+  });
+
   // Our jquery library
   server.on("/jquery.slim.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/jquery.slim.js", "text/javascript");
