@@ -281,9 +281,9 @@ void setup() {
   server.addHandler(&ws);
 
   //we are only serving static files - 30 day cache
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
   // only enable this once we're done with web stuff.
-  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
   server.begin();
 
   unsigned long setup_t2 = micros();
@@ -617,6 +617,10 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     if (!assertLoggedIn(client))
       return;
 
+    //clear our first boot flag since they submitted the network page.
+    is_first_boot = false;
+
+    //get our data
     String new_wifi_mode = doc["wifi_mode"].as<String>();
     String new_wifi_ssid = doc["wifi_ssid"].as<String>();
     String new_wifi_pass = doc["wifi_pass"].as<String>();
@@ -743,6 +747,29 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     //gtfo.
     else
       sendErrorJSON("Wrong username/password.", client);
+  }
+  //restart
+  else if (cmd.equals("restart"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+    
+    //do it.
+    ESP.restart();
+  }
+  else if (cmd.equals("factory_reset"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
+    //delete all our prefs
+    preferences.clear();
+    preferences.end();
+
+    //restart the board.
+    ESP.restart();
   }
   //unknown command.
   else
@@ -979,7 +1006,7 @@ void setupWifi()
     Serial.print(wifi_ssid);
     Serial.print(" / ");
     Serial.println(wifi_pass);
- 
+
     //try and connect
     connectToWifi(wifi_ssid, wifi_pass);
   }

@@ -12,14 +12,11 @@ Website:
 * add an error box on connection drop
 * add reconnection stuff.
 
-* Network page
-    * automatically set user/pass Cookies
-    * do some error checking
-    * let user know if changing wifi in client to client mode.
 * Firmware page
     * rename to System
     * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
     * add button to reboot
+    * add button to reset to factory settings
 
 Long Term:
 

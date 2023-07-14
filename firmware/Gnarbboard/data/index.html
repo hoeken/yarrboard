@@ -44,8 +44,8 @@
                         <li id="networkNav" class="nav-item">
                             <a class="nav-link" onclick="open_page('network')" href="#network">Network</a>
                         </li>
-                        <li id="firmwareNav" class="nav-item">
-                            <a class="nav-link" onclick="open_page('firmware')" href="#firmware">Firmware</a>
+                        <li id="systemNav" class="nav-item">
+                            <a class="nav-link" onclick="open_page('system')" href="#system">System</a>
                         </li>
                         <li id="logoutNav" class="nav-item">
                             <a class="nav-link" onclick="open_page('logout')" href="#logout">Logout</a>
@@ -122,7 +122,7 @@
                 </div>
             </div>
             <div id="networkPage" style="display:none" class="pageContainer mt-3 mx-2">
-                <div  class="row">
+                <div class="row">
                     <div class="col-lg-6">
                         <h5>Network Configuration</h5>
                         <div class="mb-3">
@@ -182,8 +182,23 @@
                     <button type="button" class="btn btn-primary" onclick="save_network_settings()">Save Settings</button>
                 </div>
             </div>
-            <div id="firmwarePage" style="display:none" class="pageContainer mt-3 mx-2">
-                <h5>Firmware Upload</h5>
+            <div id="systemPage" style="display:none" class="pageContainer mt-3 mx-2">
+                <div class="row">
+                    <div class="col-lg-6 mb-3">
+                        <h5>Firmware Upload</h5>
+                        <input type="file" class="form-control" id="customFile" />
+                        <button class="btn btn-primary mt-3" type="button" onclick="alert('Not implemented')">Upload Firmware</button>
+                    </div>
+                    <div class="col-lg-6">
+                        <h5>Miscellaneous</h5>
+                        <div>
+                            <button class="btn btn-warning col-12 mb-4" type="button" onclick="restart_board()">Restart Board</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-danger col-12 mb-4" type="button" onclick="reset_to_factory()">Reset to Factory Defaults</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
         <footer class="p-4 text-body-secondary text-center">

@@ -92,7 +92,7 @@ function start_gnarboard()
     //check to see if we want a certain page
     if (window.location.hash)
     {
-      let pages = ["control", "config", "stats", "network", "firmware"];
+      let pages = ["control", "config", "stats", "network", "system"];
       let page = window.location.hash.substring(1);
       if (pages.includes(page))
         open_page(page);
@@ -104,7 +104,7 @@ function start_gnarboard()
     const msg = JSON.parse(event.data);
   
     console.log(msg);
-    
+
     if (msg.msg == 'config')
     {
       current_config = msg;
@@ -560,6 +560,36 @@ function save_network_settings()
     "app_pass": app_pass,
     "require_login": require_login
   }));
+}
+
+function restart_board()
+{
+  if (confirm("Are you sure you want to restart your Gnarboard?"))
+  {
+    //okay, send it off.
+    socket.send(JSON.stringify({
+      "cmd": "restart",
+    }));
+
+    show_alert("Gnarboard is now restarting, please be patient.", "primary");
+    
+    setTimeout(function (){
+      window.location.href = "/";
+    }, 5000);
+  }
+}
+
+function reset_to_factory()
+{
+  if (confirm("WARNING! Are you sure you want to reset your Gnarboard to factory defaults?  This cannot be undone."))
+  {
+    //okay, send it off.
+    socket.send(JSON.stringify({
+      "cmd": "factory_reset",
+    }));
+
+    show_alert("Gnarboard is now resetting to factory defaults, please be patient.", "primary");
+  }
 }
 
 function secondsToDhms(seconds)
