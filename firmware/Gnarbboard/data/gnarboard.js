@@ -52,6 +52,14 @@ const ChannelEditRow = (id, name, soft_fuse) => `
 </div>
 `;
 
+const AlertBox = (message, type) => `
+<div>
+  <div class="mt-3 alert alert-${type} alert-dismissible" role="alert">
+    <div>${message}</div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+</div>`;
+
 socket.onopen = function(e) {
   console.log("[open] Connection established");
 
@@ -195,6 +203,10 @@ socket.onmessage = function(event)
       $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
     }
   }
+  else if (msg.error)
+  {
+    show_alert(msg.error);
+  }
   else
   {
     console.log("Unknown message");
@@ -219,6 +231,11 @@ socket.onerror = function(error) {
 function start_gnarboard()
 {
   
+}
+
+function show_alert(message, type = 'danger')
+{
+  $('#liveAlertPlaceholder').append(AlertBox(message, type))
 }
 
 function toggle_state(id)

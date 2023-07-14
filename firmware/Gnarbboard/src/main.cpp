@@ -424,6 +424,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
       String prefIndex = "cDuty" + String(cid);
       if (millis() - channelLastDutyCycleUpdate[cid] > 750)
         preferences.putFloat(prefIndex.c_str(), value);
+
       //we want the clock to reset every time we change the duty cycle
       //this way, long led fading sessions are only one write.
       channelLastDutyCycleUpdate[cid] = millis();
@@ -555,6 +556,7 @@ void sendErrorJSON(String error, AsyncWebSocketClient *client) {
   object["error"] = error;
 
   // serialize the object and save teh result to teh string variable.
+  //Serial.println(error);
   serializeJson(doc, jsonString);
   ws.text(client->id(), jsonString);
 }

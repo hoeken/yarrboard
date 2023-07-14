@@ -1,11 +1,13 @@
 Firmware:
 
-* test send error stuff.
 * choose current measurement IC
 * investigate why she's crashing
 * big code cleanup
 
 Website:
+
+* add an error box on connection drop
+* add reconnection stuff.
 
 * Network page
     * wifi mode: AP or client
@@ -15,11 +17,9 @@ Website:
     * password protect the gnarboard
     * add ssl stuff?
 * Firmware page
+    * rename to System
     * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
-
-* add an error box on connection drop
-* add reconnection stuff.
-* add button to reboot
+    * add button to reboot
 
 Long Term:
 

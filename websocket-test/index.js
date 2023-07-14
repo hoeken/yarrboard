@@ -15,7 +15,7 @@ client.onopen = function() {
     console.log('WebSocket Client Connected');
 
     //setTimeout(exercisePins, 3000);
-    //setTimeout(fadePin, 1000);
+    setTimeout(fadePin, 1000);
     //setTimeout(togglePin, 1000);
     //setTimeout(speedTest, 1000);
 };
@@ -102,10 +102,10 @@ async function togglePin()
 
 async function fadePin()
 {
-    let steps = 20;
-    let d = 5;
+    let steps = 50;
+    let d = 20;
     let channel = 6;
-    let max_duty = 0.1;
+    let max_duty = 1;
 
     client.send(JSON.stringify({
         "cmd": "set_state",
