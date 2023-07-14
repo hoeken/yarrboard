@@ -3,6 +3,20 @@ var current_page;
 var current_config;
 var firstload = true;
 
+const ChannelControlRow = (id, name) => `
+<tr id="channel${id}" class="channelRow">
+  <td class="text-center"><button id="channelState${id}" type="button" class="btn btn-sm" onclick="toggle_state(${id})"></button></td>
+  <td class="channelName">${name}</td>
+  <td class="text-end"><button id="channelDutyCycle${id}" type="button" class="btn btn-sm btn-light" onclick="toggle_duty_cycle(${id})">???</button></td>
+  <td id="channelCurrent${id}" class="text-end"></td>
+</tr>
+<tr id="channelDutySliderRow${id}" style="display:none">
+  <td colspan="4">
+    <input type="range" class="form-range" min="0" max="100" id="channelDutySlider${id}">
+  </td>
+</tr>
+`;
+
 const ChannelNameEdit = (name) => `
 <div class="col-12">
   <label for="fBoardName" class="form-label">Board Name</label>
@@ -73,12 +87,8 @@ socket.onmessage = function(event)
       $('#channelTableBody').html("");
       for (ch of msg.channels)
       {
-        $('#channelTableBody').append(`<tr id="channel${ch.id}" class="channelRow"></tr>`);
-        $('#channel' + ch.id).append(`<td class="text-center"><button id="channelState${ch.id}" type="button" class="btn btn-sm" onclick="toggle_state(${ch.id})"></button></td>`);
-        $('#channel' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
-        $('#channel' + ch.id).append(`<td id="channelDutyCycle${ch.id}" class="text-end"></td>`);
-        $('#channel' + ch.id).append(`<td id="channelCurrent${ch.id}" class="text-end"></td>`);
-        $('#channel' + ch.id).append(`<td id="channelError${ch.id}" class="channelError"></td>`);
+        $('#channelTableBody').append(ChannelControlRow(ch.id, ch.name));
+        $('#channelDutySlider' + ch.id).change(set_duty_cycle);
       }
     }
 
@@ -146,9 +156,20 @@ socket.onmessage = function(event)
         $('#channelState' + ch.id).addClass("btn-secondary");
       }
 
+      //duty is a bit of a special case.
       let duty = Math.round(ch.duty * 100);
+      if (current_config.channels[ch.id].isDimmable)
+      {
+        $('#channelDutySlider' + ch.id).val(duty); 
+        $('#channelDutyCycle' + ch.id).html(`${duty}%`);
+        $('#channelDutyCycle' + ch.id).show();
+      }
+      else
+      {
+        $('#channelDutyCycle' + ch.id).hide();
+      }
+
       let current = ch.current.toFixed(2);
-      $('#channelDutyCycle' + ch.id).html(`${duty}%`);
       $('#channelCurrent' + ch.id).html(`${current}A`);
 
       if (msg.soft_fuse_tripped)
@@ -214,6 +235,11 @@ function toggle_state(id)
   }));
 }
 
+function toggle_duty_cycle(id)
+{
+  $(`#channelDutySliderRow${id}`).toggle();
+}
+
 function open_page(page)
 {
   current_page = page;
@@ -258,6 +284,30 @@ function validate_board_name(e)
     //set our new board name!
     socket.send(JSON.stringify({
       "cmd": "set_boardname",
+      "value": value
+    }));
+  }
+}
+
+function set_duty_cycle(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  //must be realistic.
+  if (value >= 0 && value <= 100)
+  {
+    //update our button
+    $(`#channelDutyCycle${id}`).html(Math.round(value) + '%');
+
+    //we want a duty value from 0 to 1
+    value = value / 100;
+  
+    //set our new channel name!
+    socket.send(JSON.stringify({
+      "cmd": "set_duty",
+      "id": id,
       "value": value
     }));
   }

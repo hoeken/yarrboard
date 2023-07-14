@@ -37,8 +37,8 @@ const byte analogPins[channelCount] = { 36, 39, 34, 35, 32, 33, 4, 2 };
 bool channelState[channelCount];
 bool channelTripped[channelCount];
 float channelDutyCycle[channelCount];
-bool channelSaveDutyCycle[channelCount];
 bool channelIsDimmable[channelCount];
+unsigned long channelLastDutyCycleUpdate[channelCount];
 float channelAmperage[channelCount];
 float channelSoftFuseAmperage[channelCount];
 float channelAmpHour[channelCount];
@@ -156,10 +156,9 @@ void setup() {
     //init our storage variables.
     channelState[i] = false;
     channelTripped[i] = false;
-    channelDutyCycle[i] = 1.0;
     channelAmperage[i] = 0.0;
     channelAmpHour[i] = 0.0;
-    channelSaveDutyCycle[i] = true;
+    channelLastDutyCycleUpdate[i] = 0;
 
     //initialize our PWM channels
     pinMode(outputPins[i], OUTPUT);
@@ -172,6 +171,14 @@ void setup() {
       channelNames[i] = preferences.getString(prefIndex.c_str());
     else
       channelNames[i] = "Channel #" + String(i);
+
+    //lookup our duty cycle
+    prefIndex = "cDuty" + String(i);
+    Serial.println(prefIndex);
+    if (preferences.isKey(prefIndex.c_str()))
+      channelDutyCycle[i] = preferences.getFloat(prefIndex.c_str());
+    else
+      channelDutyCycle[i] = 1.0;
 
     //dimmability.
     prefIndex = "cDimmable" + String(i);
@@ -413,11 +420,13 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     else {
       channelDutyCycle[cid] = value;
 
-      //do we save our saved duty cycle data?
-      if (channelSaveDutyCycle[cid]) {
-        Serial.println("Saving");
-        preferences.putBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
-      }
+      //save to our storage
+      String prefIndex = "cDuty" + String(cid);
+      if (millis() - channelLastDutyCycleUpdate[cid] > 750)
+        preferences.putFloat(prefIndex.c_str(), value);
+      //we want the clock to reset every time we change the duty cycle
+      //this way, long led fading sessions are only one write.
+      channelLastDutyCycleUpdate[cid] = millis();
     }
 
     //change our output pin to reflect
@@ -574,7 +583,6 @@ void sendConfigJSON(AsyncWebSocketClient *client) {
     object["channels"][i]["hasCurrent"] = true;
     object["channels"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
     object["channels"][i]["isDimmable"] = channelIsDimmable[i];
-    object["channels"][i]["saveDutyCycle"] = channelSaveDutyCycle[i];
   }
 
   // serialize the object and save teh result to teh string variable.
