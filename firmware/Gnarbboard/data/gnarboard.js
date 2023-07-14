@@ -106,8 +106,7 @@ socket.onmessage = function(event)
       $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
     }
   }
-  
-  if (msg.msg == 'update')
+  else if (msg.msg == 'update')
   {
     $('#time').html(msg.time);
     for (ch of msg.channels)
@@ -143,8 +142,7 @@ socket.onmessage = function(event)
         $('#channelError' + ch.id).html("Soft Fuse Tripped");
     }
   }
-
-  if (msg.msg == "stats")
+  else if (msg.msg == "stats")
   {
     $("#uptime").html(secondsToDhms(Math.round(msg.uptime/1000)));
     $("#messages").html(msg.messages.toLocaleString("en-US"));
@@ -162,7 +160,11 @@ socket.onmessage = function(event)
       $('#channelOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
       $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
     }
-
+  }
+  else
+  {
+    console.log("Unknown message");
+    console.log(msg);
   }
 };
 
@@ -193,7 +195,7 @@ function toggle_state(id)
     new_state = false;
 
   socket.send(JSON.stringify({
-    "cmd": "state",
+    "cmd": "set_state",
     "id": id,
     "value": new_state
   }));
@@ -215,14 +217,14 @@ function open_page(page)
 
   if (page == "control")
     socket.send(JSON.stringify({
-      "cmd": "config",
+      "cmd": "get_config",
     }));
 }
 
 function get_stats_data()
 {
   socket.send(JSON.stringify({
-    "cmd": "stats",
+    "cmd": "get_stats",
   }));
 
   //keep loading it while we are here.
@@ -318,6 +320,8 @@ function validate_channel_soft_fuse(e)
     $(ele).removeClass("is-invalid");
     $(ele).addClass("is-valid");
 
+    console.log(value);
+    
     //save it
     socket.send(JSON.stringify({
       "cmd": "set_soft_fuse",

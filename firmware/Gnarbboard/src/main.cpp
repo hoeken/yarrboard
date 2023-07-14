@@ -146,11 +146,12 @@ void setup() {
   sntp_servermode_dhcp(1);  // (optional)
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
 
-  //for storing stuff to flash
+  //really nice library for permanently storing preferences.
   preferences.begin("gnarboard", false);
+  //preferences.clear(); // for dev purposes if you mess up the storage.
 
   //intitialize our output pins.
-  for (byte i = 0; i < channelCount; i++)
+  for (short i = 0; i < channelCount; i++)
   {
     //init our storage variables.
     channelState[i] = false;
@@ -159,46 +160,57 @@ void setup() {
     channelAmperage[i] = 0.0;
     channelAmpHour[i] = 0.0;
     channelSaveDutyCycle[i] = true;
-    channelStateChangeCount[i] = 0;
-    channelSoftFuseTripCount[i] = 0;
 
     //initialize our PWM channels
     pinMode(outputPins[i], OUTPUT);
     analogWrite(outputPins[i], 0);
 
     //lookup our name
-    prefIndex = "channel_name_" + i;
+    prefIndex = "cName" + String(i);
+    Serial.println(prefIndex);
     if (preferences.isKey(prefIndex.c_str()))
       channelNames[i] = preferences.getString(prefIndex.c_str());
     else
-      channelNames[i] = "Channel #" + i;
+      channelNames[i] = "Channel #" + String(i);
 
     //dimmability.
-    prefIndex = "channel_dimmable_" + i;
+    prefIndex = "cDimmable" + String(i);
     if (preferences.isKey(prefIndex.c_str()))
       channelIsDimmable[i] = preferences.getBool(prefIndex.c_str());
     else
       channelIsDimmable[i] = true;
 
     //soft fuse
-    prefIndex = "channel_soft_fuse_" + i;
+    prefIndex = "cSoftFuse" + String(i);
     if (preferences.isKey(prefIndex.c_str()))
       channelSoftFuseAmperage[i] = preferences.getFloat(prefIndex.c_str());
     else
-      channelSoftFuseAmperage[i] = true;
+      channelSoftFuseAmperage[i] = 20.0;
+
+    //soft fuse trip count
+    prefIndex = "cTripCount" + String(i);
+    if (preferences.isKey(prefIndex.c_str()))
+      channelSoftFuseTripCount[i] = preferences.getUInt(prefIndex.c_str());
+    else
+      channelSoftFuseTripCount[i] = 0;
+
+    //channel state change count
+    /*
+    prefIndex = "cStateChange" + String(i);
+    if (preferences.isKey(prefIndex.c_str()))
+      channelStateChangeCount[i] = preferences.getUInt(prefIndex.c_str());
+    else
+      channelStateChangeCount[i] = 0;
+    */
   }
 
   //look up our board name
-  if (preferences.isKey("board_name"))
-    board_name = preferences.getString("board_name");
+  if (preferences.isKey("boardName"))
+    board_name = preferences.getString("boardName");
 
   //various setup calls
   setupADC();
   //setupNMEA2000();
-
-  //load our saved duty cycle data
-  preferences.getBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
-  preferences.getBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));
 
   //get a unique ID for us
   byte mac[6];
@@ -293,7 +305,7 @@ void loop() {
     lastHandledMessages = handledMessages;
     previousMessageMillis = millis();
 
-    printLocalTime();
+    //printLocalTime();
   }
 
   /*
@@ -358,7 +370,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
   String cmd = doc["cmd"];
 
   //change state?
-  if (cmd.equals("state")) {
+  if (cmd.equals("set_state")) {
     //is it a valid channel?
     byte cid = doc["id"];
     if (cid < 0 || cid >= channelCount) {
@@ -384,7 +396,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     updateChannelState(cid);
   }
   //change duty cycle?
-  else if (cmd.equals("duty")) {
+  else if (cmd.equals("set_duty")) {
     //is it a valid channel?
     byte cid = doc["id"];
     if (cid < 0 || cid >= channelCount) {
@@ -411,39 +423,6 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     //change our output pin to reflect
     updateChannelState(cid);
   }
-  //change a soft fuse setting?
-  else if (cmd.equals("soft_fuse")) {
-    //is it a valid channel?
-    byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount) {
-      sendErrorJSON("Invalid ID", client);
-      return;
-    }
-
-    float value = doc["value"];
-    if (value < 0)
-      sendErrorJSON("Soft fuse minimum is 0 amps.", client);
-    else if (value > 20)
-      sendErrorJSON("Soft fuse maximum is 20 amps.", client);
-    else {
-      channelSoftFuseAmperage[cid] = value;
-
-      //save our saved duty cycle data
-      preferences.putBytes("soft_fuse", &channelSoftFuseAmperage, sizeof(channelSoftFuseAmperage));
-    }
-  }
-  //save our duty cycle?
-  else if (cmd.equals("save_duty_cycle")) {
-    //is it a valid channel?
-    byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount) {
-      sendErrorJSON("Invalid ID", client);
-      return;
-    }
-
-    bool value = doc["value"];
-    channelSaveDutyCycle[cid] = value;
-  }
   //change a board name?
   else if (cmd.equals("set_boardname")) {
     String value = doc["value"];
@@ -455,8 +434,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
       board_name = value;
 
       //save to our storage
-      String prefIndex = "board_name";
-      preferences.putString(prefIndex.c_str(), value);
+      preferences.putString("boardName", value);
     }
   }
   //change a channel name?
@@ -476,7 +454,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
       channelNames[cid] = value;
 
       //save to our storage
-      String prefIndex = "channel_name_" + cid;
+      String prefIndex = "cName" + String(cid);
       preferences.putString(prefIndex.c_str(), value);
     }
   }
@@ -495,7 +473,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     channelIsDimmable[cid] = value;
 
     //save to our storage
-    String prefIndex = "channel_dimmable_" + cid;
+    String prefIndex = "cDimmable" + String(cid);
     preferences.putBool(prefIndex.c_str(), value);
   }
   //change a channels soft fuse?
@@ -514,26 +492,28 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
       return;
     }
 
+    Serial.println(value);
+
     //save right nwo.
     channelSoftFuseAmperage[cid] = value;
 
     //save to our storage
-    String prefIndex = "channel_soft_fuse_" + cid;
+    String prefIndex = "cSoftFuse" + String(cid);
     preferences.putFloat(prefIndex.c_str(), value);
   }
   //get our config?
-  else if (cmd.equals("config")) {
+  else if (cmd.equals("get_config")) {
     sendConfigJSON(client);
   }
   //get our config?
-  else if (cmd.equals("stats")) {
+  else if (cmd.equals("get_stats")) {
     sendStatsJSON(client);
   }
   //wrong command.
   else {
     Serial.print("Invalid command: ");
     Serial.println(cmd);
-    //sendErrorJSON("Invalid command.");
+    sendErrorJSON("Invalid command.", client);
   }
 
   //keep track!
@@ -654,7 +634,6 @@ void sendUpdate() {
 
   // serialize the object and save teh result to teh string variable.
   serializeJson(doc, jsonString);
-  //Serial.println( jsonString );
   ws.textAll(jsonString);
 }
 
@@ -734,16 +713,24 @@ void connectToWifi() {
   }
 }
 
-void updateChannelState(int channelId) {
-  //it has to be set to on and soft fuse not tripped.
-  if (channelState[channelId] && !channelTripped[channelId]) {
-    int pwm = (int)(channelDutyCycle[channelId] * MAX_DUTY_CYCLE);
-    //ledcWrite(channelId, pwm);
+void updateChannelState(int channelId)
+{
+  //what PWM do we want?
+  int pwm = 0;
+  if (channelIsDimmable[channelId])
+    pwm = (int)(channelDutyCycle[channelId] * MAX_DUTY_CYCLE);
+  else
+    pwm = MAX_DUTY_CYCLE;
+
+  //if its tripped, zero it out.
+  if (channelTripped[channelId])
+    pwm = 0;
+
+  //okay, set our pin state.
+  if (channelState[channelId])
     analogWrite(outputPins[channelId], pwm);
-  } else {
-    //ledcWrite(outputPins[channelId], pow(2, PWMResolution));
+  else
     analogWrite(outputPins[channelId], 0);
-  }
 }
 
 void setupMCP3208() {
@@ -797,13 +784,23 @@ void checkSoftFuses()
 {
   for (byte channel = 0; channel < channelCount; channel++)
   {
+    //only trip once....
     if (!channelTripped[channel])
     {
+      //Check our soft fuse, and our max limit for the board.
       if (abs(channelAmperage[channel]) >= channelSoftFuseAmperage[channel] || abs(channelAmperage[channel]) >= 20.0)
       {
+        //record some variables
         channelTripped[channel] = true;
         channelState[channel] = false;
         channelSoftFuseTripCount[channel]++;
+
+        //save to our storage
+        String prefIndex = "cTripCount" + String(channel);
+        preferences.putUInt(prefIndex.c_str(), channelSoftFuseTripCount[channel]);
+
+        //actually shut it down!
+        updateChannelState(channel);
       }
     }
   }

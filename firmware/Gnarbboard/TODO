@@ -4,7 +4,7 @@ Firmware:
 * choose current measurement IC
 * investigate why she's crashing
 * big code cleanup
-* record number of soft fuse trips in preferences
+* figure out how to handle rapid duty cycle changes
 
 Website:
 
@@ -27,6 +27,7 @@ Website:
 
 * add an error box on connection drop
 * add reconnection stuff.
+* add button to reboot
 
 Long Term:
 

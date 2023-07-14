@@ -16,8 +16,6 @@ client.onopen = function() {
 
     //setTimeout(exercisePins, 3000);
     //setTimeout(fadePin, 1000);
-    //setTimeout(setFuses, 1000);
-    //setTimeout(setNames, 1000);
     //setTimeout(togglePin, 1000);
     //setTimeout(speedTest, 1000);
 };
@@ -38,48 +36,10 @@ async function speedTest()
 {
     while(true) {
         client.send(JSON.stringify({
-            "cmd": "config"
+            "cmd": "get_config"
         }));
         await delay(8)
     }
-}
-
-async function setNames()
-{
-    for (i=0; i<8; i++)
-    {
-        client.send(JSON.stringify({
-            "cmd": "set_name",
-            "id": i,
-            "value": "Channel #" + i
-        }));
-    }
-
-    await delay(1000)
-
-    client.send(JSON.stringify({
-        "cmd": "config"
-    }));
-}
-
-
-async function setFuses()
-{
-    let fuse_current = 10;
-    for (i=0; i<8; i++)
-    {
-        client.send(JSON.stringify({
-            "cmd": "soft_fuse",
-            "id": i,
-            "value": fuse_current + i/10
-        }));
-    }
-
-    await delay(1000)
-
-    client.send(JSON.stringify({
-        "cmd": "config"
-    }));
 }
 
 async function exercisePins()
@@ -88,12 +48,12 @@ async function exercisePins()
         for (i=0; i<8; i++)
         {
             client.send(JSON.stringify({
-                "cmd": "duty",
+                "cmd": "set_duty",
                 "id": i,
                 "value": Math.random()
             }));
             client.send(JSON.stringify({
-                "cmd": "state",
+                "cmd": "set_state",
                 "id": i,
                 "value": true
             }));
@@ -104,7 +64,7 @@ async function exercisePins()
         for (i=0; i<8; i++)
         {
             client.send(JSON.stringify({
-                "cmd": "state",
+                "cmd": "set_state",
                 "id": i,
                 "value": false
             }));
@@ -116,14 +76,14 @@ async function exercisePins()
 async function togglePin()
 {
     client.send(JSON.stringify({
-        "cmd": "duty",
+        "cmd": "set_duty",
         "id": 0,
         "value": 1
     }));
 
     while (true) {
         client.send(JSON.stringify({
-            "cmd": "state",
+            "cmd": "set_state",
             "id": 0,
             "value": true
         }));
@@ -131,7 +91,7 @@ async function togglePin()
         await delay(1000)
 
         client.send(JSON.stringify({
-            "cmd": "state",
+            "cmd": "set_state",
             "id": 0,
             "value": false
         }));
@@ -148,13 +108,7 @@ async function fadePin()
     let max_duty = 0.1;
 
     client.send(JSON.stringify({
-        "cmd": "save_duty_cycle",
-        "id": channel,
-        "value": false
-    }));
-
-    client.send(JSON.stringify({
-        "cmd": "state",
+        "cmd": "set_state",
         "id": channel,
         "value": true
     }));
@@ -163,7 +117,7 @@ async function fadePin()
         for (i=0; i<=steps; i++)
         {
             client.send(JSON.stringify({
-                "cmd": "duty",
+                "cmd": "set_duty",
                 "id": channel,
                 "value": (i / steps) * max_duty
             }));
@@ -174,7 +128,7 @@ async function fadePin()
         for (i=steps; i>=0; i--)
         {
             client.send(JSON.stringify({
-                "cmd": "duty",
+                "cmd": "set_duty",
                 "id": channel,
                 "value": (i / steps) * max_duty
             }));
