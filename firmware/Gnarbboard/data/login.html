@@ -56,6 +56,13 @@
         <button class="btn btn-primary w-100 py-2" onclick="do_login()"">Log in</button>
         <p class="text-center text-muted my-2">Default: admin / admin</p>
         <div id="liveAlertPlaceholder"></div>
+        <script>
+            //enter triggers login
+            $(document).on('keypress',function(e) {
+                if(e.which == 13)
+                    do_login();
+            });
+        </script>
     </main>
     <footer class="p-4 text-body-secondary text-center">
         <a id="projectName" href="https://github.com/hoeken/Gnarboard">Gnarboard</a> by Zach Hoeken &middot; &copy; 2023

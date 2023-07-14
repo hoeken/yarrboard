@@ -6,7 +6,6 @@ Firmware:
 
 Website:
 
-* "enter" should submit login form
 * add an error box on connection drop
 * add reconnection stuff.
 * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/

@@ -394,12 +394,9 @@ function open_page(page)
 
 function on_page_ready()
 {
-  console.log(`checking ${current_page}`);
-
   //is our page ready yet?
   if (page_ready[current_page])
   {
-    console.log("GO!");
     $("#loading").hide();
     $(`#${current_page}Page`).show();
   }
