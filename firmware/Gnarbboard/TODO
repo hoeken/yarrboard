@@ -4,6 +4,8 @@ Firmware:
 * investigate why she's crashing
 * big code cleanup
 * look at throttling based on incoming messages - go into lower power if we havent had one in a few minutes
+* hide the content divs until after message parsing has finished (control, stats, network)
+* "enter" should submit login form
 
 Website:
 
@@ -11,11 +13,9 @@ Website:
 * add reconnection stuff.
 
 * Network page
-    * wifi mode: AP or client
-        * AP: name / password
-        * Client: name / password
-    * mdns hostname (gnarboard.local)
-    * password protect the gnarboard
+    * automatically set user/pass Cookies
+    * do some error checking
+    * let user know if changing wifi in client to client mode.
 * Firmware page
     * rename to System
     * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/

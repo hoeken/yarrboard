@@ -8,6 +8,7 @@
 */
 
 #include <WiFi.h>               // esp32 standard library
+#include <DNSServer.h>          // esp32 standard library
 #include <Preferences.h>        // esp32 standard library
 #include <ESPmDNS.h>            // esp32 standard library
 #include "time.h"               // esp32 standard library
@@ -27,14 +28,23 @@
 const char *version = "Gnarboard v1.0.0";
 String uuid;
 String board_name = "Gnarboard";
+bool is_first_boot = true;
+
+//for making a captive portal
+const byte DNS_PORT = 53;
+IPAddress apIP(8,8,4,4); // The default android DNS
+DNSServer dnsServer;
+
+//default config info for our wifi
+String wifi_ssid = "Gnarboard";
+String wifi_pass = "";
+String wifi_mode = "ap";
 
 //username / password for websocket authentication
 String app_user = "admin";
 String app_pass = "admin";
-
-//username / password for our wifi.
-String wifi_ssid;
-String wifi_pass;
+bool require_login = true;
+String local_hostname = "gnarboard";
 
 //keep track of our channel info.
 const byte channelCount = 8;
@@ -116,7 +126,8 @@ short pilotSourceAddress = -1;
 void setupNMEA2000();
 void setupADC();
 void setupNMEA2000();
-void connectToWifi() ;
+void setupWifi() ;
+bool connectToWifi(String ssid, String pass);
 
 void timeAvailable(struct timeval *t);
 void printLocalTime();
@@ -129,6 +140,7 @@ bool assertLoggedIn(AsyncWebSocketClient *client);
 bool assertValidChannel(byte cid, AsyncWebSocketClient *client);
 void sendUpdate();
 void sendConfigJSON(AsyncWebSocketClient *client);
+void sendNetworkConfigJSON(AsyncWebSocketClient *client);
 void sendStatsJSON(AsyncWebSocketClient *client);
 void sendSuccessJSON(String success, AsyncWebSocketClient *client);
 void sendErrorJSON(String error, AsyncWebSocketClient *client);
@@ -177,7 +189,6 @@ void setup() {
 
     //lookup our name
     prefIndex = "cName" + String(i);
-    Serial.println(prefIndex);
     if (preferences.isKey(prefIndex.c_str()))
       channelNames[i] = preferences.getString(prefIndex.c_str());
     else
@@ -185,7 +196,6 @@ void setup() {
 
     //lookup our duty cycle
     prefIndex = "cDuty" + String(i);
-    Serial.println(prefIndex);
     if (preferences.isKey(prefIndex.c_str()))
       channelDutyCycle[i] = preferences.getFloat(prefIndex.c_str());
     else
@@ -226,11 +236,26 @@ void setup() {
   if (preferences.isKey("boardName"))
     board_name = preferences.getString("boardName");
 
+  //wifi login info.
+  if (preferences.isKey("wifi_mode"))
+  {
+    is_first_boot = false;
+    wifi_mode = preferences.getString("wifi_mode");
+    wifi_ssid = preferences.getString("wifi_ssid");
+    wifi_pass = preferences.getString("wifi_pass");
+  }
+  else
+    is_first_boot = true;
+
   //look up our username/password
   if (preferences.isKey("app_user"))
     app_user = preferences.getString("app_user");
   if (preferences.isKey("app_pass"))
     app_pass = preferences.getString("app_pass");
+  if (preferences.isKey("require_login"))
+    require_login = preferences.getBool("require_login");
+  if (preferences.isKey("local_hostname"))
+    local_hostname = preferences.getString("local_hostname");
 
   //various setup calls
   setupADC();
@@ -243,13 +268,7 @@ void setup() {
   Serial.println(uuid);
 
   //get an IP address
-  connectToWifi();
-
-  //setup our local name.
-  if (!MDNS.begin("gnarboard")) {
-    Serial.println("Error starting mDNS");
-    return;
-  }
+  setupWifi();
 
   // Initialize SPIFFS
   if(!SPIFFS.begin(true)){
@@ -262,9 +281,9 @@ void setup() {
   server.addHandler(&ws);
 
   //we are only serving static files - 30 day cache
-  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
   // only enable this once we're done with web stuff.
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
+  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
   server.begin();
 
   unsigned long setup_t2 = micros();
@@ -293,6 +312,10 @@ void loop() {
 
   //sometimes websocket clients die badly.
   ws.cleanupClients();
+
+  //run our dns... for AP mode
+  if (wifi_mode.equals("ap"))
+    dnsServer.processNextRequest();
 
   //run our ADC on a faster loop
   int adcDelta = millis() - previousADCMillis;
@@ -370,9 +393,10 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
       Serial.printf("[WS] client #%u disconnected\n", client->id());
 
       //clear this guy from our authenticated list.
-      for (byte i=0; i<clientLimit; i++)
-        if (authenticatedClientIDs[i] == client->id())
-          authenticatedClientIDs[i] = 0;
+      if (require_login)
+        for (byte i=0; i<clientLimit; i++)
+          if (authenticatedClientIDs[i] == client->id())
+            authenticatedClientIDs[i] = 0;
 
       break;
     case WS_EVT_DATA:
@@ -400,6 +424,10 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
 
   //what is your command?
   String cmd = doc["cmd"];
+
+  //keep track!
+  handledMessages++;
+  totalHandledMessages++;
 
   //change state?
   if (cmd.equals("set_state"))
@@ -573,7 +601,93 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
 
     sendConfigJSON(client);
   }
-  //get our config?
+  //networking?
+  else if (cmd.equals("get_network_config"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
+    sendNetworkConfigJSON(client);
+  }
+  //setup networking?
+  else if (cmd.equals("set_network_config"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
+    String new_wifi_mode = doc["wifi_mode"].as<String>();
+    String new_wifi_ssid = doc["wifi_ssid"].as<String>();
+    String new_wifi_pass = doc["wifi_pass"].as<String>();
+    local_hostname = doc["local_hostname"].as<String>();
+    app_user = doc["app_user"].as<String>();
+    app_pass = doc["app_pass"].as<String>();
+    require_login = doc["require_login"];
+
+    //make sure we can connect before we save
+    if (new_wifi_mode.equals("client"))
+    {
+      //did we change username/password?
+      if (!new_wifi_ssid.equals(wifi_ssid) || !new_wifi_pass.equals(wifi_pass))
+      {
+        //try connecting.
+        if (connectToWifi(new_wifi_ssid, new_wifi_pass))
+        {
+          //let the client know.
+          sendSuccessJSON("Connected to new WiFi.", client);
+
+          //changing modes?
+          if (wifi_mode.equals("ap"))
+            WiFi.softAPdisconnect();
+
+          //save to flash
+          preferences.putString("wifi_mode", new_wifi_mode);
+          preferences.putString("wifi_ssid", new_wifi_ssid);
+          preferences.putString("wifi_pass", new_wifi_pass);
+
+          //save for local use
+          wifi_mode = new_wifi_mode;
+          wifi_ssid = new_wifi_ssid;
+          wifi_pass = new_wifi_pass;
+        }
+        //nope, setup our wifi back to default.
+        else
+          sendErrorJSON("Can't connect to new WiFi.", client);
+      }
+      else
+        sendSuccessJSON("Network settings updated.", client);
+    }
+    //okay, AP mode is easier
+    else
+    {
+      sendSuccessJSON("AP mode successful, please connect to new network.", client);
+
+      //changing modes?
+      //if (wifi_mode.equals("client"))
+      //  WiFi.disconnect();
+
+      //save to flash
+      preferences.putString("wifi_mode", new_wifi_mode);
+      preferences.putString("wifi_ssid", new_wifi_ssid);
+      preferences.putString("wifi_pass", new_wifi_pass);
+
+      //save for local use.
+      wifi_mode = new_wifi_mode;
+      wifi_ssid = new_wifi_ssid;
+      wifi_pass = new_wifi_pass;
+
+      //switch us into AP mode
+      setupWifi();
+    }
+
+    //no special cases here.
+    preferences.putString("local_hostname", local_hostname);
+    preferences.putString("app_user", app_user);
+    preferences.putString("app_pass", app_pass);
+    preferences.putBool("require_login", require_login);
+  }  
+  //get our stats?
   else if (cmd.equals("get_stats"))
   {
     //clean runs only.
@@ -585,6 +699,12 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
   //get our config?
   else if (cmd.equals("login"))
   {
+    if (!require_login)
+    {
+      sendErrorJSON("Login not required.", client);
+      return;
+    }
+
     String myuser = doc["user"];
     String mypass = doc["pass"];
 
@@ -631,14 +751,14 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     Serial.println(cmd);
     sendErrorJSON("Invalid command.", client);
   }
-
-  //keep track!
-  handledMessages++;
-  totalHandledMessages++;
 }
 
 bool assertLoggedIn(AsyncWebSocketClient *client)
 {
+  //only if required by law!
+  if (!require_login)
+    return true;
+
   //are they in our auth array?
   for (byte i=0; i<clientLimit; i++)
     if (authenticatedClientIDs[i] == client->id())
@@ -679,7 +799,8 @@ void sendSuccessJSON(String success, AsyncWebSocketClient *client) {
   ws.text(client->id(), jsonString);
 }
 
-void sendErrorJSON(String error, AsyncWebSocketClient *client) {
+void sendErrorJSON(String error, AsyncWebSocketClient *client)
+{
   String jsonString;  // Temporary storage for the JSON String
   StaticJsonDocument<1000> doc;
 
@@ -697,7 +818,8 @@ void sendErrorJSON(String error, AsyncWebSocketClient *client) {
   ws.text(client->id(), jsonString);
 }
 
-void sendConfigJSON(AsyncWebSocketClient *client) {
+void sendConfigJSON(AsyncWebSocketClient *client)
+{
   String jsonString;
   StaticJsonDocument<5000> doc;
 
@@ -709,8 +831,10 @@ void sendConfigJSON(AsyncWebSocketClient *client) {
   object["name"] = board_name;
   object["uuid"] = uuid;
   object["msg"] = "config";
-  object["totalMessages"] = totalHandledMessages;
-  object["uptime"] = millis();
+
+  //do we want to flag it for config?
+  if (is_first_boot)
+    object["first_boot"] = true;
 
   //send our configuration
   for (byte i = 0; i < channelCount; i++) {
@@ -729,6 +853,29 @@ void sendConfigJSON(AsyncWebSocketClient *client) {
   //Serial.println( jsonString );
 
   // send the JSON object through the websocket
+  ws.text(client->id(), jsonString);
+}
+
+void sendNetworkConfigJSON(AsyncWebSocketClient *client)
+{
+  String jsonString;
+  StaticJsonDocument<1000> doc;
+
+  // create an object
+  JsonObject object = doc.to<JsonObject>();
+
+  //our identifying info
+  object["msg"] = "network_config";
+  object["wifi_mode"] = wifi_mode;
+  object["wifi_ssid"] = wifi_ssid;
+  object["wifi_pass"] = wifi_pass;
+  object["local_hostname"] = local_hostname;
+  object["require_login"] = require_login;
+  object["app_user"] = app_user;
+  object["app_pass"] = app_pass;
+
+  //serialize the object and send it.
+  serializeJson(doc, jsonString);
   ws.text(client->id(), jsonString);
 }
 
@@ -794,11 +941,14 @@ void sendUpdate() {
   serializeJson(doc, jsonString);
 
   //send the message to all authenticated clients.
-  for (byte i=0; i<clientLimit; i++)
-    if (authenticatedClientIDs[i])
-      ws.text(authenticatedClientIDs[i], jsonString);
-
-  //ws.textAll(jsonString);
+  if (require_login)
+  {
+    for (byte i=0; i<clientLimit; i++)
+      if (authenticatedClientIDs[i])
+        ws.text(authenticatedClientIDs[i], jsonString);
+  }
+  else
+    ws.textAll(jsonString);
 }
 
 double round2(double value) {
@@ -814,35 +964,71 @@ double round4(double value) {
 }
 
 
-void connectToWifi()
+void setupWifi()
 {
-  //wifi login info.
-  wifi_ssid = preferences.getString("wifi_ssid", "Wind.Ninja");
-  wifi_pass = preferences.getString("wifi_pass", "chickenloop");
-
-  Serial.print("[WiFi] Connecting to ");
-  Serial.println(wifi_ssid);
-
+  //some global config
   WiFi.setSleep(false);
-  WiFi.setHostname("gnarboard");
+  WiFi.setHostname(local_hostname.c_str());
   WiFi.useStaticBuffers(true);  //from: https://github.com/espressif/arduino-esp32/issues/7183
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
+  WiFi.mode(WIFI_AP_STA);
 
-  // How long to try
+  //which mode do we want?
+  if (wifi_mode.equals("client"))
+  {
+    Serial.print("Client mode: ");
+    Serial.print(wifi_ssid);
+    Serial.print(" / ");
+    Serial.println(wifi_pass);
+ 
+    //try and connect
+    connectToWifi(wifi_ssid, wifi_pass);
+  }
+  //default to AP mode.
+  else
+  {
+    Serial.print("AP mode: ");
+    Serial.print(wifi_ssid);
+    Serial.print(" / ");
+    Serial.println(wifi_pass);
+
+    WiFi.softAP(wifi_ssid, wifi_pass);
+    WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+
+    // if DNSServer is started with "*" for domain name, it will reply with
+    // provided IP to all DNS request
+    dnsServer.start(DNS_PORT, "*", apIP);
+  }
+
+  //setup our local name.
+  if (!MDNS.begin(local_hostname)) {
+    Serial.println("Error starting mDNS");
+    return;
+  }
+}
+
+bool connectToWifi(String ssid, String pass)
+{
+  Serial.print("[WiFi] Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.setAutoReconnect(true);
+  WiFi.begin(ssid.c_str(), pass.c_str());
+
+  // How long to try for?
   int tryDelay = 500;
-  int numberOfTries = 1000;
+  int numberOfTries = 60;
 
   // Wait for the WiFi event
-  while (true) {
-
-    switch (WiFi.status()) {
+  while (true)
+  {
+    switch (WiFi.status())
+    {
       case WL_NO_SSID_AVAIL:
         Serial.println("[WiFi] SSID not found");
+        return false;
         break;
       case WL_CONNECT_FAILED:
-        Serial.print("[WiFi] Failed - WiFi not connected! Reason: ");
-        return;
+        Serial.print("[WiFi] Failed");
         break;
       case WL_CONNECTION_LOST:
         Serial.println("[WiFi] Connection was lost");
@@ -857,26 +1043,29 @@ void connectToWifi()
         Serial.println("[WiFi] WiFi is connected!");
         Serial.print("[WiFi] IP address: ");
         Serial.println(WiFi.localIP());
-        return;
+        return true;
         break;
       default:
         Serial.print("[WiFi] WiFi Status: ");
         Serial.println(WiFi.status());
         break;
     }
-    delay(tryDelay);
 
-    /*      
-      if(numberOfTries <= 0){
-        Serial.print(".");
-        // Use disconnect function to force stop trying to connect
-        WiFi.disconnect();
-        return;
-      } else {
-        numberOfTries--;
-      }
-      */
+    //have we hit our limit?
+    if(numberOfTries <= 0)
+    {
+      Serial.print(".");
+      // Use disconnect function to force stop trying to connect
+      WiFi.disconnect();
+      return false;
+    } else {
+      numberOfTries--;
+    }
+
+    delay(tryDelay);
   }
+
+  return false;
 }
 
 void updateChannelState(int channelId)

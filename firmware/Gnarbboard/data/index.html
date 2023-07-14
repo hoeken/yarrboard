@@ -12,10 +12,6 @@
     <script src="jquery.slim.js"></script> 
     <script src="bootstrap.min.js"></script>
     <script src="jscookie.js"></script>
-    <script>
-        $(document).ready(start_gnarboard);
-        let FF_FOUC_FIX;
-    </script>
     <style>
         .form-label {
             font-weight: bold;
@@ -23,6 +19,10 @@
     </style>
 </head>
 <body>
+    <script>
+        $(document).ready(start_gnarboard);
+        let FF_FOUC_FIX;
+    </script>
     <div class="col-lg-8 mx-auto">
         <nav class="navbar sticky-top navbar-expand-md bg-body-tertiary navbar-light bg-light">
             <div class="container-fluid">
@@ -47,7 +47,7 @@
                         <li id="firmwareNav" class="nav-item">
                             <a class="nav-link" onclick="open_page('firmware')" href="#firmware">Firmware</a>
                         </li>
-                        <li id="loginNav" class="nav-item">
+                        <li id="logoutNav" class="nav-item">
                             <a class="nav-link" onclick="open_page('logout')" href="#logout">Logout</a>
                         </li>
                     </ul>
@@ -122,7 +122,65 @@
                 </div>
             </div>
             <div id="networkPage" style="display:none" class="pageContainer mt-3 mx-2">
-                <h5>Network Configuration</h5>
+                <div  class="row">
+                    <div class="col-lg-6">
+                        <h5>Network Configuration</h5>
+                        <div class="mb-3">
+                            <label for="wifi_mode" class="col-form-label">Wifi Mode</label>
+                            <div>
+                                <select id="wifi_mode" class="form-select" aria-label="Wifi Mode">
+                                    <option value="ap">AP (You connect to Gnarboard)</option>
+                                    <option value="client">Client (Gnarboard connects to WiFi)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="wifi_ssid" class="col-form-label">Wifi Name (SSID)</label>
+                            <div class="">
+                                <input id="wifi_ssid" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="wifi_pass" class="col-form-label">Wifi Password</label>
+                            <div class="">
+                                <input id="wifi_pass" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="staticEmail" class="col-form-label">Local Hostname</label>
+                            <div class="input-group">
+                                <input id="local_hostname" type="text" class="form-control">
+                                <span class="input-group-text">.local</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h5>App Configuration</h5>
+                        <div class="mb-3">
+                            <label for="app_user" class="col-form-label">App Username</label>
+                            <div class="">
+                                <input id="app_user" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="app_pass" class="col-form-label">App Password</label>
+                            <div class="">
+                                <input id="app_pass" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="require_login" checked>
+                                <label class="form-check-label" for="require_login">
+                                  Require login with username / password
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3 text-center">
+                    <button type="button" class="btn btn-primary" onclick="save_network_settings()">Save Settings</button>
+                </div>
             </div>
             <div id="firmwarePage" style="display:none" class="pageContainer mt-3 mx-2">
                 <h5>Firmware Upload</h5>

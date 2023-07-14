@@ -1,7 +1,10 @@
-var socket = new WebSocket("ws://" + window.location.host + "/ws");
+var socket = false;
 var current_page;
 var current_config;
 var firstload = true;
+var app_username;
+var app_password;
+var network_config;
 
 const ChannelControlRow = (id, name) => `
 <tr id="channel${id}" class="channelRow">
@@ -60,221 +63,253 @@ const AlertBox = (message, type) => `
   </div>
 </div>`;
 
-socket.onopen = function(e) {
-  console.log("[open] Connection established");
-
-  //auto login?
-  if (Cookies.get("username") && Cookies.get("password")){
-    socket.send(JSON.stringify({
-      "cmd": "login",
-      "user": Cookies.get("username"),
-      "pass": Cookies.get("password")
-    }));
-  }
-
-  //load our config... will also trigger login
-  socket.send(JSON.stringify({
-    "cmd": "get_config"
-  }));
-
-  //check to see if we want a certain page
-  if (window.location.hash)
-  {
-    let pages = ["control", "config", "stats", "network", "firmware", "login"];
-    let page = window.location.hash.substring(1);
-    if (pages.includes(page))
-      open_page(page);
-  }  
-};
-
-socket.onmessage = function(event)
-{
-  const msg = JSON.parse(event.data);
-
-  if (msg.msg == 'config')
-  {
-    current_config = msg;
-    console.log(msg);
-
-    //let the people choose their own names!
-    $('#boardName').html(msg.name);
-    document.title = msg.name;
-
-    //update our footer automatically.
-    $('#projectName').html(msg.version);
-
-    //populate our channel control table
-    if (current_page != "control" || firstload)
-    {
-      $('#channelTableBody').html("");
-      for (ch of msg.channels)
-      {
-        $('#channelTableBody').append(ChannelControlRow(ch.id, ch.name));
-        $('#channelDutySlider' + ch.id).change(set_duty_cycle);
-      }
-    }
-
-    if (current_page != "stats" || firstload)
-    {
-      //populate our channel stats table
-      $('#channelStatsTableBody').html("");
-      for (ch of msg.channels)
-      {
-        $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
-        $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
-        $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
-        $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
-        $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
-      }
-    }
-
-    if (current_page != "config" || firstload)
-    {
-      //populate our channel edit table
-      $('#channelConfigForm').html(ChannelNameEdit(msg.name));
-
-      //validate + save
-      $("#fBoardName").change(validate_board_name);
-
-      for (ch of msg.channels)
-      {
-        $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
-        $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
-
-        //validate + save
-        $(`#fChannelName${ch.id}`).change(validate_channel_name);
-        $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
-        $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
-      }
-    }
-
-    firstload = false;
-  }
-  else if (msg.msg == 'update')
-  {
-    $('#time').html(msg.time);
-    for (ch of msg.channels)
-    {
-      if (ch.state)
-      {
-        $('#channelState' + ch.id).html("ON");
-        $('#channelState' + ch.id).removeClass("btn-danger");
-        $('#channelState' + ch.id).removeClass("btn-secondary");
-        $('#channelState' + ch.id).addClass("btn-success");
-      }
-      else if(ch.soft_fuse_tripped)
-      {
-        $('#channelState' + ch.id).html("TRIP");
-        $('#channelState' + ch.id).removeClass("btn-success");
-        $('#channelState' + ch.id).removeClass("btn-secondary");
-        $('#channelState' + ch.id).addClass("btn-danger");
-      }
-      else
-      {
-        $('#channelState' + ch.id).html("OFF");
-        $('#channelState' + ch.id).removeClass("btn-success");
-        $('#channelState' + ch.id).removeClass("btn-danger");
-        $('#channelState' + ch.id).addClass("btn-secondary");
-      }
-
-      //duty is a bit of a special case.
-      let duty = Math.round(ch.duty * 100);
-      if (current_config.channels[ch.id].isDimmable)
-      {
-        $('#channelDutySlider' + ch.id).val(duty); 
-        $('#channelDutyCycle' + ch.id).html(`${duty}%`);
-        $('#channelDutyCycle' + ch.id).show();
-      }
-      else
-      {
-        $('#channelDutyCycle' + ch.id).hide();
-      }
-
-      let current = ch.current.toFixed(2);
-      $('#channelCurrent' + ch.id).html(`${current}A`);
-
-      if (msg.soft_fuse_tripped)
-        $('#channelError' + ch.id).html("Soft Fuse Tripped");
-    }
-  }
-  else if (msg.msg == "stats")
-  {
-    $("#uptime").html(secondsToDhms(Math.round(msg.uptime/1000)));
-    $("#messages").html(msg.messages.toLocaleString("en-US"));
-    $("#heap_size").html(formatBytes(msg.heap_size));
-    $("#free_heap").html(formatBytes(msg.free_heap));
-    $("#min_free_heap").html(formatBytes(msg.min_free_heap));
-    $("#max_alloc_heap").html(formatBytes(msg.max_alloc_heap));
-    $("#rssi").html(msg.rssi + "dBm");
-    $("#uuid").html(msg.uuid);
-
-    for (ch of msg.channels)
-    {
-      let aH = Math.round(ch.aH * 100) / 100;
-      $('#channelAmpHours' + ch.id).html(`${aH}aH`);
-      $('#channelOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
-      $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
-    }
-  }
-  else if (msg.error)
-  {
-    //keep the u gotta login to the login page.
-    if (msg.error == "You must be logged in.")
-    {
-      if (window.location.pathname != "/login.html")
-        window.location.href = "/login.html";
-    }
-    else
-      show_alert(msg.error);
-  }
-  else if (msg.success)
-  {
-    //keep the login success stuff on the login page.
-    if (msg.success == "Login successful.")
-    {
-      if (window.location.pathname == "/login.html")
-      {
-        show_alert(msg.success, "success");
-  
-        if (app_username && app_password)
-        {
-          Cookies.set('username', app_username, { expires: 365 });
-          Cookies.set('password', app_password, { expires: 365 });
-        }
-  
-        //this is super fast otherwise.
-        setTimeout(function (){
-          window.location.href = "/";
-        }, 1000);
-      }
-    }
-    else
-      show_alert(msg.success, "success");
-  }
-  else
-  {
-    console.log("Unknown message");
-    console.log(msg);
-  }
-};
-
-socket.onclose = function(event) {
-  if (event.wasClean) {
-    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-  } else {
-    // e.g. server process killed or network down
-    // event.code is usually 1006 in this case
-    console.log('[close] Connection died');
-  }
-};
-
-socket.onerror = function(error) {
-  console.log(`[error]`);
-};
-
 function start_gnarboard()
 {
+  socket = new WebSocket("ws://" + window.location.host + "/ws");
+
+  socket.onopen = function(e) {
+    console.log("[open] Connection established");
   
+    //auto login?
+    if (Cookies.get("username") && Cookies.get("password")){
+      socket.send(JSON.stringify({
+        "cmd": "login",
+        "user": Cookies.get("username"),
+        "pass": Cookies.get("password")
+      }));
+    }
+  
+    //load our config... will also trigger login
+    socket.send(JSON.stringify({
+      "cmd": "get_config"
+    }));
+
+    //load our network config
+    socket.send(JSON.stringify({
+      "cmd": "get_network_config"
+    }));
+    
+    //check to see if we want a certain page
+    if (window.location.hash)
+    {
+      let pages = ["control", "config", "stats", "network", "firmware"];
+      let page = window.location.hash.substring(1);
+      if (pages.includes(page))
+        open_page(page);
+    }  
+  };
+  
+  socket.onmessage = function(event)
+  {
+    const msg = JSON.parse(event.data);
+  
+    console.log(msg);
+    
+    if (msg.msg == 'config')
+    {
+      current_config = msg;
+      //console.log(msg);
+  
+      //is it our first boot?
+      if (msg.first_boot && current_page != "network")
+        show_alert(`Welcome to Gnarboard, head over to <a href="#network" onclick="open_page('network')">Network</a> to setup your WiFi.`, "primary");
+  
+      //let the people choose their own names!
+      $('#boardName').html(msg.name);
+      document.title = msg.name;
+  
+      //update our footer automatically.
+      $('#projectName').html(msg.version);
+  
+      //populate our channel control table
+      if (current_page != "control" || firstload)
+      {
+        $('#channelTableBody').html("");
+        for (ch of msg.channels)
+        {
+          $('#channelTableBody').append(ChannelControlRow(ch.id, ch.name));
+          $('#channelDutySlider' + ch.id).change(set_duty_cycle);
+        }
+      }
+  
+      if (current_page != "stats" || firstload)
+      {
+        //populate our channel stats table
+        $('#channelStatsTableBody').html("");
+        for (ch of msg.channels)
+        {
+          $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
+          $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
+          $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
+          $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
+          $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
+        }
+      }
+  
+      if (current_page != "config" || firstload)
+      {
+        //populate our channel edit table
+        $('#channelConfigForm').html(ChannelNameEdit(msg.name));
+  
+        //validate + save
+        $("#fBoardName").change(validate_board_name);
+  
+        for (ch of msg.channels)
+        {
+          $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
+          $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
+  
+          //validate + save
+          $(`#fChannelName${ch.id}`).change(validate_channel_name);
+          $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
+          $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
+        }
+      }
+  
+      firstload = false;
+    }
+    else if (msg.msg == 'update')
+    {
+      $('#time').html(msg.time);
+      for (ch of msg.channels)
+      {
+        if (ch.state)
+        {
+          $('#channelState' + ch.id).html("ON");
+          $('#channelState' + ch.id).removeClass("btn-danger");
+          $('#channelState' + ch.id).removeClass("btn-secondary");
+          $('#channelState' + ch.id).addClass("btn-success");
+        }
+        else if(ch.soft_fuse_tripped)
+        {
+          $('#channelState' + ch.id).html("TRIP");
+          $('#channelState' + ch.id).removeClass("btn-success");
+          $('#channelState' + ch.id).removeClass("btn-secondary");
+          $('#channelState' + ch.id).addClass("btn-danger");
+        }
+        else
+        {
+          $('#channelState' + ch.id).html("OFF");
+          $('#channelState' + ch.id).removeClass("btn-success");
+          $('#channelState' + ch.id).removeClass("btn-danger");
+          $('#channelState' + ch.id).addClass("btn-secondary");
+        }
+  
+        //duty is a bit of a special case.
+        let duty = Math.round(ch.duty * 100);
+        if (current_config.channels[ch.id].isDimmable)
+        {
+          $('#channelDutySlider' + ch.id).val(duty); 
+          $('#channelDutyCycle' + ch.id).html(`${duty}%`);
+          $('#channelDutyCycle' + ch.id).show();
+        }
+        else
+        {
+          $('#channelDutyCycle' + ch.id).hide();
+        }
+  
+        let current = ch.current.toFixed(2);
+        $('#channelCurrent' + ch.id).html(`${current}A`);
+  
+        if (msg.soft_fuse_tripped)
+          $('#channelError' + ch.id).html("Soft Fuse Tripped");
+      }
+    }
+    else if (msg.msg == "stats")
+    {
+      $("#uptime").html(secondsToDhms(Math.round(msg.uptime/1000)));
+      $("#messages").html(msg.messages.toLocaleString("en-US"));
+      $("#heap_size").html(formatBytes(msg.heap_size));
+      $("#free_heap").html(formatBytes(msg.free_heap));
+      $("#min_free_heap").html(formatBytes(msg.min_free_heap));
+      $("#max_alloc_heap").html(formatBytes(msg.max_alloc_heap));
+      $("#rssi").html(msg.rssi + "dBm");
+      $("#uuid").html(msg.uuid);
+  
+      for (ch of msg.channels)
+      {
+        let aH = Math.round(ch.aH * 100) / 100;
+        $('#channelAmpHours' + ch.id).html(`${aH}aH`);
+        $('#channelOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
+        $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
+      }
+    }
+    //load up our network config.
+    else if (msg.msg == "network_config")
+    {
+      //save our config.
+      network_config = msg;
+
+      //update login stuff.
+      if (msg.require_login)
+        $('#logoutNav').show();
+      else
+        $('#logoutNav').hide();
+
+      //console.log(msg);
+      $("#wifi_mode").val(msg.wifi_mode);
+      $("#wifi_ssid").val(msg.wifi_ssid);
+      $("#wifi_pass").val(msg.wifi_pass);
+      $("#local_hostname").val(msg.local_hostname);
+      $("#app_user").val(msg.app_user);
+      $("#app_pass").val(msg.app_pass);
+      $("#require_login").prop("checked", msg.require_login);
+    }
+    else if (msg.error)
+    {
+      //keep the u gotta login to the login page.
+      if (msg.error == "You must be logged in.")
+      {
+        if (window.location.pathname != "/login.html")
+          window.location.href = "/login.html";
+      }
+      else
+        show_alert(msg.error);
+    }
+    else if (msg.success)
+    {
+      //keep the login success stuff on the login page.
+      if (msg.success == "Login successful.")
+      {
+        if (window.location.pathname == "/login.html")
+        {
+          show_alert(msg.success, "success");
+    
+          if (app_username && app_password)
+          {
+            Cookies.set('username', app_username, { expires: 365 });
+            Cookies.set('password', app_password, { expires: 365 });
+          }
+    
+          //this is super fast otherwise.
+          setTimeout(function (){
+            window.location.href = "/";
+          }, 1000);
+        }
+      }
+      else
+        show_alert(msg.success, "success");
+    }
+    else
+    {
+      console.log("Unknown message");
+      console.log(msg);
+    }
+  };
+  
+  socket.onclose = function(event) {
+    if (event.wasClean) {
+      console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+    } else {
+      // e.g. server process killed or network down
+      // event.code is usually 1006 in this case
+      console.log('[close] Connection died');
+    }
+  };
+  
+  socket.onerror = function(error) {
+    console.log(`[error]`);
+  };  
 }
 
 function show_alert(message, type = 'danger')
@@ -304,6 +339,12 @@ function toggle_duty_cycle(id)
 function open_page(page)
 {
   current_page = page;
+
+  //load up our config
+  if (page == "network")
+    socket.send(JSON.stringify({
+      "cmd": "get_network_config",
+    }));
 
   //sad to see you go.
   if (page == "logout")
@@ -466,9 +507,6 @@ function validate_channel_soft_fuse(e)
   }
 }
 
-var app_username;
-var app_password;
-
 function do_login(e)
 {
   app_username = $('#username').val();
@@ -478,6 +516,49 @@ function do_login(e)
     "cmd": "login",
     "user": app_username,
     "pass": app_password
+  }));
+}
+
+function save_network_settings()
+{
+  //get our data
+  let wifi_mode = $("#wifi_mode").val();
+  let wifi_ssid = $("#wifi_ssid").val();
+  let wifi_pass = $("#wifi_pass").val();
+  let local_hostname = $("#local_hostname").val();
+  let app_user = $("#app_user").val();
+  let app_pass = $("#app_pass").val();
+  let require_login = $("#require_login").prop("checked");
+
+  //we should probably do a bit of verification here
+
+  //app login?
+  if (require_login)
+  {
+    $('#logoutNav').show();
+    Cookies.set('username', app_user, { expires: 365 });
+    Cookies.set('password', app_pass, { expires: 365 });
+  }
+  else
+  {
+    $('#logoutNav').hide();
+    Cookies.remove("username");
+    Cookies.remove("password");    
+  }
+
+  //if they are changing from client to client, we can't show a success.
+  show_alert("Gnarboard may be unresponsive while changing WiFi settings. Make sure you connect to the right network after updating.", "primary");
+
+  //okay, send it off.
+  socket.send(JSON.stringify({
+    "cmd": "set_network_config",
+    "wifi_mode": wifi_mode,
+    "wifi_ssid": wifi_ssid,
+    "wifi_pass": wifi_pass,
+    "local_hostname": local_hostname,
+    "app_user": app_user,
+    "app_pass": app_pass,
+    "require_login": require_login
   }));
 }
 
