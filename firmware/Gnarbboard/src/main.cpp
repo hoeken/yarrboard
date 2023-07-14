@@ -130,6 +130,7 @@ bool assertValidChannel(byte cid, AsyncWebSocketClient *client);
 void sendUpdate();
 void sendConfigJSON(AsyncWebSocketClient *client);
 void sendStatsJSON(AsyncWebSocketClient *client);
+void sendSuccessJSON(String success, AsyncWebSocketClient *client);
 void sendErrorJSON(String error, AsyncWebSocketClient *client);
 
 double round2(double value);
@@ -260,9 +261,10 @@ void setup() {
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
-  //we are only really serving static files.
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-
+  //we are only serving static files - 30 day cache
+  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  // only enable this once we're done with web stuff.
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
   server.begin();
 
   unsigned long setup_t2 = micros();
@@ -361,7 +363,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   switch (type) {
     case WS_EVT_CONNECT:
       Serial.printf("[WS] client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      //sendConfigJSON(client);
+      //if (assertLoggedIn(client))
+      //  sendConfigJSON(client);
       break;
     case WS_EVT_DISCONNECT:
       Serial.printf("[WS] client #%u disconnected\n", client->id());
@@ -610,10 +613,16 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
         sendErrorJSON("Too many connections.", client);
         client->close();
       }
+      //we must be good then.
+      else
+      {
+        sendSuccessJSON("Login successful.", client);
+        //sendConfigJSON(client);
+      }
     }
     //gtfo.
     else
-      sendErrorJSON("Username and password don't match.", client);
+      sendErrorJSON("Wrong username/password.", client);
   }
   //unknown command.
   else
@@ -650,6 +659,24 @@ bool assertValidChannel(byte cid, AsyncWebSocketClient *client)
   }
 
   return true;
+}
+
+void sendSuccessJSON(String success, AsyncWebSocketClient *client) {
+  String jsonString;  // Temporary storage for the JSON String
+  StaticJsonDocument<1000> doc;
+
+  Serial.print("Success: ");
+  Serial.println(success);
+
+  // create an object
+  JsonObject object = doc.to<JsonObject>();
+
+  object["success"] = success;
+
+  // serialize the object and save teh result to teh string variable.
+  //Serial.println(error);
+  serializeJson(doc, jsonString);
+  ws.text(client->id(), jsonString);
 }
 
 void sendErrorJSON(String error, AsyncWebSocketClient *client) {

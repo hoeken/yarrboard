@@ -11,6 +11,7 @@
     <script src="gnarboard.js"></script>
     <script src="jquery.slim.js"></script> 
     <script src="bootstrap.min.js"></script>
+    <script src="jscookie.js"></script>
     <script>
         $(document).ready(start_gnarboard);
         let FF_FOUC_FIX;
@@ -47,7 +48,7 @@
                             <a class="nav-link" onclick="open_page('firmware')" href="#firmware">Firmware</a>
                         </li>
                         <li id="loginNav" class="nav-item">
-                            <a class="nav-link" onclick="open_page('login')" href="#logout">Logout</a>
+                            <a class="nav-link" onclick="open_page('logout')" href="#logout">Logout</a>
                         </li>
                     </ul>
                 </div>
@@ -125,9 +126,6 @@
             </div>
             <div id="firmwarePage" style="display:none" class="pageContainer mt-3 mx-2">
                 <h5>Firmware Upload</h5>
-            </div>
-            <div id="loginPage" style="display:none" class="pageContainer mt-3 mx-2">
-                <h5>Login</h5>
             </div>
         </main>
         <footer class="p-4 text-body-secondary text-center">

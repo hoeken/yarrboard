@@ -3,6 +3,7 @@ Firmware:
 * choose current measurement IC
 * investigate why she's crashing
 * big code cleanup
+* look at throttling based on incoming messages - go into lower power if we havent had one in a few minutes
 
 Website:
 

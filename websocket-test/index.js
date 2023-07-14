@@ -16,17 +16,11 @@ client.onopen = function() {
 
     client.send(JSON.stringify({
         "cmd": "login",
-        "user": "foo",
-        "pass": "bar"
-    }));
-
-    client.send(JSON.stringify({
-        "cmd": "login",
         "user": "admin",
         "pass": "admin"
     }));
 
-    //setTimeout(fadePin, 1000);
+    setTimeout(fadePin, 1000);
     //setTimeout(togglePin, 1000);
     //setTimeout(speedTest, 1000);
 };

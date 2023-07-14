@@ -63,6 +63,20 @@ const AlertBox = (message, type) => `
 socket.onopen = function(e) {
   console.log("[open] Connection established");
 
+  //auto login?
+  if (Cookies.get("username") && Cookies.get("password")){
+    socket.send(JSON.stringify({
+      "cmd": "login",
+      "user": Cookies.get("username"),
+      "pass": Cookies.get("password")
+    }));
+  }
+
+  //load our config... will also trigger login
+  socket.send(JSON.stringify({
+    "cmd": "get_config"
+  }));
+
   //check to see if we want a certain page
   if (window.location.hash)
   {
@@ -112,7 +126,6 @@ socket.onmessage = function(event)
         $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
         $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
       }
-
     }
 
     if (current_page != "config" || firstload)
@@ -205,16 +218,38 @@ socket.onmessage = function(event)
   }
   else if (msg.error)
   {
+    //keep the u gotta login to the login page.
     if (msg.error == "You must be logged in.")
     {
-      if (current_page != "login")
-      {
-        show_alert(msg.error);
-        open_page("login");
-      }
+      if (window.location.pathname != "/login.html")
+        window.location.href = "/login.html";
     }
     else
       show_alert(msg.error);
+  }
+  else if (msg.success)
+  {
+    //keep the login success stuff on the login page.
+    if (msg.success == "Login successful.")
+    {
+      if (window.location.pathname == "/login.html")
+      {
+        show_alert(msg.success, "success");
+  
+        if (app_username && app_password)
+        {
+          Cookies.set('username', app_username, { expires: 365 });
+          Cookies.set('password', app_password, { expires: 365 });
+        }
+  
+        //this is super fast otherwise.
+        setTimeout(function (){
+          window.location.href = "/";
+        }, 1000);
+      }
+    }
+    else
+      show_alert(msg.success, "success");
   }
   else
   {
@@ -270,15 +305,31 @@ function open_page(page)
 {
   current_page = page;
 
-  $('.nav-link').removeClass("active");
-  $(`#${page}Nav a`).addClass("active");
+  //sad to see you go.
+  if (page == "logout")
+  {
+    show_alert("Logging out.", "success");
 
-  $("div.pageContainer").hide();
-  $(`#${page}Page`).show();
+    Cookies.remove("username");
+    Cookies.remove("password");
 
-  //request our stats.
-  if (page == "stats")
-    get_stats_data();
+    //this is super fast otherwise.
+    setTimeout(function (){
+      window.location.href = "/login.html";
+    }, 1000);
+  }
+  else
+  {
+    $('.nav-link').removeClass("active");
+    $(`#${page}Nav a`).addClass("active");
+  
+    $("div.pageContainer").hide();
+    $(`#${page}Page`).show();
+  
+    //request our stats.
+    if (page == "stats")
+      get_stats_data();
+    }
 }
 
 function get_stats_data()
@@ -413,6 +464,21 @@ function validate_channel_soft_fuse(e)
       "value": value
     }));
   }
+}
+
+var app_username;
+var app_password;
+
+function do_login(e)
+{
+  app_username = $('#username').val();
+  app_password = $('#password').val();
+
+  socket.send(JSON.stringify({
+    "cmd": "login",
+    "user": app_username,
+    "pass": app_password
+  }));
 }
 
 function secondsToDhms(seconds)
