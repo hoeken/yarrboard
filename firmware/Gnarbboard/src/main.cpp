@@ -435,6 +435,9 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
 
       //save to our storage
       preferences.putString("boardName", value);
+
+      //give them the updated config
+      sendConfigJSON(client);
     }
   }
   //change a channel name?
@@ -456,6 +459,9 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
       //save to our storage
       String prefIndex = "cName" + String(cid);
       preferences.putString(prefIndex.c_str(), value);
+
+      //give them the updated config
+      sendConfigJSON(client);
     }
   }
   //change a channels dimmability?
@@ -475,6 +481,9 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     //save to our storage
     String prefIndex = "cDimmable" + String(cid);
     preferences.putBool(prefIndex.c_str(), value);
+
+    //give them the updated config
+    sendConfigJSON(client);
   }
   //change a channels soft fuse?
   else if (cmd.equals("set_soft_fuse"))
@@ -500,6 +509,9 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     //save to our storage
     String prefIndex = "cSoftFuse" + String(cid);
     preferences.putFloat(prefIndex.c_str(), value);
+
+    //give them the updated config
+    sendConfigJSON(client);
   }
   //get our config?
   else if (cmd.equals("get_config")) {

@@ -1,6 +1,7 @@
 var socket = new WebSocket("ws://" + window.location.host + "/ws");
-var current_page = "control";
+var current_page;
 var current_config;
+var firstload = true;
 
 const ChannelNameEdit = (name) => `
 <div class="col-12">
@@ -67,44 +68,56 @@ socket.onmessage = function(event)
     $('#projectName').html(msg.version);
 
     //populate our channel control table
-    $('#channelTableBody').html("");
-    for (ch of msg.channels)
+    if (current_page != "control" || firstload)
     {
-      $('#channelTableBody').append(`<tr id="channel${ch.id}" class="channelRow"></tr>`);
-      $('#channel' + ch.id).append(`<td class="text-center"><button id="channelState${ch.id}" type="button" class="btn btn-sm" onclick="toggle_state(${ch.id})"></button></td>`);
-      $('#channel' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
-      $('#channel' + ch.id).append(`<td id="channelDutyCycle${ch.id}" class="text-end"></td>`);
-      $('#channel' + ch.id).append(`<td id="channelCurrent${ch.id}" class="text-end"></td>`);
-      $('#channel' + ch.id).append(`<td id="channelError${ch.id}" class="channelError"></td>`);
+      $('#channelTableBody').html("");
+      for (ch of msg.channels)
+      {
+        $('#channelTableBody').append(`<tr id="channel${ch.id}" class="channelRow"></tr>`);
+        $('#channel' + ch.id).append(`<td class="text-center"><button id="channelState${ch.id}" type="button" class="btn btn-sm" onclick="toggle_state(${ch.id})"></button></td>`);
+        $('#channel' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
+        $('#channel' + ch.id).append(`<td id="channelDutyCycle${ch.id}" class="text-end"></td>`);
+        $('#channel' + ch.id).append(`<td id="channelCurrent${ch.id}" class="text-end"></td>`);
+        $('#channel' + ch.id).append(`<td id="channelError${ch.id}" class="channelError"></td>`);
+      }
     }
 
-    //populate our channel stats table
-    $('#channelStatsTableBody').html("");
-    for (ch of msg.channels)
+    if (current_page != "stats" || firstload)
     {
-      $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
-      $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
-      $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
-      $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
-      $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
+      //populate our channel stats table
+      $('#channelStatsTableBody').html("");
+      for (ch of msg.channels)
+      {
+        $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
+        $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
+        $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
+        $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
+        $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
+      }
+
     }
 
-    //populate our channel edit table
-    $('#channelConfigForm').html(ChannelNameEdit(msg.name));
-
-    //validate + save
-    $("#fBoardName").change(validate_board_name);
-
-    for (ch of msg.channels)
+    if (current_page != "config" || firstload)
     {
-      $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
-      $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
+      //populate our channel edit table
+      $('#channelConfigForm').html(ChannelNameEdit(msg.name));
 
       //validate + save
-      $(`#fChannelName${ch.id}`).change(validate_channel_name);
-      $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
-      $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
+      $("#fBoardName").change(validate_board_name);
+
+      for (ch of msg.channels)
+      {
+        $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
+        $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
+
+        //validate + save
+        $(`#fChannelName${ch.id}`).change(validate_channel_name);
+        $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
+        $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
+      }
     }
+
+    firstload = false;
   }
   else if (msg.msg == 'update')
   {
@@ -214,11 +227,6 @@ function open_page(page)
   //request our stats.
   if (page == "stats")
     get_stats_data();
-
-  if (page == "control")
-    socket.send(JSON.stringify({
-      "cmd": "get_config",
-    }));
 }
 
 function get_stats_data()
@@ -321,7 +329,7 @@ function validate_channel_soft_fuse(e)
     $(ele).addClass("is-valid");
 
     console.log(value);
-    
+
     //save it
     socket.send(JSON.stringify({
       "cmd": "set_soft_fuse",
