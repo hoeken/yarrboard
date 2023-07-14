@@ -108,7 +108,7 @@ async function togglePin()
 async function fadePin()
 {
     let steps = 50;
-    let d = 40;
+    let d = 20;
     let channel = 6;
     let max_duty = 1;
 

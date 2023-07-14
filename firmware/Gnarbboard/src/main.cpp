@@ -65,7 +65,7 @@ unsigned int channelStateChangeCount[channelCount];
 unsigned int channelSoftFuseTripCount[channelCount];
 
 //keep track of our authenticated clients
-const byte clientLimit = 4;
+const byte clientLimit = 8;
 uint32_t authenticatedClientIDs[clientLimit];
 
 /* Setting PWM Properties */
