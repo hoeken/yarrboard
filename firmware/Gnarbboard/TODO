@@ -1,16 +1,14 @@
 Firmware:
 
-* investigate why she's crashing
 * big code cleanup
-* look at throttling based on incoming messages - go into lower power if we havent had one in a few minutes
 
 Website:
 
 * add an error box on connection drop
 * add reconnection stuff.
-* upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
 
 Long Term:
 
 * give ledcwrite and higher res pwm a chance
+* upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
 * control via N2K bus
