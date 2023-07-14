@@ -26,17 +26,19 @@
 //identify yourself!
 const char *version = "Gnarboard v1.0.0";
 String uuid;
+String board_name = "Gnarboard";
 
 //ke ep track of our channel info.
 const byte channelCount = 8;
 const byte outputPins[channelCount] = { 25, 26, 27, 14, 12, 13, 17, 16 };
 const byte analogPins[channelCount] = { 36, 39, 34, 35, 32, 33, 4, 2 };
 
-//state information for all our channels.`  1
+//state information for all our channels.
 bool channelState[channelCount];
 bool channelTripped[channelCount];
 float channelDutyCycle[channelCount];
 bool channelSaveDutyCycle[channelCount];
+bool channelIsDimmable[channelCount];
 float channelAmperage[channelCount];
 float channelSoftFuseAmperage[channelCount];
 float channelAmpHour[channelCount];
@@ -64,12 +66,12 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 //for tracking our ADC loop
-int adcInterval = 100;                // virtual delay
-unsigned long previousADCMillis = 0;  // Tracks the time since last event fired
+int adcInterval = 100;
+unsigned long previousADCMillis = 0;
 
 //for tracking our message loop
-int messageInterval = 250;                // virtual delay
-unsigned long previousMessageMillis = 0;  // Tracks the time since last event fired
+int messageInterval = 250;
+unsigned long previousMessageMillis = 0;
 unsigned int handledMessages = 0;
 unsigned int lastHandledMessages = 0;
 unsigned long totalHandledMessages = 0;
@@ -132,14 +134,15 @@ void checkSoftFuses();
 
 void setup() {
   unsigned long setup_t1 = micros();
+  String prefIndex;
 
   //startup our serial
   Serial.begin(115200);
   delay(10);
   Serial.println(version);
 
-  // set notification call-back function
-  sntp_set_time_sync_notification_cb(timeAvailable);
+  //Setup our NTP to get the current time.
+  //sntp_set_time_sync_notification_cb(timeAvailable);
   sntp_servermode_dhcp(1);  // (optional)
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
 
@@ -147,34 +150,51 @@ void setup() {
   preferences.begin("gnarboard", false);
 
   //intitialize our output pins.
-  for (byte i = 0; i < channelCount; i++) {
+  for (byte i = 0; i < channelCount; i++)
+  {
     //init our storage variables.
     channelState[i] = false;
-    channelDutyCycle[i] = 1.0;
     channelTripped[i] = false;
-    channelAmpHour[i] = 0.0;
+    channelDutyCycle[i] = 1.0;
     channelAmperage[i] = 0.0;
-    channelSoftFuseAmperage[i] = 20.0;
+    channelAmpHour[i] = 0.0;
     channelSaveDutyCycle[i] = true;
     channelStateChangeCount[i] = 0;
     channelSoftFuseTripCount[i] = 0;
-
-    //initialize our PWM channels
-    //ledcSetup(i, PWMFreq, PWMResolution);
-    //ledcAttachPin(outputPins[i], i);
-    //ledcWrite(i, 0);
 
     //initialize our PWM channels
     pinMode(outputPins[i], OUTPUT);
     analogWrite(outputPins[i], 0);
 
     //lookup our name
-    String prefIndex = "channel_name_" + i;
-    channelNames[i] = preferences.getString(prefIndex.c_str());
+    prefIndex = "channel_name_" + i;
+    if (preferences.isKey(prefIndex.c_str()))
+      channelNames[i] = preferences.getString(prefIndex.c_str());
+    else
+      channelNames[i] = "Channel #" + i;
+
+    //dimmability.
+    prefIndex = "channel_dimmable_" + i;
+    if (preferences.isKey(prefIndex.c_str()))
+      channelIsDimmable[i] = preferences.getBool(prefIndex.c_str());
+    else
+      channelIsDimmable[i] = true;
+
+    //soft fuse
+    prefIndex = "channel_soft_fuse_" + i;
+    if (preferences.isKey(prefIndex.c_str()))
+      channelSoftFuseAmperage[i] = preferences.getFloat(prefIndex.c_str());
+    else
+      channelSoftFuseAmperage[i] = true;
   }
 
-  //setup our adc
+  //look up our board name
+  if (preferences.isKey("board_name"))
+    board_name = preferences.getString("board_name");
+
+  //various setup calls
   setupADC();
+  //setupNMEA2000();
 
   //load our saved duty cycle data
   preferences.getBytes("duty_cycle", &channelDutyCycle, sizeof(channelDutyCycle));
@@ -201,48 +221,14 @@ void setup() {
     return;
   }
 
-  // Start server
+  //config for our websocket server
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
-  // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/index.html", "text/html");
-  });
-
-  // Route for root / web page
-  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/favicon.ico", "image/x-icon");
-  });
-
-  // Our stylesheet
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/style.css", "text/css");
-  });
-
-  // Our stylesheet
-  server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/bootstrap.min.css", "text/css");
-  });
-
-  // Our js library
-  server.on("/gnarboard.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/gnarboard.js", "text/javascript");
-  });
-
-  // Our jquery library
-  server.on("/jquery.slim.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/jquery.slim.js", "text/javascript");
-  });
-
-  // Our bootstrap js library
-  server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/bootstrap.min.js", "text/javascript");
-  });
-
+  //we are only really serving static files.
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
   server.begin();
 
-  //setupNMEA2000();
 
   unsigned long setup_t2 = micros();
   Serial.print("Boot time: ");
@@ -256,40 +242,8 @@ void timeAvailable(struct timeval *t) {
   printLocalTime();
 }
 
-void setupNMEA2000() {
-  /*
-  // Reserve enough buffer for sending all messages. This does not work on small memory devices like Uno or Mega
-  NMEA2000.SetN2kCANReceiveFrameBufSize(150);
-  NMEA2000.SetN2kCANMsgBufSize(8);
-  
-  // Set Product information
-  NMEA2000.SetProductInformation("00000001", // Manufacturer's Model serial code
-                                 100, // Manufacturer's product code
-                                 "Evo Pilot Remote",  // Manufacturer's Model ID
-                                 "1.0.0.0",  // Manufacturer's Software version code
-                                 "1.0.0.0" // Manufacturer's Model version
-                                );
-  
-  // Set device information
-  NMEA2000.SetDeviceInformation(0, // Unique number. Use e.g. Serial number.
-                                132, // Device function=Analog to NMEA 2000 Gateway. See codes on http://www.nmea.org/Assets/20120726%20nmea%202000%20class%20&%20function%20codes%20v%202.00.pdf
-                                25, // Device class=Inter/Intranetwork Device. See codes on  http://www.nmea.org/Assets/20120726%20nmea%202000%20class%20&%20function%20codes%20v%202.00.pdf
-                                2046 // Just choosen free from code list on http://www.nmea.org/Assets/20121020%20nmea%202000%20registration%20list.pdf
-                               );
-
-  
-  // If you also want to see all traffic on the bus use N2km_ListenAndNode instead of N2km_NodeOnly below
-  NMEA2000.SetMode(tNMEA2000::N2km_NodeOnly, NodeAddress); //N2km_NodeOnly N2km_ListenAndNode
-  NMEA2000.ExtendTransmitMessages(TransmitMessages);
-  NMEA2000.ExtendReceiveMessages(ReceiveMessages);
-
-  //NMEA2000.SetMsgHandler(RaymarinePilot::HandleNMEA2000Msg);
-
-    pN2kDeviceList = new tN2kDeviceList(&NMEA2000);
-  //NMEA2000.SetDebugMode(tNMEA2000::dm_ClearText); // Uncomment this, so you can test code without CAN bus chips on Arduino Mega
-  NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
-  NMEA2000.Open();
-  */
+void setupNMEA2000()
+{
 }
 
 void setupADC() {
@@ -300,7 +254,7 @@ void loop() {
   unsigned long t1;
   unsigned long t2;
 
-  // websocket server method that handles all clients
+  //sometimes websocket clients die badly.
   ws.cleanupClients();
 
   //run our ADC on a faster loop
@@ -490,8 +444,23 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     bool value = doc["value"];
     channelSaveDutyCycle[cid] = value;
   }
+  //change a board name?
+  else if (cmd.equals("set_boardname")) {
+    String value = doc["value"];
+    if (value.length() > 30)
+      sendErrorJSON("Maximum board name length is 30 characters.", client);
+    else
+    {
+      //update variable
+      board_name = value;
+
+      //save to our storage
+      String prefIndex = "board_name";
+      preferences.putString(prefIndex.c_str(), value);
+    }
+  }
   //change a channel name?
-  else if (cmd.equals("set_name")) {
+  else if (cmd.equals("set_channelname")) {
     //is it a valid channel?
     byte cid = doc["id"];
     if (cid < 0 || cid >= channelCount) {
@@ -500,15 +469,57 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     }
 
     String value = doc["value"];
-    if (value.length() > 64)
-      sendErrorJSON("Maximum channel name length is 64 characters.", client);
-    else {
+    if (value.length() > 30)
+      sendErrorJSON("Maximum channel name length is 30 characters.", client);
+    else 
+    {
       channelNames[cid] = value;
 
       //save to our storage
       String prefIndex = "channel_name_" + cid;
       preferences.putString(prefIndex.c_str(), value);
     }
+  }
+  //change a channels dimmability?
+  else if (cmd.equals("set_dimmable"))
+  {
+    //is it a valid channel?
+    byte cid = doc["id"];
+    if (cid < 0 || cid >= channelCount) {
+      sendErrorJSON("Invalid ID", client);
+      return;
+    }
+
+    //save right nwo.
+    bool value = doc["value"];
+    channelIsDimmable[cid] = value;
+
+    //save to our storage
+    String prefIndex = "channel_dimmable_" + cid;
+    preferences.putBool(prefIndex.c_str(), value);
+  }
+  //change a channels soft fuse?
+  else if (cmd.equals("set_soft_fuse"))
+  {
+    //is it a valid channel?
+    byte cid = doc["id"];
+    if (cid < 0 || cid >= channelCount) {
+      sendErrorJSON("Invalid ID", client);
+      return;
+    }
+
+    float value = doc["value"];
+    if (value <= 0 || value >= 20.0) {
+      sendErrorJSON("Soft fuse must be between 0 and 20", client);
+      return;
+    }
+
+    //save right nwo.
+    channelSoftFuseAmperage[cid] = value;
+
+    //save to our storage
+    String prefIndex = "channel_soft_fuse_" + cid;
+    preferences.putFloat(prefIndex.c_str(), value);
   }
   //get our config?
   else if (cmd.equals("config")) {
@@ -555,7 +566,8 @@ void sendConfigJSON(AsyncWebSocketClient *client) {
   JsonObject object = doc.to<JsonObject>();
 
   //our identifying info
-  object["name"] = version;
+  object["version"] = version;
+  object["name"] = board_name;
   object["uuid"] = uuid;
   object["msg"] = "config";
   object["totalMessages"] = totalHandledMessages;
@@ -569,6 +581,7 @@ void sendConfigJSON(AsyncWebSocketClient *client) {
     object["channels"][i]["hasPWM"] = true;
     object["channels"][i]["hasCurrent"] = true;
     object["channels"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
+    object["channels"][i]["isDimmable"] = channelIsDimmable[i];
     object["channels"][i]["saveDutyCycle"] = channelSaveDutyCycle[i];
   }
 

@@ -2,6 +2,41 @@ var socket = new WebSocket("ws://" + window.location.host + "/ws");
 var current_page = "control";
 var current_config;
 
+const ChannelNameEdit = (name) => `
+<div class="col-12">
+  <label for="fBoardName" class="form-label">Board Name</label>
+  <input type="text" class="form-control" id="fBoardName" value="${name}">
+  <div class="valid-feedback">Saved!</div>
+  <div class="invalid-feedback">Must be 30 characters or less.</div>
+</div>
+`;
+
+const ChannelEditRow = (id, name, soft_fuse) => `
+<div class="col-md-8">
+  <label for="fChannelName${id}" class="form-label">Channel ${id} Name</label>
+  <input type="text" class="form-control" id="fChannelName${id}" value="${name}">
+  <div class="valid-feedback">Saved!</div>
+  <div class="invalid-feedback">Must be 30 characters or less.</div>
+</div>
+<div class="col-md-2">
+  <label for="fDimmable${id}" class="form-label">Dimmable?</label>
+  <select id="fDimmable${id}" class="form-select">
+    <option value="0">No</option>
+    <option value="1">Yes</option>
+  </select>
+  <div class="valid-feedback">Saved!</div>
+</div>
+<div class="col-md-2">
+  <label for="fSoftFuse${id}" class="form-label">Soft Fuse</label>
+  <div class="input-group mb-3">
+    <input type="text" class="form-control" id="fSoftFuse${id}" value="${soft_fuse}">
+    <span class="input-group-text">A</span>
+    <div class="valid-feedback">Saved!</div>
+    <div class="invalid-feedback">Must be a number between 0 and 20</div>
+  </div>
+</div>
+`;
+
 socket.onopen = function(e) {
   console.log("[open] Connection established");
 
@@ -22,6 +57,14 @@ socket.onmessage = function(event)
   if (msg.msg == 'config')
   {
     current_config = msg;
+    console.log(msg);
+
+    //let the people choose their own names!
+    $('#boardName').html(msg.name);
+    document.title = msg.name;
+
+    //update our footer automatically.
+    $('#projectName').html(msg.version);
 
     //populate our channel control table
     $('#channelTableBody').html("");
@@ -44,6 +87,23 @@ socket.onmessage = function(event)
       $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
       $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
       $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
+    }
+
+    //populate our channel edit table
+    $('#channelConfigForm').html(ChannelNameEdit(msg.name));
+
+    //validate + save
+    $("#fBoardName").change(validate_board_name);
+
+    for (ch of msg.channels)
+    {
+      $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
+      $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
+
+      //validate + save
+      $(`#fChannelName${ch.id}`).change(validate_channel_name);
+      $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
+      $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
     }
   }
   
@@ -152,6 +212,11 @@ function open_page(page)
   //request our stats.
   if (page == "stats")
     get_stats_data();
+
+  if (page == "control")
+    socket.send(JSON.stringify({
+      "cmd": "config",
+    }));
 }
 
 function get_stats_data()
@@ -163,6 +228,103 @@ function get_stats_data()
   //keep loading it while we are here.
   if (current_page == "stats")
     setTimeout(get_stats_data, 1000);
+}
+
+function validate_board_name(e)
+{
+  let ele = e.target;
+  let value = ele.value;
+
+  if (value.length <= 0 || value.length > 30)
+  {
+    $(ele).removeClass("is-valid");
+    $(ele).addClass("is-invalid");
+  }
+  else
+  {
+    $(ele).removeClass("is-invalid");
+    $(ele).addClass("is-valid");
+
+    //set our new board name!
+    socket.send(JSON.stringify({
+      "cmd": "set_boardname",
+      "value": value
+    }));
+  }
+}
+
+function validate_channel_name(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  if (value.length <= 0 || value.length > 30)
+  {
+    $(ele).removeClass("is-valid");
+    $(ele).addClass("is-invalid");
+  }
+  else
+  {
+    $(ele).removeClass("is-invalid");
+    $(ele).addClass("is-valid");
+
+    //set our new channel name!
+    socket.send(JSON.stringify({
+      "cmd": "set_channelname",
+      "id": id,
+      "value": value
+    }));
+  }
+}
+
+function validate_channel_dimmable(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  //convert it
+  if (value == "1")
+    value = true;
+  else
+    value = false;
+
+  //nothing really to validate here.
+  $(ele).addClass("is-valid");
+
+  //save it
+  socket.send(JSON.stringify({
+    "cmd": "set_dimmable",
+    "id": id,
+    "value": value
+  }));
+}
+
+function validate_channel_soft_fuse(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = parseFloat(ele.value);
+
+  //real numbers only, pal.
+  if (isNaN(value) || value <= 0 || value > 20)
+  {
+    $(ele).removeClass("is-valid");
+    $(ele).addClass("is-invalid");
+  }
+  else
+  {
+    $(ele).removeClass("is-invalid");
+    $(ele).addClass("is-valid");
+
+    //save it
+    socket.send(JSON.stringify({
+      "cmd": "set_soft_fuse",
+      "id": id,
+      "value": value
+    }));
+  }
 }
 
 function secondsToDhms(seconds)

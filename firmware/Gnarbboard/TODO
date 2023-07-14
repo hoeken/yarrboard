@@ -8,20 +8,13 @@ Firmware:
 
 Website:
 
-* Control page
-    * add ability to set duty cycle
-* Stats page
-    * Messages handled
-    * Uptime
-    * UUID
-    * Heap stuff
-    * Wifi Signal
-    * More ESP data? - https://github.com/espressif/arduino-esp32/blob/master/cores/esp32/Esp.h
 * Config page
     * change the board name
     * name channels
     * enable/disable dimming
     * soft fuse setting
+* Control page
+    * add ability to set duty cycle
 * Network page
     * wifi mode: AP or client
         * AP: name / password

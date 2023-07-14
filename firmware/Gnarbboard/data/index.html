@@ -8,9 +8,11 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="bootstrap-slider.min.css">
     <script src="gnarboard.js"></script>
     <script src="jquery.slim.js"></script> 
     <script src="bootstrap.min.js"></script>
+    <script src="bootstrap-slider.min.js"></script>
     <script>
         $(document).ready(start_gnarboard);
         let FF_FOUC_FIX;
@@ -54,14 +56,14 @@
                     <tr>
                         <th class="text-center">State</th>
                         <th>Name</th>
-                        <th class="text-end">Duty</th>
+                        <th class="text-end">PWM</th>
                         <th class="text-end">Current</th>
                     </tr>
                     <tbody id="channelTableBody"></tbody>
                 </table>
             </div>
             <div id="configPage" style="display:none" class="pageContainer mt-3 mx-2">
-                <h5>Board Configuration</h5>
+                <form class="row g-3" id="channelConfigForm"></form>
             </div>
             <div id="statsPage" style="display:none" class="pageContainer row mt-3 mx-2">
                 <div class="col-sm">
@@ -125,7 +127,7 @@
             </div>
         </main>
         <footer class="p-4 text-body-secondary text-center">
-            <a href="https://github.com/hoeken/Gnarboard">Gnarboard v1.0.0</a> by Zach Hoeken &middot; &copy; 2023
+            <a id="projectName" href="https://github.com/hoeken/Gnarboard">Gnarboard</a> by Zach Hoeken &middot; &copy; 2023
         </footer>
     </div>
 </body>
