@@ -1,22 +1,17 @@
 Firmware:
 
-* choose current measurement IC
 * investigate why she's crashing
+* choose current measurement IC
 * big code cleanup
 * look at throttling based on incoming messages - go into lower power if we havent had one in a few minutes
-* hide the content divs until after message parsing has finished (control, stats, network)
-* "enter" should submit login form
 
 Website:
 
+* hide the content divs until after message parsing has finished (control, stats, network)
+* "enter" should submit login form
 * add an error box on connection drop
 * add reconnection stuff.
-
-* Firmware page
-    * rename to System
-    * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
-    * add button to reboot
-    * add button to reset to factory settings
+* upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
 
 Long Term:
 
