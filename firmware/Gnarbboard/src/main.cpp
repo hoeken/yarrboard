@@ -28,7 +28,15 @@ const char *version = "Gnarboard v1.0.0";
 String uuid;
 String board_name = "Gnarboard";
 
-//ke ep track of our channel info.
+//username / password for websocket authentication
+String app_user = "admin";
+String app_pass = "admin";
+
+//username / password for our wifi.
+String wifi_ssid;
+String wifi_pass;
+
+//keep track of our channel info.
 const byte channelCount = 8;
 const byte outputPins[channelCount] = { 25, 26, 27, 14, 12, 13, 17, 16 };
 const byte analogPins[channelCount] = { 36, 39, 34, 35, 32, 33, 4, 2 };
@@ -46,6 +54,10 @@ String channelNames[channelCount];
 unsigned int channelStateChangeCount[channelCount];
 unsigned int channelSoftFuseTripCount[channelCount];
 
+//keep track of our authenticated clients
+const byte clientLimit = 4;
+uint32_t authenticatedClientIDs[clientLimit];
+
 /* Setting PWM Properties */
 const int PWMFreq = 5000; /* in Hz  */
 const int PWMResolution = 8;
@@ -56,10 +68,6 @@ MCP3208 adc;
 
 //storage for more permanent stuff.
 Preferences preferences;
-
-//wifi login info.
-String ssid;
-String password;
 
 //our server variables
 AsyncWebServer server(80);
@@ -117,6 +125,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client);
 void handleReceivedMessage(char *payload, AsyncWebSocketClient *client);
 
+bool assertLoggedIn(AsyncWebSocketClient *client);
+bool assertValidChannel(byte cid, AsyncWebSocketClient *client);
 void sendUpdate();
 void sendConfigJSON(AsyncWebSocketClient *client);
 void sendStatsJSON(AsyncWebSocketClient *client);
@@ -215,6 +225,12 @@ void setup() {
   if (preferences.isKey("boardName"))
     board_name = preferences.getString("boardName");
 
+  //look up our username/password
+  if (preferences.isKey("app_user"))
+    app_user = preferences.getString("app_user");
+  if (preferences.isKey("app_pass"))
+    app_pass = preferences.getString("app_pass");
+
   //various setup calls
   setupADC();
   //setupNMEA2000();
@@ -246,8 +262,8 @@ void setup() {
 
   //we are only really serving static files.
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-  server.begin();
 
+  server.begin();
 
   unsigned long setup_t2 = micros();
   Serial.print("Boot time: ");
@@ -344,11 +360,17 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
              void *arg, uint8_t *data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
-      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      sendConfigJSON(client);
+      Serial.printf("[WS] client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+      //sendConfigJSON(client);
       break;
     case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket client #%u disconnected\n", client->id());
+      Serial.printf("[WS] client #%u disconnected\n", client->id());
+
+      //clear this guy from our authenticated list.
+      for (byte i=0; i<clientLimit; i++)
+        if (authenticatedClientIDs[i] == client->id())
+          authenticatedClientIDs[i] = 0;
+
       break;
     case WS_EVT_DATA:
       handleWebSocketMessage(arg, data, len, client);
@@ -377,13 +399,16 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
   String cmd = doc["cmd"];
 
   //change state?
-  if (cmd.equals("set_state")) {
+  if (cmd.equals("set_state"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount) {
-      sendErrorJSON("Invalid ID", client);
+    if (!assertValidChannel(cid, client))
       return;
-    }
 
     //what is our new state?
     bool state = doc["value"];
@@ -403,13 +428,16 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     updateChannelState(cid);
   }
   //change duty cycle?
-  else if (cmd.equals("set_duty")) {
+  else if (cmd.equals("set_duty"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount) {
-      sendErrorJSON("Invalid ID", client);
+    if (!assertValidChannel(cid, client))
       return;
-    }
 
     float value = doc["value"];
 
@@ -434,7 +462,12 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     updateChannelState(cid);
   }
   //change a board name?
-  else if (cmd.equals("set_boardname")) {
+  else if (cmd.equals("set_boardname"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
     String value = doc["value"];
     if (value.length() > 30)
       sendErrorJSON("Maximum board name length is 30 characters.", client);
@@ -451,13 +484,16 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     }
   }
   //change a channel name?
-  else if (cmd.equals("set_channelname")) {
+  else if (cmd.equals("set_channelname"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount) {
-      sendErrorJSON("Invalid ID", client);
+    if (!assertValidChannel(cid, client))
       return;
-    }
 
     String value = doc["value"];
     if (value.length() > 30)
@@ -477,12 +513,14 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
   //change a channels dimmability?
   else if (cmd.equals("set_dimmable"))
   {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount) {
-      sendErrorJSON("Invalid ID", client);
+    if (!assertValidChannel(cid, client))
       return;
-    }
 
     //save right nwo.
     bool value = doc["value"];
@@ -498,20 +536,20 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
   //change a channels soft fuse?
   else if (cmd.equals("set_soft_fuse"))
   {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
     //is it a valid channel?
     byte cid = doc["id"];
-    if (cid < 0 || cid >= channelCount) {
-      sendErrorJSON("Invalid ID", client);
+    if (!assertValidChannel(cid, client))
       return;
-    }
 
     float value = doc["value"];
     if (value <= 0 || value >= 20.0) {
       sendErrorJSON("Soft fuse must be between 0 and 20", client);
       return;
     }
-
-    Serial.println(value);
 
     //save right nwo.
     channelSoftFuseAmperage[cid] = value;
@@ -524,15 +562,62 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     sendConfigJSON(client);
   }
   //get our config?
-  else if (cmd.equals("get_config")) {
+  else if (cmd.equals("get_config"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
     sendConfigJSON(client);
   }
   //get our config?
-  else if (cmd.equals("get_stats")) {
+  else if (cmd.equals("get_stats"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
     sendStatsJSON(client);
   }
-  //wrong command.
-  else {
+  //get our config?
+  else if (cmd.equals("login"))
+  {
+    String myuser = doc["user"];
+    String mypass = doc["pass"];
+
+    //morpheus... i'm in.
+    if (myuser.equals(app_user) && mypass.equals(app_pass))
+    {
+      //declare outside, so we can count.
+      byte i;
+      for (i=0; i<clientLimit; i++)
+      {
+        //did we find an empty slot?
+        if (authenticatedClientIDs[i] == 0)
+        {
+          authenticatedClientIDs[i] = client->id();
+          break;
+        }
+
+        //are we already authenticated?
+        if (authenticatedClientIDs[i] == client->id())
+          break;
+      }
+
+      //did we not find a spot?
+      if (i == clientLimit)
+      {
+        sendErrorJSON("Too many connections.", client);
+        client->close();
+      }
+    }
+    //gtfo.
+    else
+      sendErrorJSON("Username and password don't match.", client);
+  }
+  //unknown command.
+  else
+  {
     Serial.print("Invalid command: ");
     Serial.println(cmd);
     sendErrorJSON("Invalid command.", client);
@@ -541,6 +626,30 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
   //keep track!
   handledMessages++;
   totalHandledMessages++;
+}
+
+bool assertLoggedIn(AsyncWebSocketClient *client)
+{
+  //are they in our auth array?
+  for (byte i=0; i<clientLimit; i++)
+    if (authenticatedClientIDs[i] == client->id())
+      return true;
+
+  //let them know.
+  sendErrorJSON("You must be logged in.", client);
+
+  return false;
+}
+
+//is it a valid channel?
+bool assertValidChannel(byte cid, AsyncWebSocketClient *client)
+{
+  if (cid < 0 || cid >= channelCount) {
+    sendErrorJSON("Invalid channel id", client);
+    return false;
+  }
+
+  return true;
 }
 
 void sendErrorJSON(String error, AsyncWebSocketClient *client) {
@@ -656,7 +765,13 @@ void sendUpdate() {
 
   // serialize the object and save teh result to teh string variable.
   serializeJson(doc, jsonString);
-  ws.textAll(jsonString);
+
+  //send the message to all authenticated clients.
+  for (byte i=0; i<clientLimit; i++)
+    if (authenticatedClientIDs[i])
+      ws.text(authenticatedClientIDs[i], jsonString);
+
+  //ws.textAll(jsonString);
 }
 
 double round2(double value) {
@@ -672,18 +787,20 @@ double round4(double value) {
 }
 
 
-void connectToWifi() {
-  ssid = preferences.getString("ssid", "Wind.Ninja");
-  password = preferences.getString("password", "chickenloop");
+void connectToWifi()
+{
+  //wifi login info.
+  wifi_ssid = preferences.getString("wifi_ssid", "Wind.Ninja");
+  wifi_pass = preferences.getString("wifi_pass", "chickenloop");
 
   Serial.print("[WiFi] Connecting to ");
-  Serial.println(ssid);
+  Serial.println(wifi_ssid);
 
   WiFi.setSleep(false);
   WiFi.setHostname("gnarboard");
   WiFi.useStaticBuffers(true);  //from: https://github.com/espressif/arduino-esp32/issues/7183
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid.c_str(), password.c_str());
+  WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
 
   // How long to try
   int tryDelay = 500;

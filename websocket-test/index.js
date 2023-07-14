@@ -14,8 +14,19 @@ client.onerror = function() {
 client.onopen = function() {
     console.log('WebSocket Client Connected');
 
-    //setTimeout(exercisePins, 3000);
-    setTimeout(fadePin, 1000);
+    client.send(JSON.stringify({
+        "cmd": "login",
+        "user": "foo",
+        "pass": "bar"
+    }));
+
+    client.send(JSON.stringify({
+        "cmd": "login",
+        "user": "admin",
+        "pass": "admin"
+    }));
+
+    //setTimeout(fadePin, 1000);
     //setTimeout(togglePin, 1000);
     //setTimeout(speedTest, 1000);
 };
@@ -27,8 +38,8 @@ client.onclose = function() {
 client.onmessage = function(e) {
     if (typeof e.data === 'string') {
         let data = JSON.parse(e.data);
-        if (data.msg != "update")
-            console.log(data);
+        //if (data.msg != "update")
+        console.log(data);
     }
 };
 
@@ -103,7 +114,7 @@ async function togglePin()
 async function fadePin()
 {
     let steps = 50;
-    let d = 20;
+    let d = 40;
     let channel = 6;
     let max_duty = 1;
 

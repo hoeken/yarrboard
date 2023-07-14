@@ -205,7 +205,16 @@ socket.onmessage = function(event)
   }
   else if (msg.error)
   {
-    show_alert(msg.error);
+    if (msg.error == "You must be logged in.")
+    {
+      if (current_page != "login")
+      {
+        show_alert(msg.error);
+        open_page("login");
+      }
+    }
+    else
+      show_alert(msg.error);
   }
   else
   {

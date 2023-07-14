@@ -15,7 +15,6 @@ Website:
         * Client: name / password
     * mdns hostname (gnarboard.local)
     * password protect the gnarboard
-    * add ssl stuff?
 * Firmware page
     * rename to System
     * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
