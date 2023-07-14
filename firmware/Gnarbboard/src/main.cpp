@@ -1142,9 +1142,9 @@ void readAmperages() {
     float amps = 0.0;
     //volts = volts / 0.6875;
     //amps = (2.5 - volts) / (0.100); //ACS712 5V w/ voltage divider
-    amps = (volts - (3.3 * 0.1)) / (0.200);  //TMCS1108A3U
+    //amps = (volts - (3.3 * 0.1)) / (0.200);  //TMCS1108A3U
     //amps = (volts - (3.3 * 0.1)) / (0.100); //TMCS1108A2U
-    //amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
+    amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
     //amps = (volts - (3.3 * 0.5)) / (0.066);  //MCS1802-20
     //amps = (volts - 0.650) / (0.100);       //CT427-xSN820DR
 

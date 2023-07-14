@@ -6,6 +6,15 @@ var app_username;
 var app_password;
 var network_config;
 
+var page_list = ["control", "config", "stats", "network", "system"];
+var page_ready = {
+  "control": false,
+  "config":  false,
+  "stats":   false,
+  "network": false,
+  "system":  true
+};
+
 const ChannelControlRow = (id, name) => `
 <tr id="channel${id}" class="channelRow">
   <td class="text-center"><button id="channelState${id}" type="button" class="btn btn-sm" onclick="toggle_state(${id})"></button></td>
@@ -92,19 +101,18 @@ function start_gnarboard()
     //check to see if we want a certain page
     if (window.location.hash)
     {
-      let pages = ["control", "config", "stats", "network", "system"];
       let page = window.location.hash.substring(1);
-      if (pages.includes(page))
+      if (page_list.includes(page))
         open_page(page);
-    }  
+    }
+    else
+      open_page("control");
   };
   
   socket.onmessage = function(event)
   {
     const msg = JSON.parse(event.data);
   
-    console.log(msg);
-
     if (msg.msg == 'config')
     {
       current_config = msg;
@@ -164,6 +172,9 @@ function start_gnarboard()
           $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
           $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
         }
+
+        //ready!
+        page_ready.config = true;
       }
   
       firstload = false;
@@ -208,12 +219,12 @@ function start_gnarboard()
           $('#channelDutyCycle' + ch.id).hide();
         }
   
-        let current = ch.current.toFixed(2);
+        let current = ch.current.toFixed(1);
         $('#channelCurrent' + ch.id).html(`${current}A`);
   
-        if (msg.soft_fuse_tripped)
-          $('#channelError' + ch.id).html("Soft Fuse Tripped");
       }
+
+      page_ready.control = true;
     }
     else if (msg.msg == "stats")
     {
@@ -233,6 +244,8 @@ function start_gnarboard()
         $('#channelOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
         $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
       }
+
+      page_ready.stats = true;
     }
     //load up our network config.
     else if (msg.msg == "network_config")
@@ -254,6 +267,8 @@ function start_gnarboard()
       $("#app_user").val(msg.app_user);
       $("#app_pass").val(msg.app_pass);
       $("#require_login").prop("checked", msg.require_login);
+
+      page_ready.network = true;    
     }
     else if (msg.error)
     {
@@ -340,11 +355,12 @@ function open_page(page)
 {
   current_page = page;
 
-  //load up our config
-  if (page == "network")
-    socket.send(JSON.stringify({
-      "cmd": "get_network_config",
-    }));
+  //request our stats.
+  if (page == "stats")
+    get_stats_data();
+
+  //hide all pages.
+  $("div.pageContainer").hide();
 
   //sad to see you go.
   if (page == "logout")
@@ -361,16 +377,34 @@ function open_page(page)
   }
   else
   {
+    //update our nav
     $('.nav-link').removeClass("active");
     $(`#${page}Nav a`).addClass("active");
-  
-    $("div.pageContainer").hide();
-    $(`#${page}Page`).show();
-  
-    //request our stats.
-    if (page == "stats")
-      get_stats_data();
-    }
+
+    //is our new page not ready?
+    if (page_ready[page])
+      $(`#${page}Page`).show();
+    else
+    {
+      $("#loading").show();
+      setTimeout(on_page_ready, 100);
+    }  
+  }
+}
+
+function on_page_ready()
+{
+  console.log(`checking ${current_page}`);
+
+  //is our page ready yet?
+  if (page_ready[current_page])
+  {
+    console.log("GO!");
+    $("#loading").hide();
+    $(`#${current_page}Page`).show();
+  }
+  else
+    setTimeout(on_page_ready, 100);
 }
 
 function get_stats_data()

@@ -1,13 +1,11 @@
 Firmware:
 
 * investigate why she's crashing
-* choose current measurement IC
 * big code cleanup
 * look at throttling based on incoming messages - go into lower power if we havent had one in a few minutes
 
 Website:
 
-* hide the content divs until after message parsing has finished (control, stats, network)
 * "enter" should submit login form
 * add an error box on connection drop
 * add reconnection stuff.
