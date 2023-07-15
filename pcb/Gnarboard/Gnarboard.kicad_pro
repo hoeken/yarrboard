@@ -471,6 +471,38 @@
     [
       "c83c6236-96e9-46ad-9d7a-9e2efa4a7966",
       ""
+    ],
+    [
+      "0eec6767-666b-42c0-ba36-2a83c9caeade",
+      "CHANNEL 0"
+    ],
+    [
+      "ccdb1c25-8d0f-4f30-ab70-bbc1ecf3f6f7",
+      "CHANNEL 1"
+    ],
+    [
+      "1e692482-a022-407a-8cb5-d9a3b23521a6",
+      "CHANNEL 2"
+    ],
+    [
+      "5952e660-2bb6-45cf-b9ea-f7a7c2d0954e",
+      "CHANNEL 3"
+    ],
+    [
+      "772d44f5-8758-48db-a140-72ed8e75e88c",
+      "CHANNEL 4"
+    ],
+    [
+      "424e7b24-5644-46f2-85bb-1e459a343705",
+      "CHANNEL 5"
+    ],
+    [
+      "4c1df725-56ca-4be4-8107-a39054acbca4",
+      "CHANNEL 6"
+    ],
+    [
+      "a8a81147-5613-4820-beb3-a7ca76d0db8e",
+      "CHANNEL 7"
     ]
   ],
   "text_variables": {}
