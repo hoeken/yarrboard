@@ -1,0 +1,13 @@
+PCB Calculator: https://www.digikey.com/en/resources/conversion-calculators/conversion-calculator-pcb-trace-width
+
+4 oz copper
+20A current
+20C rise
+
+= 3mm power traces
+
+2 oz copper
+20A current
+20C rise
+
+= 6mm power traces
