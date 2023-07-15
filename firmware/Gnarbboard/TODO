@@ -2,13 +2,8 @@ Firmware:
 
 * big code cleanup
 
-Website:
-
-* add an error box on connection drop
-* add reconnection stuff.
-
 Long Term:
 
-* give ledcwrite and higher res pwm a chance
+* give ledcwrite and higher res pwm another chance
 * upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
 * control via N2K bus

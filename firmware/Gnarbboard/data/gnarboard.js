@@ -72,13 +72,25 @@ const AlertBox = (message, type) => `
   </div>
 </div>`;
 
+//our heartbeat timer.
+function send_heartbeat()
+{
+  socket.send(JSON.stringify({"cmd": "ping"}));
+
+  setTimeout(send_heartbeat, 2500);
+}
+
 function start_gnarboard()
 {
   socket = new WebSocket("ws://" + window.location.host + "/ws");
 
-  socket.onopen = function(e) {
-    console.log("[open] Connection established");
+  socket.onopen = function(e)
+  {
+    console.log("[socket] Connected");
   
+    //ticker checker
+    send_heartbeat();
+
     //auto login?
     if (Cookies.get("username") && Cookies.get("password")){
       socket.send(JSON.stringify({
@@ -305,26 +317,36 @@ function start_gnarboard()
       else
         show_alert(msg.success, "success");
     }
+    else if (msg.pong) {
+      //we are connected still
+    }
     else
     {
-      console.log("Unknown message");
+      console.log("[socket] Unknown message: ");
       console.log(msg);
     }
   };
   
-  socket.onclose = function(event) {
-    if (event.wasClean) {
-      console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-    } else {
-      // e.g. server process killed or network down
-      // event.code is usually 1006 in this case
-      console.log('[close] Connection died');
-    }
+  socket.onclose = function(event)
+  {
+    console.log(`[socket] Connection closed code=${event.code} reason=${event.reason}`);
+
+    //reconnect!
+    setTimeout(function() {
+      start_gnarboard();
+    }, 250);
   };
   
-  socket.onerror = function(error) {
-    console.log(`[error]`);
-  };  
+  socket.onerror = function(error)
+  {
+    //console.log(`[socket] error`);
+    //console.log(error);
+  };
+}
+
+function start_websocket()
+{
+
 }
 
 function show_alert(message, type = 'danger')
@@ -404,11 +426,17 @@ function on_page_ready()
     setTimeout(on_page_ready, 100);
 }
 
+function is_socket_ready()
+{
+  return socket.readyState == WebSocket.OPEN;
+}
+
 function get_stats_data()
 {
-  socket.send(JSON.stringify({
-    "cmd": "get_stats",
-  }));
+  if (is_socket_ready())
+    socket.send(JSON.stringify({
+      "cmd": "get_stats",
+    }));
 
   //keep loading it while we are here.
   if (current_page == "stats")

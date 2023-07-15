@@ -771,6 +771,20 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     //restart the board.
     ESP.restart();
   }
+  //ping for heartbeat
+  else if (cmd.equals("ping"))
+  {
+    String jsonString;  // Temporary storage for the JSON String
+    StaticJsonDocument<500> doc;
+
+    // create an object
+    JsonObject object = doc.to<JsonObject>();
+    object["pong"] = millis();
+
+    // serialize the object and save teh result to teh string variable.
+    serializeJson(doc, jsonString);
+    ws.text(client->id(), jsonString);
+  }
   //unknown command.
   else
   {
