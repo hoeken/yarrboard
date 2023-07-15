@@ -101,25 +101,6 @@ const long gmtOffset_sec = 0;
 const int daylightOffset_sec = 0;
 struct tm timeinfo;
 
-/*
-//NMEA2000 stuff
-int NodeAddress = 0;  // To store last Node Address
-const unsigned long TransmitMessages[] PROGMEM = {126208UL,   // Set Pilot Mode
-                                                  126720UL,   // Send Key Command
-                                                  65288UL,    // Send Seatalk Alarm State
-                                                  0
-                                                 };
-
-const unsigned long ReceiveMessages[] PROGMEM = { 127250UL,   // Read Heading
-                                                  65288UL,    // Read Seatalk Alarm State
-                                                  65379UL,    // Read Pilot Mode
-                                                  0
-                                                };
-
-tN2kDeviceList *pN2kDeviceList;
-short pilotSourceAddress = -1;
-*/
-
 //
 //  Function definitions
 //
@@ -150,7 +131,6 @@ double round3(double value);
 double round4(double value);
 
 void updateChannelState(int channelId);
-void setupMCP3208();
 uint16_t readMCP3208Channel(byte channel, byte samples = 64);
 void readAmperages();
 void checkSoftFuses();
@@ -171,7 +151,6 @@ void setup() {
 
   //really nice library for permanently storing preferences.
   preferences.begin("gnarboard", false);
-  //preferences.clear(); // for dev purposes if you mess up the storage.
 
   //intitialize our output pins.
   for (short i = 0; i < channelCount; i++)
@@ -221,15 +200,6 @@ void setup() {
       channelSoftFuseTripCount[i] = preferences.getUInt(prefIndex.c_str());
     else
       channelSoftFuseTripCount[i] = 0;
-
-    //channel state change count
-    /*
-    prefIndex = "cStateChange" + String(i);
-    if (preferences.isKey(prefIndex.c_str()))
-      channelStateChangeCount[i] = preferences.getUInt(prefIndex.c_str());
-    else
-      channelStateChangeCount[i] = 0;
-    */
   }
 
   //look up our board name
@@ -265,6 +235,7 @@ void setup() {
   byte mac[6];
   WiFi.macAddress(mac);
   uuid = String(mac[0], HEX) + String(mac[1], HEX) + String(mac[2], HEX) + String(mac[3], HEX) + String(mac[4], HEX) + String(mac[5], HEX);
+  Serial.print("UUID: ");
   Serial.println(uuid);
 
   //get an IP address
@@ -302,11 +273,13 @@ void setupNMEA2000()
 {
 }
 
-void setupADC() {
-  setupMCP3208();
+void setupADC()
+{
+  adc.begin();
 }
 
-void loop() {
+void loop()
+{
   unsigned long t1;
   unsigned long t2;
 
@@ -339,7 +312,8 @@ void loop() {
 
   //lookup our info periodically
   int messageDelta = millis() - previousMessageMillis;
-  if (messageDelta >= messageInterval) {
+  if (messageDelta >= messageInterval)
+  {
     //read and send out our json update
     sendUpdate();
   
@@ -352,21 +326,7 @@ void loop() {
     //for keeping track.
     lastHandledMessages = handledMessages;
     previousMessageMillis = millis();
-
-    //printLocalTime();
   }
-
-  /*
-  unsigned long currentMillis = millis();
-// if WiFi is down, try reconnecting
-if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
-  Serial.print(millis());
-  Serial.println("Reconnecting to WiFi...");
-  WiFi.disconnect();
-  WiFi.reconnect();
-  previousMillis = currentMillis;
-}
-*/
 }
 
 void printLocalTime()
@@ -408,17 +368,19 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   }
 }
 
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client) {
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
+{
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
+  {
+    //terminate the string, i think?
     data[len] = 0;
-    //Serial.printf("[WebSocket] Message: %s\n", data);
     handleReceivedMessage((char *)data, client);
   }
 }
 
 void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
-  StaticJsonDocument<2048> doc;
+  StaticJsonDocument<2000> doc;
   deserializeJson(doc, payload);
   //JsonObject root = doc.as<JsonObject>();
 
@@ -472,6 +434,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
 
     float value = doc["value"];
 
+    //what do we hate?  va-li-date!
     if (value < 0)
       sendErrorJSON("Duty cycle must be >= 0", client);
     else if (value > 20)
@@ -526,6 +489,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     if (!assertValidChannel(cid, client))
       return;
 
+    //validate yo mamma.
     String value = doc["value"];
     if (value.length() > 30)
       sendErrorJSON("Maximum channel name length is 30 characters.", client);
@@ -576,6 +540,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
     if (!assertValidChannel(cid, client))
       return;
 
+    //i crave validation!
     float value = doc["value"];
     if (value <= 0 || value >= 20.0) {
       sendErrorJSON("Soft fuse must be between 0 and 20", client);
@@ -741,7 +706,6 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
       else
       {
         sendSuccessJSON("Login successful.", client);
-        //sendConfigJSON(client);
       }
     }
     //gtfo.
@@ -826,16 +790,11 @@ void sendSuccessJSON(String success, AsyncWebSocketClient *client) {
   String jsonString;  // Temporary storage for the JSON String
   StaticJsonDocument<1000> doc;
 
-  Serial.print("Success: ");
-  Serial.println(success);
-
   // create an object
   JsonObject object = doc.to<JsonObject>();
-
   object["success"] = success;
 
-  // serialize the object and save teh result to teh string variable.
-  //Serial.println(error);
+  // serialize the object and send it
   serializeJson(doc, jsonString);
   ws.text(client->id(), jsonString);
 }
@@ -845,16 +804,11 @@ void sendErrorJSON(String error, AsyncWebSocketClient *client)
   String jsonString;  // Temporary storage for the JSON String
   StaticJsonDocument<1000> doc;
 
-  Serial.print("Error: ");
-  Serial.println(error);
-
   // create an object
   JsonObject object = doc.to<JsonObject>();
-
   object["error"] = error;
 
-  // serialize the object and save teh result to teh string variable.
-  //Serial.println(error);
+  // serialize the object and send it
   serializeJson(doc, jsonString);
   ws.text(client->id(), jsonString);
 }
@@ -862,7 +816,7 @@ void sendErrorJSON(String error, AsyncWebSocketClient *client)
 void sendConfigJSON(AsyncWebSocketClient *client)
 {
   String jsonString;
-  StaticJsonDocument<5000> doc;
+  StaticJsonDocument<2000> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -924,7 +878,7 @@ void sendStatsJSON(AsyncWebSocketClient *client)
 {
   //stuff for working with json
   String jsonString;
-  StaticJsonDocument<5000> doc;
+  StaticJsonDocument<2000> doc;
   JsonObject object = doc.to<JsonObject>();
 
   //some basic statistics and info
@@ -952,8 +906,9 @@ void sendStatsJSON(AsyncWebSocketClient *client)
   ws.text(client->id(), jsonString);
 }
 
-void sendUpdate() {
-  StaticJsonDocument<5000> doc;
+void sendUpdate()
+{
+  StaticJsonDocument<2000> doc;
   String jsonString;
 
   // create an object
@@ -1004,7 +959,6 @@ double round4(double value) {
   return (long)(value * 10000 + 0.5) / 10000.0;
 }
 
-
 void setupWifi()
 {
   //some global config
@@ -1012,6 +966,10 @@ void setupWifi()
   WiFi.setHostname(local_hostname.c_str());
   WiFi.useStaticBuffers(true);  //from: https://github.com/espressif/arduino-esp32/issues/7183
   WiFi.mode(WIFI_AP_STA);
+
+  Serial.print("Hostname: ");
+  Serial.print(local_hostname);
+  Serial.println(".local");
 
   //which mode do we want?
   if (wifi_mode.equals("client"))
@@ -1034,6 +992,9 @@ void setupWifi()
 
     WiFi.softAP(wifi_ssid, wifi_pass);
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+
+    Serial.print("AP IP address: ");
+    Serial.println(apIP);
 
     // if DNSServer is started with "*" for domain name, it will reply with
     // provided IP to all DNS request
@@ -1095,7 +1056,6 @@ bool connectToWifi(String ssid, String pass)
     //have we hit our limit?
     if(numberOfTries <= 0)
     {
-      Serial.print(".");
       // Use disconnect function to force stop trying to connect
       WiFi.disconnect();
       return false;
@@ -1129,17 +1089,14 @@ void updateChannelState(int channelId)
     analogWrite(outputPins[channelId], 0);
 }
 
-void setupMCP3208() {
-  adc.begin();
-}
-
-uint16_t readMCP3208Channel(byte channel, byte samples) {
+uint16_t readMCP3208Channel(byte channel, byte samples)
+{
   uint32_t value = 0;
 
-  if (samples > 1) {
-    for (byte i = 0; i < samples; i++) {
+  if (samples > 1)
+  {
+    for (byte i = 0; i < samples; i++)
       value += adc.readADC(channel);
-    }
     value = value / samples;
   } else
     value = adc.readADC(channel);
@@ -1147,33 +1104,17 @@ uint16_t readMCP3208Channel(byte channel, byte samples) {
   return (uint16_t)value;
 }
 
-void readAmperages() {
-  for (byte channel = 0; channel < channelCount; channel++) {
+void readAmperages() 
+{
+  for (byte channel = 0; channel < channelCount; channel++)
+  {
     uint16_t val = readMCP3208Channel(channel);
 
     float volts = val * (3.3 / 4096.0);
-
-    float amps = 0.0;
-    //volts = volts / 0.6875;
-    //amps = (2.5 - volts) / (0.100); //ACS712 5V w/ voltage divider
-    //amps = (volts - (3.3 * 0.1)) / (0.200);  //TMCS1108A3U
-    //amps = (volts - (3.3 * 0.1)) / (0.100); //TMCS1108A2U
-    amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
-    //amps = (volts - (3.3 * 0.5)) / (0.066);  //MCS1802-20
-    //amps = (volts - 0.650) / (0.100);       //CT427-xSN820DR
-
-    //Serial.print(channel);
-    //Serial.print(" CH | ");
-    //Serial.print(val);
-    //Serial.print(" ADC | ");
-    //Serial.print(volts);
-    //Serial.print(" V | ");
-    //Serial.print(amps);
-    //Serial.print(" A | ");
+    float amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
 
     channelAmperage[channel] = amps;
   }
-  //Serial.println();
 }
 
 void checkSoftFuses()

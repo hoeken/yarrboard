@@ -1,9 +1,9 @@
 Firmware:
 
-* big code cleanup
+* check json sizing: https://arduinojson.org/v6/api/jsondocument/memoryusage/
+* give ledcwrite and higher res pwm another chance
 
 Long Term:
 
-* give ledcwrite and higher res pwm another chance
-* upload new firmware - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
+* ota updater - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
 * control via N2K bus
