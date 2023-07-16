@@ -30,3 +30,7 @@ fp-info-cache
 
 ~*
 *.log
+
+.~lock*
+Gnarboard/bom/
+Gnarboard/output/
