@@ -248,6 +248,7 @@ function start_gnarboard()
       $("#max_alloc_heap").html(formatBytes(msg.max_alloc_heap));
       $("#rssi").html(msg.rssi + "dBm");
       $("#uuid").html(msg.uuid);
+      $("#bus_voltage").html(msg.bus_voltage.toFixed(1) + "V");
   
       for (ch of msg.channels)
       {

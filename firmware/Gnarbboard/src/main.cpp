@@ -19,6 +19,9 @@
 #include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
 #include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
 
+#include "driver/adc.h"
+#include "esp_adc_cal.h"
+
 //#include <NMEA2000.h>         // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
 //#include <NMEA2000_CAN.h>     // https://github.com/ttlappalainen/NMEA2000 via .zip
 //#include <N2kMsg.h>           // same ^^^
@@ -50,6 +53,10 @@ String local_hostname = "gnarboard";
 const byte channelCount = 8;
 const byte outputPins[channelCount] = { 25, 26, 27, 14, 12, 13, 17, 16 };
 const byte analogPins[channelCount] = { 36, 39, 34, 35, 32, 33, 4, 2 };
+
+//for watching our power supply
+const byte busVoltagePin = 36;
+float busVoltage = 0;
 
 //state information for all our channels.
 bool channelState[channelCount];
@@ -131,6 +138,7 @@ double round2(double value);
 double round3(double value);
 double round4(double value);
 
+void readBusVoltage();
 void updateChannelState(int channelId);
 uint16_t readMCP3208Channel(byte channel, byte samples = 64);
 void readAmperages();
@@ -152,6 +160,10 @@ void setup() {
 
   //really nice library for permanently storing preferences.
   preferences.begin("gnarboard", false);
+
+  //adc for our bus voltage.
+  adcAttachPin(busVoltagePin);
+  analogSetAttenuation(ADC_11db);
 
   //intitialize our output pins.
   for (short i = 0; i < channelCount; i++)
@@ -298,6 +310,9 @@ void loop()
   {
     //this is a bit slow, so only do it once per update
     readAmperages();
+
+    //check what our power is.
+    readBusVoltage();
   
     //record our total consumption
     for (byte i = 0; i < channelCount; i++) {
@@ -341,6 +356,22 @@ void loop()
       channelDutyCycleIsThrottled[id] = false;
     }
   }
+}
+
+void readBusVoltage()
+{
+  //multisample because esp32 adc is trash
+  byte samples = 10;
+  float busmV = 0;
+  for (byte i=0; i<samples; i++)
+    busmV += analogReadMilliVolts(busVoltagePin);
+  busmV = busmV / (float)samples;
+
+  //our resistor divider network.
+  float r1 = 100000.0;
+  float r2 = 10000.0;
+  busVoltage = (busmV / 1000.0) / (r2 / (r2+r1));
+
 }
 
 void printLocalTime()
@@ -911,6 +942,7 @@ void sendStatsJSON(AsyncWebSocketClient *client)
   object["min_free_heap"] = ESP.getMinFreeHeap();
   object["max_alloc_heap"] = ESP.getMaxAllocHeap();
   object["rssi"] = WiFi.RSSI();
+  object["bus_voltage"] = busVoltage;
 
   //info about each of our channels
   for (byte i = 0; i < channelCount; i++) {
@@ -935,6 +967,7 @@ void sendUpdate()
   JsonObject object = doc.to<JsonObject>();
 
   object["msg"] = "update";
+  object["bus_voltage"] = busVoltage;
 
   if (getLocalTime(&timeinfo)) {
     char buffer[80];
