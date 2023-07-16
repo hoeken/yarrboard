@@ -57,6 +57,7 @@ bool channelTripped[channelCount];
 float channelDutyCycle[channelCount];
 bool channelIsDimmable[channelCount];
 unsigned long channelLastDutyCycleUpdate[channelCount];
+bool channelDutyCycleIsThrottled[channelCount];
 float channelAmperage[channelCount];
 float channelSoftFuseAmperage[channelCount];
 float channelAmpHour[channelCount];
@@ -161,6 +162,7 @@ void setup() {
     channelAmperage[i] = 0.0;
     channelAmpHour[i] = 0.0;
     channelLastDutyCycleUpdate[i] = 0;
+    channelDutyCycleIsThrottled[i] = false;
 
     //initialize our PWM channels
     pinMode(outputPins[i], OUTPUT);
@@ -327,6 +329,18 @@ void loop()
     lastHandledMessages = handledMessages;
     previousMessageMillis = millis();
   }
+
+  //are any of our channels throttled?
+  for (byte id = 0; id < channelCount; id++)
+  {
+    //after 5 secs of no activity, we can save it.
+    if (channelDutyCycleIsThrottled[id] && millis() - channelLastDutyCycleUpdate[id] > 5000)
+    {
+      String prefIndex = "cDuty" + String(id);
+      preferences.putFloat(prefIndex.c_str(), channelDutyCycle[id]);
+      channelDutyCycleIsThrottled[id] = false;
+    }
+  }
 }
 
 void printLocalTime()
@@ -444,8 +458,14 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
 
       //save to our storage
       String prefIndex = "cDuty" + String(cid);
-      if (millis() - channelLastDutyCycleUpdate[cid] > 750)
+      if (millis() - channelLastDutyCycleUpdate[cid] > 1000)
+      {
         preferences.putFloat(prefIndex.c_str(), value);
+        channelDutyCycleIsThrottled[cid] = false;
+      }
+      //make a note so we can save later.
+      else
+        channelDutyCycleIsThrottled[cid] = true;
 
       //we want the clock to reset every time we change the duty cycle
       //this way, long led fading sessions are only one write.
