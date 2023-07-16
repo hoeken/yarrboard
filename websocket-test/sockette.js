@@ -3,7 +3,7 @@ global.WebSocket = require('ws');
 const Sockette = require('sockette');
 
 const client = new Sockette('ws://gnarboard.local/ws', {
-  timeout: 2500,
+  timeout: 1000,
   onopen: onOpen,
   onmessage: onMessage,
   onreconnect: message => console.log('[socket] reconnecting'),
@@ -31,7 +31,10 @@ function onMessage(message)
 {
     if (typeof message.data === 'string') {
         let data = JSON.parse(message.data);
-        console.log(data);
+        if (data.msg == "update")
+            console.log("update: " + data.time)
+        else
+            console.log(data);
     }
 }
 
@@ -118,13 +121,14 @@ async function fadePin()
     let channel = 6;
     let max_duty = 1;
 
-    sendMessage({
-        "cmd": "set_state",
-        "id": channel,
-        "value": true
-    });
+    while (true)
+    {
+        sendMessage({
+            "cmd": "set_state",
+            "id": channel,
+            "value": true
+        });
 
-    while (true) {
         for (i=0; i<=steps; i++)
         {
             sendMessage({

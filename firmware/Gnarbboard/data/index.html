@@ -66,7 +66,7 @@
         </script>
         <main>
             <div id="liveAlertPlaceholder"></div>
-            <div id="loading">
+            <div id="loading" style="display: none">
                 <div class="d-flex justify-content-center align-items-center" style="height: 300px">
                     <div class="spinner-border" role="status" style="width: 7rem; height: 7rem;"></div>
                 </div>
@@ -166,11 +166,14 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="staticEmail" class="col-form-label">Local Hostname</label>
+                            <label for="local_hostname" class="col-form-label">Local Hostname</label>
                             <div class="input-group">
                                 <input id="local_hostname" type="text" class="form-control">
                                 <span class="input-group-text">.local</span>
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            IP Address: <span id="ip_address"></span>
                         </div>
                     </div>
                     <div class="col-lg-6">

@@ -920,6 +920,12 @@ void sendNetworkConfigJSON(AsyncWebSocketClient *client)
   object["app_user"] = app_user;
   object["app_pass"] = app_pass;
 
+  //what is our IP address?
+  if (wifi_mode.equals("ap"))
+    object["ip_address"] = apIP;
+  else
+    object["ip_address"] = WiFi.localIP();
+
   //serialize the object and send it.
   serializeJson(doc, jsonString);
   ws.text(client->id(), jsonString);

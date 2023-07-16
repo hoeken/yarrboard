@@ -296,6 +296,7 @@ function start_websocket()
       $("#app_user").val(msg.app_user);
       $("#app_pass").val(msg.app_pass);
       $("#require_login").prop("checked", msg.require_login);
+      $("#ip_address").html(msg.ip_address);
 
       page_ready.network = true;    
     }
@@ -420,7 +421,10 @@ function open_page(page)
       $(`#${page}Page`).show();
     else
     {
-      $("#loading").show();
+      //nothing to load for system.
+      if (page != "system")
+        $("#loading").show();
+
       setTimeout(on_page_ready, 100);
     }  
   }
