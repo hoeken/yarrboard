@@ -1244,8 +1244,8 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid a0521b44-d74f-4f30-9c86-87a9a442503d))
-    (pin "2" (uuid bb104401-5d92-435e-a4b3-de7685ecf568))
-    (pin "2" (uuid bb104401-5d92-435e-a4b3-de7685ecf568))
+    (pin "2" (uuid bb104401-5d92-435e-a4b3-de7685ecf56a))
+    (pin "2" (uuid bb104401-5d92-435e-a4b3-de7685ecf56a))
     (pin "3" (uuid 0d70eb9c-d644-4ae4-bea1-95902cea7538))
     (instances
       (project "Gnarboard"
