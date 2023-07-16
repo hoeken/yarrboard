@@ -56,8 +56,18 @@
         }
       ],
       "drc_exclusions": [
+        "clearance|81488000|121916000|8f7d3c57-9117-4dea-8a04-731236f28965|e7556a45-e416-4914-95cc-7fc1adde2247",
+        "clearance|82088000|121416000|8f7d3c57-9117-4dea-8a04-731236f28965|d0dca7b5-697d-4bef-8e81-de2bb546ff5e",
+        "clearance|87126000|132380000|aecdfc9e-523e-4527-864e-05ef6417c79c|d0dca7b5-697d-4bef-8e81-de2bb546ff5e",
         "courtyards_overlap|72500001|123070001|70c1b6aa-080d-4a54-b488-a99caf35d7c8|9a0a1cb8-984b-4961-829c-f728b988c84e",
-        "courtyards_overlap|80538001|120016001|3186c6e3-1265-44be-9ded-408ad6a3423a|9a0a1cb8-984b-4961-829c-f728b988c84e"
+        "courtyards_overlap|80538001|120016001|3186c6e3-1265-44be-9ded-408ad6a3423a|9a0a1cb8-984b-4961-829c-f728b988c84e",
+        "starved_thermal|105812500|131212500|e7556a45-e416-4914-95cc-7fc1adde2247|716e69eb-fb88-4e85-9348-2dd51e4141d3|F.Cu",
+        "starved_thermal|120812500|131212500|e7556a45-e416-4914-95cc-7fc1adde2247|1c634b07-1409-4953-9147-13a9b4d90d56|F.Cu",
+        "starved_thermal|135812500|131212500|e7556a45-e416-4914-95cc-7fc1adde2247|c2aa7ec3-376a-485e-87ff-318a54417e3e|F.Cu",
+        "starved_thermal|150812500|131182500|e7556a45-e416-4914-95cc-7fc1adde2247|038fc916-6f34-4273-8efa-18921dc33069|F.Cu",
+        "starved_thermal|165812500|131212500|e7556a45-e416-4914-95cc-7fc1adde2247|075be398-5974-4e0e-a67e-d6753eca0e27|F.Cu",
+        "starved_thermal|180812500|131212500|e7556a45-e416-4914-95cc-7fc1adde2247|e2cc7e96-7110-4797-938b-e24b353b33f0|F.Cu",
+        "starved_thermal|195812500|131212500|e7556a45-e416-4914-95cc-7fc1adde2247|20445e7f-b169-40df-8641-e20494ab931a|F.Cu"
       ],
       "meta": {
         "version": 2
@@ -123,7 +133,7 @@
         "min_microvia_drill": 0.09999999999999999,
         "min_resolved_spokes": 2,
         "min_silk_clearance": 0.0,
-        "min_text_height": 0.7999999999999999,
+        "min_text_height": 0.7,
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.3,
         "min_track_width": 0.25,
