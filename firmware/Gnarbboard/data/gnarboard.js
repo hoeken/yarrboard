@@ -75,12 +75,28 @@ const AlertBox = (message, type) => `
 //our heartbeat timer.
 function send_heartbeat()
 {
-  socket.send(JSON.stringify({"cmd": "ping"}));
 
-  setTimeout(send_heartbeat, 2500);
+  //only send it if we're already open.
+  if (socket.readyState == WebSocket.OPEN)
+    socket.send(JSON.stringify({"cmd": "ping"}));
+  else
+    console.log("she dead " + WebSocket.readyState);
+
+    console.log("heartbeat " + Date.now());
+
+    setTimeout(send_heartbeat, 2500);
 }
 
 function start_gnarboard()
+{
+  //fire up our websocket.
+  start_websocket();
+
+  //ticker checker
+  send_heartbeat();
+}
+
+function start_websocket()
 {
   socket = new WebSocket("ws://" + window.location.host + "/ws");
 
@@ -88,9 +104,6 @@ function start_gnarboard()
   {
     console.log("[socket] Connected");
   
-    //ticker checker
-    send_heartbeat();
-
     //auto login?
     if (Cookies.get("username") && Cookies.get("password")){
       socket.send(JSON.stringify({
@@ -109,18 +122,21 @@ function start_gnarboard()
     socket.send(JSON.stringify({
       "cmd": "get_network_config"
     }));
-    
+
     //check to see if we want a certain page
-    if (window.location.hash)
+    if (firstload)
     {
-      let page = window.location.hash.substring(1);
-      if (page_list.includes(page))
-        open_page(page);
+      if (window.location.hash)
+      {
+        let page = window.location.hash.substring(1);
+        if (page_list.includes(page))
+          open_page(page);
+      }
+      else
+        open_page("control");  
     }
-    else
-      open_page("control");
   };
-  
+
   socket.onmessage = function(event)
   {
     const msg = JSON.parse(event.data);
@@ -334,7 +350,7 @@ function start_gnarboard()
 
     //reconnect!
     setTimeout(function() {
-      start_gnarboard();
+      start_websocket();
     }, 250);
   };
   
@@ -343,11 +359,6 @@ function start_gnarboard()
     //console.log(`[socket] error`);
     //console.log(error);
   };
-}
-
-function start_websocket()
-{
-
 }
 
 function show_alert(message, type = 'danger')
@@ -427,21 +438,18 @@ function on_page_ready()
     setTimeout(on_page_ready, 100);
 }
 
-function is_socket_ready()
-{
-  return socket.readyState == WebSocket.OPEN;
-}
-
 function get_stats_data()
 {
-  if (is_socket_ready())
+  if (socket.readyState == WebSocket.OPEN)
+  {
     socket.send(JSON.stringify({
       "cmd": "get_stats",
     }));
 
-  //keep loading it while we are here.
-  if (current_page == "stats")
-    setTimeout(get_stats_data, 1000);
+    //keep loading it while we are here.
+    if (current_page == "stats")
+      setTimeout(get_stats_data, 1000);
+  }
 }
 
 function validate_board_name(e)

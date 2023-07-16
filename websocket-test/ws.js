@@ -1,19 +1,20 @@
 #!/usr/bin/env node
+const WebSocket = require('ws');
 
-var W3CWebSocket = require('websocket').w3cwebsocket;
+const client = new WebSocket('ws://gnarboard.local/ws');
 
-var client = new W3CWebSocket('ws://gnarboard.local/ws');
+client.on('error', console.error);
+client.on('open', onConnect);
+//client.on('ping', heartbeat);
+client.on('close', function clear() {
+  console.log("closed");
+});
+client.on('message', console.log);
 
-const delay = (millis) => new Promise(resolve => setTimeout(resolve, millis)) 
-
-client.onerror = function() {
-    console.log('Connection Error');
-};
-
-client.onopen = function() {
+function onConnect() {
     console.log('WebSocket Client Connected');
 
-    client.send(JSON.stringify({
+    this.send(JSON.stringify({
         "cmd": "login",
         "user": "admin",
         "pass": "admin"
@@ -22,19 +23,16 @@ client.onopen = function() {
     setTimeout(fadePin, 1000);
     //setTimeout(togglePin, 1000);
     //setTimeout(speedTest, 1000);
-};
+}
 
-client.onclose = function() {
-    console.log('echo-protocol Client Closed');
-};
-
-client.onmessage = function(e) {
-    if (typeof e.data === 'string') {
-        let data = JSON.parse(e.data);
+function onMessage(data) {
+    console.log(data);
+    if (typeof data === 'string') {
+        let json = JSON.parse(data);
         //if (data.msg != "update")
-        console.log(data);
+        console.log(json);
     }
-};
+}
 
 async function speedTest()
 {
@@ -118,7 +116,7 @@ async function fadePin()
     }));
 
     while (true) {
-        for (i=0; i<=steps; i++)
+        for (let i=0; i<=steps; i++)
         {
             client.send(JSON.stringify({
                 "cmd": "set_duty",
@@ -129,7 +127,7 @@ async function fadePin()
             await delay(d)
         }
 
-        for (i=steps; i>=0; i--)
+        for (let i=steps; i>=0; i--)
         {
             client.send(JSON.stringify({
                 "cmd": "set_duty",

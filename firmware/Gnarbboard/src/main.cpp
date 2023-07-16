@@ -1,5 +1,5 @@
 /*
-  Gnarboard v1.0.0
+  Gnarboard v1.0
   
   Author: Zach Hoeken <hoeken@gmail.com>
   Website: https://github.com/hoeken/Gnarboard
@@ -28,7 +28,7 @@
 //#include <N2kDeviceList.h>    // same ^^^
 
 //identify yourself!
-const char *version = "Gnarboard v1.0.0";
+const char *version = "Gnarboard v1.0";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;

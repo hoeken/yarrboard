@@ -1,47 +1,54 @@
 #!/usr/bin/env node
+global.WebSocket = require('ws');
+const Sockette = require('sockette');
 
-var W3CWebSocket = require('websocket').w3cwebsocket;
+const client = new Sockette('ws://gnarboard.local/ws', {
+  timeout: 2500,
+  onopen: onOpen,
+  onmessage: onMessage,
+  onreconnect: message => console.log('[socket] reconnecting'),
+  onmaximum: message => console.log('[socket] connection failed!'),
+  onclose: message => console.log('[socket] connection closed!', message.code, message.reason),
+  onerror: error => console.log("[socket] connection error: " + error.toString())
+});
 
-var client = new W3CWebSocket('ws://gnarboard.local/ws');
-
-const delay = (millis) => new Promise(resolve => setTimeout(resolve, millis)) 
-
-client.onerror = function() {
-    console.log('Connection Error');
-};
-
-client.onopen = function() {
+function onOpen(message)
+{
     console.log('WebSocket Client Connected');
 
-    client.send(JSON.stringify({
+    sendMessage({
         "cmd": "login",
         "user": "admin",
         "pass": "admin"
-    }));
+    });
 
     setTimeout(fadePin, 1000);
     //setTimeout(togglePin, 1000);
     //setTimeout(speedTest, 1000);
-};
+}
 
-client.onclose = function() {
-    console.log('echo-protocol Client Closed');
-};
-
-client.onmessage = function(e) {
-    if (typeof e.data === 'string') {
-        let data = JSON.parse(e.data);
-        //if (data.msg != "update")
+function onMessage(message)
+{
+    if (typeof message.data === 'string') {
+        let data = JSON.parse(message.data);
         console.log(data);
     }
-};
+}
+
+function sendMessage(message)
+{  
+    try {
+      reTrySafe(() => client.json(message), 3)
+    } catch (error) {
+        console.error("Send: " + error);
+    }
+}
+
 
 async function speedTest()
 {
     while(true) {
-        client.send(JSON.stringify({
-            "cmd": "get_config"
-        }));
+        sendMessage({"cmd": "get_config"});
         await delay(8)
     }
 }
@@ -51,27 +58,27 @@ async function exercisePins()
     while (true) {
         for (i=0; i<8; i++)
         {
-            client.send(JSON.stringify({
+            sendMessage({
                 "cmd": "set_duty",
                 "id": i,
                 "value": Math.random()
-            }));
-            client.send(JSON.stringify({
+            });
+            sendMessage({
                 "cmd": "set_state",
                 "id": i,
                 "value": true
-            }));
+            });
 
             await delay(200)
         }
 
         for (i=0; i<8; i++)
         {
-            client.send(JSON.stringify({
+            sendMessage({
                 "cmd": "set_state",
                 "id": i,
                 "value": false
-            }));
+            });
            	await delay(200)
         }
     }
@@ -79,26 +86,26 @@ async function exercisePins()
 
 async function togglePin()
 {
-    client.send(JSON.stringify({
+    sendMessage({
         "cmd": "set_duty",
         "id": 0,
         "value": 1
-    }));
+    });
 
     while (true) {
-        client.send(JSON.stringify({
+        sendMessage({
             "cmd": "set_state",
             "id": 0,
             "value": true
-        }));
+        });
 
         await delay(1000)
 
-        client.send(JSON.stringify({
+        sendMessage({
             "cmd": "set_state",
             "id": 0,
             "value": false
-        }));
+        });
 
         await delay(2000)
     }
@@ -111,33 +118,59 @@ async function fadePin()
     let channel = 6;
     let max_duty = 1;
 
-    client.send(JSON.stringify({
+    sendMessage({
         "cmd": "set_state",
         "id": channel,
         "value": true
-    }));
+    });
 
     while (true) {
         for (i=0; i<=steps; i++)
         {
-            client.send(JSON.stringify({
+            sendMessage({
                 "cmd": "set_duty",
                 "id": channel,
                 "value": (i / steps) * max_duty
-            }));
+            });
 
             await delay(d)
         }
 
         for (i=steps; i>=0; i--)
         {
-            client.send(JSON.stringify({
+            sendMessage({
                 "cmd": "set_duty",
                 "id": channel,
                 "value": (i / steps) * max_duty
-            }));
+            });
 
             await delay(d)
         }
     }
+}
+
+//function to make an easy delay.
+const delay = (millis) => new Promise(resolve => setTimeout(resolve, millis));
+
+//function to handle retrying
+async function reTryCatch(callback, times = 10) {
+  try {
+    return await callback()
+  } catch (error) {
+    if (times > 0) {
+      return await reTryCatch(callback, times - 1)
+    } else {
+      throw error
+    }
+  }
+}
+
+// Helper
+// Tries and ignores errors if any occur
+const reTrySafe = async (cb, times) => {
+  try {
+    return await reTryCatch(cb, times)
+  } catch(error) {
+    return null
+  } 
 }
