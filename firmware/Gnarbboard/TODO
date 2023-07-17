@@ -5,5 +5,6 @@ Firmware:
 
 Long Term:
 
+* send/receive json over serial as well
 * ota updater - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
 * control via N2K bus

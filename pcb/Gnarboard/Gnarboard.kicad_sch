@@ -5,7 +5,7 @@
   (paper "A4")
 
   (title_block
-    (rev "1.0.0")
+    (rev "A")
   )
 
   (lib_symbols
@@ -2752,7 +2752,7 @@
     (property "Value" "30V" (at 26.67 36.83 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Diode_SMD:D_SOD-123" (at 19.685 35.56 0)
+    (property "Footprint" "Diode_SMD:D_SOD-123F" (at 19.685 35.56 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "http://diotec.com/tl_files/diotec/files/pdf/datasheets/zpd1" (at 24.13 35.56 0)

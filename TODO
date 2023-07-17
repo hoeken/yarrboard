@@ -1,11 +1,7 @@
 Electronics:
 
-* test voltage divider to get bus voltage
-* test code with leds on all pins
-* test breadboarded mosfet circuit - opto vs npn transistor
-* test and decide on current sensor
-* start schematic and pcb design
-  * add a row of breakout headers for testing
-  * figure out if there's a common i2c and spi header
-  * add a header for serial port
-  * any i/o pins left over?
+* update BOM
+* test dfrobot board
+* make silkscreen look good
+* print a test version and check footprints
+* order pcb
