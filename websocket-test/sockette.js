@@ -118,7 +118,7 @@ async function fadePin()
 {
     let steps = 50;
     let d = 20;
-    let channel = 6;
+    let channel = 2;
     let max_duty = 1;
 
     while (true)

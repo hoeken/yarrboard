@@ -51,8 +51,7 @@ String local_hostname = "gnarboard";
 
 //keep track of our channel info.
 const byte channelCount = 8;
-const byte outputPins[channelCount] = { 25, 26, 27, 14, 12, 13, 17, 16 };
-const byte analogPins[channelCount] = { 36, 39, 34, 35, 32, 33, 4, 2 };
+const byte outputPins[channelCount] = { 32, 33, 25, 26, 27, 14, 12, 13 };
 
 //for watching our power supply
 const byte busVoltagePin = 36;
@@ -83,6 +82,7 @@ const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
 
 //object for our adc
 MCP3208 adc;
+const byte adc_cs_pin = 17;
 
 //storage for more permanent stuff.
 Preferences preferences;
@@ -289,7 +289,7 @@ void setupNMEA2000()
 
 void setupADC()
 {
-  adc.begin();
+  adc.begin(adc_cs_pin);
 }
 
 void loop()
