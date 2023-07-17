@@ -177,6 +177,7 @@ function start_websocket()
           $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
           $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
           $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
+          $('#channelStats' + ch.id).append(`<td id="channelWattHours${ch.id}" class="text-end"></td>`);
           $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
           $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
         }
@@ -269,7 +270,10 @@ function start_websocket()
       for (ch of msg.channels)
       {
         let aH = Math.round(ch.aH * 100) / 100;
+        let wH = Math.round(ch.wH * 100) / 100;
+
         $('#channelAmpHours' + ch.id).html(`${aH}aH`);
+        $('#channelWattHours' + ch.id).html(`${wH}wH`);
         $('#channelOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
         $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
       }

@@ -67,6 +67,7 @@ bool channelDutyCycleIsThrottled[channelCount];
 float channelAmperage[channelCount];
 float channelSoftFuseAmperage[channelCount];
 float channelAmpHour[channelCount];
+float channelWattHour[channelCount];
 String channelNames[channelCount];
 unsigned int channelStateChangeCount[channelCount];
 unsigned int channelSoftFuseTripCount[channelCount];
@@ -173,6 +174,7 @@ void setup() {
     channelTripped[i] = false;
     channelAmperage[i] = 0.0;
     channelAmpHour[i] = 0.0;
+    channelWattHour[i] = 0.0;
     channelLastDutyCycleUpdate[i] = 0;
     channelDutyCycleIsThrottled[i] = false;
 
@@ -317,7 +319,10 @@ void loop()
     //record our total consumption
     for (byte i = 0; i < channelCount; i++) {
       if (channelAmperage[i] > 0)
+      {
         channelAmpHour[i] += channelAmperage[i] * ((float)adcDelta / 3600000.0);
+        channelWattHour[i] += channelAmperage[i] * busVoltage * ((float)adcDelta / 3600000.0);
+      }
     }
 
     //are our loads ok?
@@ -955,6 +960,7 @@ void sendStatsJSON(AsyncWebSocketClient *client)
     object["channels"][i]["id"] = i;
     object["channels"][i]["name"] = channelNames[i];
     object["channels"][i]["aH"] = channelAmpHour[i];
+    object["channels"][i]["wH"] = channelWattHour[i];
     object["channels"][i]["state_change_count"] = channelStateChangeCount[i];
     object["channels"][i]["soft_fuse_trip_count"] = channelSoftFuseTripCount[i];
   }
@@ -987,6 +993,7 @@ void sendUpdate()
     object["channels"][i]["duty"] = round2(channelDutyCycle[i]);
     object["channels"][i]["current"] = round2(channelAmperage[i]);
     object["channels"][i]["aH"] = round3(channelAmpHour[i]);
+    object["channels"][i]["wH"] = round3(channelWattHour[i]);
 
     if (channelTripped[i])
       object["channels"][i]["soft_fuse_tripped"] = true;
