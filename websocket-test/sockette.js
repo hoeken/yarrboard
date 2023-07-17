@@ -150,6 +150,12 @@ async function fadePin()
 
             await delay(d)
         }
+
+        sendMessage({
+            "cmd": "set_state",
+            "id": channel,
+            "value": false
+        });
     }
 }
 

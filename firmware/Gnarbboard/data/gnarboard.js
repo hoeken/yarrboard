@@ -269,8 +269,8 @@ function start_websocket()
   
       for (ch of msg.channels)
       {
-        let aH = Math.round(ch.aH * 100) / 100;
-        let wH = Math.round(ch.wH * 100) / 100;
+        let aH = ch.aH.toFixed(2);
+        let wH = ch.wH.toFixed(2);
 
         $('#channelAmpHours' + ch.id).html(`${aH}aH`);
         $('#channelWattHours' + ch.id).html(`${wH}wH`);
