@@ -9,7 +9,7 @@
     <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
     <script src="gnarboard.js"></script>
-    <script src="jquery.slim.js"></script> 
+    <script src="jquery-3.7.0.min.js"></script> 
     <script src="bootstrap.min.js"></script>
     <script src="jscookie.js"></script>
     <style>
@@ -211,18 +211,25 @@
             <div id="systemPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <div class="row">
                     <div class="col-lg-6 mb-3">
-                        <h5>Firmware Update</h5>
-                        <b>Firmware is currently up to date.</b>
-                        <a href="/update"">Manually upload firmware update</a>
+                        <h5>Firmware</h5>
+                        <div id="firmware_checking" class="alert alert-secondary" role="alert">
+                            Checking for new firmware...
+                        </div>
+                        <div id="firmware_up_to_date" class="alert alert-success" role="alert" style="display: none">
+                            Firmware is up to date.
+                        </div>
+                        <div id="firmware_update_available" class="alert alert-primary" role="alert" style="display: none">
+                            There is a newer firmware version available. (<span></span>)
+                        </div>
+                        <div class="text-center">
+                            <div class="my-2"><b>OR</b></div>
+                            <a class="btn btn-primary" href="/update"">Manually upload firmware update</a>
+                        </div>
                     </div>
                     <div class="col-lg-6">
                         <h5>Miscellaneous</h5>
-                        <div>
-                            <button class="btn btn-primary col-6 mb-4" type="button" onclick="restart_board()">Restart Board</button>
-                        </div>
-                        <div>
-                            <button class="btn btn-danger col-6 mb-4" type="button" onclick="reset_to_factory()">Reset to Factory Defaults</button>
-                        </div>
+                        <button class="btn btn-primary" type="button" onclick="restart_board()">Restart Board</button>
+                        <button class="btn btn-danger" type="button" onclick="reset_to_factory()">Reset to Factory Defaults</button>
                     </div>
                 </div>
             </div>

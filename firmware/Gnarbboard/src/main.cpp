@@ -18,7 +18,7 @@
 #include <MCP3208.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <AsyncElegantOTA.h> 
+#include <AsyncElegantOTA.h>
 
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
@@ -29,7 +29,7 @@
 //#include <N2kDeviceList.h>    // same ^^^
 
 //identify yourself!
-const char *version = "Gnarboard v1.0";
+const char *version = "1.0";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;
@@ -117,7 +117,7 @@ struct tm timeinfo;
 void setupNMEA2000();
 void setupADC();
 void setupNMEA2000();
-void setupWifi() ;
+void setupWifi();
 bool connectToWifi(String ssid, String pass);
 
 void timeAvailable(struct timeval *t);
@@ -146,13 +146,15 @@ uint16_t readMCP3208Channel(byte channel, byte samples = 64);
 void readAmperages();
 void checkSoftFuses();
 
-void setup() {
+void setup()
+{
   unsigned long setup_t1 = micros();
   String prefIndex;
 
   //startup our serial
   Serial.begin(115200);
   delay(10);
+  Serial.print("Gnarboard ");
   Serial.println(version);
 
   //Setup our NTP to get the current time.

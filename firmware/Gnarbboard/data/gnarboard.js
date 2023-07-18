@@ -155,7 +155,7 @@ function start_websocket()
       document.title = msg.name;
   
       //update our footer automatically.
-      $('#projectName').html(msg.version);
+      $('#projectName').html("Gnarboard v" + msg.version);
   
       //populate our channel control table
       if (current_page != "control" || firstload)
@@ -397,6 +397,10 @@ function open_page(page)
   //request our stats.
   if (page == "stats")
     get_stats_data();
+
+  //look up our firmware
+  if (page == "system")
+    check_for_updates();
 
   //hide all pages.
   $("div.pageContainer").hide();
@@ -666,6 +670,27 @@ function reset_to_factory()
 
     show_alert("Gnarboard is now resetting to factory defaults, please be patient.", "primary");
   }
+}
+
+function check_for_updates()
+{
+  //did we get a config yet?
+  if (current_config)
+  {
+    $.getJSON("https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/releases.json", function(data) {
+      $("#firmware_checking").hide();
+      if (current_config.version == data[0].version)
+        $("#firmware_up_to_date").show();
+      else
+      {
+        $("#firmware_update_available span").html(data[0].version);
+        $("#firmware_update_available").show();
+      }
+    });  
+  }
+  //wait for it.
+  else
+    setTimeout(check_for_updates, 1000);
 }
 
 function secondsToDhms(seconds)
