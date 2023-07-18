@@ -1,10 +1,7 @@
 Firmware:
 
+* send/receive json over serial as well
+* check OTA updater on larger flash.
 * check json sizing: https://arduinojson.org/v6/api/jsondocument/memoryusage/
 * give ledcwrite and higher res pwm another chance
-
-Long Term:
-
-* send/receive json over serial as well
-* ota updater - https://lastminuteengineers.com/esp32-ota-web-updater-arduino-ide/
 * control via N2K bus

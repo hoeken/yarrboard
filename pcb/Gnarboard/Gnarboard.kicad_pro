@@ -68,8 +68,7 @@
         "starved_thermal|197163000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|dbda3ca3-cb31-481e-b102-2b0703a14bef|F.Cu",
         "starved_thermal|216223000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|6c5c85e2-d465-4053-a83f-a8f9ce65de57|F.Cu",
         "starved_thermal|235283000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|4dca1dd4-ba98-442b-8da7-152dc2c9ca57|F.Cu",
-        "starved_thermal|71374000|116586000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|ab4d5bfa-7970-4cb5-9eca-d17d6a71e0e4|F.Cu",
-        "starved_thermal|76200000|35560000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|abb49083-02b1-4ddc-ba51-9b78ba0d2f79|F.Cu"
+        "starved_thermal|81026000|35560000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|abb49083-02b1-4ddc-ba51-9b78ba0d2f79|F.Cu"
       ],
       "meta": {
         "version": 2
