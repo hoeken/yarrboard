@@ -1551,8 +1551,8 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid abfd9d39-40e7-4441-a55c-a019dae87901))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44a97))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44a97))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44a98))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44a98))
     (pin "3" (uuid bc1d5f51-a708-4946-a607-dc92b3201b6f))
     (instances
       (project "Gnarboard"
@@ -1805,7 +1805,7 @@
     (property "Value" "ACS725xLCTR-20AU" (at 152.0541 100.33 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (at 152.4 119.38 0)
+    (property "Footprint" "gnarboard:ACS7XX" (at 152.4 119.38 0)
       (effects (font (size 1.27 1.27) italic) (justify left) hide)
     )
     (property "Datasheet" "http://www.allegromicro.com/~/media/Files/Datasheets/ACS725-Datasheet.ashx?la=en" (at 149.86 110.49 0)
