@@ -211,24 +211,25 @@
             <div id="systemPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <div class="row">
                     <div class="col-lg-6 mb-3">
-                        <h5>Firmware Upload</h5>
-                        <input type="file" class="form-control" id="customFile" />
-                        <button class="btn btn-primary mt-3" type="button" onclick="alert('Not implemented')">Upload Firmware</button>
+                        <h5>Firmware Update</h5>
+                        <b>Firmware is currently up to date.</b>
+                        <a href="/update"">Manually upload firmware update</a>
                     </div>
                     <div class="col-lg-6">
                         <h5>Miscellaneous</h5>
                         <div>
-                            <button class="btn btn-warning col-12 mb-4" type="button" onclick="restart_board()">Restart Board</button>
+                            <button class="btn btn-primary col-6 mb-4" type="button" onclick="restart_board()">Restart Board</button>
                         </div>
                         <div>
-                            <button class="btn btn-danger col-12 mb-4" type="button" onclick="reset_to_factory()">Reset to Factory Defaults</button>
+                            <button class="btn btn-danger col-6 mb-4" type="button" onclick="reset_to_factory()">Reset to Factory Defaults</button>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
         <footer class="p-4 text-body-secondary text-center">
-            <a id="projectName" href="https://github.com/hoeken/Gnarboard">Gnarboard</a> &middot; &copy; 2023
+            <a id="projectName" href="https://github.com/hoeken/Gnarboard">Gnarboard</a> &middot; &copy; 2023<br>
+            <a href="https://www.oshwa.org/"><img src="oshw-logo-antipixel.webp"></a>
         </footer>
     </div>
 </body>

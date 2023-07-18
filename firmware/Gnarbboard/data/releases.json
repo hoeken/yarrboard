@@ -1,0 +1,7 @@
+[
+    {
+        "version": "1.0",
+        "firmware_file": "foo.bin",
+        "spiffs_file": "spiffs.bin"
+    }
+]

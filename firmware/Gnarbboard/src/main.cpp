@@ -7,17 +7,18 @@
 
 */
 
-#include <WiFi.h>               // esp32 standard library
-#include <DNSServer.h>          // esp32 standard library
-#include <Preferences.h>        // esp32 standard library
-#include <ESPmDNS.h>            // esp32 standard library
-#include "time.h"               // esp32 standard library
-#include "sntp.h"               // esp32 standard library
-#include <SPIFFS.h>             // esp32 standard library
-#include <ArduinoJson.h>        // ArduinoJSON by Benoit Blanchon via library manager
-#include <MCP3208.h>            // MPC3208 by Rodolvo Prieto via library manager
-#include <ESPAsyncWebServer.h>  // https://github.com/me-no-dev/ESPAsyncWebServer/ via .zip
-#include <AsyncTCP.h>           // https://github.com/me-no-dev/AsyncTCP/ via .zip
+#include <Preferences.h>
+#include <WiFi.h>
+#include <DNSServer.h>
+#include <ESPmDNS.h>
+#include "time.h"
+#include "sntp.h"
+#include <SPIFFS.h>
+#include <ArduinoJson.h>
+#include <MCP3208.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <AsyncElegantOTA.h> 
 
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
@@ -266,6 +267,12 @@ void setup() {
   //config for our websocket server
   ws.onEvent(onEvent);
   server.addHandler(&ws);
+
+  //our OTA update handler
+  if (require_login)
+    AsyncElegantOTA.begin(&server, app_user.c_str(), app_pass.c_str());
+  else
+    AsyncElegantOTA.begin(&server);
 
   //we are only serving static files - 30 day cache
   //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
