@@ -2647,7 +2647,7 @@
     )
   )
 
-  (footprint "gnarboard:Logo" (layer "F.Cu")
+  (footprint "gnarboard:Logo" locked (layer "F.Cu")
     (tstamp 44da9948-3671-4aee-83e9-127c2793d6c5)
     (at 75.565 138.43)
     (attr smd)
@@ -5706,7 +5706,7 @@
     )
   )
 
-  (footprint "Symbol:OSHW-Logo_11.4x12mm_SilkScreen" (layer "F.Cu")
+  (footprint "Symbol:OSHW-Logo_11.4x12mm_SilkScreen" locked (layer "F.Cu")
     (tstamp 84a0bd63-b63d-4cc4-b348-6137968a569a)
     (at 67.945 34.29)
     (descr "Open Source Hardware Logo")
