@@ -56,10 +56,20 @@
         }
       ],
       "drc_exclusions": [
-        "courtyards_overlap|72500001|123070001|70c1b6aa-080d-4a54-b488-a99caf35d7c8|9a0a1cb8-984b-4961-829c-f728b988c84e",
-        "courtyards_overlap|73334001|83886001|9a0a1cb8-984b-4961-829c-f728b988c84e|d59409e9-a607-4172-8506-a6d530447da2",
-        "courtyards_overlap|73334001|86426001|9a0a1cb8-984b-4961-829c-f728b988c84e|fe2e1898-9d90-4b18-9d01-2f0d93606467",
-        "courtyards_overlap|80538001|120016001|3186c6e3-1265-44be-9ded-408ad6a3423a|9a0a1cb8-984b-4961-829c-f728b988c84e"
+        "clearance|79294000|110240000|8f7d3c57-9117-4dea-8a04-731236f28965|d0dca7b5-697d-4bef-8e81-de2bb546ff5e",
+        "clearance|79294000|110740000|8f7d3c57-9117-4dea-8a04-731236f28965|e7556a45-e416-4914-95cc-7fc1adde2247",
+        "clearance|90301000|144318000|aecdfc9e-523e-4527-864e-05ef6417c79c|d0dca7b5-697d-4bef-8e81-de2bb546ff5e",
+        "clearance|90801000|144303763|aecdfc9e-523e-4527-864e-05ef6417c79c|b0c338bc-65b3-4b36-9623-8f06383c00ce",
+        "starved_thermal|101863000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|b4dae242-41d7-44b9-afee-924c25a7fe6b|F.Cu",
+        "starved_thermal|120923000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|97c10c94-d29c-4aa7-97ac-ce5dbcc21272|F.Cu",
+        "starved_thermal|139983000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|23915bc3-87c9-404b-a61f-0d3cee246d2d|F.Cu",
+        "starved_thermal|159043000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|7f0cd717-38f8-4b4c-a5d7-92e6d095e615|F.Cu",
+        "starved_thermal|178103000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|b5f00cb5-2ed1-4ba5-a720-9de51f53aab6|F.Cu",
+        "starved_thermal|197163000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|dbda3ca3-cb31-481e-b102-2b0703a14bef|F.Cu",
+        "starved_thermal|216223000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|6c5c85e2-d465-4053-a83f-a8f9ce65de57|F.Cu",
+        "starved_thermal|235283000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|4dca1dd4-ba98-442b-8da7-152dc2c9ca57|F.Cu",
+        "starved_thermal|71374000|116586000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|ab4d5bfa-7970-4cb5-9eca-d17d6a71e0e4|F.Cu",
+        "starved_thermal|76200000|35560000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|abb49083-02b1-4ddc-ba51-9b78ba0d2f79|F.Cu"
       ],
       "meta": {
         "version": 2
@@ -98,7 +108,7 @@
         "shorting_items": "error",
         "silk_edge_clearance": "warning",
         "silk_over_copper": "warning",
-        "silk_overlap": "warning",
+        "silk_overlap": "ignore",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
