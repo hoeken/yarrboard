@@ -55,21 +55,7 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        "clearance|79294000|110240000|8f7d3c57-9117-4dea-8a04-731236f28965|d0dca7b5-697d-4bef-8e81-de2bb546ff5e",
-        "clearance|79294000|110740000|8f7d3c57-9117-4dea-8a04-731236f28965|e7556a45-e416-4914-95cc-7fc1adde2247",
-        "clearance|90301000|144318000|aecdfc9e-523e-4527-864e-05ef6417c79c|d0dca7b5-697d-4bef-8e81-de2bb546ff5e",
-        "clearance|90801000|144303763|aecdfc9e-523e-4527-864e-05ef6417c79c|b0c338bc-65b3-4b36-9623-8f06383c00ce",
-        "starved_thermal|101863000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|b4dae242-41d7-44b9-afee-924c25a7fe6b|F.Cu",
-        "starved_thermal|120923000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|97c10c94-d29c-4aa7-97ac-ce5dbcc21272|F.Cu",
-        "starved_thermal|139983000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|23915bc3-87c9-404b-a61f-0d3cee246d2d|F.Cu",
-        "starved_thermal|159043000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|7f0cd717-38f8-4b4c-a5d7-92e6d095e615|F.Cu",
-        "starved_thermal|178103000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|b5f00cb5-2ed1-4ba5-a720-9de51f53aab6|F.Cu",
-        "starved_thermal|197163000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|dbda3ca3-cb31-481e-b102-2b0703a14bef|F.Cu",
-        "starved_thermal|216223000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|6c5c85e2-d465-4053-a83f-a8f9ce65de57|F.Cu",
-        "starved_thermal|235283000|80264000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|4dca1dd4-ba98-442b-8da7-152dc2c9ca57|F.Cu",
-        "starved_thermal|81026000|35560000|d0dca7b5-697d-4bef-8e81-de2bb546ff5e|abb49083-02b1-4ddc-ba51-9b78ba0d2f79|F.Cu"
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -493,8 +479,8 @@
       "idf": "",
       "netlist": "",
       "specctra_dsn": "",
-      "step": "",
-      "vrml": ""
+      "step": "Gnarboard.step",
+      "vrml": "Gnarboard.wrl"
     },
     "page_layout_descr_file": ""
   },
