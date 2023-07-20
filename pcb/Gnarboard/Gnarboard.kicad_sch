@@ -3060,7 +3060,7 @@
     (property "Value" "R-78B3.3-2.0" (at 54.61 57.15 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "Converter_DCDC:Converter_DCDC_RECOM_R-78B-2.0_THT" (at 55.88 67.31 0)
+    (property "Footprint" "gnarboard:RECOM R-78K" (at 55.88 67.31 0)
       (effects (font (size 1.27 1.27) italic) (justify left) hide)
     )
     (property "Datasheet" "https://www.recom-power.com/pdf/Innoline/R-78Bxx-2.0.pdf" (at 54.61 60.96 0)
