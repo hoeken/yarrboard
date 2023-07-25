@@ -1,6 +1,10 @@
 Firmware:
 
+* add heartbeat / connection indicator to footer
 * send/receive json over serial as well
 * check OTA updater on larger flash.
 * give ledcwrite and higher res pwm another chance
+
+Long term:
+
 * control via N2K bus

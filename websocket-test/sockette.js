@@ -31,7 +31,7 @@ function onMessage(message)
 {
     if (typeof message.data === 'string') {
         let data = JSON.parse(message.data);
-        console.log(message.data);
+
         if (data.msg == "update")
             console.log("update: " + data.time)
         else

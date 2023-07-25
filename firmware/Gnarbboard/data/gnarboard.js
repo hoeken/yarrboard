@@ -141,9 +141,6 @@ function start_websocket()
   {
     const msg = JSON.parse(event.data);
 
-    if (msg.msg != 'update')
-     console.log(event.data);
-
     if (msg.msg == 'config')
     {
       current_config = msg;
