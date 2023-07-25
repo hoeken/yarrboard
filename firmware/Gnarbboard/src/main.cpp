@@ -440,16 +440,16 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 
 void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
 {
-  Serial.println(payload);
+  //Serial.println(payload);
 
   StaticJsonDocument<1024> doc;
   DeserializationError err = deserializeJson(doc, payload);
 
   //was there a problem, officer?
   if (err) {
-    Serial.print("deserializeJson() failed with code ");
-    Serial.println(err.c_str());
-    return;
+    String error = "deserializeJson() failed with code ";
+    error += err.c_str();
+    sendErrorJSON(error, client);
   }
 
   //what is your command?
