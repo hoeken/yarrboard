@@ -438,10 +438,19 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
   }
 }
 
-void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
-  StaticJsonDocument<2000> doc;
-  deserializeJson(doc, payload);
-  //JsonObject root = doc.as<JsonObject>();
+void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
+{
+  Serial.println(payload);
+
+  StaticJsonDocument<1024> doc;
+  DeserializationError err = deserializeJson(doc, payload);
+
+  //was there a problem, officer?
+  if (err) {
+    Serial.print("deserializeJson() failed with code ");
+    Serial.println(err.c_str());
+    return;
+  }
 
   //what is your command?
   String cmd = doc["cmd"];
@@ -804,7 +813,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client) {
   else if (cmd.equals("ping"))
   {
     String jsonString;  // Temporary storage for the JSON String
-    StaticJsonDocument<500> doc;
+    StaticJsonDocument<16> doc;
 
     // create an object
     JsonObject object = doc.to<JsonObject>();
@@ -853,7 +862,7 @@ bool assertValidChannel(byte cid, AsyncWebSocketClient *client)
 
 void sendSuccessJSON(String success, AsyncWebSocketClient *client) {
   String jsonString;  // Temporary storage for the JSON String
-  StaticJsonDocument<1000> doc;
+  StaticJsonDocument<256> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -867,7 +876,7 @@ void sendSuccessJSON(String success, AsyncWebSocketClient *client) {
 void sendErrorJSON(String error, AsyncWebSocketClient *client)
 {
   String jsonString;  // Temporary storage for the JSON String
-  StaticJsonDocument<1000> doc;
+  StaticJsonDocument<256> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -881,7 +890,7 @@ void sendErrorJSON(String error, AsyncWebSocketClient *client)
 void sendConfigJSON(AsyncWebSocketClient *client)
 {
   String jsonString;
-  StaticJsonDocument<2000> doc;
+  StaticJsonDocument<1536> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -919,7 +928,7 @@ void sendConfigJSON(AsyncWebSocketClient *client)
 void sendNetworkConfigJSON(AsyncWebSocketClient *client)
 {
   String jsonString;
-  StaticJsonDocument<1000> doc;
+  StaticJsonDocument<256> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -949,7 +958,7 @@ void sendStatsJSON(AsyncWebSocketClient *client)
 {
   //stuff for working with json
   String jsonString;
-  StaticJsonDocument<2000> doc;
+  StaticJsonDocument<1536> doc;
   JsonObject object = doc.to<JsonObject>();
 
   //some basic statistics and info
@@ -981,7 +990,7 @@ void sendStatsJSON(AsyncWebSocketClient *client)
 
 void sendUpdate()
 {
-  StaticJsonDocument<2000> doc;
+  StaticJsonDocument<2048> doc;
   String jsonString;
 
   // create an object

@@ -2,6 +2,5 @@ Firmware:
 
 * send/receive json over serial as well
 * check OTA updater on larger flash.
-* check json sizing: https://arduinojson.org/v6/api/jsondocument/memoryusage/
 * give ledcwrite and higher res pwm another chance
 * control via N2K bus

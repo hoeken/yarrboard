@@ -140,7 +140,10 @@ function start_websocket()
   socket.onmessage = function(event)
   {
     const msg = JSON.parse(event.data);
-  
+
+    if (msg.msg != 'update')
+     console.log(event.data);
+
     if (msg.msg == 'config')
     {
       current_config = msg;
