@@ -34,3 +34,11 @@ fp-info-cache
 .~lock*
 Gnarboard/bom/
 Gnarboard/output/
+\#*
+*.zip
+*.wrl
+*.csv
+*.FCStd1
+*.stl
+*.dxf
+*.step
