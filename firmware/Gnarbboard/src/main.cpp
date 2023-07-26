@@ -19,18 +19,12 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <esp32FOTA.hpp>
-//#include <AsyncElegantOTA.h>
 
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 
-//#include <NMEA2000.h>         // https://github.com/ttlappalainen/NMEA2000_esp32 via .zip
-//#include <NMEA2000_CAN.h>     // https://github.com/ttlappalainen/NMEA2000 via .zip
-//#include <N2kMsg.h>           // same ^^^
-//#include <N2kDeviceList.h>    // same ^^^
-
 //identify yourself!
-const char *version = "1.1";
+const char *version = "1.0.0";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;
@@ -39,6 +33,7 @@ bool is_first_boot = true;
 esp32FOTA esp32FOTA("esp32-fota-http", version);
 const char* manifest_url = "https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/firmware.json";
 CryptoFileAsset *MyRootCA = new CryptoFileAsset( "/root_ca.pem", &SPIFFS );
+bool doOTAUpdate = false;
 
 //for making a captive portal
 const byte DNS_PORT = 53;
@@ -127,10 +122,7 @@ void setupNMEA2000();
 void setupWifi();
 bool connectToWifi(String ssid, String pass);
 
-//void onOTAStart();
-//void onOTAProgress();
-//void onOTAEnd();
-//unsigned long otaStartTime;
+void otaUpdateSetup();
 
 void timeAvailable(struct timeval *t);
 void printLocalTime();
@@ -285,16 +277,27 @@ void setup()
     return;
   }
 
+  //checking versions
+  otaUpdateSetup();
+
   //config for our websocket server
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
-  //our OTA update handler
-  //if (require_login)
-  //  AsyncElegantOTA.begin(&server, app_user.c_str(), app_pass.c_str());
-  //else
-  //  AsyncElegantOTA.begin(&server);
+  //we are only serving static files - big cache
+  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  // only enable this once we're done with web stuff.
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
+  server.begin();
 
+  unsigned long setup_t2 = micros();
+  Serial.print("Boot time: ");
+  Serial.print((float)(setup_t2 - setup_t1) / 1000.0);
+  Serial.println("ms");
+}
+
+void otaUpdateSetup()
+{
   esp32FOTA.setManifestURL(manifest_url);
   esp32FOTA.setRootCA(MyRootCA);
 
@@ -319,46 +322,8 @@ void setup()
     //  -2 : validation (signature check) failed
   });
 
-  esp32FOTA.setUpdateFinishedCb( [](int partition, bool restart_after) {
-    Serial.printf("[ota] Update finished with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
-    // do some stuff e.g. notify a MQTT server the update completed successfully
-    if( restart_after ) {
-        ESP.restart();
-    }
-  });
-
   esp32FOTA.printConfig();
-
-  //we are only serving static files - big cache
-  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-  // only enable this once we're done with web stuff.
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
-  server.begin();
-
-  //AsyncElegantOTA.onOTAStart(onOTAStart);
-  //AsyncElegantOTA.onOTAProgress(onOTAProgress);
-  //AsyncElegantOTA.onOTAEnd(onOTAEnd);
-
-  unsigned long setup_t2 = micros();
-  Serial.print("Boot time: ");
-  Serial.print((float)(setup_t2 - setup_t1) / 1000.0);
-  Serial.println("ms");
 }
-
-/*
-void onOTAStart() {
-  otaStartTime = millis();
-  Serial.printf("OTA update started\n\r");
-}
-
-void onOTAProgress() {
-  Serial.printf("OTA progress, %5.3fs elapsed\n\r", (float)(millis()-otaStartTime)/1000.0);
-}
-
-void onOTAEnd() {
-  Serial.printf("OTA update ended, %5.3fs elapsed\n\r", (float)(millis()-otaStartTime)/1000.0);
-}
-*/
 
 // Callback function (get's called when time adjusts via NTP)
 void timeAvailable(struct timeval *t) {
@@ -380,18 +345,15 @@ void loop()
   unsigned long t1;
   unsigned long t2;
 
-  //look for new firmware
-  bool updatedNeeded = esp32FOTA.execHTTPcheck();
-  if (updatedNeeded)
-  {
-    esp32FOTA.handle();
-  }
-
-  delay(2000);
-  return;
-
   //sometimes websocket clients die badly.
   ws.cleanupClients();
+
+  //do we want to do the update?
+  if (doOTAUpdate)
+  {
+    esp32FOTA.handle();
+    doOTAUpdate = false;
+  }
 
   //run our dns... for AP mode
   if (wifi_mode.equals("ap"))
@@ -936,6 +898,22 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
     serializeJson(doc, jsonString);
     if (client->canSend())
       ws.text(client->id(), jsonString);
+  }
+  else if (cmd.equals("ota_start"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
+    //look for new firmware
+    bool updatedNeeded = esp32FOTA.execHTTPcheck();
+    if (updatedNeeded)
+    {
+      sendSuccessJSON("Starting firmware update, please be patient. This may take a few minutes.", client);
+      doOTAUpdate = true;
+    }
+    else
+      sendErrorJSON("Firmware already up to date.", client);
   }
   //unknown command.
   else

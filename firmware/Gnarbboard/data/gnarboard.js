@@ -815,13 +815,13 @@ function check_for_updates()
   //did we get a config yet?
   if (current_config)
   {
-    $.getJSON("https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/releases.json", function(data) {
+    $.getJSON("https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/firmware.json", function(data) {
       $("#firmware_checking").hide();
-      if (current_config.version == data[0].version)
+      if (current_config.version == data.version)
         $("#firmware_up_to_date").show();
       else
       {
-        $("#firmware_update_available span").html(data[0].version);
+        $("#firmware_update_available span").html(data.version);
         $("#firmware_update_available").show();
       }
     });  
@@ -829,6 +829,14 @@ function check_for_updates()
   //wait for it.
   else
     setTimeout(check_for_updates, 1000);
+}
+
+function update_firmware()
+{
+  //okay, send it off.
+  socket.send(JSON.stringify({
+    "cmd": "ota_start",
+  }));  
 }
 
 function secondsToDhms(seconds)

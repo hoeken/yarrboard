@@ -1,6 +1,6 @@
 {
     "type":"esp32-fota-http",
-    "version":"1.1",
-    "url":"https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/firmware-1.1.bin",
-    "spiffs":"https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/spiffs-1.1.bin"
+    "version":"1.0.1",
+    "url":"https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/firmware-1.0.1.bin",
+    "spiffs":"https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/spiffs-1.0.1.bin"
 }
