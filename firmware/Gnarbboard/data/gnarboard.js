@@ -6,6 +6,10 @@ var app_username;
 var app_password;
 var network_config;
 
+var socket_retries = 0;
+var last_heartbeat = 0;
+const heartbeat_rate = 1000;
+
 var page_list = ["control", "config", "stats", "network", "system"];
 var page_ready = {
   "control": false,
@@ -75,35 +79,64 @@ const AlertBox = (message, type) => `
 //our heartbeat timer.
 function send_heartbeat()
 {
+  //did we not get a heartbeat?
+  if (Date.now() - last_heartbeat > heartbeat_rate * 2)
+  {
+    console.log("Missed heartbeat: " + (Date.now() - last_heartbeat))
+    socket.close();
+    retry_connection();
+  }
 
   //only send it if we're already open.
   if (socket.readyState == WebSocket.OPEN)
+  {
     socket.send(JSON.stringify({"cmd": "ping"}));
-  else
-    console.log("she dead " + WebSocket.readyState);
-
-    console.log("heartbeat " + Date.now());
-
-    setTimeout(send_heartbeat, 2500);
+    setTimeout(send_heartbeat, heartbeat_rate);
+  }
+  else if (socket.readyState == WebSocket.CLOSING)
+  {
+    console.log("she closing " + socket.readyState);
+    socket.close();
+    retry_connection();
+  }
+  else if (socket.readyState == WebSocket.CLOSED)
+  {
+    console.log("she closed " + socket.readyState);
+    socket.close();
+    retry_connection();
+  }
 }
 
 function start_gnarboard()
 {
   //fire up our websocket.
   start_websocket();
-
-  //ticker checker
-  send_heartbeat();
 }
 
 function start_websocket()
 {
+  if (socket)
+    socket.close();
+  
   socket = new WebSocket("ws://" + window.location.host + "/ws");
+  
+  console.log("Opening new websocket");
 
   socket.onopen = function(e)
   {
     console.log("[socket] Connected");
-  
+
+    //we are connected, reload
+    socket_retries = 0;
+    last_heartbeat = Date.now();
+
+    //ticker checker
+    setTimeout(send_heartbeat, heartbeat_rate);
+
+    //our connection status
+    $(".connection_status").hide();
+    $("#connection_good").show();
+
     //auto login?
     if (Cookies.get("username") && Cookies.get("password")){
       socket.send(JSON.stringify({
@@ -338,6 +371,10 @@ function start_websocket()
     }
     else if (msg.pong) {
       //we are connected still
+      console.log("pong: " + msg.pong);
+
+      //we got the heartbeat
+      last_heartbeat = Date.now();
     }
     else
     {
@@ -348,12 +385,7 @@ function start_websocket()
   
   socket.onclose = function(event)
   {
-    console.log(`[socket] Connection closed code=${event.code} reason=${event.reason}`);
-
-    //reconnect!
-    setTimeout(function() {
-      start_websocket();
-    }, 250);
+    //console.log(`[socket] Connection closed code=${event.code} reason=${event.reason}`);
   };
   
   socket.onerror = function(error)
@@ -361,6 +393,39 @@ function start_websocket()
     //console.log(`[socket] error`);
     //console.log(error);
   };
+}
+
+function retry_connection()
+{
+  //bail if its open.
+  if (socket.readyState == WebSocket.OPEN)
+    return;
+
+  console.log("Reconnecting... " + socket_retries);
+  socket_retries++;
+
+  //our connection status
+  $(".connection_status").hide();
+  $("#retries_count").html(socket_retries);
+  $("#connection_retrying").show();
+
+  //reconnect!
+  start_websocket();
+
+  //set some bounds
+  let my_timeout = 500;
+  my_timeout = Math.max(my_timeout, socket_retries * 1000);
+  my_timeout = Math.min(my_timeout, 60000);
+
+  //tee it up.
+  setTimeout(function() {
+    retry_connection();
+  }, my_timeout);
+
+  //infinite retees
+  //our connection status
+  //  $(".connection_status").hide();
+  //  $("#connection_failed").show();
 }
 
 function show_alert(message, type = 'danger')

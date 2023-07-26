@@ -1,6 +1,5 @@
 Firmware:
 
-* add heartbeat / connection indicator to footer
 * check OTA updater on larger flash.
 * give ledcwrite and higher res pwm another chance
 
