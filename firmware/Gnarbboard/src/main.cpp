@@ -820,7 +820,8 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
 
     // serialize the object and save teh result to teh string variable.
     serializeJson(doc, jsonString);
-    ws.text(client->id(), jsonString);
+    if (client->canSend())
+      ws.text(client->id(), jsonString);
   }
   //unknown command.
   else
@@ -869,7 +870,9 @@ void sendSuccessJSON(String success, AsyncWebSocketClient *client) {
 
   // serialize the object and send it
   serializeJson(doc, jsonString);
-  ws.text(client->id(), jsonString);
+
+  if (client->canSend())
+    ws.text(client->id(), jsonString);
 }
 
 void sendErrorJSON(String error, AsyncWebSocketClient *client)
@@ -883,7 +886,9 @@ void sendErrorJSON(String error, AsyncWebSocketClient *client)
 
   // serialize the object and send it
   serializeJson(doc, jsonString);
-  ws.text(client->id(), jsonString);
+
+  if (client->canSend())
+    ws.text(client->id(), jsonString);
 }
 
 void sendConfigJSON(AsyncWebSocketClient *client)
@@ -921,7 +926,8 @@ void sendConfigJSON(AsyncWebSocketClient *client)
   //Serial.println( jsonString );
 
   // send the JSON object through the websocket
-  ws.text(client->id(), jsonString);
+  if (client->canSend())
+    ws.text(client->id(), jsonString);
 }
 
 void sendNetworkConfigJSON(AsyncWebSocketClient *client)
@@ -950,7 +956,9 @@ void sendNetworkConfigJSON(AsyncWebSocketClient *client)
 
   //serialize the object and send it.
   serializeJson(doc, jsonString);
-  ws.text(client->id(), jsonString);
+
+  if (client->canSend())
+    ws.text(client->id(), jsonString);
 }
 
 void sendStatsJSON(AsyncWebSocketClient *client)
@@ -984,7 +992,9 @@ void sendStatsJSON(AsyncWebSocketClient *client)
 
   //okay prep our json and send it off
   serializeJson(doc, jsonString);
-  ws.text(client->id(), jsonString);
+
+  if (client->canSend())
+    ws.text(client->id(), jsonString);
 }
 
 void sendUpdate()
@@ -1024,9 +1034,10 @@ void sendUpdate()
   {
     for (byte i=0; i<clientLimit; i++)
       if (authenticatedClientIDs[i])
-        ws.text(authenticatedClientIDs[i], jsonString);
+        if (ws.availableForWrite(authenticatedClientIDs[i]))
+          ws.text(authenticatedClientIDs[i], jsonString);
   }
-  else
+  else if (ws.availableForWriteAll())
     ws.textAll(jsonString);
 }
 
@@ -1089,6 +1100,7 @@ void setupWifi()
     Serial.println("Error starting mDNS");
     return;
   }
+  MDNS.addService("http", "tcp", 80);
 }
 
 bool connectToWifi(String ssid, String pass)
