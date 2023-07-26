@@ -30,7 +30,7 @@
 //#include <N2kDeviceList.h>    // same ^^^
 
 //identify yourself!
-const char *version = "1.1";
+const char *version = "1.0";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;
@@ -38,7 +38,8 @@ bool is_first_boot = true;
 //for our OTA updates
 esp32FOTA esp32FOTA("esp32-fota-http", version);
 const char* manifest_url = "https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/firmware.json";
-CryptoFileAsset *MyRootCA = new CryptoFileAsset( "/github-io.pem", &SPIFFS );
+//CryptoFileAsset *MyRootCA = new CryptoFileAsset( "/github-io.pem", &SPIFFS );
+CryptoFileAsset *MyRootCA = new CryptoFileAsset( "/root_ca.pem", &SPIFFS );
 
 //for making a captive portal
 const byte DNS_PORT = 53;
@@ -296,7 +297,7 @@ void setup()
   //  AsyncElegantOTA.begin(&server);
 
   esp32FOTA.setManifestURL(manifest_url);
-  esp32FOTA.setRootCA( MyRootCA );
+  esp32FOTA.setRootCA(MyRootCA);
 
   esp32FOTA.setUpdateBeginFailCb( [](int partition) {
     Serial.printf("Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
@@ -326,6 +327,8 @@ void setup()
         ESP.restart();
     }
   });
+
+  esp32FOTA.printConfig();
 
   //we are only serving static files - big cache
   //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
@@ -378,7 +381,16 @@ void loop()
   unsigned long t1;
   unsigned long t2;
 
-  esp32FOTA.handle();
+  bool updatedNeeded = esp32FOTA.execHTTPcheck();
+  if (updatedNeeded)
+  {
+    Serial.println("Updating");
+    //look for new firmware
+    //esp32FOTA.handle();
+  }
+
+  delay(2000);
+  return;
 
   //sometimes websocket clients die badly.
   ws.cleanupClients();
