@@ -1,6 +1,8 @@
 {
     "type":"esp32-fota-http",
     "version":"1.0.1",
-    "bin":"https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/firmware-1.0.1.bin",
-    "spiffs":"https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/spiffs-1.0.1.bin"
+    "host": "raw.githubusercontent.com",
+    "port": 443,
+    "bin":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/firmware-1.0.1.bin",
+    "spiffs":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/spiffs-1.0.1.bin"
 }

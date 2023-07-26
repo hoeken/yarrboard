@@ -24,7 +24,7 @@
 #include "esp_adc_cal.h"
 
 //identify yourself!
-const char *version = "1.0.1";
+const char *version = "1.0.0";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;
