@@ -24,7 +24,7 @@
 #include "esp_adc_cal.h"
 
 //identify yourself!
-const char *version = "1.0.0";
+const char *version = "1.0.1";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;
@@ -352,7 +352,6 @@ void loop()
   if (doOTAUpdate)
   {
     esp32FOTA.handle();
-    doOTAUpdate = false;
   }
 
   //run our dns... for AP mode
