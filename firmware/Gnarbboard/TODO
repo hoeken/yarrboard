@@ -1,7 +1,8 @@
 Firmware:
 
-* check OTA updater on larger flash.
 * give ledcwrite and higher res pwm another chance
+* investigate OTA update again.
+* add fan pwm and tach stuff.
 
 Long term:
 
