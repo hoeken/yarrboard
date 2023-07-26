@@ -412,12 +412,10 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
              void *arg, uint8_t *data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
-      Serial.printf("[WS] client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      //if (assertLoggedIn(client))
-      //  sendConfigJSON(client);
+      Serial.printf("[socket] #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
       break;
     case WS_EVT_DISCONNECT:
-      Serial.printf("[WS] client #%u disconnected\n", client->id());
+      Serial.printf("[socket] #%u disconnected\n", client->id());
 
       //clear this guy from our authenticated list.
       if (require_login)
@@ -430,7 +428,10 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
       handleWebSocketMessage(arg, data, len, client);
       break;
     case WS_EVT_PONG:
+      Serial.printf("[socket] #%u pong", client->id());
+      break;
     case WS_EVT_ERROR:
+      Serial.printf("[socket] #%u error", client->id());
       break;
   }
 }
@@ -440,20 +441,14 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-    //terminate the string, i think?
-    data[len] = 0;
     handleReceivedMessage((char *)data, client);
   }
 }
 
 void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
 {
-  //Serial.println(payload);
-
-  String foo = payload;
-
   StaticJsonDocument<1024> doc;
-  DeserializationError err = deserializeJson(doc, foo);
+  DeserializationError err = deserializeJson(doc, payload);
 
   //was there a problem, officer?
   if (err) {

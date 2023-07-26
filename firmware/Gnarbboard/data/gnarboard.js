@@ -22,9 +22,9 @@ var page_ready = {
 
 const ChannelControlRow = (id, name) => `
 <tr id="channel${id}" class="channelRow">
-  <td class="text-center"><button id="channelState${id}" type="button" class="btn btn-sm" onclick="toggle_state(${id})"></button></td>
+  <td class="text-center"><button id="channelState${id}" type="button" class="btn btn-sm" onclick="toggle_state(${id})" style="width: 60px"></button></td>
   <td class="channelName">${name}</td>
-  <td class="text-end"><button id="channelDutyCycle${id}" type="button" class="btn btn-sm btn-light" onclick="toggle_duty_cycle(${id})">???</button></td>
+  <td class="text-end"><button id="channelDutyCycle${id}" type="button" class="btn btn-sm btn-light" onclick="toggle_duty_cycle(${id})" style="width: 60px">???</button></td>
   <td id="channelCurrent${id}" class="text-end"></td>
 </tr>
 <tr id="channelDutySliderRow${id}" style="display:none">
@@ -105,20 +105,19 @@ function send_heartbeat()
   else if (socket.readyState == WebSocket.CLOSING)
   {
     console.log("she closing " + socket.readyState);
-    socket.close();
+    //socket.close();
     retry_connection();
   }
   else if (socket.readyState == WebSocket.CLOSED)
   {
     console.log("she closed " + socket.readyState);
-    socket.close();
+    //socket.close();
     retry_connection();
   }
 }
 
 function start_gnarboard()
 {
-  //fire up our websocket.
   start_websocket();
 }
 
