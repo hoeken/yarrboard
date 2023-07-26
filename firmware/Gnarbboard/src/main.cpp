@@ -30,14 +30,14 @@
 //#include <N2kDeviceList.h>    // same ^^^
 
 //identify yourself!
-const char *version = "1.0";
+const char *version = "1.1";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;
 
 //for our OTA updates
 esp32FOTA esp32FOTA("esp32-fota-http", version);
-const char* manifest_url = "https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/firmware.json";
+const char* manifest_url = "https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/firmware.json";
 CryptoFileAsset *MyRootCA = new CryptoFileAsset( "/github-io.pem", &SPIFFS );
 
 //for making a captive portal
@@ -379,7 +379,7 @@ void loop()
   unsigned long t2;
 
   esp32FOTA.handle();
-  
+
   //sometimes websocket clients die badly.
   ws.cleanupClients();
 
