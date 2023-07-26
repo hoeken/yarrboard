@@ -62,6 +62,7 @@ float busVoltage = 0;
 bool channelState[channelCount];
 bool channelTripped[channelCount];
 float channelDutyCycle[channelCount];
+bool channelIsEnabled[channelCount];
 bool channelIsDimmable[channelCount];
 unsigned long channelLastDutyCycleUpdate[channelCount];
 bool channelDutyCycleIsThrottled[channelCount];
@@ -191,6 +192,13 @@ void setup()
       channelNames[i] = preferences.getString(prefIndex.c_str());
     else
       channelNames[i] = "Channel #" + String(i);
+
+    //enabled or no
+    prefIndex = "cEnabled" + String(i);
+    if (preferences.isKey(prefIndex.c_str()))
+      channelIsEnabled[i] = preferences.getBool(prefIndex.c_str());
+    else
+      channelIsEnabled[i] = true;
 
     //lookup our duty cycle
     prefIndex = "cDuty" + String(i);
@@ -473,6 +481,13 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
     if (!assertValidChannel(cid, client))
       return;
 
+    //is it enabled?
+    if (!channelIsEnabled[cid])
+    {
+      sendErrorJSON("Channel is not enabled.", client);
+      return;
+    }
+
     //what is our new state?
     bool state = doc["value"];
 
@@ -502,12 +517,19 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
     if (!assertValidChannel(cid, client))
       return;
 
+    //is it enabled?
+    if (!channelIsEnabled[cid])
+    {
+      sendErrorJSON("Channel is not enabled.", client);
+      return;
+    }
+
     float value = doc["value"];
 
     //what do we hate?  va-li-date!
     if (value < 0)
       sendErrorJSON("Duty cycle must be >= 0", client);
-    else if (value > 20)
+    else if (value > 1)
       sendErrorJSON("Duty cycle must be <= 1", client);
     else {
       channelDutyCycle[cid] = value;
@@ -604,6 +626,29 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
     //give them the updated config
     sendConfigJSON(client);
   }
+  //change a channels dimmability?
+  else if (cmd.equals("set_enabled"))
+  {
+    //clean runs only.
+    if (!assertLoggedIn(client))
+      return;
+
+    //is it a valid channel?
+    byte cid = doc["id"];
+    if (!assertValidChannel(cid, client))
+      return;
+
+    //save right nwo.
+    bool value = doc["value"];
+    channelIsEnabled[cid] = value;
+
+    //save to our storage
+    String prefIndex = "cEnabled" + String(cid);
+    preferences.putBool(prefIndex.c_str(), value);
+
+    //give them the updated config
+    sendConfigJSON(client);
+  }  
   //change a channels soft fuse?
   else if (cmd.equals("set_soft_fuse"))
   {
@@ -894,7 +939,7 @@ void sendErrorJSON(String error, AsyncWebSocketClient *client)
 void sendConfigJSON(AsyncWebSocketClient *client)
 {
   String jsonString;
-  StaticJsonDocument<1536> doc;
+  StaticJsonDocument<2048> doc;
 
   // create an object
   JsonObject object = doc.to<JsonObject>();
@@ -914,6 +959,7 @@ void sendConfigJSON(AsyncWebSocketClient *client)
     object["channels"][i]["id"] = i;
     object["channels"][i]["name"] = channelNames[i];
     object["channels"][i]["type"] = "mosfet";
+    object["channels"][i]["enabled"] = channelIsEnabled[i];
     object["channels"][i]["hasPWM"] = true;
     object["channels"][i]["hasCurrent"] = true;
     object["channels"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);

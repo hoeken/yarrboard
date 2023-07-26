@@ -44,8 +44,16 @@ const ChannelNameEdit = (name) => `
 `;
 
 const ChannelEditRow = (id, name, soft_fuse) => `
-<div class="col-md-8">
-  <label for="fChannelName${id}" class="form-label">Channel ${id} Name</label>
+<div class="col-md-3">
+  <label for="fEnabled${id}" class="form-label">Channel ${id}</label>
+  <select id="fEnabled${id}" class="form-select">
+    <option value="0">Disabled</option>
+    <option value="1">Enabled</option>
+  </select>
+  <div class="valid-feedback">Saved!</div>
+</div>
+<div class="col-md-5">
+  <label for="fChannelName${id}" class="form-label">Name</label>
   <input type="text" class="form-control" id="fChannelName${id}" value="${name}">
   <div class="valid-feedback">Saved!</div>
   <div class="invalid-feedback">Must be 30 characters or less.</div>
@@ -198,8 +206,11 @@ function start_websocket()
         $('#channelTableBody').html("");
         for (ch of msg.channels)
         {
-          $('#channelTableBody').append(ChannelControlRow(ch.id, ch.name));
-          $('#channelDutySlider' + ch.id).change(set_duty_cycle);
+          if (ch.enabled)
+          {
+            $('#channelTableBody').append(ChannelControlRow(ch.id, ch.name));
+            $('#channelDutySlider' + ch.id).change(set_duty_cycle);
+          }
         }
       }
   
@@ -209,12 +220,15 @@ function start_websocket()
         $('#channelStatsTableBody').html("");
         for (ch of msg.channels)
         {
-          $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
-          $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
-          $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
-          $('#channelStats' + ch.id).append(`<td id="channelWattHours${ch.id}" class="text-end"></td>`);
-          $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
-          $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
+          if (ch.enabled)
+          {
+            $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
+            $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
+            $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
+            $('#channelStats' + ch.id).append(`<td id="channelWattHours${ch.id}" class="text-end"></td>`);
+            $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
+            $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
+          }
         }
       }
   
@@ -230,8 +244,15 @@ function start_websocket()
         {
           $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
           $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
-  
+          $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+
+          //enable/disable other stuff.
+          $(`#fChannelName${ch.id}`).prop('disabled', !ch.enabled);
+          $(`#fDimmable${ch.id}`).prop('disabled', !ch.enabled);
+          $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
+
           //validate + save
+          $(`#fEnabled${ch.id}`).change(validate_channel_enabled);
           $(`#fChannelName${ch.id}`).change(validate_channel_name);
           $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
           $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
@@ -248,44 +269,46 @@ function start_websocket()
       $('#time').html(msg.time);
       for (ch of msg.channels)
       {
-        if (ch.state)
+        if (current_config.channels[ch.id].enabled)
         {
-          $('#channelState' + ch.id).html("ON");
-          $('#channelState' + ch.id).removeClass("btn-danger");
-          $('#channelState' + ch.id).removeClass("btn-secondary");
-          $('#channelState' + ch.id).addClass("btn-success");
+          if (ch.state)
+          {
+            $('#channelState' + ch.id).html("ON");
+            $('#channelState' + ch.id).removeClass("btn-danger");
+            $('#channelState' + ch.id).removeClass("btn-secondary");
+            $('#channelState' + ch.id).addClass("btn-success");
+          }
+          else if(ch.soft_fuse_tripped)
+          {
+            $('#channelState' + ch.id).html("TRIP");
+            $('#channelState' + ch.id).removeClass("btn-success");
+            $('#channelState' + ch.id).removeClass("btn-secondary");
+            $('#channelState' + ch.id).addClass("btn-danger");
+          }
+          else
+          {
+            $('#channelState' + ch.id).html("OFF");
+            $('#channelState' + ch.id).removeClass("btn-success");
+            $('#channelState' + ch.id).removeClass("btn-danger");
+            $('#channelState' + ch.id).addClass("btn-secondary");
+          }
+    
+          //duty is a bit of a special case.
+          let duty = Math.round(ch.duty * 100);
+          if (current_config.channels[ch.id].isDimmable)
+          {
+            $('#channelDutySlider' + ch.id).val(duty); 
+            $('#channelDutyCycle' + ch.id).html(`${duty}%`);
+            $('#channelDutyCycle' + ch.id).show();
+          }
+          else
+          {
+            $('#channelDutyCycle' + ch.id).hide();
+          }
+    
+          let current = ch.current.toFixed(1);
+          $('#channelCurrent' + ch.id).html(`${current}A`);
         }
-        else if(ch.soft_fuse_tripped)
-        {
-          $('#channelState' + ch.id).html("TRIP");
-          $('#channelState' + ch.id).removeClass("btn-success");
-          $('#channelState' + ch.id).removeClass("btn-secondary");
-          $('#channelState' + ch.id).addClass("btn-danger");
-        }
-        else
-        {
-          $('#channelState' + ch.id).html("OFF");
-          $('#channelState' + ch.id).removeClass("btn-success");
-          $('#channelState' + ch.id).removeClass("btn-danger");
-          $('#channelState' + ch.id).addClass("btn-secondary");
-        }
-  
-        //duty is a bit of a special case.
-        let duty = Math.round(ch.duty * 100);
-        if (current_config.channels[ch.id].isDimmable)
-        {
-          $('#channelDutySlider' + ch.id).val(duty); 
-          $('#channelDutyCycle' + ch.id).html(`${duty}%`);
-          $('#channelDutyCycle' + ch.id).show();
-        }
-        else
-        {
-          $('#channelDutyCycle' + ch.id).hide();
-        }
-  
-        let current = ch.current.toFixed(1);
-        $('#channelCurrent' + ch.id).html(`${current}A`);
-  
       }
 
       page_ready.control = true;
@@ -304,10 +327,13 @@ function start_websocket()
   
       for (ch of msg.channels)
       {
-        $('#channelAmpHours' + ch.id).html(formatAmpHours(ch.aH));
-        $('#channelWattHours' + ch.id).html(formatWattHours(ch.wH));
-        $('#channelOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
-        $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
+        if (current_config.channels[ch.id].enabled)
+        {
+          $('#channelAmpHours' + ch.id).html(formatAmpHours(ch.aH));
+          $('#channelWattHours' + ch.id).html(formatWattHours(ch.wH));
+          $('#channelOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
+          $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
+        }
       }
 
       page_ready.stats = true;
@@ -639,6 +665,34 @@ function validate_channel_dimmable(e)
   //save it
   socket.send(JSON.stringify({
     "cmd": "set_dimmable",
+    "id": id,
+    "value": value
+  }));
+}
+
+function validate_channel_enabled(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  //convert it
+  if (value == "1")
+    value = true;
+  else
+    value = false;
+
+  //enable/disable other stuff.
+  $(`#fChannelName${id}`).prop('disabled', !value);
+  $(`#fDimmable${id}`).prop('disabled', !value);
+  $(`#fSoftFuse${id}`).prop('disabled', !value);
+
+  //nothing really to validate here.
+  $(ele).addClass("is-valid");
+
+  //save it
+  socket.send(JSON.stringify({
+    "cmd": "set_enabled",
     "id": id,
     "value": value
   }));
