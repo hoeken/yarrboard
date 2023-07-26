@@ -30,7 +30,7 @@
 //#include <N2kDeviceList.h>    // same ^^^
 
 //identify yourself!
-const char *version = "1.0";
+const char *version = "1.1";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;
@@ -299,7 +299,7 @@ void setup()
   esp32FOTA.setRootCA(MyRootCA);
 
   esp32FOTA.setUpdateBeginFailCb( [](int partition) {
-    Serial.printf("Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
+    Serial.printf("[ota] Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
   });
 
   // usage with lambda function:
@@ -309,18 +309,18 @@ void setup()
   });
 
   esp32FOTA.setUpdateEndCb( [](int partition) {
-    Serial.printf("Update could not finish with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
+    Serial.printf("[ota] Update ended with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
   });
 
   esp32FOTA.setUpdateCheckFailCb( [](int partition, int error_code) {
-    Serial.printf("Update could not validate %s partition (error %d)\n", partition==U_SPIFFS ? "spiffs" : "firmware", error_code );
+    Serial.printf("[ota] Update could not validate %s partition (error %d)\n", partition==U_SPIFFS ? "spiffs" : "firmware", error_code );
     // error codes:
     //  -1 : partition not found
     //  -2 : validation (signature check) failed
   });
 
   esp32FOTA.setUpdateFinishedCb( [](int partition, bool restart_after) {
-    Serial.printf("Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
+    Serial.printf("[ota] Update finished with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
     // do some stuff e.g. notify a MQTT server the update completed successfully
     if( restart_after ) {
         ESP.restart();
