@@ -1078,8 +1078,13 @@ void sendUpdate()
         if (ws.availableForWrite(authenticatedClientIDs[i]))
           ws.text(authenticatedClientIDs[i], jsonString);
   }
-  else if (ws.availableForWriteAll())
-    ws.textAll(jsonString);
+  //nope, just sent it to all.
+  else {
+    if (ws.availableForWriteAll())
+      ws.textAll(jsonString);
+    else
+      Serial.println("[socket] queue full");
+  }
 }
 
 double round2(double value) {
