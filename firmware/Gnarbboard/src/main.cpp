@@ -284,9 +284,7 @@ void setup()
   else
     AsyncElegantOTA.begin(&server);
 
-  //we are only serving static files - 30 day cache
-  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-  // only enable this once we're done with web stuff.
+  //we are only serving static files - big cache
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
   server.begin();
 
