@@ -7,6 +7,7 @@ var app_password;
 var network_config;
 
 var socket_retries = 0;
+var retry_time = 0;
 var last_heartbeat = 0;
 const heartbeat_rate = 1000;
 
@@ -128,6 +129,7 @@ function start_websocket()
 
     //we are connected, reload
     socket_retries = 0;
+    retry_time = 0;
     last_heartbeat = Date.now();
 
     //ticker checker
@@ -404,16 +406,32 @@ function start_websocket()
 
 function retry_connection()
 {
-  //bail if its open.
+  //bail if its good to go
   if (socket.readyState == WebSocket.OPEN)
     return;
 
-  console.log("Reconnecting... " + socket_retries);
+  //keep watching if we are connecting
+  if (socket.readyState == WebSocket.CONNECTING)
+  {
+    console.log("Waiting for connection");
+    
+    retry_time++;
+    $("#retries_count").html(retry_time);
+
+    //tee it up.
+    setTimeout(retry_connection, 1000);
+
+    return;
+  }
+
+  //keep track of stuff.
+  retry_time = 0;
   socket_retries++;
+  console.log("Reconnecting... " + socket_retries);
 
   //our connection status
   $(".connection_status").hide();
-  $("#retries_count").html(socket_retries);
+  $("#retries_count").html(retry_time);
   $("#connection_retrying").show();
 
   //reconnect!
@@ -425,9 +443,7 @@ function retry_connection()
   my_timeout = Math.min(my_timeout, 60000);
 
   //tee it up.
-  setTimeout(function() {
-    retry_connection();
-  }, my_timeout);
+  setTimeout(retry_connection, my_timeout);
 
   //infinite retees
   //our connection status

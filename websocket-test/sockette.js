@@ -45,11 +45,13 @@ function onMessage(message)
 }
 
 function sendMessage(message)
-{  
-    try {
-      reTrySafe(() => client.json(message), 3)
-    } catch (error) {
-        console.error("Send: " + error);
+{
+    if (client.readyState == client.OPEN) {
+        try {
+          reTrySafe(() => client.json(message), 3)
+        } catch (error) {
+            console.error("Send: " + error);
+        }
     }
 }
 
