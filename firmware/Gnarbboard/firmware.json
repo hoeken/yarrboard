@@ -1,6 +1,6 @@
 {
     "type":"esp32-fota-http",
-    "version":"1.0.1",
+    "version":"1.0.0",
     "host": "raw.githubusercontent.com",
     "port": 443,
     "bin":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/firmware-1.0.1.bin",

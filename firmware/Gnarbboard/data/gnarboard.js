@@ -119,6 +119,8 @@ function send_heartbeat()
 function start_gnarboard()
 {
   start_websocket();
+
+  check_for_updates();
 }
 
 function start_websocket()
@@ -508,10 +510,6 @@ function open_page(page)
   if (page == "stats")
     get_stats_data();
 
-  //look up our firmware
-  if (page == "system")
-    check_for_updates();
-
   //hide all pages.
   $("div.pageContainer").hide();
 
@@ -818,11 +816,14 @@ function check_for_updates()
     $.getJSON("https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/firmware.json", function(data) {
       $("#firmware_checking").hide();
       if (current_config.version == data.version)
+      {
         $("#firmware_up_to_date").show();
+      }
       else
       {
         $("#firmware_update_available span").html(data.version);
         $("#firmware_update_available").show();
+        show_alert(`There is a <a  onclick="open_page('system')" href="/#system">firmware update</a> available (${data.version}).`, "primary");
       }
     });  
   }

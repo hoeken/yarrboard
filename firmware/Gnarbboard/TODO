@@ -1,6 +1,8 @@
 Firmware:
 
-* investigate OTA update again.
+* add progress bar for firmware OTA
+* add changelog for firmware OTA
+* add reload / cache flush to firmware OTA success
 * give ledcwrite and higher res pwm another chance
 * add fan pwm and tach stuff.
 * some sort of POST/GET method for toggling pin state
