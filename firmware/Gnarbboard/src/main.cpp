@@ -38,7 +38,6 @@ bool is_first_boot = true;
 //for our OTA updates
 esp32FOTA esp32FOTA("esp32-fota-http", version);
 const char* manifest_url = "https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/firmware.json";
-//CryptoFileAsset *MyRootCA = new CryptoFileAsset( "/github-io.pem", &SPIFFS );
 CryptoFileAsset *MyRootCA = new CryptoFileAsset( "/root_ca.pem", &SPIFFS );
 
 //for making a captive portal
@@ -381,12 +380,11 @@ void loop()
   unsigned long t1;
   unsigned long t2;
 
+  //look for new firmware
   bool updatedNeeded = esp32FOTA.execHTTPcheck();
   if (updatedNeeded)
   {
-    Serial.println("Updating");
-    //look for new firmware
-    //esp32FOTA.handle();
+    esp32FOTA.handle();
   }
 
   delay(2000);
