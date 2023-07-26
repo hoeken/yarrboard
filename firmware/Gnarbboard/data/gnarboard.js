@@ -307,7 +307,7 @@ function start_websocket()
           }
     
           let current = ch.current.toFixed(1);
-          $('#channelCurrent' + ch.id).html(`${current}A`);
+          $('#channelCurrent' + ch.id).html(`${current}&nbsp;A`);
         }
       }
 
@@ -852,62 +852,62 @@ function formatAmpHours(aH)
 {
   //low amp hours?
   if (aH < 10)
-    return aH.toFixed(3) + "AH";
+    return aH.toFixed(3) + "&nbsp;Ah";
   else if (aH < 100)
-    return aH.toFixed(2) + "AH";
+    return aH.toFixed(2) + "&nbsp;Ah";
   else if (aH < 1000)
-    return aH.toFixed(1) + "AH";
+    return aH.toFixed(1) + "&nbsp;Ah";
 
   //okay, now its kilo time
   aH = aH / 1000;
   if (aH < 10)
-    return aH.toFixed(3) + "kAH";
+    return aH.toFixed(3) + "&nbsp;kAh";
   else if (aH < 100)
-    return aH.toFixed(2) + "kAH";
+    return aH.toFixed(2) + "&nbsp;kAh";
   else if (aH < 1000)
-    return aH.toFixed(1) + "kAH";
+    return aH.toFixed(1) + "&nbsp;kAh";
 
-  //okay, now its kilo time
+  //okay, now its mega time
   aH = aH / 1000;
   if (aH < 10)
-    return aH.toFixed(3) + "MAH";
+    return aH.toFixed(3) + "&nbsp;MAh";
   else if (aH < 100)
-    return aH.toFixed(2) + "MAH";
+    return aH.toFixed(2) + "&nbsp;MAh";
   else if (aH < 1000)
-    return aH.toFixed(1) + "MAH";
+    return aH.toFixed(1) + "&nbsp;MAh";
   else
-    return Math.roud(aH) + "MAH";
+    return Math.roud(aH) + "&nbsp;MAh";
 }
 
 function formatWattHours(wH)
 {
-  //low amp hours?
+  //low watt hours?
   if (wH < 10)
-    return wH.toFixed(3) + "Wh";
+    return wH.toFixed(3) + "&nbsp;Wh";
   else if (wH < 100)
-    return wH.toFixed(2) + "Wh";
+    return wH.toFixed(2) + "&nbsp;Wh";
   else if (wH < 1000)
-    return wH.toFixed(1) + "Wh";
+    return wH.toFixed(1) + "&nbsp;Wh";
 
   //okay, now its kilo time
   wH = wH / 1000;
   if (wH < 10)
-    return wH.toFixed(3) + "kWh";
+    return wH.toFixed(3) + "&nbsp;kWh";
   else if (wH < 100)
-    return wH.toFixed(2) + "kWh";
+    return wH.toFixed(2) + "&nbsp;kWh";
   else if (wH < 1000)
-    return wH.toFixed(1) + "kWh";
+    return wH.toFixed(1) + "&nbsp;kWh";
 
-  //okay, now its kilo time
+  //okay, now its mega time
   wH = wH / 1000;
   if (wH < 10)
-    return wH.toFixed(3) + "MWh";
+    return wH.toFixed(3) + "&nbsp;MWh";
   else if (wH < 100)
-    return wH.toFixed(2) + "MWh";
+    return wH.toFixed(2) + "&nbsp;MWh";
   else if (wH < 1000)
-    return wH.toFixed(1) + "MWh";
+    return wH.toFixed(1) + "&nbsp;MWh";
   else
-    return Math.roud(wH) + "MWh";
+    return Math.roud(wH) + "&nbsp;MWh";
 }
 
 function formatBytes(bytes, decimals = 2) {
