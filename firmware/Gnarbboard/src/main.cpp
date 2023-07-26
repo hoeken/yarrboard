@@ -18,7 +18,8 @@
 #include <MCP3208.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <AsyncElegantOTA.h>
+#include <esp32FOTA.hpp>
+//#include <AsyncElegantOTA.h>
 
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
@@ -33,6 +34,11 @@ const char *version = "1.0";
 String uuid;
 String board_name = "Gnarboard";
 bool is_first_boot = true;
+
+//for our OTA updates
+esp32FOTA esp32FOTA("esp32-fota-http", version);
+const char* manifest_url = "https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/firmware.json";
+CryptoFileAsset *MyRootCA = new CryptoFileAsset( "/github-io.pem", &SPIFFS );
 
 //for making a captive portal
 const byte DNS_PORT = 53;
@@ -120,6 +126,11 @@ void setupADC();
 void setupNMEA2000();
 void setupWifi();
 bool connectToWifi(String ssid, String pass);
+
+//void onOTAStart();
+//void onOTAProgress();
+//void onOTAEnd();
+//unsigned long otaStartTime;
 
 void timeAvailable(struct timeval *t);
 void printLocalTime();
@@ -279,20 +290,73 @@ void setup()
   server.addHandler(&ws);
 
   //our OTA update handler
-  if (require_login)
-    AsyncElegantOTA.begin(&server, app_user.c_str(), app_pass.c_str());
-  else
-    AsyncElegantOTA.begin(&server);
+  //if (require_login)
+  //  AsyncElegantOTA.begin(&server, app_user.c_str(), app_pass.c_str());
+  //else
+  //  AsyncElegantOTA.begin(&server);
+
+  esp32FOTA.setManifestURL(manifest_url);
+  esp32FOTA.setRootCA( MyRootCA );
+
+  esp32FOTA.setUpdateBeginFailCb( [](int partition) {
+    Serial.printf("Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
+  });
+
+  // usage with lambda function:
+  esp32FOTA.setProgressCb( [](size_t progress, size_t size) {
+      if( progress == size || progress == 0 ) Serial.println();
+      Serial.print(".");
+  });
+
+  esp32FOTA.setUpdateEndCb( [](int partition) {
+    Serial.printf("Update could not finish with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
+  });
+
+  esp32FOTA.setUpdateCheckFailCb( [](int partition, int error_code) {
+    Serial.printf("Update could not validate %s partition (error %d)\n", partition==U_SPIFFS ? "spiffs" : "firmware", error_code );
+    // error codes:
+    //  -1 : partition not found
+    //  -2 : validation (signature check) failed
+  });
+
+  esp32FOTA.setUpdateFinishedCb( [](int partition, bool restart_after) {
+    Serial.printf("Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
+    // do some stuff e.g. notify a MQTT server the update completed successfully
+    if( restart_after ) {
+        ESP.restart();
+    }
+  });
 
   //we are only serving static files - big cache
+  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  // only enable this once we're done with web stuff.
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
   server.begin();
+
+  //AsyncElegantOTA.onOTAStart(onOTAStart);
+  //AsyncElegantOTA.onOTAProgress(onOTAProgress);
+  //AsyncElegantOTA.onOTAEnd(onOTAEnd);
 
   unsigned long setup_t2 = micros();
   Serial.print("Boot time: ");
   Serial.print((float)(setup_t2 - setup_t1) / 1000.0);
   Serial.println("ms");
 }
+
+/*
+void onOTAStart() {
+  otaStartTime = millis();
+  Serial.printf("OTA update started\n\r");
+}
+
+void onOTAProgress() {
+  Serial.printf("OTA progress, %5.3fs elapsed\n\r", (float)(millis()-otaStartTime)/1000.0);
+}
+
+void onOTAEnd() {
+  Serial.printf("OTA update ended, %5.3fs elapsed\n\r", (float)(millis()-otaStartTime)/1000.0);
+}
+*/
 
 // Callback function (get's called when time adjusts via NTP)
 void timeAvailable(struct timeval *t) {
@@ -314,6 +378,8 @@ void loop()
   unsigned long t1;
   unsigned long t2;
 
+  esp32FOTA.handle();
+  
   //sometimes websocket clients die badly.
   ws.cleanupClients();
 
@@ -987,12 +1053,6 @@ void sendNetworkConfigJSON(AsyncWebSocketClient *client)
   object["app_user"] = app_user;
   object["app_pass"] = app_pass;
 
-  //what is our IP address?
-  if (wifi_mode.equals("ap"))
-    object["ip_address"] = apIP;
-  else
-    object["ip_address"] = WiFi.localIP();
-
   //serialize the object and send it.
   serializeJson(doc, jsonString);
 
@@ -1018,6 +1078,12 @@ void sendStatsJSON(AsyncWebSocketClient *client)
   object["max_alloc_heap"] = ESP.getMaxAllocHeap();
   object["rssi"] = WiFi.RSSI();
   object["bus_voltage"] = busVoltage;
+
+  //what is our IP address?
+  if (wifi_mode.equals("ap"))
+    object["ip_address"] = apIP;
+  else
+    object["ip_address"] = WiFi.localIP();
 
   //info about each of our channels
   for (byte i = 0; i < channelCount; i++) {

@@ -1,7 +1,7 @@
 Firmware:
 
-* give ledcwrite and higher res pwm another chance
 * investigate OTA update again.
+* give ledcwrite and higher res pwm another chance
 * add fan pwm and tach stuff.
 * some sort of POST/GET method for toggling pin state
 * GET page for board status / config / stats / etc

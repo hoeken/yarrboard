@@ -1,7 +1,6 @@
-[
-    {
-        "version": "1.0",
-        "firmware_file": "foo.bin",
-        "spiffs_file": "spiffs.bin"
-    }
-]
+{
+"type":"esp32-fota-http",
+"version":"1.1",
+"url":"http://192.168.0.100/fota/esp32-fota-0.0.3.bin",
+"spiffs":"http://192.168.0.100/fota/esp32-fota-0.0.3.spiffs.bin"
+}

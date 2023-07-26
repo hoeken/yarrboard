@@ -323,6 +323,7 @@ function start_websocket()
       $("#rssi").html(msg.rssi + "dBm");
       $("#uuid").html(msg.uuid);
       $("#bus_voltage").html(msg.bus_voltage.toFixed(1) + "V");
+      $("#ip_address").html(msg.ip_address);
   
       for (ch of msg.channels)
       {
@@ -357,7 +358,6 @@ function start_websocket()
       $("#app_user").val(msg.app_user);
       $("#app_pass").val(msg.app_pass);
       $("#require_login").prop("checked", msg.require_login);
-      $("#ip_address").html(msg.ip_address);
 
       page_ready.network = true;    
     }
