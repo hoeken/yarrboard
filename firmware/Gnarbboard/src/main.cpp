@@ -442,8 +442,10 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
 {
   //Serial.println(payload);
 
+  String foo = payload;
+
   StaticJsonDocument<1024> doc;
-  DeserializationError err = deserializeJson(doc, payload);
+  DeserializationError err = deserializeJson(doc, foo);
 
   //was there a problem, officer?
   if (err) {
@@ -616,10 +618,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
 
     //i crave validation!
     float value = doc["value"];
-    if (value <= 0 || value >= 20.0) {
-      sendErrorJSON("Soft fuse must be between 0 and 20", client);
-      return;
-    }
+    value = constrain(value, 0.01, 20.0);
 
     //save right nwo.
     channelSoftFuseAmperage[cid] = value;

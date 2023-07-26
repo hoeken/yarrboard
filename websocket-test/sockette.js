@@ -16,15 +16,20 @@ function onOpen(message)
 {
     console.log('WebSocket Client Connected');
 
-    sendMessage({
-        "cmd": "login",
-        "user": "admin",
-        "pass": "admin"
-    });
+    //doLogin("admin", "admin");
 
     setTimeout(fadePin, 1000);
     //setTimeout(togglePin, 1000);
     //setTimeout(speedTest, 1000);
+}
+
+function doLogin(username, password)
+{
+    sendMessage({
+        "cmd": "login",
+        "user": username,
+        "pass": password
+    });
 }
 
 function onMessage(message)
@@ -118,7 +123,7 @@ async function togglePin()
 async function fadePin()
 {
     let steps = 50;
-    let d = 20;
+    let d = 10;
     let channel = 2;
     let max_duty = 1;
 

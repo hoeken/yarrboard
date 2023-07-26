@@ -336,6 +336,13 @@ function start_websocket()
     }
     else if (msg.error)
     {
+      //did we turn login off?
+      if (msg.error == "Login not required.")
+      {
+        Cookies.remove("username");
+        Cookies.remove("password");    
+      }
+
       //keep the u gotta login to the login page.
       if (msg.error == "You must be logged in.")
       {
