@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2023-07-02T17:23:35.561Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.5.1 Chrome/112.0.5615.204 Electron/24.6.0 Safari/537.36" etag="J_L1ye7gnp5JuTTAeHLZ" version="21.5.1" type="device" pages="2">
+<mxfile host="Electron" modified="2023-07-27T17:28:28.265Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.5 Chrome/114.0.5735.243 Electron/25.3.1 Safari/537.36" etag="A0MPTETaUMEjnGeitw2P" version="21.6.5" type="device" pages="2">
   <diagram name="Concept" id="6GqGwN9o8ozUzB9JPyTB">
-    <mxGraphModel dx="2868" dy="1189" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+    <mxGraphModel dx="1114" dy="1027" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -15,7 +15,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="9zAQRKPobtvkkzRn1pvi-1" value="&lt;b&gt;Arduino&lt;br&gt;Nano 33 IoT&lt;br&gt;&lt;/b&gt;&lt;br&gt;Connected&lt;br&gt;via Wifi&lt;br&gt;&lt;br&gt;Websocket&lt;br&gt;based control of MOSFETS and reading of current." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;" parent="1" vertex="1">
+        <mxCell id="9zAQRKPobtvkkzRn1pvi-1" value="&lt;b&gt;esp32&lt;br&gt;&lt;/b&gt;&lt;br&gt;Connected&lt;br&gt;via Wifi&lt;br&gt;&lt;br&gt;Websocket&lt;br&gt;based control of MOSFETS and reading of current." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;" parent="1" vertex="1">
           <mxGeometry x="124" y="320" width="120" height="290" as="geometry" />
         </mxCell>
         <mxCell id="9zAQRKPobtvkkzRn1pvi-10" value="Ground" style="rounded=1;whiteSpace=wrap;html=1;points=[[0,0,0,0,0],[0,0.25,0,0,0],[0,0.5,0,0,0],[0,0.75,0,0,0],[0,1,0,0,0],[0.14,0,0,0,0],[0.14,1,0,0,0],[0.29,0,0,0,0],[0.29,1,0,0,0],[0.43,0,0,0,0],[0.43,1,0,0,0],[0.57,0,0,0,0],[0.57,1,0,0,0],[0.71,0,0,0,0],[0.71,1,0,0,0],[0.86,0,0,0,0],[0.86,1,0,0,0],[1,0,0,0,0],[1,0.25,0,0,0],[1,0.5,0,0,0],[1,0.75,0,0,0],[1,1,0,0,0]];fontSize=20;" parent="1" vertex="1">
