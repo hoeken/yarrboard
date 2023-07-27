@@ -1,8 +1,8 @@
 /*
-  Gnarboard v1.0
+  Yarrboard v1.0.0
   
   Author: Zach Hoeken <hoeken@gmail.com>
-  Website: https://github.com/hoeken/Gnarboard
+  Website: https://github.com/hoeken/yarrboard
   License: GPLv3
 
 */
@@ -26,12 +26,12 @@
 //identify yourself!
 const char *version = "1.0.0";
 String uuid;
-String board_name = "Gnarboard";
+String board_name = "Yarrboard";
 bool is_first_boot = true;
 
 //for our OTA updates
 esp32FOTA esp32FOTA("esp32-fota-http", version);
-const char* manifest_url = "https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/firmware.json";
+const char* manifest_url = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/yarrboard/firmware.json";
 
 const char* root_ca = R"ROOT_CA(
 -----BEGIN CERTIFICATE-----
@@ -72,7 +72,7 @@ IPAddress apIP(8,8,4,4); // The default android DNS
 DNSServer dnsServer;
 
 //default config info for our wifi
-String wifi_ssid = "Gnarboard";
+String wifi_ssid = "Yarrboard";
 String wifi_pass = "";
 String wifi_mode = "ap";
 
@@ -80,7 +80,7 @@ String wifi_mode = "ap";
 String app_user = "admin";
 String app_pass = "admin";
 bool require_login = true;
-String local_hostname = "gnarboard";
+String local_hostname = "yarrboard";
 
 //keep track of our channel info.
 const byte channelCount = 8;
@@ -189,7 +189,7 @@ void setup()
   //startup our serial
   Serial.begin(115200);
   delay(10);
-  Serial.print("Gnarboard ");
+  Serial.print("Yarrboard ");
   Serial.println(version);
 
   //Setup our NTP to get the current time.
@@ -198,7 +198,7 @@ void setup()
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
 
   //really nice library for permanently storing preferences.
-  preferences.begin("gnarboard", false);
+  preferences.begin("yarrboard", false);
 
   //adc for our bus voltage.
   adcAttachPin(busVoltagePin);

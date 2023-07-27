@@ -3,12 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gnarboard</title>
+    <title>Yarrboard</title>
     <!-- Icon source: https://icon-icons.com -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
-    <script src="gnarboard.js?v=1.0.0"></script>
+    <script src="yarrboard.js?v=1.0.0"></script>
     <script src="jquery-3.7.0.min.js"></script> 
     <script src="bootstrap.min.js"></script>
     <script src="jscookie.js"></script>
@@ -45,7 +45,7 @@
 </head>
 <body>
     <script>
-        $(document).ready(start_gnarboard);
+        $(document).ready(start_yarrboard);
         let FF_FOUC_FIX;
     </script>
     <div class="col-lg-8 mx-auto">
@@ -53,7 +53,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" onclick="open_page('control')" href="#control">
                     <img src="logo-72.png" alt="Avast ye scurvy dog." width="30" height="30">
-                    <span id="boardName">Gnarboard</span>
+                    <span id="boardName">Yarrboard</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -187,8 +187,8 @@
                             <label for="wifi_mode" class="col-form-label">Wifi Mode</label>
                             <div>
                                 <select id="wifi_mode" class="form-select" aria-label="Wifi Mode">
-                                    <option value="ap">AP (You connect to Gnarboard)</option>
-                                    <option value="client">Client (Gnarboard connects to WiFi)</option>
+                                    <option value="ap">AP (You connect to Yarrboard)</option>
+                                    <option value="client">Client (Yarrboard connects to WiFi)</option>
                                 </select>
                             </div>
                         </div>
@@ -264,7 +264,7 @@
                 </div>
             </div>
             <div id="loginPage" style="display:none" class="pageContainer form-signin mt-3 mx-auto">
-                <h1 class="text-center"><img class="mb-4" src="/favicon.ico" alt="" width="72" height="72"> Gnarboard</h1>
+                <h1 class="text-center"><img class="mb-4" src="/favicon.ico" alt="" width="72" height="72"> Yarrboard</h1>
                 <div class="form-floating">
                     <input type="username" class="form-control" id="username" placeholder="admin">
                     <label for="username">Username</label>
@@ -288,7 +288,7 @@
             <span id="connection_failed" class="connection_status text-danger" style="display: none">FAILED</span>
             <br/>
             <div id="time" class="mb-2" style="display: none"></div>
-            <a id="projectName" href="https://github.com/hoeken/Gnarboard">Gnarboard</a> &copy; 2023<br>
+            <a id="projectName" href="https://github.com/hoeken/yarrboard">Yarrboard</a> &copy; 2023<br>
             <a href="https://www.oshwa.org/"><img src="oshw-logo-antipixel.webp"></a>
         </footer>
     </div>

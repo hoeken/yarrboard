@@ -116,7 +116,7 @@ function send_heartbeat()
   }
 }
 
-function start_gnarboard()
+function start_yarrboard()
 {
   //main data connection
   start_websocket();
@@ -208,14 +208,14 @@ function start_websocket()
   
       //is it our first boot?
       if (msg.first_boot && current_page != "network")
-        show_alert(`Welcome to Gnarboard, head over to <a href="#network" onclick="open_page('network')">Network</a> to setup your WiFi.`, "primary");
+        show_alert(`Welcome to Yarrboard, head over to <a href="#network" onclick="open_page('network')">Network</a> to setup your WiFi.`, "primary");
   
       //let the people choose their own names!
       $('#boardName').html(msg.name);
       document.title = msg.name;
   
       //update our footer automatically.
-      $('#projectName').html("Gnarboard v" + msg.version);
+      $('#projectName').html("Yarrboard v" + msg.version);
   
       //populate our channel control table
       $('#channelTableBody').html("");
@@ -806,7 +806,7 @@ function save_network_settings()
   }
 
   //if they are changing from client to client, we can't show a success.
-  show_alert("Gnarboard may be unresponsive while changing WiFi settings. Make sure you connect to the right network after updating.", "primary");
+  show_alert("Yarrboard may be unresponsive while changing WiFi settings. Make sure you connect to the right network after updating.", "primary");
 
   //okay, send it off.
   socket.send(JSON.stringify({
@@ -828,14 +828,14 @@ function save_network_settings()
 
 function restart_board()
 {
-  if (confirm("Are you sure you want to restart your Gnarboard?"))
+  if (confirm("Are you sure you want to restart your Yarrboard?"))
   {
     //okay, send it off.
     socket.send(JSON.stringify({
       "cmd": "restart",
     }));
 
-    show_alert("Gnarboard is now restarting, please be patient.", "primary");
+    show_alert("Yarrboard is now restarting, please be patient.", "primary");
     
     setTimeout(function (){
       location.reload();
@@ -845,14 +845,14 @@ function restart_board()
 
 function reset_to_factory()
 {
-  if (confirm("WARNING! Are you sure you want to reset your Gnarboard to factory defaults?  This cannot be undone."))
+  if (confirm("WARNING! Are you sure you want to reset your Yarrboard to factory defaults?  This cannot be undone."))
   {
     //okay, send it off.
     socket.send(JSON.stringify({
       "cmd": "factory_reset",
     }));
 
-    show_alert("Gnarboard is now resetting to factory defaults, please be patient.", "primary");
+    show_alert("Yarrboard is now resetting to factory defaults, please be patient.", "primary");
   }
 }
 
@@ -861,7 +861,7 @@ function check_for_updates()
   //did we get a config yet?
   if (current_config)
   {
-    $.getJSON("https://raw.githubusercontent.com/hoeken/Gnarboard/main/firmware/Gnarbboard/firmware.json", function(data) {
+    $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/yarrboard/firmware.json", function(data) {
       $("#firmware_checking").hide();
       if (current_config.version == data.version)
       {
