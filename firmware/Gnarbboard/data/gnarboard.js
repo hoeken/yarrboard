@@ -16,7 +16,8 @@ var page_ready = {
   "config":  false,
   "stats":   false,
   "network": false,
-  "system":  true
+  "system":  true,
+  "login":  true
 };
 
 const ChannelControlRow = (id, name) => `
@@ -134,6 +135,28 @@ function start_gnarboard()
     open_page("control");  
 }
 
+function load_configs()
+{
+  //load our config... will also trigger login
+  socket.send(JSON.stringify({
+    "cmd": "get_config"
+  }), 50);
+
+  //load our network config
+  setTimeout(function (){
+    socket.send(JSON.stringify({
+      "cmd": "get_network_config"
+    }));  
+  }, 100);
+
+  //load our stats config
+  setTimeout(function (){
+    socket.send(JSON.stringify({
+      "cmd": "get_stats"
+    }));  
+  }, 200);
+}
+
 function start_websocket()
 {
   if (socket)
@@ -161,6 +184,7 @@ function start_websocket()
 
     //auto login?
     if (Cookies.get("username") && Cookies.get("password")){
+      console.log("auto login");
       socket.send(JSON.stringify({
         "cmd": "login",
         "user": Cookies.get("username"),
@@ -168,24 +192,8 @@ function start_websocket()
       }));
     }
   
-    //load our config... will also trigger login
-    socket.send(JSON.stringify({
-      "cmd": "get_config"
-    }));
-
-    //load our network config
-    setTimeout(function (){
-      socket.send(JSON.stringify({
-        "cmd": "get_network_config"
-      }));  
-    }, 100);
-
-    //load our stats config
-    setTimeout(function (){
-      socket.send(JSON.stringify({
-        "cmd": "get_stats"
-      }));  
-    }, 200);
+    //get our basic info
+    load_configs();
   };
 
   socket.onmessage = function(event)
@@ -267,12 +275,20 @@ function start_websocket()
     {
       console.log("update");
 
+      //we need a config loaded.
+      if (!current_config)
+        return;
+
+      //update our clock.
       let mytime = Date.parse(msg.time);
       if (mytime)
       {
         let mydate = new Date(mytime);
         $('#time').html(mydate.toLocaleString());
+        $('#time').show();
       }
+      else
+      $('#time').hide();
 
       for (ch of msg.channels)
       {
@@ -323,6 +339,10 @@ function start_websocket()
     else if (msg.msg == "stats")
     {
       console.log("stats");
+
+      //we need this
+      if (!current_config)
+        return;
 
       $("#uptime").html(secondsToDhms(Math.round(msg.uptime/1000)));
       $("#messages").html(msg.messages.toLocaleString("en-US"));
@@ -385,8 +405,8 @@ function start_websocket()
       //keep the u gotta login to the login page.
       if (msg.error == "You must be logged in.")
       {
-        if (window.location.pathname != "/login.html")
-          window.location.href = "/login.html";
+        console.log("you must log in");
+        open_page("login");
       }
       else
         show_alert(msg.error);
@@ -396,20 +416,24 @@ function start_websocket()
       //keep the login success stuff on the login page.
       if (msg.success == "Login successful.")
       {
-        if (window.location.pathname == "/login.html")
+        //only needed for login page, otherwise its autologin
+        if (current_page == "login")
         {
-          show_alert(msg.success, "success");
-    
+          //save user/pass to cookies.
           if (app_username && app_password)
           {
             Cookies.set('username', app_username, { expires: 365 });
             Cookies.set('password', app_password, { expires: 365 });
           }
-    
+
+          //need this to show everything
+          load_configs();
+
+          //let them nav
+          $("#navbar").show();
+
           //this is super fast otherwise.
-          setTimeout(function (){
-            window.location.href = "/";
-          }, 1000);
+          open_page("control");
         }
       }
       else
@@ -491,7 +515,8 @@ function retry_connection()
 
 function show_alert(message, type = 'danger')
 {
-  $('#liveAlertPlaceholder').append(AlertBox(message, type))
+  //we only need one alert at a time.
+  $('#liveAlertPlaceholder').html(AlertBox(message, type))
 }
 
 function toggle_state(id)
@@ -515,6 +540,9 @@ function toggle_duty_cycle(id)
 
 function open_page(page)
 {
+  if (page == current_page)
+    return;
+
   current_page = page;
 
   console.log(`Opening page ${page}`);
@@ -526,18 +554,26 @@ function open_page(page)
   //hide all pages.
   $("div.pageContainer").hide();
 
+  //special stuff
+  if (page == "login")
+  {
+    //hide our nav bar
+    $("#navbar").hide();
+
+    //enter triggers login
+      $(document).on('keypress',function(e) {
+        if(e.which == 13)
+            do_login();
+    });
+  }
+
   //sad to see you go.
   if (page == "logout")
   {
-    show_alert("Logging out.", "success");
-
     Cookies.remove("username");
     Cookies.remove("password");
 
-    //this is super fast otherwise.
-    setTimeout(function (){
-      window.location.href = "/login.html";
-    }, 1000);
+    open_page("login");
   }
   else
   {
@@ -783,6 +819,11 @@ function save_network_settings()
     "app_pass": app_pass,
     "require_login": require_login
   }));
+
+  //reload our page
+  setTimeout(function (){
+    location.reload();
+  }, 2500);  
 }
 
 function restart_board()
@@ -797,7 +838,7 @@ function restart_board()
     show_alert("Gnarboard is now restarting, please be patient.", "primary");
     
     setTimeout(function (){
-      window.location.href = "/";
+      location.reload();
     }, 5000);
   }
 }

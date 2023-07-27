@@ -16,6 +16,31 @@
         .form-label {
             font-weight: bold;
         }
+        html,
+        body {
+            height: 100%;
+        }
+
+        .form-signin {
+            max-width: 330px;
+            padding: 1rem;
+        }
+
+        .form-signin .form-floating:focus-within {
+            z-index: 2;
+        }
+
+        .form-signin input[type="username"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .form-signin input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
     </style>
 </head>
 <body>
@@ -24,7 +49,7 @@
         let FF_FOUC_FIX;
     </script>
     <div class="col-lg-8 mx-auto">
-        <nav class="navbar sticky-top navbar-expand-md bg-body-tertiary navbar-light bg-light">
+        <nav id="navbar" class="navbar sticky-top navbar-expand-md bg-body-tertiary navbar-light bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" onclick="open_page('control')" href="#control">
                     <img src="logo-72.png" alt="Avast ye scurvy dog." width="30" height="30">
@@ -238,6 +263,22 @@
                     </div>
                 </div>
             </div>
+            <div id="loginPage" style="display:none" class="pageContainer form-signin mt-3 mx-auto">
+                <h1 class="text-center"><img class="mb-4" src="/favicon.ico" alt="" width="72" height="72"> Gnarboard</h1>
+                <div class="form-floating">
+                    <input type="username" class="form-control" id="username" placeholder="admin">
+                    <label for="username">Username</label>
+                </div>
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="password" placeholder="admin">
+                    <label for="password">Password</label>
+                </div>
+                <button class="btn btn-primary w-100 py-2" onclick="do_login()"">Log in</button>
+                <p class="text-center text-muted my-2">Default: admin / admin</p>
+                <div id="liveAlertPlaceholder"></div>
+                <script>
+                </script>
+            </div>
         </main>
         <footer class="p-4 text-body-secondary text-center">
             WebSocket:
@@ -246,8 +287,7 @@
             <span id="connection_retrying" class="connection_status text-warning" style="display: none">RETRYING (<span id="retries_count"></span>s)</span>
             <span id="connection_failed" class="connection_status text-danger" style="display: none">FAILED</span>
             <br/>
-            <span id="time"></span><br/>
-            <br/>
+            <div id="time" class="mb-2" style="display: none"></div>
             <a id="projectName" href="https://github.com/hoeken/Gnarboard">Gnarboard</a> &copy; 2023<br>
             <a href="https://www.oshwa.org/"><img src="oshw-logo-antipixel.webp"></a>
         </footer>
