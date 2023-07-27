@@ -11319,7 +11319,7 @@
   (gr_text "CH4-" (at 116.967 102.362) (layer "F.SilkS") (tstamp 0c1b886c-9eaf-40b4-85fd-c9aa1d15120f)
     (effects (font (size 1.75 1.75) (thickness 0.2)) (justify left bottom))
   )
-  (gr_text "8ch Mosfet Rev A" (at 8.666 131.834) (layer "F.SilkS") (tstamp 0d035734-915f-42f6-ac40-58ecb6a807bf)
+  (gr_text "8ch Mosfet Rev B" (at 8.666 131.834) (layer "F.SilkS") (tstamp 0d035734-915f-42f6-ac40-58ecb6a807bf)
     (effects (font (size 1.75 1.75) (thickness 0.2)) (justify left bottom))
   )
   (gr_text "VIN" (at 20.828 8.636 -90) (layer "F.SilkS") (tstamp 0de2af8b-eef5-4bcb-bfb2-99d3ae11c96e)
