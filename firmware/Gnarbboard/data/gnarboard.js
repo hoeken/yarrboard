@@ -1,7 +1,6 @@
 var socket = false;
 var current_page;
 var current_config;
-var firstload = true;
 var app_username;
 var app_password;
 var network_config;
@@ -118,9 +117,21 @@ function send_heartbeat()
 
 function start_gnarboard()
 {
+  //main data connection
   start_websocket();
 
-  check_for_updates();
+  //let the rest of the site load first.
+  setTimeout(check_for_updates, 1000);
+
+  //check to see if we want a certain page
+  if (window.location.hash)
+  {
+    let page = window.location.hash.substring(1);
+    if (page_list.includes(page))
+      open_page(page);
+  }
+  else
+    open_page("control");  
 }
 
 function start_websocket()
@@ -163,22 +174,18 @@ function start_websocket()
     }));
 
     //load our network config
-    socket.send(JSON.stringify({
-      "cmd": "get_network_config"
-    }));
+    setTimeout(function (){
+      socket.send(JSON.stringify({
+        "cmd": "get_network_config"
+      }));  
+    }, 100);
 
-    //check to see if we want a certain page
-    if (firstload)
-    {
-      if (window.location.hash)
-      {
-        let page = window.location.hash.substring(1);
-        if (page_list.includes(page))
-          open_page(page);
-      }
-      else
-        open_page("control");  
-    }
+    //load our stats config
+    setTimeout(function (){
+      socket.send(JSON.stringify({
+        "cmd": "get_stats"
+      }));  
+    }, 200);
   };
 
   socket.onmessage = function(event)
@@ -187,8 +194,9 @@ function start_websocket()
 
     if (msg.msg == 'config')
     {
+      console.log("config");
+
       current_config = msg;
-      //console.log(msg);
   
       //is it our first boot?
       if (msg.first_boot && current_page != "network")
@@ -202,72 +210,70 @@ function start_websocket()
       $('#projectName').html("Gnarboard v" + msg.version);
   
       //populate our channel control table
-      if (current_page != "control" || firstload)
+      $('#channelTableBody').html("");
+      for (ch of msg.channels)
       {
-        $('#channelTableBody').html("");
-        for (ch of msg.channels)
+        if (ch.enabled)
         {
-          if (ch.enabled)
-          {
-            $('#channelTableBody').append(ChannelControlRow(ch.id, ch.name));
-            $('#channelDutySlider' + ch.id).change(set_duty_cycle);
-          }
+          $('#channelTableBody').append(ChannelControlRow(ch.id, ch.name));
+          $('#channelDutySlider' + ch.id).change(set_duty_cycle);
         }
       }
-  
-      if (current_page != "stats" || firstload)
+
+      //populate our channel stats table
+      $('#channelStatsTableBody').html("");
+      for (ch of msg.channels)
       {
-        //populate our channel stats table
-        $('#channelStatsTableBody').html("");
-        for (ch of msg.channels)
+        if (ch.enabled)
         {
-          if (ch.enabled)
-          {
-            $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
-            $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
-            $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
-            $('#channelStats' + ch.id).append(`<td id="channelWattHours${ch.id}" class="text-end"></td>`);
-            $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
-            $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
-          }
+          $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
+          $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
+          $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
+          $('#channelStats' + ch.id).append(`<td id="channelWattHours${ch.id}" class="text-end"></td>`);
+          $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
+          $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
         }
       }
-  
-      if (current_page != "config" || firstload)
+
+      //populate our channel edit table
+      $('#channelConfigForm').html(ChannelNameEdit(msg.name));
+
+      //validate + save control
+      $("#fBoardName").change(validate_board_name);
+
+      //edit controls for each channel
+      for (ch of msg.channels)
       {
-        //populate our channel edit table
-        $('#channelConfigForm').html(ChannelNameEdit(msg.name));
-  
+        $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
+        $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
+        $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+
+        //enable/disable other stuff.
+        $(`#fChannelName${ch.id}`).prop('disabled', !ch.enabled);
+        $(`#fDimmable${ch.id}`).prop('disabled', !ch.enabled);
+        $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
+
         //validate + save
-        $("#fBoardName").change(validate_board_name);
-  
-        for (ch of msg.channels)
-        {
-          $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
-          $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
-          $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
-
-          //enable/disable other stuff.
-          $(`#fChannelName${ch.id}`).prop('disabled', !ch.enabled);
-          $(`#fDimmable${ch.id}`).prop('disabled', !ch.enabled);
-          $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
-
-          //validate + save
-          $(`#fEnabled${ch.id}`).change(validate_channel_enabled);
-          $(`#fChannelName${ch.id}`).change(validate_channel_name);
-          $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
-          $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
-        }
-
-        //ready!
-        page_ready.config = true;
+        $(`#fEnabled${ch.id}`).change(validate_channel_enabled);
+        $(`#fChannelName${ch.id}`).change(validate_channel_name);
+        $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
+        $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
       }
-  
-      firstload = false;
+
+      //ready!
+      page_ready.config = true;
     }
     else if (msg.msg == 'update')
     {
-      $('#time').html(msg.time);
+      console.log("update");
+
+      let mytime = Date.parse(msg.time);
+      if (mytime)
+      {
+        let mydate = new Date(mytime);
+        $('#time').html(mydate.toLocaleString());
+      }
+
       for (ch of msg.channels)
       {
         if (current_config.channels[ch.id].enabled)
@@ -316,6 +322,8 @@ function start_websocket()
     }
     else if (msg.msg == "stats")
     {
+      console.log("stats");
+
       $("#uptime").html(secondsToDhms(Math.round(msg.uptime/1000)));
       $("#messages").html(msg.messages.toLocaleString("en-US"));
       $("#heap_size").html(formatBytes(msg.heap_size));
@@ -343,6 +351,8 @@ function start_websocket()
     //load up our network config.
     else if (msg.msg == "network_config")
     {
+      console.log("network config");
+
       //save our config.
       network_config = msg;
 
@@ -405,7 +415,8 @@ function start_websocket()
       else
         show_alert(msg.success, "success");
     }
-    else if (msg.pong) {
+    else if (msg.pong)
+    {
       //we are connected still
       console.log("pong: " + msg.pong);
 
@@ -506,6 +517,8 @@ function open_page(page)
 {
   current_page = page;
 
+  console.log(`Opening page ${page}`);
+
   //request our stats.
   if (page == "stats")
     get_stats_data();
@@ -532,17 +545,8 @@ function open_page(page)
     $('.nav-link').removeClass("active");
     $(`#${page}Nav a`).addClass("active");
 
-    //is our new page not ready?
-    if (page_ready[page])
-      $(`#${page}Page`).show();
-    else
-    {
-      //nothing to load for system.
-      if (page != "system")
-        $("#loading").show();
-
-      setTimeout(on_page_ready, 100);
-    }  
+    //is our new page ready?
+    on_page_ready();
   }
 }
 
@@ -555,7 +559,10 @@ function on_page_ready()
     $(`#${current_page}Page`).show();
   }
   else
+  {
+    $("#loading").show();
     setTimeout(on_page_ready, 100);
+  }
 }
 
 function get_stats_data()

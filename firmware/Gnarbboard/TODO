@@ -1,5 +1,6 @@
 Firmware:
 
+* change name to Yarrboard
 * add progress bar for firmware OTA
 * add changelog for firmware OTA
 * add reload / cache flush to firmware OTA success
