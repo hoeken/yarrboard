@@ -1,10 +1,18 @@
 Firmware:
 
-* change name to Yarrboard
 * add progress bar for firmware OTA
 * add changelog for firmware OTA
 * add reload / cache flush to firmware OTA success
 * add fan pwm and tach stuff.
+* write a release script
+* test firmware signing
+* figure out how to split the code into different files.
+
+Electronics:
+
+* tweak resistors on the mosfet driver
+* test different diode for 5v supply
+* test qwiic
 
 Long term:
 
