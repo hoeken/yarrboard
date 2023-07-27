@@ -869,8 +869,15 @@ function check_for_updates()
       }
       else
       {
+        if (data.changelog)
+        {
+          $("#firmware_changelog").append(data.changelog);
+          $("#firmware_changelog").show();
+        }
+
         $("#firmware_update_available span").html(data.version);
         $("#firmware_update_available").show();
+
         show_alert(`There is a <a  onclick="open_page('system')" href="/#system">firmware update</a> available (${data.version}).`, "primary");
       }
     });  

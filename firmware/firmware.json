@@ -1,8 +1,9 @@
 {
     "type":"esp32-fota-http",
-    "version":"0.0.1",
     "host": "raw.githubusercontent.com",
     "port": 443,
-    "bin":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/firmware-0.0.1.bin",
-    "spiffs":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/spiffs-0.0.1.bin"
+    "version":"0.0.2",
+    "bin":"/hoeken/yarrboard/main/firmware/releases/firmware-0.0.2.bin",
+    "spiffs":"/hoeken/yarrboard/main/firmware/releases/spiffs-0.0.2.bin",
+    "changelog": "<ul><li>Testing firmware</li><li>Another bullet point</li></ul>"
 }
