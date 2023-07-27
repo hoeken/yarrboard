@@ -875,7 +875,9 @@ function check_for_updates()
           $("#firmware_changelog").show();
         }
 
-        $("#firmware_update_available span").html(data.version);
+        $("#firmware_version").html(data.version);
+        $("#firmware_bin").attr("href", `https://${data.host}${data.bin}`);
+        $("#firmware_spiffs").attr("href", `https://${data.host}${data.spiffs}`);
         $("#firmware_update_available").show();
 
         show_alert(`There is a <a  onclick="open_page('system')" href="/#system">firmware update</a> available (${data.version}).`, "primary");
