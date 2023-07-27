@@ -16,7 +16,7 @@ function main()
 
 function createWebsocket()
 {
-    client = new W3CWebSocket('ws://gnarboard.local/ws');
+    client = new W3CWebSocket('ws://firstreef.local/ws');
 
     client.onerror = function() {
         console.log('[socket] Connection error');
@@ -218,7 +218,7 @@ async function fadePin()
 {
     let steps = 25;
     let d = 50;
-    let channel = 2;
+    let channel = 0;
     let max_duty = 1;
 
     sendMessage({

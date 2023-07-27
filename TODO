@@ -1,3 +1,5 @@
 Electronics:
 
-* test first pcbs
+* maybe tweak resistors on the mosfet driver
+* test different diode for 5v supply
+* test qwiic

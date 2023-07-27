@@ -3,6 +3,7 @@ Firmware:
 * add progress bar for firmware OTA
 * add changelog for firmware OTA
 * add reload / cache flush to firmware OTA success
+* move login page to index.html
 * give ledcwrite and higher res pwm another chance
 * add fan pwm and tach stuff.
 * some sort of POST/GET method for toggling pin state

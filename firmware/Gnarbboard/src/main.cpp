@@ -1336,6 +1336,9 @@ void readAmperages()
     float volts = val * (3.3 / 4096.0);
     float amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
 
+    //our floor is zero amps
+    amps = max((float)0.0, amps);
+
     channelAmperage[channel] = amps;
   }
 }
