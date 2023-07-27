@@ -861,7 +861,7 @@ function check_for_updates()
   //did we get a config yet?
   if (current_config)
   {
-    $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/yarrboard/firmware.json", function(data) {
+    $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json", function(data) {
       $("#firmware_checking").hide();
       if (current_config.version == data.version)
       {

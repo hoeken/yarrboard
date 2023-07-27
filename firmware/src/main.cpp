@@ -24,14 +24,14 @@
 #include "esp_adc_cal.h"
 
 //identify yourself!
-const char *version = "1.0.0";
+const char *version = "0.0.1";
 String uuid;
 String board_name = "Yarrboard";
 bool is_first_boot = true;
 
 //for our OTA updates
 esp32FOTA esp32FOTA("esp32-fota-http", version);
-const char* manifest_url = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/yarrboard/firmware.json";
+const char* manifest_url = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
 
 const char* root_ca = R"ROOT_CA(
 -----BEGIN CERTIFICATE-----
