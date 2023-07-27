@@ -3,6 +3,6 @@
     "version":"0.0.1",
     "host": "raw.githubusercontent.com",
     "port": 443,
-    "bin":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/firmware-1.0.1.bin",
-    "spiffs":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/spiffs-1.0.1.bin"
+    "bin":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/firmware-0.0.1.bin",
+    "spiffs":"/hoeken/Gnarboard/main/firmware/Gnarbboard/releases/spiffs-0.0.1.bin"
 }
