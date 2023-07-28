@@ -882,17 +882,39 @@ function reset_to_factory()
   }
 }
 
+function is_version_current(current_version, check_version)
+{
+  const regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/m;
+  let current_match;
+  let check_match;
+
+  //parse versions
+  current_match = regex.exec(current_version);
+  check_match = regex.exec(check_version);
+  
+  //check major, minor, rev
+  if (current_match[1] < check_match[1])
+    return false;
+  if (current_match[2] < check_match[2])
+    return false;
+  if (current_match[3] < check_match[3])
+    return false;
+
+  return true;
+}
+
 function check_for_updates()
 {
+
   //did we get a config yet?
   if (current_config)
   {
-    $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json", function(data) {
+    $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json", function(data)
+    {
       $("#firmware_checking").hide();
-      if (current_config.version == data.version)
-      {
+
+      if (is_version_current(current_config.version, data.version))
         $("#firmware_up_to_date").show();
-      }
       else
       {
         if (data.changelog)
