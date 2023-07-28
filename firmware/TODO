@@ -1,11 +1,8 @@
 Firmware:
 
-* add progress bar for firmware OTA
-* add changelog for firmware OTA
-* add reload / cache flush to firmware OTA success
-* add fan pwm and tach stuff.
 * write a release script
 * test firmware signing
+* add fan pwm and tach stuff.
 * figure out how to split the code into different files.
 
 Electronics:

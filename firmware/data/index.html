@@ -253,14 +253,25 @@
                         <div id="firmware_update_available" style="display: none" class="alert alert-primary mt-3" role="alert">
                             <h5>New Firmware Available</h5>
                             <ul>
-                                <li>Version: <span id="firmware_version"></span></li>
-                                <li><a id="firmware_bin" href="">Firmware</a> <span id="firmware_bin_hash"></span></li>
-                                <li><a id="firmware_spiffs" href="">SPIFFS</a> <span id="firmware_spiffs_hash"></span></li>
+                                <li>Version: <span id="firmware_version"></span> (<a id="firmware_bin" href="">Firmware</a>) (<a id="firmware_spiffs" href="">SPIFFS</a>)</li>
                             </ul>
                             <div id="firmware_changelog" style="display: none">
                                 <h5>Changelog</h5>
                             </div>
-                            <button type="button" class="btn btn-primary" onclick="update_firmware()">Update Firmware</button><br/>
+                            <button id="btn_update_firmware" type="button" class="btn btn-primary" onclick="update_firmware()">Update Firmware</button>
+                            <br/>
+                            <div id="progress_wrapper" style="display: none" class="mt-4">
+                                <p>Update may take a while, please be patient.  After an update, this page will refresh. You may need to clear your browser cache after updating the firmware if you are having issues.</p>
+                                SPIFFS Update:
+                                <div class="progress" role="progressbar" aria-label="Spiffs Update" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                    <div id="spiffs_progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                </div>
+                                <br/>
+                                Firmware Update:
+                                <div class="progress" role="progressbar" aria-label="Firmware Update" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                    <div id="firmware_progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-6">

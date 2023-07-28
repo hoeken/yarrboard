@@ -65,6 +65,8 @@ A7sKPPcw7+uvTPyLNhBzPvOk
 )ROOT_CA";
 CryptoMemAsset  *MyRootCA = new CryptoMemAsset("Root CA", root_ca, strlen(root_ca)+1 );
 bool doOTAUpdate = false;
+int ota_current_partition = U_SPIFFS;
+unsigned long ota_last_message = 0;
 
 //for making a captive portal
 const byte DNS_PORT = 53;
@@ -154,6 +156,8 @@ void setupWifi();
 bool connectToWifi(String ssid, String pass);
 
 void otaUpdateSetup();
+void sendOTAProgressUpdate(float progress, int partition);
+void sendOTAProgressFinished();
 
 void timeAvailable(struct timeval *t);
 void printLocalTime();
@@ -164,6 +168,8 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client);
 
 bool assertLoggedIn(AsyncWebSocketClient *client);
 bool assertValidChannel(byte cid, AsyncWebSocketClient *client);
+
+void sendToAll(String jsonString);
 void sendUpdate();
 void sendConfigJSON(AsyncWebSocketClient *client);
 void sendNetworkConfigJSON(AsyncWebSocketClient *client);
@@ -337,13 +343,30 @@ void otaUpdateSetup()
   });
 
   // usage with lambda function:
-  esp32FOTA.setProgressCb( [](size_t progress, size_t size) {
-      if( progress == size || progress == 0 ) Serial.println();
+  esp32FOTA.setProgressCb( [](size_t progress, size_t size)
+  {
+      if( progress == size || progress == 0 )
+        Serial.println();
       Serial.print(".");
+
+      //let the clients know every second and at the end
+      if (millis() - ota_last_message > 1000 || progress == size)
+      {
+        float percent = (float)progress / (float)size * 100.0;
+        sendOTAProgressUpdate(percent, ota_current_partition);
+        ota_last_message = millis();
+      }
   });
 
   esp32FOTA.setUpdateEndCb( [](int partition) {
     Serial.printf("[ota] Update ended with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
+
+    //no begin callback???
+    if (partition == U_SPIFFS)
+      ota_current_partition = U_FLASH;
+    //i guess we're done?
+    else
+      sendOTAProgressFinished();
   });
 
   esp32FOTA.setUpdateCheckFailCb( [](int partition, int error_code) {
@@ -938,10 +961,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
     //look for new firmware
     bool updatedNeeded = esp32FOTA.execHTTPcheck();
     if (updatedNeeded)
-    {
-      sendSuccessJSON("Starting firmware update, please be patient. This may take a few minutes.", client);
       doOTAUpdate = true;
-    }
     else
       sendErrorJSON("Firmware already up to date.", client);
   }
@@ -1120,6 +1140,34 @@ void sendStatsJSON(AsyncWebSocketClient *client)
     ws.text(client->id(), jsonString);
 }
 
+void sendOTAProgressUpdate(float progress, int partition)
+{
+  StaticJsonDocument<96> doc;
+  String jsonString;
+
+  // create an object
+  JsonObject object = doc.to<JsonObject>();
+
+  object["msg"] = "ota_progress";
+
+  if (partition == U_SPIFFS)
+    object["partition"] = "spiffs";
+  else
+    object["partition"] = "firmware";
+
+  object["progress"] = round2(progress);
+
+  //send it.
+  serializeJson(doc, jsonString);
+  sendToAll(jsonString);
+}
+
+void sendOTAProgressFinished()
+{
+  String jsonString = "{\"msg\":\"ota_finished\"}";
+  sendToAll(jsonString);
+}
+
 void sendUpdate()
 {
   StaticJsonDocument<2048> doc;
@@ -1149,9 +1197,13 @@ void sendUpdate()
       object["channels"][i]["soft_fuse_tripped"] = true;
   }
 
-  // serialize the object and save teh result to teh string variable.
+  //send it.
   serializeJson(doc, jsonString);
+  sendToAll(jsonString);
+}
 
+void sendToAll(String jsonString)
+{
   //send the message to all authenticated clients.
   if (require_login)
   {

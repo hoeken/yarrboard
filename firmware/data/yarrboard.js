@@ -393,6 +393,32 @@ function start_websocket()
 
       page_ready.network = true;    
     }
+    //load up our network config.
+    else if (msg.msg == "ota_progress")
+    {
+      console.log("ota progress");
+
+      let progress = Math.round(msg.progress);
+
+      let prog_id = `#${msg.partition}_progress`;
+      $(prog_id).css("width", progress + "%").text(progress + "%");
+      if (progress == 100)
+      {
+        $(prog_id).removeClass("progress-bar-animated");
+        $(prog_id).removeClass("progress-bar-striped");
+      }
+
+      //was that the last?
+      if (msg.partition == "firmware" && progress == 100)
+      {
+        show_alert("Firmware update successful.", "success");
+
+        //reload our page
+        setTimeout(function (){
+          location.reload(true);
+        }, 2500); 
+      }
+    }
     else if (msg.error)
     {
       //did we turn login off?
@@ -891,6 +917,9 @@ function check_for_updates()
 
 function update_firmware()
 {
+  $("#btn_update_firmware").prop("disabled", true);
+  $("#progress_wrapper").show();
+
   //okay, send it off.
   socket.send(JSON.stringify({
     "cmd": "ota_start",
