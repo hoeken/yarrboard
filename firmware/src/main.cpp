@@ -335,7 +335,7 @@ void otaUpdateSetup()
 {
   esp32FOTA.setManifestURL(manifest_url);
   esp32FOTA.setRootCA(MyRootCA);
-  esp32FOTA.setPubKey(MyPubKey);
+  //esp32FOTA.setPubKey(MyPubKey);
 
   esp32FOTA.setUpdateBeginFailCb( [](int partition) {
     Serial.printf("[ota] Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
