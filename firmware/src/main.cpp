@@ -15,7 +15,6 @@
 #include "sntp.h"
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
-#include <MCP3208.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <esp32FOTA.hpp>
@@ -23,6 +22,7 @@
 #include "esp_adc_cal.h"
 
 #include "utility.h"
+#include "adc.h"
 
 //identify yourself!
 String uuid;
@@ -89,7 +89,6 @@ const byte channelCount = 8;
 const byte outputPins[channelCount] = { 32, 33, 25, 26, 27, 14, 12, 13 };
 
 //for watching our power supply
-const byte busVoltagePin = 36;
 float busVoltage = 0;
 
 //state information for all our channels.
@@ -116,10 +115,6 @@ uint32_t authenticatedClientIDs[clientLimit];
 const int PWMFreq = 5000; /* in Hz  */
 const int PWMResolution = 8;
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
-
-//object for our adc
-MCP3208 adc;
-const byte adc_cs_pin = 17;
 
 //storage for more permanent stuff.
 Preferences preferences;
@@ -149,7 +144,6 @@ struct tm timeinfo;
 //
 //  Function definitions
 //
-void setupADC();
 void setupWifi();
 bool connectToWifi(String ssid, String pass);
 
@@ -175,10 +169,7 @@ void sendStatsJSON(AsyncWebSocketClient *client);
 void sendSuccessJSON(String success, AsyncWebSocketClient *client);
 void sendErrorJSON(String error, AsyncWebSocketClient *client);
 
-void readBusVoltage();
 void updateChannelState(int channelId);
-uint16_t readMCP3208Channel(byte channel, byte samples = 64);
-void readAmperages();
 void checkSoftFuses();
 
 void setup()
@@ -199,10 +190,6 @@ void setup()
 
   //really nice library for permanently storing preferences.
   preferences.begin("yarrboard", false);
-
-  //adc for our bus voltage.
-  adcAttachPin(busVoltagePin);
-  analogSetAttenuation(ADC_11db);
 
   //intitialize our output pins.
   for (short i = 0; i < channelCount; i++)
@@ -288,8 +275,8 @@ void setup()
   if (preferences.isKey("local_hostname"))
     local_hostname = preferences.getString("local_hostname");
 
-  //various setup calls
-  setupADC();
+  //our analog stuff
+  adc_setup();
 
   //get a unique ID for us
   byte mac[6];
@@ -315,8 +302,6 @@ void setup()
   server.addHandler(&ws);
 
   //we are only serving static files - big cache
-  //server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-  // only enable this once we're done with web stuff.
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
   server.begin();
 
@@ -378,11 +363,6 @@ void timeAvailable(struct timeval *t) {
   printLocalTime();
 }
 
-void setupADC()
-{
-  adc.begin(adc_cs_pin);
-}
-
 void loop()
 {
   unsigned long t1;
@@ -393,9 +373,7 @@ void loop()
 
   //do we want to do the update?
   if (doOTAUpdate)
-  {
     esp32FOTA.handle();
-  }
 
   //run our dns... for AP mode
   if (wifi_mode.equals("ap"))
@@ -406,10 +384,11 @@ void loop()
   if (adcDelta >= adcInterval)
   {
     //this is a bit slow, so only do it once per update
-    readAmperages();
+    for (byte channel = 0; channel < channelCount; channel++)
+      channelAmperage[channel] = adc_readAmperage(channel);
 
     //check what our power is.
-    readBusVoltage();
+    busVoltage = adc_readBusVoltage();
   
     //record our total consumption
     for (byte i = 0; i < channelCount; i++) {
@@ -456,22 +435,6 @@ void loop()
       channelDutyCycleIsThrottled[id] = false;
     }
   }
-}
-
-void readBusVoltage()
-{
-  //multisample because esp32 adc is trash
-  byte samples = 10;
-  float busmV = 0;
-  for (byte i=0; i<samples; i++)
-    busmV += analogReadMilliVolts(busVoltagePin);
-  busmV = busmV / (float)samples;
-
-  //our resistor divider network.
-  float r1 = 100000.0;
-  float r2 = 10000.0;
-  busVoltage = (busmV / 1000.0) / (r2 / (r2+r1));
-
 }
 
 void printLocalTime()
@@ -1339,37 +1302,6 @@ void updateChannelState(int channelId)
     analogWrite(outputPins[channelId], pwm);
   else
     analogWrite(outputPins[channelId], 0);
-}
-
-uint16_t readMCP3208Channel(byte channel, byte samples)
-{
-  uint32_t value = 0;
-
-  if (samples > 1)
-  {
-    for (byte i = 0; i < samples; i++)
-      value += adc.readADC(channel);
-    value = value / samples;
-  } else
-    value = adc.readADC(channel);
-
-  return (uint16_t)value;
-}
-
-void readAmperages() 
-{
-  for (byte channel = 0; channel < channelCount; channel++)
-  {
-    uint16_t val = readMCP3208Channel(channel);
-
-    float volts = val * (3.3 / 4096.0);
-    float amps = (volts - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
-
-    //our floor is zero amps
-    amps = max((float)0.0, amps);
-
-    channelAmperage[channel] = amps;
-  }
 }
 
 void checkSoftFuses()
