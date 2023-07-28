@@ -19,18 +19,18 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <esp32FOTA.hpp>
-
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 
+#include "utility.h"
+
 //identify yourself!
-const char *version = "0.0.1";
 String uuid;
 String board_name = "Yarrboard";
 bool is_first_boot = true;
 
 //for our OTA updates
-esp32FOTA esp32FOTA("esp32-fota-http", version);
+esp32FOTA esp32FOTA("esp32-fota-http", VERSION);
 const char* manifest_url = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
 
 const char* root_ca = R"ROOT_CA(
@@ -149,9 +149,7 @@ struct tm timeinfo;
 //
 //  Function definitions
 //
-void setupNMEA2000();
 void setupADC();
-void setupNMEA2000();
 void setupWifi();
 bool connectToWifi(String ssid, String pass);
 
@@ -177,10 +175,6 @@ void sendStatsJSON(AsyncWebSocketClient *client);
 void sendSuccessJSON(String success, AsyncWebSocketClient *client);
 void sendErrorJSON(String error, AsyncWebSocketClient *client);
 
-double round2(double value);
-double round3(double value);
-double round4(double value);
-
 void readBusVoltage();
 void updateChannelState(int channelId);
 uint16_t readMCP3208Channel(byte channel, byte samples = 64);
@@ -196,7 +190,7 @@ void setup()
   Serial.begin(115200);
   delay(10);
   Serial.print("Yarrboard ");
-  Serial.println(version);
+  Serial.println(VERSION);
 
   //Setup our NTP to get the current time.
   //sntp_set_time_sync_notification_cb(timeAvailable);
@@ -296,7 +290,6 @@ void setup()
 
   //various setup calls
   setupADC();
-  //setupNMEA2000();
 
   //get a unique ID for us
   byte mac[6];
@@ -383,10 +376,6 @@ void otaUpdateSetup()
 void timeAvailable(struct timeval *t) {
   Serial.print("NTP update: ");
   printLocalTime();
-}
-
-void setupNMEA2000()
-{
 }
 
 void setupADC()
@@ -1042,7 +1031,7 @@ void sendConfigJSON(AsyncWebSocketClient *client)
   JsonObject object = doc.to<JsonObject>();
 
   //our identifying info
-  object["version"] = version;
+  object["version"] = VERSION;
   object["name"] = board_name;
   object["uuid"] = uuid;
   object["msg"] = "config";
@@ -1219,18 +1208,6 @@ void sendToAll(String jsonString)
     else
       Serial.println("[socket] queue full");
   }
-}
-
-double round2(double value) {
-  return (long)(value * 100 + 0.5) / 100.0;
-}
-
-double round3(double value) {
-  return (long)(value * 1000 + 0.5) / 1000.0;
-}
-
-double round4(double value) {
-  return (long)(value * 10000 + 0.5) / 10000.0;
 }
 
 void setupWifi()
