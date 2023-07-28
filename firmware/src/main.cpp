@@ -63,7 +63,27 @@ ce1XR2bFuAJKZTRei9AqPCCcUZlM51Ke92sRKw2Sfh3oius2FkOH6ipjv3U/697E
 A7sKPPcw7+uvTPyLNhBzPvOk
 -----END CERTIFICATE-----
 )ROOT_CA";
-CryptoMemAsset  *MyRootCA = new CryptoMemAsset("Root CA", root_ca, strlen(root_ca)+1 );
+
+const char* public_key = R"PUBLIC_KEY(
+  -----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAqYEgW6K3LVu7v+uaJJRL
+gC7z8xQmy4CPBSX2W9Qe5NlpO0XQ4RnuIX0X9nfKEhITeB0EZ5R59rVPIIWnbHRk
+qBE5lXnf7YSbFDh9ZT7am080TCF45REPnCnDeOiYbY1q9+/nONpTHCkC1bffHeIn
+D0S9r/BjL+0I4fXyhm9GL9Q2BEEsWT7ufzsIP3ADllCvB/XoKKNIXsvFECCkJrPH
+OdtMKR+6K6eNAKDT1IOlFlbdyGE5t+kGRguIh0LhuBp0trNEdEaGUxYE2UN/V5YX
+mw0czPWcdyCCtbwx0xv8NiImZ3ZhE8O17sdWjqPtBYx9yKDNdH/IXNGY05fohXbk
+ZrYsn5f4oIuiAObw+Xl+9bSgaRqJ0ezoegF8uIFpOUtNhZ3hygAuiPwbCCXn94Dk
+y2d1LPGvaHae5t8OOMZ7dT7GCV6cJ3RhyKaZfoNklLKly9ab0oTbwmthLspX3wGj
+MvTWw5vSCXHWh8xLE2LH15rpcBkh7SYmdoLu9xMEAcD+GYU9DmTcDSUEgfHnSMff
+66u0lAJzUwJBZ1sV8Ec1j08cuIEUuV7AtHvV9CsSQtyXVxmGF1UVk8SCUuOYTma6
+L1G9vkoVljfd+/VWbSJR67T0BMcapzJD3Vc/rY6iBT4lB1J7wum6oyH9K6frl/zP
+1Owwdkc0YGEFCiDjUPSvuuECAwEAAQ==
+-----END PUBLIC KEY-----
+)PUBLIC_KEY";
+
+CryptoMemAsset *MyRootCA = new CryptoMemAsset("Root CA", root_ca, strlen(root_ca)+1);
+CryptoMemAsset *MyPubKey = new CryptoMemAsset("RSA Key", public_key, strlen(public_key)+1);
+
 bool doOTAUpdate = false;
 int ota_current_partition = U_SPIFFS;
 unsigned long ota_last_message = 0;
@@ -315,6 +335,7 @@ void otaUpdateSetup()
 {
   esp32FOTA.setManifestURL(manifest_url);
   esp32FOTA.setRootCA(MyRootCA);
+  esp32FOTA.setPubKey(MyPubKey);
 
   esp32FOTA.setUpdateBeginFailCb( [](int partition) {
     Serial.printf("[ota] Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
