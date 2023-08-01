@@ -1338,7 +1338,7 @@
     (pin "1" (uuid 014de3ad-31a9-48a9-9b6d-03a56b9d01b1))
     (pin "2" (uuid d19823d4-e523-4179-9b01-4eaea0392d5e))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "R1") (unit 1)
         )
@@ -1397,7 +1397,7 @@
     (pin "1" (uuid 187af7b0-8538-4704-aa19-3b7b95ca0745))
     (pin "2" (uuid 5eaabcf0-ceb5-4e24-b95d-25b07614ad0e))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0eec6767-666b-42c0-ba36-2a83c9caeade"
           (reference "D10") (unit 1)
         )
@@ -1447,7 +1447,7 @@
     (pin "1" (uuid 9a3ab691-f9cc-4955-a98e-a3aeb3bdcaa1))
     (pin "2" (uuid dbb2eb7c-e382-4d9c-9bb4-24acb21d46c2))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "R2") (unit 1)
         )
@@ -1500,7 +1500,7 @@
     (pin "1" (uuid 9ae72ffa-b942-474f-aec9-2ec3763c6d6e))
     (pin "2" (uuid 907b1cc9-0c72-4ed1-b3a1-02f29445c07a))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "R4") (unit 1)
         )
@@ -1551,11 +1551,11 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid abfd9d39-40e7-4441-a55c-a019dae87901))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44a9f))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44a9f))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44aa0))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44aa0))
     (pin "3" (uuid bc1d5f51-a708-4946-a607-dc92b3201b6f))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "F1") (unit 1)
         )
@@ -1608,7 +1608,7 @@
     (pin "1" (uuid a4df1643-fb5f-47e4-99ee-1df7dbc09b17))
     (pin "2" (uuid 47b9013f-c5de-4532-8899-6a2286c34f79))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "D2") (unit 1)
         )
@@ -1661,7 +1661,7 @@
     (pin "1" (uuid cecb68f9-f234-4e56-a5f0-7442b9d496df))
     (pin "2" (uuid 36b47716-5e08-4692-95c3-61ff2476dad7))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "C5") (unit 1)
         )
@@ -1714,7 +1714,7 @@
     (pin "1" (uuid 33cbf9b5-221b-44b8-ade2-b7ced18386e5))
     (pin "2" (uuid f9b07afa-59e4-4e45-bf24-687a5c42c7dd))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "C4") (unit 1)
         )
@@ -1767,7 +1767,7 @@
     (pin "1" (uuid 52c4b1a6-ccb7-415b-8a30-b742b872136e))
     (pin "2" (uuid 660c5687-2944-4c7d-9eab-f9c8e18b7b1c))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0eec6767-666b-42c0-ba36-2a83c9caeade"
           (reference "J5") (unit 1)
         )
@@ -1823,7 +1823,7 @@
     (pin "7" (uuid 3692bc0c-2980-4511-a0de-f4ef850192bf))
     (pin "8" (uuid 72828c1d-0370-48f4-97de-b22d61289ab9))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "U5") (unit 1)
         )
@@ -1876,7 +1876,7 @@
     (pin "1" (uuid 33ee5263-d1f0-441d-8ea1-817c41cc17c9))
     (pin "2" (uuid c87218a0-5153-4fba-b55f-c40e3599a71a))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "R3") (unit 1)
         )
@@ -1929,7 +1929,7 @@
     (pin "1" (uuid 33aa493e-4fde-4cf5-9a6a-0fe1d2cb8ecf))
     (pin "2" (uuid cdf9614e-351b-47e2-9723-3a6cbf94e948))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "C3") (unit 1)
         )
@@ -1978,7 +1978,7 @@
     )
     (pin "1" (uuid c42dac0d-dcd3-497b-8fb6-44224e1d7dc2))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "#PWR013") (unit 1)
         )
@@ -2031,7 +2031,7 @@
     (pin "1" (uuid 176ae690-e3f8-4eb8-a70e-68c48e1d7864))
     (pin "2" (uuid 821efcc2-4474-4f69-b569-a42a715f0a85))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0eec6767-666b-42c0-ba36-2a83c9caeade"
           (reference "D18") (unit 1)
         )
@@ -2082,7 +2082,7 @@
     (pin "2" (uuid 1b40dbe5-3e90-4285-94cd-05ca3eb6872a))
     (pin "3" (uuid d8636818-2105-421b-9a44-47c39a94ed42))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "Q1") (unit 1)
         )
@@ -2131,7 +2131,7 @@
     )
     (pin "1" (uuid 2e2b071a-2a90-4f85-b916-16bda7ece4dd))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "#PWR015") (unit 1)
         )
@@ -2180,7 +2180,7 @@
     )
     (pin "1" (uuid 01787fff-cacc-4065-b1c1-5e0e94bb3a49))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "#PWR014") (unit 1)
         )
@@ -2234,7 +2234,7 @@
     (pin "2" (uuid 2dea5a90-af48-4d59-af6c-5403ce12af33))
     (pin "3" (uuid 09bf8e05-9234-4f85-a216-37b300ead2d0))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "Q2") (unit 1)
         )
@@ -2283,7 +2283,7 @@
     )
     (pin "1" (uuid d3c0b919-bf21-4623-a334-57f1d4824b0b))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "#PWR01") (unit 1)
         )
@@ -2332,7 +2332,7 @@
     )
     (pin "1" (uuid 27a94e41-fa52-4b7d-abad-da0efb239a91))
     (instances
-      (project "Gnarboard"
+      (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
           (reference "#PWR012") (unit 1)
         )

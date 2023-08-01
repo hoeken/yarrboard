@@ -1,7 +1,6 @@
 Firmware:
 
 * add fan pwm and tach stuff.
-* figure out how to split the code into different files.
 
 Electronics:
 
