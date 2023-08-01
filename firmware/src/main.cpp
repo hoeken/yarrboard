@@ -394,7 +394,10 @@ void loop()
 
   //do we want to do the update?
   if (doOTAUpdate)
+  {
     esp32FOTA.handle();
+    return;
+  }
 
   //run our dns... for AP mode
   if (wifi_mode.equals("ap"))

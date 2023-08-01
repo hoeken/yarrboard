@@ -1,7 +1,5 @@
 Firmware:
 
-* write a release script
-* test firmware signing
 * add fan pwm and tach stuff.
 * figure out how to split the code into different files.
 
@@ -13,6 +11,8 @@ Electronics:
 
 Long term:
 
+* test firmware signing
+* figure out how to do safe update with spiffs (2 partitions?)
 * give ledcwrite and higher res pwm another chance
 * some sort of POST/GET method for toggling pin state
 * GET page for board status / config / stats / etc
