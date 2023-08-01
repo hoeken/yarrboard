@@ -2,8 +2,8 @@
     "type":"esp32-fota-http",
     "host": "raw.githubusercontent.com",
     "port": 443,
-    "version":"0.0.3",
-    "bin":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.3.bin",
-    "spiffs":"/hoeken/yarrboard/main/firmware/releases/spiffs-0.0.3.bin",
-    "changelog": "<ul><li>Testing release script.</li></ul>"
+    "version":"0.0.4",
+    "bin":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.4.bin",
+    "spiffs":"/hoeken/yarrboard/main/firmware/releases/spiffs-0.0.4.bin",
+    "changelog": "<ul><li>Testing one more time.</li></ul>"
 }
