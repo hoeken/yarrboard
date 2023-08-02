@@ -10,7 +10,7 @@ The project is based around the amazing esp32 and currently consists of one boar
 
 Since it is based on the esp32, the main communication method is over WiFi using websockets.  This makes for very easy interfacing if you want to write your own scripts.  It also means that the user interface for setup, config, and control are very easy.  Just point your phone to the url of the board and you're good to go.
 
-[image of ui]
+![Screenshot of UI](/assets/images/ui-screenshot.png)
 
 ## SignalK
 
@@ -30,7 +30,7 @@ The main (and only) board available is for driving DC loads.  It is designed wit
 * Potential expandability with QWIIC headers and a serial port for possible NMEA2000
 * 3D printable case w/ design files
 
-[image of board]
+![Image of 8 channel mosfet driver](/assets/images/8ch-mosfet-driver.jpg)
 
 ## How To Get One
 
@@ -49,5 +49,3 @@ No production as of right now, but possibly in the future.  It is 100% open sour
 * Setup any Node-RED flows and custom logic you want.
 
 ## Links
-
-* 
