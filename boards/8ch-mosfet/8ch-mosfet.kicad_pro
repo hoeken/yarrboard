@@ -480,7 +480,7 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "",
+      "netlist": "../../../../",
       "specctra_dsn": "",
       "step": "Gnarboard.step",
       "vrml": "Gnarboard.wrl"
@@ -565,6 +565,10 @@
     [
       "02f6e629-b0e2-41e8-b2e4-f0e125a92a71",
       "PWM FAN1"
+    ],
+    [
+      "b87f80e1-ecbd-4ee0-be26-4b252158928b",
+      "Bus Voltage"
     ]
   ],
   "text_variables": {}
