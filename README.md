@@ -24,6 +24,7 @@ The main (and only) board available is for driving DC loads.  It is designed wit
 * 8 separately controllable channels with PWM capability on each channel
 * Each channel capable of up to 20A, with appropriate cooling
 * Current monitoring accurate to about 0.01A on each channel
+* Firmware supports soft fuses to protect from overcurrent
 * Made with heavy duty 2oz copper and thick copper busbars to handle big loads
 * Each channel is individually fused, with a manual bypass in case of MOSFET failure
 * Potential expandability with QWIIC headers and a serial port for possible NMEA2000
