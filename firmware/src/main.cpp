@@ -18,11 +18,10 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <esp32FOTA.hpp>
-#include "driver/adc.h"
-#include "esp_adc_cal.h"
 
 #include "utility.h"
 #include "adc.h"
+#include "config.h"
 
 //identify yourself!
 String uuid;
@@ -34,7 +33,7 @@ bool is_first_boot = true;
 esp32FOTA FOTA;
 
 #if !defined FOTA_URL
-  #define FOTA_URL "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json"
+  #define FOTA_URL 
 #endif
 
 const char* root_ca = R"ROOT_CA(
@@ -342,8 +341,8 @@ void otaUpdateSetup()
 {
   {
     auto cfg = FOTA.getConfig();
-    cfg.name          = HARDWARE_VERSION;
-    cfg.manifest_url  = FOTA_URL;
+    cfg.name          = "8CH-MOSFET-REV-A";
+    cfg.manifest_url  = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
     cfg.sem           = FIRMWARE_VERSION;
     cfg.check_sig     = false; // verify signed firmware with rsa public key
     cfg.unsafe        = true; // disable certificate check when using TLS
