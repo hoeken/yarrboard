@@ -329,7 +329,7 @@ function start_websocket()
             $('#channelDutyCycle' + ch.id).hide();
           }
     
-          let current = ch.current.toFixed(1);
+          let current = ch.current.toFixed(2);
           $('#channelCurrent' + ch.id).html(`${current}&nbsp;A`);
         }
       }
