@@ -243,29 +243,33 @@ function start_websocket()
         }
       }
 
-      //populate our channel edit table
-      $('#channelConfigForm').html(ChannelNameEdit(msg.name));
-
-      //validate + save control
-      $("#fBoardName").change(validate_board_name);
-
-      //edit controls for each channel
-      for (ch of msg.channels)
+      //only do it as needed
+      if (!page_ready.config || current_page != "config")
       {
-        $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
-        $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
-        $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+        //populate our channel edit table
+        $('#channelConfigForm').html(ChannelNameEdit(msg.name));
 
-        //enable/disable other stuff.
-        $(`#fChannelName${ch.id}`).prop('disabled', !ch.enabled);
-        $(`#fDimmable${ch.id}`).prop('disabled', !ch.enabled);
-        $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
+        //validate + save control
+        $("#fBoardName").change(validate_board_name);
 
-        //validate + save
-        $(`#fEnabled${ch.id}`).change(validate_channel_enabled);
-        $(`#fChannelName${ch.id}`).change(validate_channel_name);
-        $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
-        $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
+        //edit controls for each channel
+        for (ch of msg.channels)
+        {
+          $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
+          $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
+          $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+
+          //enable/disable other stuff.
+          $(`#fChannelName${ch.id}`).prop('disabled', !ch.enabled);
+          $(`#fDimmable${ch.id}`).prop('disabled', !ch.enabled);
+          $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
+
+          //validate + save
+          $(`#fEnabled${ch.id}`).change(validate_channel_enabled);
+          $(`#fChannelName${ch.id}`).change(validate_channel_name);
+          $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
+          $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
+        }
       }
 
       //ready!
@@ -273,7 +277,7 @@ function start_websocket()
     }
     else if (msg.msg == 'update')
     {
-      console.log("update");
+      //console.log("update");
 
       //we need a config loaded.
       if (!current_config)
@@ -468,7 +472,7 @@ function start_websocket()
     else if (msg.pong)
     {
       //we are connected still
-      console.log("pong: " + msg.pong);
+      //console.log("pong: " + msg.pong);
 
       //we got the heartbeat
       last_heartbeat = Date.now();
