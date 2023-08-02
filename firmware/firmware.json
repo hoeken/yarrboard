@@ -1,9 +1,20 @@
-{
-    "type":"8ch-mosfet-rev-a",
-    "host": "raw.githubusercontent.com",
-    "port": 443,
-    "version":"0.0.4",
-    "bin":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.4.bin",
-    "spiffs":"/hoeken/yarrboard/main/firmware/releases/spiffs-0.0.4.bin",
-    "changelog": "<ul><li>Testing one more time.</li></ul>"
-}
+[
+    {
+        "type":"8ch-mosfet-rev-a",
+        "host": "raw.githubusercontent.com",
+        "port": 443,
+        "version":"0.0.5",
+        "bin":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.5.bin",
+        "spiffs":"/hoeken/yarrboard/main/firmware/releases/spiffs-0.0.5.bin",
+        "changelog": "<ul><li>Testing one more time.</li></ul>"
+    },
+    {
+        "type":"8ch-mosfet-rev-b",
+        "host": "raw.githubusercontent.com",
+        "port": 443,
+        "version":"0.0.4",
+        "bin":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.4.bin",
+        "spiffs":"/hoeken/yarrboard/main/firmware/releases/spiffs-0.0.4.bin",
+        "changelog": "<ul><li>Testing one more time.</li></ul>"
+    }
+]
