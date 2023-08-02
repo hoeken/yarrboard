@@ -1147,7 +1147,7 @@ void sendOTAProgressFinished()
 
 void sendUpdate()
 {
-  StaticJsonDocument<2048> doc;
+  StaticJsonDocument<3000> doc;
   String jsonString;
 
   // create an object
@@ -1165,7 +1165,9 @@ void sendUpdate()
   for (byte i = 0; i < channelCount; i++) {
     object["channels"][i]["id"] = i;
     object["channels"][i]["state"] = channelState[i];
-    object["channels"][i]["duty"] = round2(channelDutyCycle[i]);
+    if (channelIsDimmable[i])
+      object["channels"][i]["duty"] = round2(channelDutyCycle[i]);
+
     object["channels"][i]["current"] = round2(channelAmperage[i]);
     object["channels"][i]["aH"] = round3(channelAmpHour[i]);
     object["channels"][i]["wH"] = round3(channelWattHour[i]);
