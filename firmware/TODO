@@ -1,6 +1,9 @@
 Firmware:
 
 * add fan pwm and tach stuff.
+* add code for bus voltage adc
+* documentation
+* stability fixes
 
 Electronics:
 
@@ -14,5 +17,5 @@ Long term:
 * give ledcwrite and higher res pwm another chance
 * some sort of POST/GET method for toggling pin state
 * GET page for board status / config / stats / etc
-* send/receive json over serial as well
+* send/receive json over serial
 * control via N2K bus

@@ -215,7 +215,7 @@ function start_websocket()
       document.title = msg.name;
   
       //update our footer automatically.
-      $('#projectName').html("Yarrboard v" + msg.version);
+      $('#projectName').html("Yarrboard v" + msg.firmware_version);
   
       //populate our channel control table
       $('#channelTableBody').html("");
@@ -917,7 +917,7 @@ function check_for_updates()
     {
       $("#firmware_checking").hide();
 
-      if (is_version_current(current_config.version, data.version))
+      if (is_version_current(current_config.firmware_version, data.version))
         $("#firmware_up_to_date").show();
       else
       {

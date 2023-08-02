@@ -1,5 +1,5 @@
 {
-    "type":"esp32-fota-http",
+    "type":"8ch-mosfet-rev-a",
     "host": "raw.githubusercontent.com",
     "port": 443,
     "version":"0.0.4",

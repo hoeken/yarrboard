@@ -30,8 +30,12 @@ String board_name = "Yarrboard";
 bool is_first_boot = true;
 
 //for our OTA updates
-esp32FOTA esp32FOTA("esp32-fota-http", VERSION);
-const char* manifest_url = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
+//esp32FOTA esp32FOTA(HARDWARE_VERSION, FIRMWARE_VERSION);
+esp32FOTA FOTA;
+
+#if !defined FOTA_URL
+  #define FOTA_URL "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json"
+#endif
 
 const char* root_ca = R"ROOT_CA(
 -----BEGIN CERTIFICATE-----
@@ -201,7 +205,10 @@ void setup()
   Serial.begin(115200);
   delay(10);
   Serial.print("Yarrboard ");
-  Serial.println(VERSION);
+  Serial.print("Hardware Version: ");
+  Serial.println(HARDWARE_VERSION);
+  Serial.print("Firmware Version: ");
+  Serial.println(FIRMWARE_VERSION);
 
   //Setup our NTP to get the current time.
   //sntp_set_time_sync_notification_cb(timeAvailable);
@@ -333,16 +340,30 @@ void setup()
 
 void otaUpdateSetup()
 {
-  esp32FOTA.setManifestURL(manifest_url);
-  esp32FOTA.setRootCA(MyRootCA);
-  //esp32FOTA.setPubKey(MyPubKey);
+  {
+    auto cfg = FOTA.getConfig();
+    cfg.name          = HARDWARE_VERSION;
+    cfg.manifest_url  = FOTA_URL;
+    cfg.sem           = FIRMWARE_VERSION;
+    cfg.check_sig     = false; // verify signed firmware with rsa public key
+    cfg.unsafe        = true; // disable certificate check when using TLS
+    cfg.root_ca       = MyRootCA;
+    //cfg.pub_key       = MyRSAKey;
+    //cfg.use_device_id = false;
+    FOTA.setConfig( cfg );
+  }
+//esp32FOTA esp32FOTA(HARDWARE_VERSION, FIRMWARE_VERSION);
 
-  esp32FOTA.setUpdateBeginFailCb( [](int partition) {
+  //esp32FOTA.setManifestURL(FOTA_MANIFEST_URL);
+  //esp32FOTA.setRootCA(MyRootCA);
+  ////esp32FOTA.setPubKey(MyPubKey);
+
+  FOTA.setUpdateBeginFailCb( [](int partition) {
     Serial.printf("[ota] Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
   });
 
   // usage with lambda function:
-  esp32FOTA.setProgressCb( [](size_t progress, size_t size)
+  FOTA.setProgressCb( [](size_t progress, size_t size)
   {
       if( progress == size || progress == 0 )
         Serial.println();
@@ -357,7 +378,7 @@ void otaUpdateSetup()
       }
   });
 
-  esp32FOTA.setUpdateEndCb( [](int partition) {
+  FOTA.setUpdateEndCb( [](int partition) {
     Serial.printf("[ota] Update ended with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
 
     //no begin callback???
@@ -368,14 +389,14 @@ void otaUpdateSetup()
       sendOTAProgressFinished();
   });
 
-  esp32FOTA.setUpdateCheckFailCb( [](int partition, int error_code) {
+  FOTA.setUpdateCheckFailCb( [](int partition, int error_code) {
     Serial.printf("[ota] Update could not validate %s partition (error %d)\n", partition==U_SPIFFS ? "spiffs" : "firmware", error_code );
     // error codes:
     //  -1 : partition not found
     //  -2 : validation (signature check) failed
   });
 
-  //esp32FOTA.printConfig();
+  FOTA.printConfig();
 }
 
 // Callback function (get's called when time adjusts via NTP)
@@ -395,7 +416,7 @@ void loop()
   //do we want to do the update?
   if (doOTAUpdate)
   {
-    esp32FOTA.handle();
+    FOTA.handle();
     return;
   }
 
@@ -935,7 +956,7 @@ void handleReceivedMessage(char *payload, AsyncWebSocketClient *client)
       return;
 
     //look for new firmware
-    bool updatedNeeded = esp32FOTA.execHTTPcheck();
+    bool updatedNeeded = FOTA.execHTTPcheck();
     if (updatedNeeded)
       doOTAUpdate = true;
     else
@@ -1018,7 +1039,8 @@ void sendConfigJSON(AsyncWebSocketClient *client)
   JsonObject object = doc.to<JsonObject>();
 
   //our identifying info
-  object["version"] = VERSION;
+  object["firmware_version"] = FIRMWARE_VERSION;
+  object["hardware_version"] = HARDWARE_VERSION;
   object["name"] = board_name;
   object["hostname"] = local_hostname;
   object["uuid"] = uuid;
