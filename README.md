@@ -21,6 +21,7 @@ The main (and only) board available is for driving DC loads.  It is designed wit
 * 3D printable case w/ design files
 
 ![Image of 8 channel mosfet driver](/assets/images/8ch-mosfet-driver.jpg)
+![Closeup of 8 channel mosfet driver](/assets/images/8ch-mofet-driver- closeup.jpg)
 
 ## Interface
 
