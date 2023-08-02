@@ -243,6 +243,10 @@ function start_websocket()
         }
       }
 
+      //stats info
+      $("#firmware_version").html(msg.firmware_version);
+      $("#hardware_version").html(msg.hardware_version);
+
       //only do it as needed
       if (!page_ready.config || current_page != "config")
       {
@@ -915,16 +919,11 @@ function check_for_updates()
   {
     $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json", function(jdata)
     {
-      console.log(jdata);
-      console.log(current_config);
-
       //did we get anyting?
       let data;
       for (firmware of jdata)
         if (firmware.type == current_config.hardware_version)
           data = firmware;
-
-      console.log(data);
 
       if (!data)
       {

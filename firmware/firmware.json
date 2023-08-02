@@ -1,6 +1,6 @@
 [
     {
-        "type":"8ch-mosfet-rev-a",
+        "type":"8CH-MOSFET-REV-A",
         "host": "raw.githubusercontent.com",
         "port": 443,
         "version":"0.0.5",
@@ -9,7 +9,7 @@
         "changelog": "<ul><li>Testing one more time v5.</li></ul>"
     },
     {
-        "type":"8ch-mosfet-rev-b",
+        "type":"8CH-MOSFET-REV-B",
         "host": "raw.githubusercontent.com",
         "port": 443,
         "version":"0.0.4",
