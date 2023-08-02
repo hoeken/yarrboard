@@ -1020,6 +1020,7 @@ void sendConfigJSON(AsyncWebSocketClient *client)
   //our identifying info
   object["version"] = VERSION;
   object["name"] = board_name;
+  object["hostname"] = local_hostname;
   object["uuid"] = uuid;
   object["msg"] = "config";
 
