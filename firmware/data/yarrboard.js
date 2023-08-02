@@ -342,7 +342,7 @@ function start_websocket()
     }
     else if (msg.msg == "stats")
     {
-      console.log("stats");
+      //console.log("stats");
 
       //we need this
       if (!current_config)
@@ -375,7 +375,7 @@ function start_websocket()
     //load up our network config.
     else if (msg.msg == "network_config")
     {
-      console.log("network config");
+      //console.log("network config");
 
       //save our config.
       network_config = msg;
@@ -400,7 +400,7 @@ function start_websocket()
     //load up our network config.
     else if (msg.msg == "ota_progress")
     {
-      console.log("ota progress");
+      //console.log("ota progress");
 
       let progress = Math.round(msg.progress);
 
@@ -913,8 +913,25 @@ function check_for_updates()
   //did we get a config yet?
   if (current_config)
   {
-    $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json", function(data)
+    $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json", function(jdata)
     {
+      console.log(jdata);
+      console.log(current_config);
+
+      //did we get anyting?
+      let data;
+      for (firmware of jdata)
+        if (firmware.type == current_config.hardware_version)
+          data = firmware;
+
+      console.log(data);
+
+      if (!data)
+      {
+        show_alert(`Could not find a firmware for this hardware.`, "error");
+        return;
+      }
+
       $("#firmware_checking").hide();
 
       if (is_version_current(current_config.firmware_version, data.version))

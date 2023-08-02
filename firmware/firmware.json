@@ -6,7 +6,7 @@
         "version":"0.0.5",
         "bin":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.5.bin",
         "spiffs":"/hoeken/yarrboard/main/firmware/releases/spiffs-0.0.5.bin",
-        "changelog": "<ul><li>Testing one more time.</li></ul>"
+        "changelog": "<ul><li>Testing one more time v5.</li></ul>"
     },
     {
         "type":"8ch-mosfet-rev-b",
@@ -15,6 +15,6 @@
         "version":"0.0.4",
         "bin":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.4.bin",
         "spiffs":"/hoeken/yarrboard/main/firmware/releases/spiffs-0.0.4.bin",
-        "changelog": "<ul><li>Testing one more time.</li></ul>"
+        "changelog": "<ul><li>Testing one more time v4.</li></ul>"
     }
 ]
