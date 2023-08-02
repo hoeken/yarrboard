@@ -927,7 +927,7 @@ function check_for_updates()
 
       if (!data)
       {
-        show_alert(`Could not find a firmware for this hardware.`, "error");
+        show_alert(`Could not find a firmware for this hardware.`, "danger");
         return;
       }
 
