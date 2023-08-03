@@ -1,4 +1,4 @@
-#include "websocket.h"
+#include "server.h"
 #include "prefs.h"
 #include "wifi.h"
 #include "ota.h"

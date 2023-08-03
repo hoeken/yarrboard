@@ -11,7 +11,7 @@
 #include "wifi.h"
 #include "prefs.h"
 #include "channel.h"
-#include "websocket.h"
+#include "server.h"
 #include "utility.h"
 #include "adc.h"
 #include "fans.h"

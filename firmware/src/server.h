@@ -1,5 +1,5 @@
-#ifndef YARR_WEBSOCKET_H
-#define YARR_WEBSOCKET_H
+#ifndef YARR_SERVER_H
+#define YARR_SERVER_H
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -33,4 +33,4 @@ void sendStatsJSON(AsyncWebSocketClient *client);
 void sendSuccessJSON(String success, AsyncWebSocketClient *client);
 void sendErrorJSON(String error, AsyncWebSocketClient *client);
 
-#endif /* !YARR_WEBSOCKET_H */
+#endif /* !YARR_SERVER_H */

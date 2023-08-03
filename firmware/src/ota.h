@@ -2,7 +2,7 @@
 #define YARR_OTA_H
 
 #include "utility.h"
-#include "websocket.h"
+#include "server.h"
 #include <esp32FOTA.hpp>
 
 extern esp32FOTA FOTA;

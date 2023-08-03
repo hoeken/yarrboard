@@ -1,6 +1,6 @@
 #include "wifi.h"
 #include "prefs.h"
-#include "websocket.h"
+#include "server.h"
 
 //for making a captive portal
 // The default android DNS
