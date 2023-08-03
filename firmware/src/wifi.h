@@ -9,6 +9,7 @@ extern IPAddress apIP;
 extern String wifi_ssid;
 extern String wifi_pass;
 extern String wifi_mode;
+extern String local_hostname;
 extern String uuid;
 extern bool is_first_boot;
 

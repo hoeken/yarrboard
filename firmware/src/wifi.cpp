@@ -12,6 +12,7 @@ DNSServer dnsServer;
 String wifi_ssid = "Yarrboard";
 String wifi_pass = "";
 String wifi_mode = "ap";
+String local_hostname = "yarrboard";
 
 //identify yourself!
 String uuid;
@@ -19,6 +20,9 @@ bool is_first_boot = true;
 
 void wifi_setup()
 {
+  if (preferences.isKey("local_hostname"))
+    local_hostname = preferences.getString("local_hostname");
+
   //wifi login info.
   if (preferences.isKey("wifi_mode"))
   {
@@ -91,8 +95,6 @@ void setupWifi()
   }
 
   //setup our local name.
-  Serial.print("Setting up MDNS");
-  Serial.println(local_hostname);
   if (!MDNS.begin(local_hostname)) {
     Serial.println("Error starting mDNS");
     return;

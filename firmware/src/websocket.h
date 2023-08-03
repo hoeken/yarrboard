@@ -12,7 +12,6 @@
 extern String app_user;
 extern String app_pass;
 extern bool require_login;
-extern String local_hostname;
 
 extern AsyncWebSocket ws;
 

@@ -10,7 +10,6 @@ String board_name = "Yarrboard";
 String app_user = "admin";
 String app_pass = "admin";
 bool require_login = true;
-String local_hostname = "yarrboard";
 
 //keep track of our authenticated clients
 const byte clientLimit = 8;
@@ -39,8 +38,6 @@ void websocket_setup()
     app_pass = preferences.getString("app_pass");
   if (preferences.isKey("require_login"))
     require_login = preferences.getBool("require_login");
-  if (preferences.isKey("local_hostname"))
-    local_hostname = preferences.getString("local_hostname");
 
   //config for our websocket server
   ws.onEvent(onEvent);
