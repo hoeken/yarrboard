@@ -36,8 +36,8 @@ void fans_setup()
 {
     for (byte i=0; i<FAN_COUNT; i++)
     {
-        ledcSetup(i, 25000, 8);
-        ledcAttachPin(fan_pwm_pins[i], i);
+        ledcSetup(CHANNEL_COUNT+i, 25000, 8);
+        ledcAttachPin(fan_pwm_pins[i], CHANNEL_COUNT+i);
         set_fan_pwm(i, 0);
     }
 
@@ -124,5 +124,5 @@ void measure_fan_rpm(byte i)
 void set_fan_pwm(byte i, byte pwm)
 {
     fans_last_pwm[i] = pwm;
-    ledcWrite(i, pwm);
+    ledcWrite(CHANNEL_COUNT+i, pwm);
 }

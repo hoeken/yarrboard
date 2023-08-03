@@ -28,8 +28,8 @@ unsigned int channelStateChangeCount[CHANNEL_COUNT];
 unsigned int channelSoftFuseTripCount[CHANNEL_COUNT];
 
 /* Setting PWM Properties */
-//const int PWMFreq = 5000; /* in Hz  */
-const int PWMResolution = 8;
+const int PWMFreq = 10000; /* in Hz  */
+const int PWMResolution = 10;
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
 
 void channel_setup()
@@ -50,7 +50,10 @@ void channel_setup()
 
     //initialize our PWM channels
     pinMode(outputPins[i], OUTPUT);
-    analogWrite(outputPins[i], 0);
+    //analogWrite(outputPins[i], 0);
+    ledcSetup(i, 10000, 10);
+    ledcAttachPin(outputPins[i], i);
+    ledcWrite(i, 0);
 
     //lookup our name
     prefIndex = "cName" + String(i);
@@ -116,19 +119,20 @@ void updateChannelState(int channelId)
   //what PWM do we want?
   int pwm = 0;
   if (channelIsDimmable[channelId])
-    pwm = (int)(channelDutyCycle[channelId] * MAX_DUTY_CYCLE);
+    pwm = channelDutyCycle[channelId] * MAX_DUTY_CYCLE;
   else
     pwm = MAX_DUTY_CYCLE;
+
+  //if its off, zero it out
+  if (!channelState[channelId])
+    pwm = 0;
 
   //if its tripped, zero it out.
   if (channelTripped[channelId])
     pwm = 0;
 
   //okay, set our pin state.
-  if (channelState[channelId])
-    analogWrite(outputPins[channelId], pwm);
-  else
-    analogWrite(outputPins[channelId], 0);
+  ledcWrite(channelId, pwm);
 }
 
 void checkSoftFuses()
