@@ -10,7 +10,9 @@ byte fan_tach_pins[FAN_COUNT] = FAN_TACH_PINS;
 
 static volatile int counter_rpm[FAN_COUNT];
 unsigned long last_tacho_measurement[FAN_COUNT];
-int last_rpm[FAN_COUNT];
+
+int fans_last_rpm[FAN_COUNT];
+int fans_last_pwm[FAN_COUNT];
 
 // Interrupt counting every rotation of the fan
 // https://desire.giesecke.tk/index.php/2018/01/30/change-global-variables-from-isr/
@@ -28,14 +30,14 @@ void fans_setup()
     {
         ledcSetup(i, 25000, 8);
         ledcAttachPin(fan_pwm_pins[i], i);
-        ledcWrite(i, 0);
+        set_fan_pwm(i, 0);
     }
 
     for (byte i=0; i<FAN_COUNT; i++)
     {
         counter_rpm[i] = 0;
         last_tacho_measurement[i] = 0;
-        last_rpm[i] = 0;
+        fans_last_rpm[i] = 0;
 
         pinMode(fan_tach_pins[i], INPUT);
         digitalWrite(fan_tach_pins[i], HIGH);
@@ -68,7 +70,7 @@ void fans_loop()
             //one channel on high?
             if (amps_max > 1)
             {
-                ledcWrite(i, 255);
+                set_fan_pwm(i, 255);
                 Serial.println("Fan Full Blast");
             }
             //high average amps?
@@ -76,14 +78,14 @@ void fans_loop()
             {
                 byte pwm = map(amps_avg, 5, 20, 0, 255);
                 pwm = constrain(pwm, 0, 255);
-                ledcWrite(i, pwm);
+                set_fan_pwm(i, pwm);
 
                 Serial.print("Fans partial: ");
                 Serial.println(pwm);
             }
             //no need to make noise
             else
-                ledcWrite(i, 0);
+                set_fan_pwm(i, 0);
         }
     }
 }
@@ -94,7 +96,7 @@ void measure_fan_rpm(byte i)
     detachInterrupt(digitalPinToInterrupt(fan_tach_pins[i])); 
 
     // calculate rpm
-    last_rpm[i] = counter_rpm[i] * 30;
+    fans_last_rpm[i] = counter_rpm[i] * 30;
     //Serial.print("fan rpm = ");
     //Serial.println(last_rpm[i]);
 
@@ -109,4 +111,10 @@ void measure_fan_rpm(byte i)
         attachInterrupt(digitalPinToInterrupt(fan_tach_pins[i]), rpm_fan_0, FALLING);
     if (i==1)
         attachInterrupt(digitalPinToInterrupt(fan_tach_pins[i]), rpm_fan_1, FALLING);
+}
+
+void set_fan_pwm(byte i, byte pwm)
+{
+    fans_last_pwm[i] = pwm;
+    ledcWrite(i, pwm);
 }

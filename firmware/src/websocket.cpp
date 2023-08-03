@@ -3,6 +3,7 @@
 #include "wifi.h"
 #include "ota.h"
 #include "adc.h"
+#include "fans.h"
 
 String board_name = "Yarrboard";
 
@@ -724,6 +725,12 @@ void sendStatsJSON(AsyncWebSocketClient *client)
     object["ip_address"] = apIP;
   else
     object["ip_address"] = WiFi.localIP();
+
+  //info about each of our fans
+  for (byte i = 0; i < FAN_COUNT; i++) {
+    object["fans"][i]["rpm"] = fans_last_rpm[i];
+    object["fans"][i]["pwm"] = fans_last_pwm[i];
+  }
 
   //info about each of our channels
   for (byte i = 0; i < CHANNEL_COUNT; i++) {

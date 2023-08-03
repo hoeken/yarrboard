@@ -296,7 +296,7 @@ function start_websocket()
         $('#time').show();
       }
       else
-      $('#time').hide();
+        $('#time').hide();
 
       for (ch of msg.channels)
       {
@@ -363,6 +363,9 @@ function start_websocket()
       $("#bus_voltage").html(msg.bus_voltage.toFixed(1) + "V");
       $("#ip_address").html(msg.ip_address);
   
+      if (msg.fans)
+        $("#fan_rpm").html(msg.fans.map((a) => a.rpm).join(", "));
+
       for (ch of msg.channels)
       {
         if (current_config.channels[ch.id].enabled)
