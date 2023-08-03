@@ -1,7 +1,5 @@
 Firmware:
 
-* add fan pwm and tach stuff.
-* add code for bus voltage adc
 * documentation
 * stability fixes
 

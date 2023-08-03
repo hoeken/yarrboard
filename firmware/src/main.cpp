@@ -14,6 +14,7 @@
 #include "websocket.h"
 #include "utility.h"
 #include "adc.h"
+#include "fans.h"
 #include "ota.h"
 //#include "ntp.h"
 
@@ -34,6 +35,7 @@ void setup()
   prefs_setup();
   channel_setup();
   adc_setup();
+  fans_setup();
   wifi_setup();
   websocket_setup();
   ota_setup();
@@ -50,6 +52,7 @@ void loop()
 
   channel_loop();
   adc_loop();
+  fans_loop();
   wifi_loop();
   websocket_loop();
   ota_loop();

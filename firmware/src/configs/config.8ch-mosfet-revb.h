@@ -11,4 +11,8 @@
 #define BUS_VOLTAGE_R2 16000
 #define BUS_VOLTAGE_ADDRESS 0x4D
 
+#define FAN_COUNT 2
+#define FAN_PWM_PINS {16, 2}
+#define FAN_TACH_PINS {39, 34}
+
 #endif // _CONFIG_H_8CH_MOSFET_REVA
