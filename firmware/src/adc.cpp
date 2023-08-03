@@ -1,9 +1,17 @@
 #include "adc.h"
 #include "config.h"
+#include "channel.h"
 
 //object for our adc
 MCP3208 adc;
 const byte adc_cs_pin = 17;
+
+//for watching our power supply
+float busVoltage = 0;
+
+//for tracking our ADC loop
+int adcInterval = 100;
+unsigned long previousADCMillis = 0;
 
 #ifdef BUS_VOLTAGE_MCP3221
   MCP3221 mcp3221(BUS_VOLTAGE_ADDRESS);
@@ -21,6 +29,36 @@ void adc_setup()
   #ifdef BUS_VOLTAGE_MCP3221
     mcp3221.init();
   #endif
+}
+
+void adc_loop()
+{
+  //run our ADC on a faster loop
+  int adcDelta = millis() - previousADCMillis;
+  if (adcDelta >= adcInterval)
+  {
+    //this is a bit slow, so only do it once per update
+    for (byte channel = 0; channel < CHANNEL_COUNT; channel++)
+      channelAmperage[channel] = adc_readAmperage(channel);
+
+    //check what our power is.
+    busVoltage = adc_readBusVoltage();
+  
+    //record our total consumption
+    for (byte i = 0; i < CHANNEL_COUNT; i++) {
+      if (channelAmperage[i] > 0)
+      {
+        channelAmpHour[i] += channelAmperage[i] * ((float)adcDelta / 3600000.0);
+        channelWattHour[i] += channelAmperage[i] * busVoltage * ((float)adcDelta / 3600000.0);
+      }
+    }
+
+    //are our loads ok?
+    checkSoftFuses();
+
+    // Use the snapshot to set track time until next event
+    previousADCMillis = millis();
+  }
 }
 
 uint16_t adc_readMCP3208Channel(byte channel, byte samples)

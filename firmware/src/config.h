@@ -1,5 +1,5 @@
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#ifndef YARR_CONFIG_H
+#define YARR_CONFIG_H
 
 // enable one of these
 //#define CONFIG_8CH_MOSFET_REVA
@@ -11,4 +11,4 @@
   #include "./configs/config.8ch-mosfet-revb.h"
 #endif
 
-#endif // _CONFIG_H
+#endif // YARR_CONFIG_H
