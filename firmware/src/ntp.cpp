@@ -1,3 +1,11 @@
+/*
+  Yarrboard
+  
+  Author: Zach Hoeken <hoeken@gmail.com>
+  Website: https://github.com/hoeken/yarrboard
+  License: GPLv3
+*/
+
 #include "ntp.h"
 #include "time.h"
 #include "sntp.h"

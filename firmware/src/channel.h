@@ -1,3 +1,11 @@
+/*
+  Yarrboard
+  
+  Author: Zach Hoeken <hoeken@gmail.com>
+  Website: https://github.com/hoeken/yarrboard
+  License: GPLv3
+*/
+
 #ifndef YARR_CHANNEL_H
 #define YARR_CHANNEL_H
 

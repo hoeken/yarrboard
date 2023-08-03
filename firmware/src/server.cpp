@@ -1,3 +1,11 @@
+/*
+  Yarrboard
+  
+  Author: Zach Hoeken <hoeken@gmail.com>
+  Website: https://github.com/hoeken/yarrboard
+  License: GPLv3
+*/
+
 #include "server.h"
 #include "prefs.h"
 #include "wifi.h"

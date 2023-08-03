@@ -1,10 +1,9 @@
 /*
-  Yarrboard v1.0.0
+  Yarrboard
   
   Author: Zach Hoeken <hoeken@gmail.com>
   Website: https://github.com/hoeken/yarrboard
   License: GPLv3
-
 */
 
 #include "config.h"
