@@ -19,4 +19,11 @@
   #include "./configs/config.8ch-mosfet-revb.h"
 #endif
 
+#ifndef CHANNEL_PWM_FREQUENCY
+  #define CHANNEL_PWM_FREQUENCY 1000
+#endif
+
+#ifndef CHANNEL_PWM_RESOLUTION
+  #define CHANNEL_PWM_RESOLUTION 10
+#endif
 #endif // YARR_CONFIG_H

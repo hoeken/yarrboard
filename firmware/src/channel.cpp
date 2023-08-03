@@ -28,9 +28,7 @@ unsigned int channelStateChangeCount[CHANNEL_COUNT];
 unsigned int channelSoftFuseTripCount[CHANNEL_COUNT];
 
 /* Setting PWM Properties */
-const int PWMFreq = 10000; /* in Hz  */
-const int PWMResolution = 10;
-const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
+const int MAX_DUTY_CYCLE = (int)(pow(2, CHANNEL_PWM_RESOLUTION) - 1);
 
 void channel_setup()
 {
@@ -49,9 +47,8 @@ void channel_setup()
     channelDutyCycleIsThrottled[i] = false;
 
     //initialize our PWM channels
-    pinMode(outputPins[i], OUTPUT);
-    //analogWrite(outputPins[i], 0);
-    ledcSetup(i, 10000, 10);
+    //pinMode(outputPins[i], OUTPUT);
+    ledcSetup(i, CHANNEL_PWM_FREQUENCY, CHANNEL_PWM_RESOLUTION);
     ledcAttachPin(outputPins[i], i);
     ledcWrite(i, 0);
 
