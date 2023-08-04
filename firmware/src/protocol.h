@@ -28,7 +28,7 @@ extern String board_name;
 void protocol_setup();
 void protocol_loop();
 
-bool isLoggedIn(byte mode, uint32_t client_id);
+bool isLoggedIn(const JsonObject& doc, byte mode, uint32_t client_id);
 bool isValidChannel(byte cid);
 
 void handleReceivedJSON(const JsonObject& doc, char *output, byte mode, uint32_t client_id);

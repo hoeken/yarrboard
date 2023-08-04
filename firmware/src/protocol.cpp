@@ -58,7 +58,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //change state?
   if (cmd.equals("set_state"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return handleSetState(doc, output);
@@ -66,7 +66,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //change duty cycle?
   else if (cmd.equals("set_duty"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return handleSetDuty(doc, output);   
@@ -74,7 +74,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //change a board name?
   else if (cmd.equals("set_boardname"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return handleSetBoardName(doc, output);   
@@ -82,7 +82,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //change a channel name?
   else if (cmd.equals("set_channelname"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return handleSetChannelName(doc, output);
@@ -90,7 +90,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //change a channels dimmability?
   else if (cmd.equals("set_dimmable"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return handleSetDimmable(doc, output);
@@ -98,7 +98,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //enable/disable channel
   else if (cmd.equals("set_enabled"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return handleSetEnabled(doc, output);
@@ -106,7 +106,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //change a channels soft fuse?
   else if (cmd.equals("set_soft_fuse"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return handleSetSoftFuse(doc, output);
@@ -114,7 +114,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //get our config?
   else if (cmd.equals("get_config"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return generateConfigJSON(output);
@@ -122,7 +122,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //networking?
   else if (cmd.equals("get_network_config"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return generateNetworkConfigJSON(output);
@@ -130,7 +130,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //setup networking?
   else if (cmd.equals("set_network_config"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return handleSetNetworkConfig(doc, output);
@@ -138,7 +138,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //get our stats?
   else if (cmd.equals("get_stats"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     else
         return generateStatsJSON(output);
@@ -151,7 +151,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   //restart
   else if (cmd.equals("restart"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
     
     //do it.
@@ -159,7 +159,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   }
   else if (cmd.equals("factory_reset"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
 
     //delete all our prefs
@@ -176,7 +176,7 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   }
   else if (cmd.equals("ota_start"))
   {
-    if (!isLoggedIn(mode, client_id))
+    if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
 
     //look for new firmware
@@ -653,13 +653,19 @@ void generateSuccessJSON(char * jsonBuffer, String success)
   serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
 }
 
-bool isLoggedIn(byte mode, uint32_t client_id = 0)
+bool isLoggedIn(const JsonObject& doc, byte mode, uint32_t client_id = 0)
 {
-  //login only required for websockets.
-  if (mode != YBP_MODE_WEBSOCKET)
+  //also only if enabled
+  if (!require_login)
     return true;
+
+  //login only required for websockets.
+  if (mode == YBP_MODE_WEBSOCKET)
+    return isWebsocketClientLoggedIn(doc, client_id);
+  else if (mode == YBP_MODE_HTTP)
+    return isApiClientLoggedIn(doc);
   else
-    return isClientLoggedIn(client_id);
+    return false;
 }
 
 void generateLoginRequiredJSON(char * jsonBuffer)

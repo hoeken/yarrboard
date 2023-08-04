@@ -34,7 +34,8 @@ void server_loop();
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client);
 
-bool isClientLoggedIn(uint32_t client_id);
+bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id);
+bool isApiClientLoggedIn(const JsonObject& doc);
 bool logClientIn(uint32_t client_id);
 
 void sendToAllWebsockets(char * jsonString);

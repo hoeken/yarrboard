@@ -166,16 +166,32 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
   }
 }
 
-bool isClientLoggedIn(uint32_t client_id)
+bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id)
 {
-  //also only if enabled
-  if (!require_login)
+  String myuser = doc["user"];
+  String mypass = doc["pass"];
+
+  //morpheus... i'm in.
+  if (myuser.equals(app_user) && mypass.equals(app_pass))
     return true;
 
   //are they in our auth array?
   for (byte i=0; i<clientLimit; i++)
     if (authenticatedClientIDs[i] == client_id)
       return true;
+
+  //default to fail then.
+  return false;  
+}
+
+bool isApiClientLoggedIn(const JsonObject& doc)
+{
+  String myuser = doc["user"];
+  String mypass = doc["pass"];
+
+  //morpheus... i'm in.
+  if (myuser.equals(app_user) && mypass.equals(app_pass))
+    return true;
 
   //default to fail then.
   return false;  
