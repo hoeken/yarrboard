@@ -16,7 +16,7 @@ function main()
 
 function createWebsocket()
 {
-    client = new W3CWebSocket('ws://firstreef.local/ws');
+    client = new W3CWebSocket('ws://yarrboard.local/ws');
 
     client.onerror = function() {
         console.log('[socket] Connection error');
