@@ -55,11 +55,25 @@ No production as of right now, but possibly in the future.  It is 100% open sour
 
 The protocol for communicating with Yarrboard is entirely based on JSON. Each request to the server should be a single JSON object, and the server will respond with a JSON object.
 
+Here are some example commands:
+
+```
+{"cmd":"ping"}
+{"cmd":"get_config","value":true,"user":"admin","pass":"admin"}
+{"cmd":"set_channel","id":0,"state":true,"user":"admin","pass":"admin"}
+{"cmd":"login","user":"admin","pass":"admin"}
+{"cmd":"set_channel","id":0,"state":true}
+{"cmd":"set_channel","id":0,"duty":0.99}
+{"cmd":"set_channel","id":0,"duty":0.5}
+{"cmd":"set_channel","id":0,"duty":0.1}
+{"cmd":"set_channel","id":0,"state":false}
+```
+
 ### Websockets Protocol
 
-Yarrboard provides a websocket server on http://yarrboard.local/ws
+Yarrboard provides a websocket server on **http://yarrboard.local/ws**
 
-Clients communicating over websockets can send a **login** command, or include your username and password with each request.
+JSON is sent and received as text.  Clients communicating over websockets can send a **login** command, or include your username and password with each request.
 
 ### Web API Protocol
 
