@@ -39,9 +39,7 @@ void server_setup()
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json)
   {
     JsonObject doc = json.as<JsonObject>();
-
     char jsonBuffer[MAX_JSON_LENGTH];
-    
     handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
 
     request->send(200, "application/json", jsonBuffer);
@@ -49,35 +47,56 @@ void server_setup()
   server.addHandler(handler);
 
   //send config json
-  server.on("/api/endpoint", HTTP_ANY, [](AsyncWebServerRequest *request)
+  server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    char jsonBuffer[MAX_JSON_LENGTH];
-    generateConfigJSON(jsonBuffer);
-    request->send(200, "application/json", jsonBuffer);
-  });
+    StaticJsonDocument<256> json;
+    json["cmd"] = "get_config";
 
+    if (request->hasParam("user"))
+      json["user"] = request->getParam("user")->value();
+    if (request->hasParam("pass"))
+      json["pass"] = request->getParam("pass")->value();
 
-  //send config json
-  server.on("/api/config", HTTP_ANY, [](AsyncWebServerRequest *request)
-  {
+    JsonObject doc = json.as<JsonObject>();
     char jsonBuffer[MAX_JSON_LENGTH];
-    generateConfigJSON(jsonBuffer);
+    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+
     request->send(200, "application/json", jsonBuffer);
   });
 
   //send stats json
-  server.on("/api/stats", HTTP_ANY, [](AsyncWebServerRequest *request)
+  server.on("/api/stats", HTTP_GET, [](AsyncWebServerRequest *request)
   {
+    StaticJsonDocument<256> json;
+    json["cmd"] = "get_stats";
+
+    if (request->hasParam("user"))
+      json["user"] = request->getParam("user")->value();
+    if (request->hasParam("pass"))
+      json["pass"] = request->getParam("pass")->value();
+
+    JsonObject doc = json.as<JsonObject>();
     char jsonBuffer[MAX_JSON_LENGTH];
-    generateStatsJSON(jsonBuffer);
+    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+
     request->send(200, "application/json", jsonBuffer);
   });
 
   //send update json
-  server.on("/api/update", HTTP_ANY, [](AsyncWebServerRequest *request)
+  server.on("/api/update", HTTP_GET, [](AsyncWebServerRequest *request)
   {
+    StaticJsonDocument<256> json;
+    json["cmd"] = "get_update";
+
+    if (request->hasParam("user"))
+      json["user"] = request->getParam("user")->value();
+    if (request->hasParam("pass"))
+      json["pass"] = request->getParam("pass")->value();
+
+    JsonObject doc = json.as<JsonObject>();
     char jsonBuffer[MAX_JSON_LENGTH];
-    generateUpdateJSON(jsonBuffer);
+    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+
     request->send(200, "application/json", jsonBuffer);
   });
 

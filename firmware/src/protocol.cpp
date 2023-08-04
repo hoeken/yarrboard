@@ -143,6 +143,14 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
     else
         return generateStatsJSON(output);
   }
+  //get our stats?
+  else if (cmd.equals("get_update"))
+  {
+    if (!isLoggedIn(doc, mode, client_id))
+        return generateLoginRequiredJSON(output);
+    else
+        return generateUpdateJSON(output);
+  }
   //get our config?
   else if (cmd.equals("login"))
   {

@@ -1,6 +1,6 @@
 Firmware:
 
-* add in auth checking to the api.
+* refactor to move pages to login required or not.
 * refactor all the channel config into a single command
 * send/receive json over serial
 * refactor again to have objects pass the ArduinoJson instead of passing in the buffer.
