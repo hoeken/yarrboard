@@ -51,4 +51,51 @@ No production as of right now, but possibly in the future.  It is 100% open sour
 * Install SignalK + signalk-yarrboard-plugin and configure
 * Setup any Node-RED flows and custom logic you want.
 
+## Protocol
+
+The protocol for communicating with Yarrboard is entirely based on JSON. Each request to the server should be a single JSON object, and the server will respond with a JSON object.
+
+### Websockets Protocol
+
+Yarrboard provides a websocket server on http://yarrboard.local/ws
+
+Clients communicating over websockets can send a **login** command, or include your username and password with each request.
+
+### Web API Protocol
+
+Yarrboard provides a POST API endpoint at **http://yarrboard.local/api/endpoint**
+
+Examples of how to communicate with this endpoint:
+
+```
+curl -i -d '{"cmd":"ping"}'  -H "Content-Type: application/json"  -X POST http://yarrboard.local/api/endpoint
+curl -i -d '{"cmd":"set_channel","user":"admin","pass":"admin","id":0,"state":true}'  -H "Content-Type: application/json"  -X POST http://yarrboard.local/api/endpoint
+```
+Note, you will need to pass your username/password in each request with the Web API.
+
+Additionally, there are a few convenience urls to get basic info.  These are GET only and optionally accept the **user** and **pass** parameters.
+
+* http://yarrboard.local/api/config
+* http://yarrboard.local/api/stats
+* http://yarrboard.local/api/update
+
+Some example code:
+
+```
+curl -i -X GET http://yarrboard.local/api/config
+curl -i -X GET http://yarrboard.local/api/config?user=admin&pass=admin
+curl -i -X GET http://yarrboard.local/api/stats?user=admin&pass=admin
+curl -i -X GET http://yarrboard.local/api/update?user=admin&pass=admin
+```
+
+### Serial API Protocol
+
+Yarrboard provides a USB serial port that communicates at 115200 baud.  It uses the same JSON protocol as websockets and the web API.
+
+Clients communicating over serial can send a **login** command, or include your username and password with each request.
+
+Each command should end with a newline (\n) and each response will end with a newline (\n).
+
+This port is also used for debugging, so make sure you check that each line parses into valid JSON before you try to use it.
+
 ## Links
