@@ -1,12 +1,12 @@
 Firmware:
 
-* refactor all the channel config into a single command
+* breakup the app and network config into separate pages
 * json over serial should be an app option (default on)
 * json api should be an app option (default on)
-* refactor again to have objects pass the ArduinoJson instead of passing in the buffer.
-* breakup the app and network config into separate pages
-
+* refactor to have objects pass the ArduinoJson instead of passing in the buffer.
+    * make sure we are using arduinojson properly and not making a ton of copies
 * protocol documentation
+
 * stability fixes as needed
 
 Electronics:

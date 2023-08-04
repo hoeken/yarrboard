@@ -33,7 +33,7 @@ function createWebsocket()
         //our connection watcher
         setTimeout(sendHeartbeat, heartbeat_rate);
 
-        //doLogin("admin", "admin");
+        doLogin("admin", "admin");
 
         setTimeout(fadePin, 1000);
         //setTimeout(togglePin, 1000);
@@ -61,7 +61,7 @@ function onMessage(message)
     if (typeof message.data === 'string') {
         let data = JSON.parse(message.data);
         if (data.msg == "update")
-            console.log("update: " + data.time)
+            console.log("update");
         else if (data.pong)
             last_heartbeat = Date.now();
         else
@@ -162,14 +162,14 @@ async function exercisePins()
         for (i=0; i<8; i++)
         {
             sendMessage({
-                "cmd": "set_duty",
+                "cmd": "set_channel",
                 "id": i,
-                "value": Math.random()
+                "duty": Math.random()
             });
             sendMessage({
-                "cmd": "set_state",
+                "cmd": "set_channel",
                 "id": i,
-                "value": true
+                "state": true
             });
 
             await delay(200)
@@ -178,9 +178,9 @@ async function exercisePins()
         for (i=0; i<8; i++)
         {
             sendMessage({
-                "cmd": "set_state",
+                "cmd": "set_channel",
                 "id": i,
-                "value": false
+                "state": false
             });
            	await delay(200)
         }
@@ -190,24 +190,24 @@ async function exercisePins()
 async function togglePin()
 {
     sendMessage({
-        "cmd": "set_duty",
+        "cmd": "set_channel",
         "id": 0,
-        "value": 1
+        "duty": 1
     });
 
     while (true) {
         sendMessage({
-            "cmd": "set_state",
+            "cmd": "set_channel",
             "id": 0,
-            "value": true
+            "state": true
         });
 
         await delay(1000)
 
         sendMessage({
-            "cmd": "set_state",
+            "cmd": "set_channel",
             "id": 0,
-            "value": false
+            "state": false
         });
 
         await delay(2000)
@@ -222,18 +222,18 @@ async function fadePin()
     let max_duty = 1;
 
     sendMessage({
-        "cmd": "set_state",
+        "cmd": "set_channel",
         "id": channel,
-        "value": true
+        "state": true
     });
 
     while (true) {
         for (i=0; i<=steps; i++)
         {
             sendMessage({
-                "cmd": "set_duty",
+                "cmd": "set_channel",
                 "id": channel,
-                "value": (i / steps) * max_duty
+                "duty": (i / steps) * max_duty
             });
 
             await delay(d)
@@ -242,9 +242,9 @@ async function fadePin()
         for (i=steps; i>=0; i--)
         {
             sendMessage({
-                "cmd": "set_duty",
+                "cmd": "set_channel",
                 "id": channel,
-                "value": (i / steps) * max_duty
+                "duty": (i / steps) * max_duty
             });
 
             await delay(d)

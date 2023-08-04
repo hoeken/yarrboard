@@ -564,9 +564,9 @@ function toggle_state(id)
     new_state = false;
 
   socket.send(JSON.stringify({
-    "cmd": "set_state",
+    "cmd": "set_channel",
     "id": id,
-    "value": new_state
+    "state": new_state
   }));
 }
 
@@ -692,9 +692,9 @@ function set_duty_cycle(e)
   
     //set our new channel name!
     socket.send(JSON.stringify({
-      "cmd": "set_duty",
+      "cmd": "set_channel",
       "id": id,
-      "value": value
+      "duty": value
     }));
   }
 }
@@ -717,9 +717,9 @@ function validate_channel_name(e)
 
     //set our new channel name!
     socket.send(JSON.stringify({
-      "cmd": "set_channelname",
+      "cmd": "set_channel",
       "id": id,
-      "value": value
+      "name": value
     }));
   }
 }
@@ -741,9 +741,9 @@ function validate_channel_dimmable(e)
 
   //save it
   socket.send(JSON.stringify({
-    "cmd": "set_dimmable",
+    "cmd": "set_channel",
     "id": id,
-    "value": value
+    "isDimmable": value
   }));
 }
 
@@ -769,9 +769,9 @@ function validate_channel_enabled(e)
 
   //save it
   socket.send(JSON.stringify({
-    "cmd": "set_enabled",
+    "cmd": "set_channel",
     "id": id,
-    "value": value
+    "enabled": value
   }));
 }
 
@@ -796,9 +796,9 @@ function validate_channel_soft_fuse(e)
 
     //save it
     socket.send(JSON.stringify({
-      "cmd": "set_soft_fuse",
+      "cmd": "set_channel",
       "id": id,
-      "value": value
+      "softFuse": value
     }));
   }
 }

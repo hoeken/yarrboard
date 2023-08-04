@@ -99,20 +99,10 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
         return generateLoginRequiredJSON(output);
 
     //what is your command?
-    if (cmd.equals("set_state"))
-      return handleSetState(doc, output);
-    else if (cmd.equals("set_duty"))
-      return handleSetDuty(doc, output);   
-    else if (cmd.equals("set_boardname"))
+    if (cmd.equals("set_boardname"))
       return handleSetBoardName(doc, output);   
-    else if (cmd.equals("set_channelname"))
-      return handleSetChannelName(doc, output);
-    else if (cmd.equals("set_dimmable"))
-      return handleSetDimmable(doc, output);
-    else if (cmd.equals("set_enabled"))
-      return handleSetEnabled(doc, output);
-    else if (cmd.equals("set_soft_fuse"))
-      return handleSetSoftFuse(doc, output);
+    else if (cmd.equals("set_channel"))
+      return handleSetChannel(doc, output);
     else if (cmd.equals("get_config"))
       return generateConfigJSON(output);
     else if (cmd.equals("get_network_config"))
@@ -137,80 +127,6 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   return generateErrorJSON(output, "Malformed json.");
 }
 
-void handleSetState(const JsonObject& doc, char * output)
-{
-    //is it a valid channel?
-    byte cid = doc["id"];
-    if (!isValidChannel(cid))
-      return generateInvalidChannelJSON(output, cid);
-
-    //is it enabled?
-    if (!channelIsEnabled[cid])
-      return generateErrorJSON(output, "Channel is not enabled.");
-
-    //what is our new state?
-    bool state = doc["value"];
-
-    //keep track of how many toggles
-    if (state && channelState[cid] != state)
-      channelStateChangeCount[cid]++;
-
-    //record our new state
-    channelState[cid] = state;
-
-    //reset soft fuse when we turn on
-    if (state)
-      channelTripped[cid] = false;
-
-    //change our output pin to reflect
-    updateChannelState(cid);
-
-    return generateOKJSON(output);
-}
-
-void handleSetDuty(const JsonObject& doc, char * output)
-{
-    //is it a valid channel?
-    byte cid = doc["id"];
-    if (!isValidChannel(cid))
-      return generateInvalidChannelJSON(output, cid);
-
-    //is it enabled?
-    if (!channelIsEnabled[cid])
-      return generateErrorJSON(output, "Channel is not enabled.");
-
-    float value = doc["value"];
-
-    //what do we hate?  va-li-date!
-    if (value < 0)
-      return generateErrorJSON(output, "Duty cycle must be >= 0");
-    else if (value > 1)
-      return generateErrorJSON(output, "Duty cycle must be <= 1");
-    else {
-      channelDutyCycle[cid] = value;
-
-      //save to our storage
-      String prefIndex = "cDuty" + String(cid);
-      if (millis() - channelLastDutyCycleUpdate[cid] > 1000)
-      {
-        preferences.putFloat(prefIndex.c_str(), value);
-        channelDutyCycleIsThrottled[cid] = false;
-      }
-      //make a note so we can save later.
-      else
-        channelDutyCycleIsThrottled[cid] = true;
-
-      //we want the clock to reset every time we change the duty cycle
-      //this way, long led fading sessions are only one write.
-      channelLastDutyCycleUpdate[cid] = millis();
-    }
-
-    //change our output pin to reflect
-    updateChannelState(cid);
-
-    return generateOKJSON(output);
-}
-
 void handleSetBoardName(const JsonObject& doc, char * output)
 {
     String value = doc["value"];
@@ -227,86 +143,145 @@ void handleSetBoardName(const JsonObject& doc, char * output)
     return generateConfigJSON(output);
 }
 
-void handleSetChannelName(const JsonObject& doc, char * output)
+void handleSetChannel(const JsonObject& doc, char * output)
 {
-    //is it a valid channel?
-    byte cid = doc["id"];
-    if (!isValidChannel(cid))
-      return generateInvalidChannelJSON(output, cid);
+  //id is required
+  if (!doc.containsKey("id"))
+    return generateErrorJSON(output, "'id' is a required parameter");
 
+  //is it a valid channel?
+  byte cid = doc["id"];
+  if (!isValidChannel(cid))
+    return generateErrorJSON(output, "Invalid channel id");
+
+  //change state
+  if (doc.containsKey("state"))
+  {
+    //is it enabled?
+    if (!channelIsEnabled[cid])
+      return generateErrorJSON(output, "Channel is not enabled.");
+
+    //what is our new state?
+    bool state = doc["state"];
+
+    //keep track of how many toggles
+    if (state && channelState[cid] != state)
+      channelStateChangeCount[cid]++;
+
+    //record our new state
+    channelState[cid] = state;
+
+    //reset soft fuse when we turn on
+    if (state)
+      channelTripped[cid] = false;
+
+    //change our output pin to reflect
+    updateChannelState(cid);
+  }
+
+  //our duty cycle
+  if (doc.containsKey("duty"))
+  {
+    //is it enabled?
+    if (!channelIsEnabled[cid])
+      return generateErrorJSON(output, "Channel is not enabled.");
+
+    float duty = doc["duty"];
+
+    //what do we hate?  va-li-date!
+    if (duty < 0)
+      return generateErrorJSON(output, "Duty cycle must be >= 0");
+    else if (duty > 1)
+      return generateErrorJSON(output, "Duty cycle must be <= 1");
+    else {
+      channelDutyCycle[cid] = duty;
+
+      //save to our storage
+      String prefIndex = "cDuty" + String(cid);
+      if (millis() - channelLastDutyCycleUpdate[cid] > 1000)
+      {
+        preferences.putFloat(prefIndex.c_str(), duty);
+        channelDutyCycleIsThrottled[cid] = false;
+      }
+      //make a note so we can save later.
+      else
+        channelDutyCycleIsThrottled[cid] = true;
+
+      //we want the clock to reset every time we change the duty cycle
+      //this way, long led fading sessions are only one write.
+      channelLastDutyCycleUpdate[cid] = millis();
+    }
+
+    //change our output pin to reflect
+    updateChannelState(cid);
+  }
+
+  //channel name
+  if (doc.containsKey("name"))
+  {
     //validate yo mamma.
-    String value = doc["value"];
-    if (value.length() > 30)
+    String name = doc["name"];
+    if (name.length() > 30)
       return generateErrorJSON(output, "Maximum channel name length is 30 characters.");
 
-    channelNames[cid] = value;
+    channelNames[cid] = name;
 
     //save to our storage
     String prefIndex = "cName" + String(cid);
-    preferences.putString(prefIndex.c_str(), value);
+    preferences.putString(prefIndex.c_str(), name);
 
     //give them the updated config
     return generateConfigJSON(output);
-}
+  }
 
-void handleSetDimmable(const JsonObject& doc, char * output)
-{
-    //is it a valid channel?
-    byte cid = doc["id"];
-    if (!isValidChannel(cid))
-      return generateInvalidChannelJSON(output, cid);
-
-    //save right nwo.
-    bool value = doc["value"];
-    channelIsDimmable[cid] = value;
+  //dimmability
+  if (doc.containsKey("isDimmable"))
+  {
+    bool isDimmable = doc["isDimmable"];
+    channelIsDimmable[cid] = isDimmable;
 
     //save to our storage
     String prefIndex = "cDimmable" + String(cid);
-    preferences.putBool(prefIndex.c_str(), value);
+    preferences.putBool(prefIndex.c_str(), isDimmable);
 
     //give them the updated config
     return generateConfigJSON(output);
-}
+  }
 
-void handleSetEnabled(const JsonObject& doc, char * output)
-{
-    //is it a valid channel?
-    byte cid = doc["id"];
-    if (!isValidChannel(cid))
-      return generateInvalidChannelJSON(output, cid);
-
+  //enabled
+  if (doc.containsKey("enabled"))
+  {
     //save right nwo.
-    bool value = doc["value"];
-    channelIsEnabled[cid] = value;
+    bool enabled = doc["enabled"];
+    channelIsEnabled[cid] = enabled;
 
     //save to our storage
     String prefIndex = "cEnabled" + String(cid);
-    preferences.putBool(prefIndex.c_str(), value);
+    preferences.putBool(prefIndex.c_str(), enabled);
 
     //give them the updated config
     return generateConfigJSON(output);
-}
+  }
 
-void handleSetSoftFuse(const JsonObject& doc, char * output)
-{
-    //is it a valid channel?
-    byte cid = doc["id"];
-    if (!isValidChannel(cid))
-      return generateInvalidChannelJSON(output, cid);
-
+  //soft fuse
+  if (doc.containsKey("softFuse"))
+  {
     //i crave validation!
-    float value = doc["value"];
-    value = constrain(value, 0.01, 20.0);
+    float softFuse = doc["softFuse"];
+    softFuse = constrain(softFuse, 0.01, 20.0);
 
     //save right nwo.
-    channelSoftFuseAmperage[cid] = value;
+    channelSoftFuseAmperage[cid] = softFuse;
 
     //save to our storage
     String prefIndex = "cSoftFuse" + String(cid);
-    preferences.putFloat(prefIndex.c_str(), value);
+    preferences.putFloat(prefIndex.c_str(), softFuse);
 
     //give them the updated config
     return generateConfigJSON(output);
+  }
+
+  return generateOKJSON(output);
 }
 
 void handleSetNetworkConfig(const JsonObject& doc, char * output)
@@ -650,11 +625,6 @@ bool isValidChannel(byte cid)
     return false;
   else
     return true;
-}
-
-void generateInvalidChannelJSON(char * jsonBuffer, byte cid)
-{
-    return generateErrorJSON(jsonBuffer, "Invalid channel id");
 }
 
 void generatePongJSON(char * jsonBuffer)
