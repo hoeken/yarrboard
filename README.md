@@ -55,7 +55,7 @@ No production as of right now, but possibly in the future.  It is 100% open sour
 
 The protocol for communicating with Yarrboard is entirely based on JSON. Each request to the server should be a single JSON object, and the server will respond with a JSON object.
 
-Here are some example commands:
+Here are some example commands you could send:
 
 ```
 {"cmd":"ping"}
@@ -97,9 +97,9 @@ Some example code:
 
 ```
 curl -i -X GET http://yarrboard.local/api/config
-curl -i -X GET http://yarrboard.local/api/config?user=admin&pass=admin
-curl -i -X GET http://yarrboard.local/api/stats?user=admin&pass=admin
-curl -i -X GET http://yarrboard.local/api/update?user=admin&pass=admin
+curl -i -X GET 'http://yarrboard.local/api/config?user=admin&pass=admin'
+curl -i -X GET 'http://yarrboard.local/api/stats?user=admin&pass=admin'
+curl -i -X GET 'http://yarrboard.local/api/update?user=admin&pass=admin'
 ```
 
 ### Serial API Protocol
