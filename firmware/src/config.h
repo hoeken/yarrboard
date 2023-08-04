@@ -11,6 +11,9 @@
 
 //bytes for sending json
 #define MAX_JSON_LENGTH 2000
+#define YBP_MODE_WEBSOCKET 0
+#define YBP_MODE_HTTP      1
+#define YBP_MODE_SERIAL    2
 
 //in milliseconds
 #define YB_UPDATE_FREQUENCY 250

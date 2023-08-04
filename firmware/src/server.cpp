@@ -36,13 +36,26 @@ void server_setup()
     return;
   }
 
-  /*
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json)
   {
-    JsonObject object = json.to<JsonObject>();
+    JsonObject doc = json.as<JsonObject>();
+
+    char jsonBuffer[MAX_JSON_LENGTH];
+    
+    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+
+    request->send(200, "application/json", jsonBuffer);
   });
   server.addHandler(handler);
-  */
+
+  //send config json
+  server.on("/api/endpoint", HTTP_ANY, [](AsyncWebServerRequest *request)
+  {
+    char jsonBuffer[MAX_JSON_LENGTH];
+    generateConfigJSON(jsonBuffer);
+    request->send(200, "application/json", jsonBuffer);
+  });
+
 
   //send config json
   server.on("/api/config", HTTP_ANY, [](AsyncWebServerRequest *request)
@@ -133,7 +146,20 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
     char jsonBuffer[MAX_JSON_LENGTH];
-    handleReceivedJSON((char*)data, jsonBuffer, YBP_MODE_WEBSOCKET, client->id());
+
+    StaticJsonDocument<1024> json;
+    DeserializationError err = deserializeJson(json, (char *)data);
+    JsonObject doc = json.as<JsonObject>();
+
+    //was there a problem, officer?
+    if (err)
+    {
+      String error = "deserializeJson() failed with code ";
+      error += err.c_str();
+      generateErrorJSON(jsonBuffer, error);
+    }
+    else
+      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_WEBSOCKET, client->id());
 
     if (client->canSend())
       ws.text(client->id(), jsonBuffer);

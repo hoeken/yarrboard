@@ -1,8 +1,7 @@
 Firmware:
 
+* add in auth checking to the api.
 * refactor all the channel config into a single command
-* GET page for board status / config / stats / etc
-* some sort of POST/GET method for toggling pin state (how to deal with login / auth)
 * send/receive json over serial
 * refactor again to have objects pass the ArduinoJson instead of passing in the buffer.
 

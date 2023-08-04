@@ -22,10 +22,6 @@
 #include "utility.h"
 #include "wifi.h"
 
-#define YBP_MODE_WEBSOCKET 0
-#define YBP_MODE_HTTP      1
-#define YBP_MODE_SERIAL    2
-
 //extern unsigned int handledMessages;
 extern String board_name;
 
@@ -35,16 +31,16 @@ void protocol_loop();
 bool isLoggedIn(byte mode, uint32_t client_id);
 bool isValidChannel(byte cid);
 
-void handleReceivedJSON(char *payload, char *output, byte mode, uint32_t client_id);
-void handleSetBoardName(const JsonDocument& doc, char * output);
-void handleSetState(const JsonDocument& doc, char * output);
-void handleSetDuty(const JsonDocument& doc, char * output);
-void handleSetChannelName(const JsonDocument& doc, char * output);
-void handleSetDimmable(const JsonDocument& doc, char * output);
-void handleSetEnabled(const JsonDocument& doc, char * output);
-void handleSetSoftFuse(const JsonDocument& doc, char * output);
-void handleSetNetworkConfig(const JsonDocument& doc, char * output);
-void handleLogin(const JsonDocument& doc, char * output, byte mode, uint32_t client_id);
+void handleReceivedJSON(const JsonObject& doc, char *output, byte mode, uint32_t client_id);
+void handleSetBoardName(const JsonObject& doc, char * output);
+void handleSetState(const JsonObject& doc, char * output);
+void handleSetDuty(const JsonObject& doc, char * output);
+void handleSetChannelName(const JsonObject& doc, char * output);
+void handleSetDimmable(const JsonObject& doc, char * output);
+void handleSetEnabled(const JsonObject& doc, char * output);
+void handleSetSoftFuse(const JsonObject& doc, char * output);
+void handleSetNetworkConfig(const JsonObject& doc, char * output);
+void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t client_id);
 
 void generateUpdateJSON(char * jsonBuffer);
 void generateStatsJSON(char * jsonBuffer);

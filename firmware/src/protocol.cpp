@@ -46,19 +46,8 @@ void protocol_loop()
   }
 }
 
-void handleReceivedJSON(char *payload, char *output, byte mode, uint32_t client_id)
+void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t client_id)
 {
-  StaticJsonDocument<1024> doc;
-  DeserializationError err = deserializeJson(doc, payload);
-
-  //was there a problem, officer?
-  if (err)
-  {
-    String error = "deserializeJson() failed with code ";
-    error += err.c_str();
-    return generateErrorJSON(output, error);
-  }
-
   //what is your command?
   String cmd = doc["cmd"];
 
@@ -204,7 +193,7 @@ void handleReceivedJSON(char *payload, char *output, byte mode, uint32_t client_
   return generateErrorJSON(output, "Invalid command.");
 }
 
-void handleSetState(const JsonDocument& doc, char * output)
+void handleSetState(const JsonObject& doc, char * output)
 {
     //is it a valid channel?
     byte cid = doc["id"];
@@ -235,7 +224,7 @@ void handleSetState(const JsonDocument& doc, char * output)
     return generateOKJSON(output);
 }
 
-void handleSetDuty(const JsonDocument& doc, char * output)
+void handleSetDuty(const JsonObject& doc, char * output)
 {
     //is it a valid channel?
     byte cid = doc["id"];
@@ -278,7 +267,7 @@ void handleSetDuty(const JsonDocument& doc, char * output)
     return generateOKJSON(output);
 }
 
-void handleSetBoardName(const JsonDocument& doc, char * output)
+void handleSetBoardName(const JsonObject& doc, char * output)
 {
     String value = doc["value"];
     if (value.length() > 30)
@@ -294,7 +283,7 @@ void handleSetBoardName(const JsonDocument& doc, char * output)
     return generateConfigJSON(output);
 }
 
-void handleSetChannelName(const JsonDocument& doc, char * output)
+void handleSetChannelName(const JsonObject& doc, char * output)
 {
     //is it a valid channel?
     byte cid = doc["id"];
@@ -316,7 +305,7 @@ void handleSetChannelName(const JsonDocument& doc, char * output)
     return generateConfigJSON(output);
 }
 
-void handleSetDimmable(const JsonDocument& doc, char * output)
+void handleSetDimmable(const JsonObject& doc, char * output)
 {
     //is it a valid channel?
     byte cid = doc["id"];
@@ -335,7 +324,7 @@ void handleSetDimmable(const JsonDocument& doc, char * output)
     return generateConfigJSON(output);
 }
 
-void handleSetEnabled(const JsonDocument& doc, char * output)
+void handleSetEnabled(const JsonObject& doc, char * output)
 {
     //is it a valid channel?
     byte cid = doc["id"];
@@ -354,7 +343,7 @@ void handleSetEnabled(const JsonDocument& doc, char * output)
     return generateConfigJSON(output);
 }
 
-void handleSetSoftFuse(const JsonDocument& doc, char * output)
+void handleSetSoftFuse(const JsonObject& doc, char * output)
 {
     //is it a valid channel?
     byte cid = doc["id"];
@@ -376,7 +365,7 @@ void handleSetSoftFuse(const JsonDocument& doc, char * output)
     return generateConfigJSON(output);
 }
 
-void handleSetNetworkConfig(const JsonDocument& doc, char * output)
+void handleSetNetworkConfig(const JsonObject& doc, char * output)
 {
     //clear our first boot flag since they submitted the network page.
     is_first_boot = false;
@@ -453,7 +442,7 @@ void handleSetNetworkConfig(const JsonDocument& doc, char * output)
     preferences.putBool("require_login", require_login);
 }
 
-void handleLogin(const JsonDocument& doc, char * output, byte mode, uint32_t client_id)
+void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t client_id)
 {
     if (!require_login)
       return generateErrorJSON(output, "Login not required.");
