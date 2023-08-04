@@ -28,9 +28,9 @@ void server_setup()
     app_pass = preferences.getString("app_pass");
   if (preferences.isKey("require_login"))
     require_login = preferences.getBool("require_login");
-  if (preferences.isKey("app_enable_api"))
+  if (preferences.isKey("appEnableApi"))
     app_enable_api = preferences.getBool("appEnableApi");
-  if (preferences.isKey("app_enable_serial"))
+  if (preferences.isKey("appEnableSerial"))
     app_enable_serial = preferences.getBool("appEnableSerial");
 
   //config for our websocket server
