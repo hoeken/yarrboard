@@ -41,7 +41,10 @@ No production as of right now, but possibly in the future.  It is 100% open sour
 
 ## Installation and Setup
 
-* Flash the firmware
+* Assemble the board
+* Plug your computer into esp32 with a USB cable
+* Flash the firmware (use VSCode + Platformio and open the /firmware folder in this repository)
+* Upload the SPIFFS file system ("Upload Filesystem Image" in VSCode)
 * Connect to Yarrboard wifi
 * Open browser to http://yarrboard.local or http://yarrboard
 * Update network settings to connect to your boat wifi
@@ -111,5 +114,3 @@ Clients communicating over serial can send a **login** command, or include your 
 Each command should end with a newline (\n) and each response will end with a newline (\n).
 
 This port is also used for debugging, so make sure you check that each line parses into valid JSON before you try to use it.
-
-## Links
