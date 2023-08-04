@@ -1,6 +1,5 @@
 Firmware:
 
-* refactor to group pages by login required
 * refactor all the channel config into a single command
 * json over serial should be an app option (default on)
 * json api should be an app option (default on)

@@ -42,6 +42,9 @@ void handleSetEnabled(const JsonObject& doc, char * output);
 void handleSetSoftFuse(const JsonObject& doc, char * output);
 void handleSetNetworkConfig(const JsonObject& doc, char * output);
 void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t client_id);
+void handleRestart(const JsonObject& doc, char * output);
+void handleFactoryReset(const JsonObject& doc, char * output);
+void handleOTAStart(const JsonObject& doc, char * output);
 
 void generateUpdateJSON(char * jsonBuffer);
 void generateStatsJSON(char * jsonBuffer);

@@ -84,150 +84,57 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   handledMessages++;
   totalHandledMessages++;
 
-  //change state?
-  if (cmd.equals("set_state"))
+  //only pages with no login requirements
+  if (cmd.equals("login") || cmd.equals("ping"))
   {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return handleSetState(doc, output);
+    if (cmd.equals("login"))
+      return handleLogin(doc, output, mode, client_id);
+    else if (cmd.equals("ping"))
+      return generatePongJSON(output);
   }
-  //change duty cycle?
-  else if (cmd.equals("set_duty"))
+  else
   {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return handleSetDuty(doc, output);   
-  }
-  //change a board name?
-  else if (cmd.equals("set_boardname"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return handleSetBoardName(doc, output);   
-  }
-  //change a channel name?
-  else if (cmd.equals("set_channelname"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return handleSetChannelName(doc, output);
-  }
-  //change a channels dimmability?
-  else if (cmd.equals("set_dimmable"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return handleSetDimmable(doc, output);
-  }
-  //enable/disable channel
-  else if (cmd.equals("set_enabled"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return handleSetEnabled(doc, output);
-  }  
-  //change a channels soft fuse?
-  else if (cmd.equals("set_soft_fuse"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return handleSetSoftFuse(doc, output);
-  }
-  //get our config?
-  else if (cmd.equals("get_config"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return generateConfigJSON(output);
-  }
-  //networking?
-  else if (cmd.equals("get_network_config"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return generateNetworkConfigJSON(output);
-  }
-  //setup networking?
-  else if (cmd.equals("set_network_config"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return handleSetNetworkConfig(doc, output);
-  }  
-  //get our stats?
-  else if (cmd.equals("get_stats"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return generateStatsJSON(output);
-  }
-  //get our stats?
-  else if (cmd.equals("get_update"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    else
-        return generateUpdateJSON(output);
-  }
-  //get our config?
-  else if (cmd.equals("login"))
-  {
-    return handleLogin(doc, output, mode, client_id);
-  }
-  //restart
-  else if (cmd.equals("restart"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-    
-    //do it.
-    ESP.restart();
-  }
-  else if (cmd.equals("factory_reset"))
-  {
+    //need to be logged in here.
     if (!isLoggedIn(doc, mode, client_id))
         return generateLoginRequiredJSON(output);
 
-    //delete all our prefs
-    preferences.clear();
-    preferences.end();
-
-    //restart the board.
-    ESP.restart();
-  }
-  //ping for heartbeat
-  else if (cmd.equals("ping"))
-  {
-    return generatePongJSON(output);
-  }
-  else if (cmd.equals("ota_start"))
-  {
-    if (!isLoggedIn(doc, mode, client_id))
-        return generateLoginRequiredJSON(output);
-
-    //look for new firmware
-    bool updatedNeeded = FOTA.execHTTPcheck();
-    if (updatedNeeded)
-      doOTAUpdate = true;
+    //what is your command?
+    if (cmd.equals("set_state"))
+      return handleSetState(doc, output);
+    else if (cmd.equals("set_duty"))
+      return handleSetDuty(doc, output);   
+    else if (cmd.equals("set_boardname"))
+      return handleSetBoardName(doc, output);   
+    else if (cmd.equals("set_channelname"))
+      return handleSetChannelName(doc, output);
+    else if (cmd.equals("set_dimmable"))
+      return handleSetDimmable(doc, output);
+    else if (cmd.equals("set_enabled"))
+      return handleSetEnabled(doc, output);
+    else if (cmd.equals("set_soft_fuse"))
+      return handleSetSoftFuse(doc, output);
+    else if (cmd.equals("get_config"))
+      return generateConfigJSON(output);
+    else if (cmd.equals("get_network_config"))
+      return generateNetworkConfigJSON(output);
+    else if (cmd.equals("set_network_config"))
+      return handleSetNetworkConfig(doc, output);
+    else if (cmd.equals("get_stats"))
+      return generateStatsJSON(output);
+    else if (cmd.equals("get_update"))
+      return generateUpdateJSON(output);
+    else if (cmd.equals("restart"))
+      return handleRestart(doc, output);
+    else if (cmd.equals("factory_reset"))
+      return handleFactoryReset(doc, output);
+    else if (cmd.equals("ota_start"))
+      return handleOTAStart(doc, output);
     else
-      return generateErrorJSON(output, "Firmware already up to date.");
+      return generateErrorJSON(output, "Invalid command.");
   }
 
   //unknown command.
-  Serial.print("Invalid command: ");
-  Serial.println(cmd);
-  return generateErrorJSON(output, "Invalid command.");
+  return generateErrorJSON(output, "Malformed json.");
 }
 
 void handleSetState(const JsonObject& doc, char * output)
@@ -500,6 +407,31 @@ void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t clien
 
     //gtfo.
     return generateErrorJSON(output, "Wrong username/password.");
+}
+
+void handleRestart(const JsonObject& doc, char * output)
+{
+  ESP.restart();
+}
+
+void handleFactoryReset(const JsonObject& doc, char * output)
+{
+  //delete all our prefs
+  preferences.clear();
+  preferences.end();
+
+  //restart the board.
+  ESP.restart();
+}
+
+void handleOTAStart(const JsonObject& doc, char * output)
+{
+  //look for new firmware
+  bool updatedNeeded = FOTA.execHTTPcheck();
+  if (updatedNeeded)
+    doOTAUpdate = true;
+  else
+    return generateErrorJSON(output, "Firmware already up to date.");
 }
 
 void generateStatsJSON(char * jsonBuffer)
