@@ -48,7 +48,7 @@ void fans_setup()
         fans_last_rpm[i] = 0;
 
         pinMode(fan_tach_pins[i], INPUT);
-        digitalWrite(fan_tach_pins[i], HIGH);
+        //digitalWrite(fan_tach_pins[i], HIGH);
 
         if (i==0)
             attachInterrupt(digitalPinToInterrupt(fan_tach_pins[i]), rpm_fan_0, FALLING);
