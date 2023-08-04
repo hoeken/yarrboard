@@ -36,6 +36,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 
 bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id);
 bool isApiClientLoggedIn(const JsonObject& doc);
+bool isSerialClientLoggedIn(const JsonObject& doc);
 bool logClientIn(uint32_t client_id);
 
 void sendToAllWebsockets(char * jsonString);

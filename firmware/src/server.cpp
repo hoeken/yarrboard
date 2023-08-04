@@ -216,6 +216,11 @@ bool isApiClientLoggedIn(const JsonObject& doc)
   return false;  
 }
 
+bool isSerialClientLoggedIn(const JsonObject& doc)
+{
+  return isApiClientLoggedIn(doc);
+}
+
 bool logClientIn(uint32_t client_id)
 {
   byte i;

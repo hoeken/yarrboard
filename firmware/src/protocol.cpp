@@ -44,6 +44,35 @@ void protocol_loop()
     lastHandledMessages = handledMessages;
     previousMessageMillis = millis();
   }
+
+  //any serial port customers?
+  if (Serial.available() > 0)
+    handleSerialJson();
+}
+
+void handleSerialJson()
+{
+  String input = Serial.readStringUntil('\n');
+
+  StaticJsonDocument<1024> json;
+  DeserializationError err = deserializeJson(json, input);
+  JsonObject doc = json.as<JsonObject>();
+
+  char jsonBuffer[MAX_JSON_LENGTH];
+
+  //is there a problem, officer?
+  if (err)
+  {
+    String error = "deserializeJson() failed with code ";
+    error += err.c_str();
+    generateErrorJSON(jsonBuffer, error);
+    Serial.println(jsonBuffer);
+  }
+  else
+  {
+    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_SERIAL, 0);
+    Serial.println(jsonBuffer);
+  }
 }
 
 void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t client_id)
@@ -672,6 +701,8 @@ bool isLoggedIn(const JsonObject& doc, byte mode, uint32_t client_id = 0)
     return isWebsocketClientLoggedIn(doc, client_id);
   else if (mode == YBP_MODE_HTTP)
     return isApiClientLoggedIn(doc);
+  else if (mode == YBP_MODE_SERIAL)
+    return isSerialClientLoggedIn(doc);
   else
     return false;
 }
