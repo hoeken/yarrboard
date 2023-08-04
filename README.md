@@ -1,10 +1,10 @@
 # Yarrboard
 
-Pronounced yarrrrrrr * brd.
-
 An open hardware project for digital switching on boats, or anywhere with 12v-24v systems.
 
 The project is based around the amazing esp32 and currently consists of one board, an 8-channel mosfet driver.  With this board, you can control almost any DC load on your boat. There are future plans to design a relay board, an I/O board, etc.
+
+Pronounced *yarrrrrrr * bird*.  Lots of r's and don't call it a board. ;)
 
 ## 8 Channel Mosfet Driver
 
