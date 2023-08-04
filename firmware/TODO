@@ -1,6 +1,9 @@
 Firmware:
 
-* refactor json code out of server code
+* GET page for board status / config / stats / etc
+* some sort of POST/GET method for toggling pin state (how to deal with login / auth)
+* send/receive json over serial
+
 * documentation
 * stability fixes
 
@@ -10,10 +13,7 @@ Electronics:
 
 Long term:
 
-* GET page for board status / config / stats / etc
 * reinvestigate firmware signing
 * figure out how to do safe update with spiffs (2 partitions?)
-* some sort of POST/GET method for toggling pin state (how to deal with login / auth)
-* send/receive json over serial
 * control via N2K bus
 * refactor to remove Arduino dependency? (can we get the code smaller?)

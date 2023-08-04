@@ -9,18 +9,25 @@
 #include "protocol.h"
 
 //for tracking our message loop
-int messageInterval = 500;
 unsigned long previousMessageMillis = 0;
 unsigned int lastHandledMessages = 0;
-
 unsigned int handledMessages = 0;
 unsigned long totalHandledMessages = 0;
+
+void protocol_setup()
+{
+    #ifdef USE_JSON_OVER_SERIAL
+        char jsonBuffer[MAX_JSON_LENGTH];
+        generateConfigJSON(jsonBuffer);
+        Serial.println(jsonBuffer);
+    #endif
+}
 
 void protocol_loop()
 {
   //lookup our info periodically
   int messageDelta = millis() - previousMessageMillis;
-  if (messageDelta >= messageInterval)
+  if (messageDelta >= YB_UPDATE_FREQUENCY)
   {
     //read and send out our json update
     sendUpdate();
@@ -731,5 +738,7 @@ void sendToAll(char * jsonString)
 {
     sendToAllWebsockets(jsonString);
 
-    Serial.println(jsonString);
+    #ifdef USE_JSON_OVER_SERIAL
+        Serial.println(jsonString);
+    #endif
 }

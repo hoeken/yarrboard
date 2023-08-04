@@ -28,6 +28,7 @@
 
 extern unsigned int handledMessages;
 
+void protocol_setup();
 void protocol_loop();
 
 bool isLoggedIn(byte mode, uint32_t client_id);
