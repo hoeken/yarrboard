@@ -33,7 +33,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 bool isClientLoggedIn(uint32_t client_id);
 bool logClientIn(uint32_t client_id);
 
-void sendToAll(char * jsonString);
-void sendUpdate();
+void sendToAllWebsockets(char * jsonString);
 
 #endif /* !YARR_SERVER_H */

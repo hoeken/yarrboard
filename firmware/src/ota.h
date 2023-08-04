@@ -21,7 +21,5 @@ extern unsigned long ota_last_message;
 void ota_setup();
 void ota_loop();
 
-void sendOTAProgressUpdate(float progress, int partition);
-void sendOTAProgressFinished();
 
 #endif /* !YARR_OTA_H */

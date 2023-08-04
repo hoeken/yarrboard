@@ -8,8 +8,34 @@
 
 #include "protocol.h"
 
+//for tracking our message loop
+int messageInterval = 500;
+unsigned long previousMessageMillis = 0;
+unsigned int lastHandledMessages = 0;
+
 unsigned int handledMessages = 0;
 unsigned long totalHandledMessages = 0;
+
+void protocol_loop()
+{
+  //lookup our info periodically
+  int messageDelta = millis() - previousMessageMillis;
+  if (messageDelta >= messageInterval)
+  {
+    //read and send out our json update
+    sendUpdate();
+  
+    //how fast are we?
+    //Serial.print(messageDelta);
+    //Serial.print("ms | msg/s: ");
+    //Serial.print(handledMessages - lastHandledMessages);
+    //Serial.println();
+
+    //for keeping track.
+    lastHandledMessages = handledMessages;
+    previousMessageMillis = millis();
+  }
+}
 
 void handleReceivedJSON(char *payload, char *output, byte mode, uint32_t client_id)
 {
@@ -678,4 +704,32 @@ void generateOKJSON(char * jsonBuffer)
 
     //send it.
     serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+}
+
+void sendUpdate()
+{
+  char jsonBuffer[MAX_JSON_LENGTH];
+  generateUpdateJSON(jsonBuffer);
+  sendToAll(jsonBuffer);
+}
+
+void sendOTAProgressUpdate(float progress, int partition)
+{
+  char jsonBuffer[MAX_JSON_LENGTH];
+  generateOTAProgressUpdateJSON(jsonBuffer, progress, partition);
+  sendToAll(jsonBuffer);
+}
+
+void sendOTAProgressFinished()
+{
+  char jsonBuffer[MAX_JSON_LENGTH];
+  generateOTAProgressFinishedJSON(jsonBuffer);
+  sendToAll(jsonBuffer);
+}
+
+void sendToAll(char * jsonString)
+{
+    sendToAllWebsockets(jsonString);
+
+    Serial.println(jsonString);
 }

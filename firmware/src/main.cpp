@@ -19,16 +19,10 @@
 
 void setup()
 {
-  unsigned long setup_t1 = micros();
+  //unsigned long setup_t1 = micros();
 
   //startup our serial
   Serial.begin(115200);
-
-  Serial.println("Yarrboard");
-  Serial.print("Hardware Version: ");
-  Serial.println(HARDWARE_VERSION);
-  Serial.print("Firmware Version: ");
-  Serial.println(FIRMWARE_VERSION);
 
   //ntp_setup();
   prefs_setup();
@@ -39,10 +33,14 @@ void setup()
   websocket_setup();
   ota_setup();
 
-  unsigned long setup_t2 = micros();
-  Serial.print("Boot time: ");
-  Serial.print((float)(setup_t2 - setup_t1) / 1000.0);
-  Serial.println("ms");
+  char jsonBuffer[MAX_JSON_LENGTH];
+  generateConfigJSON(jsonBuffer);
+  Serial.println(jsonBuffer);
+
+  //unsigned long setup_t2 = micros();
+  //Serial.print("Boot time: ");
+  //Serial.print((float)(setup_t2 - setup_t1) / 1000.0);
+  //Serial.println("ms");
 }
 
 void loop()
@@ -55,4 +53,6 @@ void loop()
   wifi_loop();
   websocket_loop();
   ota_loop();
+  protocol_loop();
+
 }

@@ -28,19 +28,19 @@
 
 extern unsigned int handledMessages;
 
+void protocol_loop();
+
 bool isLoggedIn(byte mode, uint32_t client_id);
 bool isValidChannel(byte cid);
 
 void handleReceivedJSON(char *payload, char *output, byte mode, uint32_t client_id);
 void handleSetBoardName(const JsonDocument& doc, char * output);
-
 void handleSetState(const JsonDocument& doc, char * output);
 void handleSetDuty(const JsonDocument& doc, char * output);
 void handleSetChannelName(const JsonDocument& doc, char * output);
 void handleSetDimmable(const JsonDocument& doc, char * output);
 void handleSetEnabled(const JsonDocument& doc, char * output);
 void handleSetSoftFuse(const JsonDocument& doc, char * output);
-
 void handleSetNetworkConfig(const JsonDocument& doc, char * output);
 void handleLogin(const JsonDocument& doc, char * output, byte mode, uint32_t client_id);
 
@@ -56,5 +56,10 @@ void generateLoginRequiredJSON(char * jsonBuffer);
 void generateInvalidChannelJSON(char * jsonBuffer, byte cid);
 void generatePongJSON(char * jsonBuffer);
 void generateOKJSON(char * jsonBuffer);
+
+void sendUpdate();
+void sendOTAProgressUpdate(float progress, int partition);
+void sendOTAProgressFinished();
+void sendToAll(char * jsonString);
 
 #endif /* !YARR_PROTOCOL_H */

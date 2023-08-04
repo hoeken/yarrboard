@@ -19,11 +19,6 @@ uint32_t authenticatedClientIDs[clientLimit];
 AsyncWebSocket ws("/ws");
 AsyncWebServer server(80);
 
-//for tracking our message loop
-int messageInterval = 250;
-unsigned long previousMessageMillis = 0;
-unsigned int lastHandledMessages = 0;
-
 void websocket_setup()
 {
   //look up our board name
@@ -57,27 +52,9 @@ void websocket_loop()
 {
   //sometimes websocket clients die badly.
   ws.cleanupClients();
-
-  //lookup our info periodically
-  int messageDelta = millis() - previousMessageMillis;
-  if (messageDelta >= messageInterval)
-  {
-    //read and send out our json update
-    sendUpdate();
-  
-    //how fast are we?
-    //Serial.print(messageDelta);
-    //Serial.print("ms | msg/s: ");
-    //Serial.print(handledMessages - lastHandledMessages);
-    //Serial.println();
-
-    //for keeping track.
-    lastHandledMessages = handledMessages;
-    previousMessageMillis = millis();
-  }
 }
 
-void sendToAll(char * jsonString)
+void sendToAllWebsockets(char * jsonString)
 {
   //send the message to all authenticated clients.
   if (require_login)
@@ -179,25 +156,4 @@ bool logClientIn(uint32_t client_id)
   }
 
   return true;
-}
-
-void sendUpdate()
-{
-  char jsonBuffer[MAX_JSON_LENGTH];
-  generateUpdateJSON(jsonBuffer);
-  sendToAll(jsonBuffer);
-}
-
-void sendOTAProgressUpdate(float progress, int partition)
-{
-  char jsonBuffer[MAX_JSON_LENGTH];
-  generateOTAProgressUpdateJSON(jsonBuffer, progress, partition);
-  sendToAll(jsonBuffer);
-}
-
-void sendOTAProgressFinished()
-{
-  char jsonBuffer[MAX_JSON_LENGTH];
-  generateOTAProgressFinishedJSON(jsonBuffer);
-  sendToAll(jsonBuffer);
 }
