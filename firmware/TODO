@@ -1,5 +1,6 @@
 Firmware:
 
+* refactor json code out of server code
 * documentation
 * stability fixes
 

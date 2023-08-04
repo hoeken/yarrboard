@@ -129,31 +129,3 @@ void ota_loop()
     return;
   }
 }
-
-void sendOTAProgressUpdate(float progress, int partition)
-{
-  StaticJsonDocument<96> doc;
-  String jsonString;
-
-  // create an object
-  JsonObject object = doc.to<JsonObject>();
-
-  object["msg"] = "ota_progress";
-
-  if (partition == U_SPIFFS)
-    object["partition"] = "spiffs";
-  else
-    object["partition"] = "firmware";
-
-  object["progress"] = round2(progress);
-
-  //send it.
-  serializeJson(doc, jsonString);
-  sendToAll(jsonString);
-}
-
-void sendOTAProgressFinished()
-{
-  String jsonString = "{\"msg\":\"ota_finished\"}";
-  sendToAll(jsonString);
-}

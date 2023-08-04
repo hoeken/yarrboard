@@ -16,11 +16,12 @@
 #include <ESPAsyncWebServer.h>
 
 #include "channel.h"
+#include "protocol.h"
 
+extern String board_name;
 extern String app_user;
 extern String app_pass;
 extern bool require_login;
-
 extern AsyncWebSocket ws;
 
 void websocket_setup();
@@ -28,17 +29,11 @@ void websocket_loop();
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client);
-void handleReceivedMessage(char *payload, AsyncWebSocketClient *client);
 
-bool assertLoggedIn(AsyncWebSocketClient *client);
-bool assertValidChannel(byte cid, AsyncWebSocketClient *client);
+bool isClientLoggedIn(uint32_t client_id);
+bool logClientIn(uint32_t client_id);
 
-void sendToAll(String jsonString);
+void sendToAll(char * jsonString);
 void sendUpdate();
-void sendConfigJSON(AsyncWebSocketClient *client);
-void sendNetworkConfigJSON(AsyncWebSocketClient *client);
-void sendStatsJSON(AsyncWebSocketClient *client);
-void sendSuccessJSON(String success, AsyncWebSocketClient *client);
-void sendErrorJSON(String error, AsyncWebSocketClient *client);
 
 #endif /* !YARR_SERVER_H */
