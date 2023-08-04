@@ -11,21 +11,25 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
+#include <AsyncJson.h>
 #include <SPIFFS.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
 #include "channel.h"
 #include "protocol.h"
+#include "prefs.h"
+#include "wifi.h"
+#include "ota.h"
+#include "adc.h"
+#include "fans.h"
 
-extern String board_name;
 extern String app_user;
 extern String app_pass;
 extern bool require_login;
-extern AsyncWebSocket ws;
 
-void websocket_setup();
-void websocket_loop();
+void server_setup();
+void server_loop();
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client);

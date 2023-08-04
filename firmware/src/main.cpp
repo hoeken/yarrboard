@@ -34,7 +34,7 @@ void setup()
   adc_setup();
   fans_setup();
   wifi_setup();
-  websocket_setup();
+  server_setup();
   ota_setup();
   protocol_setup();
 }
@@ -46,7 +46,7 @@ void loop()
   adc_loop();
   fans_loop();
   wifi_loop();
-  websocket_loop();
+  server_loop();
   ota_loop();
   protocol_loop();
 }

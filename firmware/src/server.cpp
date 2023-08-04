@@ -1,11 +1,4 @@
 #include "server.h"
-#include "prefs.h"
-#include "wifi.h"
-#include "ota.h"
-#include "adc.h"
-#include "fans.h"
-
-String board_name = "Yarrboard";
 
 //username / password for websocket authentication
 String app_user = "admin";
@@ -19,7 +12,7 @@ uint32_t authenticatedClientIDs[clientLimit];
 AsyncWebSocket ws("/ws");
 AsyncWebServer server(80);
 
-void websocket_setup()
+void server_setup()
 {
   //look up our board name
   if (preferences.isKey("boardName"))
@@ -43,12 +36,45 @@ void websocket_setup()
     return;
   }
 
+  /*
+  AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json)
+  {
+    JsonObject object = json.to<JsonObject>();
+  });
+  server.addHandler(handler);
+  */
+
+  //send config json
+  server.on("/api/config", HTTP_ANY, [](AsyncWebServerRequest *request)
+  {
+    char jsonBuffer[MAX_JSON_LENGTH];
+    generateConfigJSON(jsonBuffer);
+    request->send(200, "application/json", jsonBuffer);
+  });
+
+  //send stats json
+  server.on("/api/stats", HTTP_ANY, [](AsyncWebServerRequest *request)
+  {
+    char jsonBuffer[MAX_JSON_LENGTH];
+    generateStatsJSON(jsonBuffer);
+    request->send(200, "application/json", jsonBuffer);
+  });
+
+  //send update json
+  server.on("/api/update", HTTP_ANY, [](AsyncWebServerRequest *request)
+  {
+    char jsonBuffer[MAX_JSON_LENGTH];
+    generateUpdateJSON(jsonBuffer);
+    request->send(200, "application/json", jsonBuffer);
+  });
+
   //we are only serving static files - big cache
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
+
   server.begin();
 }
 
-void websocket_loop()
+void server_loop()
 {
   //sometimes websocket clients die badly.
   ws.cleanupClients();

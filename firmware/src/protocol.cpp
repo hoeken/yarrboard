@@ -8,6 +8,8 @@
 
 #include "protocol.h"
 
+String board_name = "Yarrboard";
+
 //for tracking our message loop
 unsigned long previousMessageMillis = 0;
 unsigned int lastHandledMessages = 0;

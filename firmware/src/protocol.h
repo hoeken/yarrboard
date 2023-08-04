@@ -26,7 +26,8 @@
 #define YBP_MODE_HTTP      1
 #define YBP_MODE_SERIAL    2
 
-extern unsigned int handledMessages;
+//extern unsigned int handledMessages;
+extern String board_name;
 
 void protocol_setup();
 void protocol_loop();
