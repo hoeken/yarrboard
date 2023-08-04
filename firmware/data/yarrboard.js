@@ -307,6 +307,16 @@ function start_websocket()
       else
         $('#time').hide();
 
+      //or maybe voltage
+      if (msg.bus_voltage)
+      {
+        $('#bus_voltage_main').html("Bus Voltage: " + msg.bus_voltage.toFixed(2) + "V");
+        $('#bus_voltage_main').show();
+      }
+      else
+        $('#bus_voltage_main').hide();
+
+      //our channel info
       for (ch of msg.channels)
       {
         if (current_config.channels[ch.id].enabled)

@@ -9,7 +9,6 @@ Firmware:
 
 Electronics:
 
-* figure out mosfet weirdness
 * test qwiic
 
 Long term:
@@ -18,4 +17,10 @@ Long term:
 * figure out how to do safe update with spiffs (2 partitions?)
 * can we get the code smaller?
     * refactor to remove Arduino dependency?
-* control via N2K bus
+* N2K support
+
+Case Design:
+
+* spacers should through bolt from bottom of board
+* make walls thicker (2mm?)
+* 

@@ -339,13 +339,15 @@
             </div>
         </main>
         <footer class="p-4 text-body-secondary text-center">
-            WebSocket:
-            <span id="connection_startup" class="connection_status text-primary">CONNECTING</span>
-            <span id="connection_good" class="connection_status text-success" style="display: none">CONNECTED</span>
-            <span id="connection_retrying" class="connection_status text-warning" style="display: none">RETRYING (<span id="retries_count"></span>s)</span>
-            <span id="connection_failed" class="connection_status text-danger" style="display: none">FAILED</span>
-            <br/>
-            <div id="time" class="mb-2" style="display: none"></div>
+            <div id="time" style="display: none"></div>
+            <div id="bus_voltage_main" style="display: none"></div>
+            <div id="websocket_status">
+                WebSocket:
+                <span id="connection_startup" class="connection_status text-primary">CONNECTING</span>
+                <span id="connection_good" class="connection_status text-success" style="display: none">CONNECTED</span>
+                <span id="connection_retrying" class="connection_status text-warning" style="display: none">RETRYING (<span id="retries_count"></span>s)</span>
+                <span id="connection_failed" class="connection_status text-danger" style="display: none">FAILED</span>
+            </div>
             <a id="projectName" href="https://github.com/hoeken/yarrboard">Yarrboard</a> &copy; 2023<br>
             <a href="https://www.oshwa.org/"><img src="oshw-logo-antipixel.webp"></a>
         </footer>
