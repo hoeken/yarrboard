@@ -35,6 +35,7 @@ void handleSerialJson();
 void handleReceivedJSON(const JsonObject& doc, char *output, byte mode, uint32_t client_id);
 void handleSetBoardName(const JsonObject& doc, char * output);
 void handleSetChannel(const JsonObject& doc, char * output);
+void handleToggleChannel(const JsonObject& doc, char * output);
 void handleSetNetworkConfig(const JsonObject& doc, char * output);
 void handleSetAppConfig(const JsonObject& doc, char * output);
 void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t client_id);

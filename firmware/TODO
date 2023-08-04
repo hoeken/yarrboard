@@ -1,6 +1,5 @@
 Firmware:
 
-* add a toggle_channel command
 * refactor to have objects pass the ArduinoJson instead of passing in the buffer.
     * make sure we are using arduinojson properly and not making a ton of copies
 

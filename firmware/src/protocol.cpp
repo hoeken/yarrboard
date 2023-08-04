@@ -107,6 +107,8 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
       return handleSetBoardName(doc, output);   
     else if (cmd.equals("set_channel"))
       return handleSetChannel(doc, output);
+    else if (cmd.equals("toggle_channel"))
+      return handleToggleChannel(doc, output);
     else if (cmd.equals("get_config"))
       return generateConfigJSON(output);
     else if (cmd.equals("get_network_config"))
@@ -288,6 +290,33 @@ void handleSetChannel(const JsonObject& doc, char * output)
     //give them the updated config
     return generateConfigJSON(output);
   }
+
+  return generateOKJSON(output);
+}
+
+void handleToggleChannel(const JsonObject& doc, char * output)
+{
+  //id is required
+  if (!doc.containsKey("id"))
+    return generateErrorJSON(output, "'id' is a required parameter");
+
+  //is it a valid channel?
+  byte cid = doc["id"];
+  if (!isValidChannel(cid))
+    return generateErrorJSON(output, "Invalid channel id");
+
+  //keep track of how many toggles
+  channelStateChangeCount[cid]++;
+
+  //record our new state
+  channelState[cid] = !channelState[cid];
+
+  //reset soft fuse when we turn on
+  if (channelState[cid])
+    channelTripped[cid] = false;
+
+  //change our output pin to reflect
+  updateChannelState(cid);
 
   return generateOKJSON(output);
 }
