@@ -18,11 +18,12 @@ unsigned long totalHandledMessages = 0;
 
 void protocol_setup()
 {
-    #ifdef USE_JSON_OVER_SERIAL
-        char jsonBuffer[MAX_JSON_LENGTH];
-        generateConfigJSON(jsonBuffer);
-        Serial.println(jsonBuffer);
-    #endif
+  if (app_enable_serial)
+  {
+    char jsonBuffer[MAX_JSON_LENGTH];
+    generateConfigJSON(jsonBuffer);
+    Serial.println(jsonBuffer);
+  }
 }
 
 void protocol_loop()
@@ -46,8 +47,11 @@ void protocol_loop()
   }
 
   //any serial port customers?
-  if (Serial.available() > 0)
-    handleSerialJson();
+  if (app_enable_serial)
+  {
+    if (Serial.available() > 0)
+      handleSerialJson();
+  }
 }
 
 void handleSerialJson()
@@ -109,6 +113,10 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
       return generateNetworkConfigJSON(output);
     else if (cmd.equals("set_network_config"))
       return handleSetNetworkConfig(doc, output);
+    else if (cmd.equals("get_app_config"))
+      return generateAppConfigJSON(output);
+    else if (cmd.equals("set_app_config"))
+      return handleSetAppConfig(doc, output);
     else if (cmd.equals("get_stats"))
       return generateStatsJSON(output);
     else if (cmd.equals("get_update"))
@@ -294,9 +302,9 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
     String new_wifi_ssid = doc["wifi_ssid"].as<String>();
     String new_wifi_pass = doc["wifi_pass"].as<String>();
     local_hostname = doc["local_hostname"].as<String>();
-    app_user = doc["app_user"].as<String>();
-    app_pass = doc["app_pass"].as<String>();
-    require_login = doc["require_login"];
+
+    //no special cases here.
+    preferences.putString("local_hostname", local_hostname);
 
     //make sure we can connect before we save
     if (new_wifi_mode.equals("client"))
@@ -354,11 +362,23 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
       return generateSuccessJSON(output, "AP mode successful, please connect to new network.");
     }
 
+}
+
+void handleSetAppConfig(const JsonObject& doc, char * output)
+{
+    //get our data
+    app_user = doc["app_user"].as<String>();
+    app_pass = doc["app_pass"].as<String>();
+    require_login = doc["require_login"];
+    app_enable_api = doc["app_enable_api"];
+    app_enable_serial = doc["app_enable_serial"];
+
     //no special cases here.
-    preferences.putString("local_hostname", local_hostname);
     preferences.putString("app_user", app_user);
     preferences.putString("app_pass", app_pass);
-    preferences.putBool("require_login", require_login);
+    preferences.putBool("require_login", require_login);  
+    preferences.putBool("appEnableApi", app_enable_api);  
+    preferences.putBool("appEnableSerial", app_enable_serial);  
 }
 
 void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t client_id)
@@ -534,9 +554,24 @@ void generateNetworkConfigJSON(char * jsonBuffer)
   object["wifi_ssid"] = wifi_ssid;
   object["wifi_pass"] = wifi_pass;
   object["local_hostname"] = local_hostname;
+
+  //send it.
+  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+}
+
+void generateAppConfigJSON(char * jsonBuffer)
+{
+  // create an object
+  StaticJsonDocument<256> doc;
+  JsonObject object = doc.to<JsonObject>();
+
+  //our identifying info
+  object["msg"] = "app_config";
   object["require_login"] = require_login;
   object["app_user"] = app_user;
   object["app_pass"] = app_pass;
+  object["app_enable_api"] = app_enable_api;
+  object["app_enable_serial"] = app_enable_serial;
 
   //send it.
   serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
@@ -674,9 +709,8 @@ void sendOTAProgressFinished()
 
 void sendToAll(char * jsonString)
 {
-    sendToAllWebsockets(jsonString);
+  sendToAllWebsockets(jsonString);
 
-    #ifdef USE_JSON_OVER_SERIAL
-        Serial.println(jsonString);
-    #endif
+  if (app_enable_serial)
+    Serial.println(jsonString);
 }

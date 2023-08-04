@@ -27,6 +27,8 @@
 extern String app_user;
 extern String app_pass;
 extern bool require_login;
+extern bool app_enable_api;
+extern bool app_enable_serial;
 
 void server_setup();
 void server_loop();

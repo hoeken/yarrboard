@@ -4,6 +4,8 @@
 String app_user = "admin";
 String app_pass = "admin";
 bool require_login = true;
+bool app_enable_api = true;
+bool app_enable_serial = true;
 
 //keep track of our authenticated clients
 const byte clientLimit = 8;
@@ -25,6 +27,10 @@ void server_setup()
     app_pass = preferences.getString("app_pass");
   if (preferences.isKey("require_login"))
     require_login = preferences.getBool("require_login");
+  if (preferences.isKey("app_enable_api"))
+    app_enable_api = preferences.getBool("appEnableApi");
+  if (preferences.isKey("app_enable_serial"))
+    app_enable_serial = preferences.getBool("appEnableSerial");
 
   //config for our websocket server
   ws.onEvent(onEvent);
@@ -38,9 +44,15 @@ void server_setup()
 
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json)
   {
-    JsonObject doc = json.as<JsonObject>();
     char jsonBuffer[MAX_JSON_LENGTH];
-    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+
+    if (app_enable_api)
+    {
+      JsonObject doc = json.as<JsonObject>();
+      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+    }
+    else
+      generateErrorJSON(jsonBuffer, "Web API is disabled.");      
 
     request->send(200, "application/json", jsonBuffer);
   });
@@ -49,17 +61,23 @@ void server_setup()
   //send config json
   server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    StaticJsonDocument<256> json;
-    json["cmd"] = "get_config";
-
-    if (request->hasParam("user"))
-      json["user"] = request->getParam("user")->value();
-    if (request->hasParam("pass"))
-      json["pass"] = request->getParam("pass")->value();
-
-    JsonObject doc = json.as<JsonObject>();
     char jsonBuffer[MAX_JSON_LENGTH];
-    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+
+    if (app_enable_api)
+    {
+      StaticJsonDocument<256> json;
+      json["cmd"] = "get_config";
+
+      if (request->hasParam("user"))
+        json["user"] = request->getParam("user")->value();
+      if (request->hasParam("pass"))
+        json["pass"] = request->getParam("pass")->value();
+
+      JsonObject doc = json.as<JsonObject>();
+      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+    }
+    else
+      generateErrorJSON(jsonBuffer, "Web API is disabled.");      
 
     request->send(200, "application/json", jsonBuffer);
   });
@@ -67,35 +85,47 @@ void server_setup()
   //send stats json
   server.on("/api/stats", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    StaticJsonDocument<256> json;
-    json["cmd"] = "get_stats";
-
-    if (request->hasParam("user"))
-      json["user"] = request->getParam("user")->value();
-    if (request->hasParam("pass"))
-      json["pass"] = request->getParam("pass")->value();
-
-    JsonObject doc = json.as<JsonObject>();
     char jsonBuffer[MAX_JSON_LENGTH];
-    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
 
+    if (app_enable_api)
+    {
+      StaticJsonDocument<256> json;
+      json["cmd"] = "get_stats";
+
+      if (request->hasParam("user"))
+        json["user"] = request->getParam("user")->value();
+      if (request->hasParam("pass"))
+        json["pass"] = request->getParam("pass")->value();
+
+      JsonObject doc = json.as<JsonObject>();
+      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+    }
+    else
+      generateErrorJSON(jsonBuffer, "Web API is disabled.");      
+    
     request->send(200, "application/json", jsonBuffer);
   });
 
   //send update json
   server.on("/api/update", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    StaticJsonDocument<256> json;
-    json["cmd"] = "get_update";
-
-    if (request->hasParam("user"))
-      json["user"] = request->getParam("user")->value();
-    if (request->hasParam("pass"))
-      json["pass"] = request->getParam("pass")->value();
-
-    JsonObject doc = json.as<JsonObject>();
     char jsonBuffer[MAX_JSON_LENGTH];
-    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+
+    if (app_enable_api)
+    {
+      StaticJsonDocument<256> json;
+      json["cmd"] = "get_update";
+
+      if (request->hasParam("user"))
+        json["user"] = request->getParam("user")->value();
+      if (request->hasParam("pass"))
+        json["pass"] = request->getParam("pass")->value();
+
+      JsonObject doc = json.as<JsonObject>();
+      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
+    }
+    else
+      generateErrorJSON(jsonBuffer, "Web API is disabled.");      
 
     request->send(200, "application/json", jsonBuffer);
   });

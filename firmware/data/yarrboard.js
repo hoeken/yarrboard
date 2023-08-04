@@ -4,18 +4,20 @@ var current_config;
 var app_username;
 var app_password;
 var network_config;
+var app_config;
 
 var socket_retries = 0;
 var retry_time = 0;
 var last_heartbeat = 0;
 const heartbeat_rate = 1000;
 
-var page_list = ["control", "config", "stats", "network", "system"];
+var page_list = ["control", "config", "stats", "network", "settings", "system"];
 var page_ready = {
   "control": false,
   "config":  false,
   "stats":   false,
   "network": false,
+  "settings": false,
   "system":  true,
   "login":  true
 };
@@ -148,6 +150,13 @@ function load_configs()
       "cmd": "get_network_config"
     }));  
   }, 100);
+
+  //load our network config
+  setTimeout(function (){
+    socket.send(JSON.stringify({
+      "cmd": "get_app_config"
+    }));  
+  }, 150);
 
   //load our stats config
   setTimeout(function (){
@@ -387,22 +396,44 @@ function start_websocket()
       //save our config.
       network_config = msg;
 
+      //console.log(msg);
+      $("#wifi_mode").val(msg.wifi_mode);
+      $("#wifi_ssid").val(msg.wifi_ssid);
+      $("#wifi_pass").val(msg.wifi_pass);
+      $("#local_hostname").val(msg.local_hostname);
+
+      page_ready.network = true;    
+    }
+    //load up our network config.
+    else if (msg.msg == "app_config")
+    {
+      //console.log("network config");
+
+      //save our config.
+      app_config = msg;
+
       //update login stuff.
       if (msg.require_login)
         $('#logoutNav').show();
       else
         $('#logoutNav').hide();
 
+      //enabled/disable user/pass fields
+      $(`#app_user`).prop('disabled', !msg.require_login);
+      $(`#app_pass`).prop('disabled', !msg.require_login);
+      $(`#require_login`).change(function (){
+        $(`#app_user`).prop('disabled', !$("#require_login").prop("checked"))
+        $(`#app_pass`).prop('disabled', !$("#require_login").prop("checked"))
+      });
+
       //console.log(msg);
-      $("#wifi_mode").val(msg.wifi_mode);
-      $("#wifi_ssid").val(msg.wifi_ssid);
-      $("#wifi_pass").val(msg.wifi_pass);
-      $("#local_hostname").val(msg.local_hostname);
       $("#app_user").val(msg.app_user);
       $("#app_pass").val(msg.app_pass);
       $("#require_login").prop("checked", msg.require_login);
+      $("#app_enable_api").prop("checked", msg.app_enable_api);
+      $("#app_enable_serial").prop("checked", msg.app_enable_serial);
 
-      page_ready.network = true;    
+      page_ready.settings = true;    
     }
     //load up our network config.
     else if (msg.msg == "ota_progress")
@@ -822,9 +853,35 @@ function save_network_settings()
   let wifi_ssid = $("#wifi_ssid").val();
   let wifi_pass = $("#wifi_pass").val();
   let local_hostname = $("#local_hostname").val();
+
+  //we should probably do a bit of verification here
+
+  //if they are changing from client to client, we can't show a success.
+  show_alert("Yarrboard may be unresponsive while changing WiFi settings. Make sure you connect to the right network after updating.", "primary");
+
+  //okay, send it off.
+  socket.send(JSON.stringify({
+    "cmd": "set_network_config",
+    "wifi_mode": wifi_mode,
+    "wifi_ssid": wifi_ssid,
+    "wifi_pass": wifi_pass,
+    "local_hostname": local_hostname
+  }));
+
+  //reload our page
+  setTimeout(function (){
+    location.reload();
+  }, 2500);  
+}
+
+function save_app_settings()
+{
+  //get our data
   let app_user = $("#app_user").val();
   let app_pass = $("#app_pass").val();
   let require_login = $("#require_login").prop("checked");
+  let app_enable_api = $("#app_enable_api").prop("checked");
+  let app_enable_serial = $("#app_enable_serial").prop("checked");
 
   //we should probably do a bit of verification here
 
@@ -842,25 +899,18 @@ function save_network_settings()
     Cookies.remove("password");    
   }
 
-  //if they are changing from client to client, we can't show a success.
-  show_alert("Yarrboard may be unresponsive while changing WiFi settings. Make sure you connect to the right network after updating.", "primary");
-
   //okay, send it off.
   socket.send(JSON.stringify({
-    "cmd": "set_network_config",
-    "wifi_mode": wifi_mode,
-    "wifi_ssid": wifi_ssid,
-    "wifi_pass": wifi_pass,
-    "local_hostname": local_hostname,
+    "cmd": "set_app_config",
     "app_user": app_user,
     "app_pass": app_pass,
-    "require_login": require_login
+    "require_login": require_login,
+    "app_enable_api": app_enable_api,
+    "app_enable_serial": app_enable_serial
   }));
 
-  //reload our page
-  setTimeout(function (){
-    location.reload();
-  }, 2500);  
+  //if they are changing from client to client, we can't show a success.
+  show_alert("App settings have been updated.", "success");
 }
 
 function restart_board()

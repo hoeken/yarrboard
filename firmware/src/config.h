@@ -18,8 +18,6 @@
 //in milliseconds
 #define YB_UPDATE_FREQUENCY 250
 
-//#define USE_JSON_OVER_SERIAL
-
 // enable one of these
 //#define CONFIG_8CH_MOSFET_REVA
 //#define CONFIG_8CH_MOSFET_REVB

@@ -48,7 +48,7 @@
         $(document).ready(start_yarrboard);
         let FF_FOUC_FIX;
     </script>
-    <div class="col-lg-8 mx-auto">
+    <div class="col-xl-6 col-lg-8 mx-auto">
         <nav id="navbar" class="navbar sticky-top navbar-expand-md bg-body-tertiary navbar-light bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" onclick="open_page('control')" href="#control">
@@ -71,6 +71,9 @@
                         </li>
                         <li id="networkNav" class="nav-item">
                             <a class="nav-link" onclick="open_page('network')" href="#network">Network</a>
+                        </li>
+                        <li id="networkNav" class="nav-item">
+                            <a class="nav-link" onclick="open_page('settings')" href="#settings">Settings</a>
                         </li>
                         <li id="systemNav" class="nav-item">
                             <a class="nav-link" onclick="open_page('system')" href="#system">System</a>
@@ -192,8 +195,8 @@
                 </div>
             </div>
             <div id="networkPage" style="display:none" class="pageContainer mt-3 mx-2">
-                <div class="row">
-                    <div class="col-lg-6">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-6 col-10 mb-3">
                         <h5>Network Configuration</h5>
                         <div class="mb-3">
                             <label for="wifi_mode" class="col-form-label">Wifi Mode</label>
@@ -224,7 +227,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
+                </div>
+                <div class="mb-3 text-center">
+                    <button type="button" class="btn btn-primary" onclick="save_network_settings()">Save Settings</button>
+                </div>
+            </div>
+            <div id="settingsPage" style="display:none" class="pageContainer mt-3 mx-2">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-6 col-10 mb-3">
                         <h5>App Configuration</h5>
                         <div class="mb-3">
                             <label for="app_user" class="col-form-label">App Username</label>
@@ -246,50 +256,68 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="app_enable_api" checked>
+                                <label class="form-check-label" for="app_enable_api">
+                                    Enable Web API (<a href="https://github.com/hoeken/yarrboard#web-api-protocol">documentation</a>)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="app_enable_serial" checked>
+                                <label class="form-check-label" for="app_enable_serial">
+                                    Enable Serial / USB API (<a href="https://github.com/hoeken/yarrboard#serial-api-protocol">documentation</a>)
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="mb-3 text-center">
-                    <button type="button" class="btn btn-primary" onclick="save_network_settings()">Save Settings</button>
+                    <button type="button" class="btn btn-primary" onclick="save_app_settings()">Save Settings</button>
                 </div>
             </div>
             <div id="systemPage" style="display:none" class="pageContainer mt-3 mx-2">
-                <div class="row">
-                    <div class="col-lg-6 mb-3">
-                        <h5>Firmware</h5>
-                        <div id="firmware_checking" class="alert alert-secondary" role="alert">
-                            Checking for new firmware...
-                        </div>
-                        <div id="firmware_up_to_date" class="alert alert-success" role="alert" style="display: none">
-                            Firmware is up to date.
-                        </div>
-                        <div id="firmware_update_available" style="display: none" class="alert alert-primary mt-3" role="alert">
-                            <h5>New Firmware Available</h5>
-                            <ul>
-                                <li>Version: <span id="firmware_version"></span> (<a id="firmware_bin" href="">Firmware</a>) (<a id="firmware_spiffs" href="">SPIFFS</a>)</li>
-                            </ul>
-                            <div id="firmware_changelog" style="display: none">
-                                <h5>Changelog</h5>
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-6 col-10 mb-3">
+                        <div class="row">
+                            <h5>Firmware</h5>
+                            <div id="firmware_checking" class="alert alert-secondary" role="alert">
+                                Checking for new firmware...
                             </div>
-                            <button id="btn_update_firmware" type="button" class="btn btn-primary" onclick="update_firmware()">Update Firmware</button>
-                            <br/>
-                            <div id="progress_wrapper" style="display: none" class="mt-4">
-                                <p>Update may take a while, please be patient.  After an update, this page will refresh. You may need to clear your browser cache after updating the firmware if you are having issues.</p>
-                                SPIFFS Update:
-                                <div class="progress" role="progressbar" aria-label="Spiffs Update" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                    <div id="spiffs_progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                            <div id="firmware_up_to_date" class="alert alert-success" role="alert" style="display: none">
+                                Firmware is up to date.
+                            </div>
+                            <div id="firmware_update_available" style="display: none" class="alert alert-primary mt-3" role="alert">
+                                <h5>New Firmware Available</h5>
+                                <ul>
+                                    <li>Version: <span id="firmware_version"></span> (<a id="firmware_bin" href="">Firmware</a>) (<a id="firmware_spiffs" href="">SPIFFS</a>)</li>
+                                </ul>
+                                <div id="firmware_changelog" style="display: none">
+                                    <h5>Changelog</h5>
                                 </div>
+                                <button id="btn_update_firmware" type="button" class="btn btn-primary" onclick="update_firmware()">Update Firmware</button>
                                 <br/>
-                                Firmware Update:
-                                <div class="progress" role="progressbar" aria-label="Firmware Update" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                    <div id="firmware_progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                <div id="progress_wrapper" style="display: none" class="mt-4">
+                                    <p>Update may take a while, please be patient.  After an update, this page will refresh. You may need to clear your browser cache after updating the firmware if you are having issues.</p>
+                                    SPIFFS Update:
+                                    <div class="progress" role="progressbar" aria-label="Spiffs Update" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                        <div id="spiffs_progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                    </div>
+                                    <br/>
+                                    Firmware Update:
+                                    <div class="progress" role="progressbar" aria-label="Firmware Update" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                        <div id="firmware_progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <h5>Miscellaneous</h5>
-                        <button class="btn btn-primary" type="button" onclick="restart_board()">Restart Board</button>
-                        <button class="btn btn-danger" type="button" onclick="reset_to_factory()">Reset to Factory Defaults</button>
+                        <div class="row">
+                            <h5>Miscellaneous</h5>
+                            <button class="btn btn-primary mb-3" type="button" onclick="restart_board()">Restart Board</button>
+                            <button class="btn btn-danger" type="button" onclick="reset_to_factory()">Reset to Factory Defaults</button>
+                        </div>
                     </div>
                 </div>
             </div>

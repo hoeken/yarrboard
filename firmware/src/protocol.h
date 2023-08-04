@@ -36,15 +36,17 @@ void handleReceivedJSON(const JsonObject& doc, char *output, byte mode, uint32_t
 void handleSetBoardName(const JsonObject& doc, char * output);
 void handleSetChannel(const JsonObject& doc, char * output);
 void handleSetNetworkConfig(const JsonObject& doc, char * output);
+void handleSetAppConfig(const JsonObject& doc, char * output);
 void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t client_id);
 void handleRestart(const JsonObject& doc, char * output);
 void handleFactoryReset(const JsonObject& doc, char * output);
 void handleOTAStart(const JsonObject& doc, char * output);
 
 void generateUpdateJSON(char * jsonBuffer);
+void generateConfigJSON(char * jsonBuffer);
 void generateStatsJSON(char * jsonBuffer);
 void generateNetworkConfigJSON(char * jsonBuffer);
-void generateConfigJSON(char * jsonBuffer);
+void generateAppConfigJSON(char * jsonBuffer);
 void generateOTAProgressUpdateJSON(char * jsonBuffer, float progress, int partition);
 void generateOTAProgressFinishedJSON(char * jsonBuffer);
 void generateErrorJSON(char * jsonBuffer, String error);
