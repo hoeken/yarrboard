@@ -25,7 +25,7 @@ The main (and only) board available is for driving DC loads.  It is designed wit
 
 ## Interface
 
-Since it is based on the esp32, the main communication method is over WiFi using websockets.  This makes for very easy interfacing if you want to write your own scripts.  It also means that the user interface for setup, config, and control are very easy.  Just point your phone to the url of the board and you're good to go.
+Since it is based on the esp32, the main communication method is over WiFi.  Setup, config, and control are very easy using the built-in web portal.  Just point your phone to the url of the board and you're good to go.  Typically this is http://yarrboard.local or http://yarrboard.  You can change this hostname in the settings, or use the IP address instead.
 
 ![Screenshot of UI](/assets/images/ui-screenshot.png)
 
@@ -37,7 +37,7 @@ The plugin for SignalK is called [signalk-yarrboard-plugin](https://github.com/h
 
 ## How To Get One
 
-No production as of right now, but possibly in the future.  It is 100% open source, so its possible to order PCBs, parts, and DIY your own board if you like.  Would be interested in partnering with someone to take care of the manufacturing side of things.
+No production as of right now, but possibly in the future.  It is 100% open source, so its possible to order PCBs, parts, and DIY your own board if you like.  There is the potential of partnering with the right person to take care of the manufacturing side of things, or you could make and sell your own - its open source after all!
 
 ## Installation and Setup
 
@@ -45,7 +45,7 @@ No production as of right now, but possibly in the future.  It is 100% open sour
 * Connect to Yarrboard wifi
 * Open browser to http://yarrboard.local or http://yarrboard
 * Update network settings to connect to your boat wifi
-* Reconnect to boat wifi and 
+* Reconnect your phone to your boat wifi
 * Open browser to http://yarrboard.local or http://yarrboard
 * Update board settings, such as login info, channel names, soft fuses, etc.
 * Install SignalK + signalk-yarrboard-plugin and configure
