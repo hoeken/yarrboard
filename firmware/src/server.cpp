@@ -5,7 +5,8 @@ String app_user = "admin";
 String app_pass = "admin";
 bool require_login = true;
 bool app_enable_api = true;
-bool app_enable_serial = true;
+bool app_enable_serial = false;
+bool is_serial_authenticated = false;
 
 //keep track of our authenticated clients
 const byte clientLimit = 8;
@@ -217,20 +218,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 
 bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id)
 {
-  String myuser = doc["user"];
-  String mypass = doc["pass"];
-
-  //morpheus... i'm in.
-  if (myuser.equals(app_user) && mypass.equals(app_pass))
-    return true;
-
   //are they in our auth array?
   for (byte i=0; i<clientLimit; i++)
     if (authenticatedClientIDs[i] == client_id)
       return true;
 
-  //default to fail then.
-  return false;  
+  //okay check for passed-in credentials
+  return isApiClientLoggedIn(doc);
 }
 
 bool isApiClientLoggedIn(const JsonObject& doc)
@@ -248,7 +242,10 @@ bool isApiClientLoggedIn(const JsonObject& doc)
 
 bool isSerialClientLoggedIn(const JsonObject& doc)
 {
-  return isApiClientLoggedIn(doc);
+  if (is_serial_authenticated)
+    return true;
+  else
+    return isApiClientLoggedIn(doc);
 }
 
 bool logClientIn(uint32_t client_id)

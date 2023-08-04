@@ -361,7 +361,6 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
 
       return generateSuccessJSON(output, "AP mode successful, please connect to new network.");
     }
-
 }
 
 void handleSetAppConfig(const JsonObject& doc, char * output)
@@ -394,8 +393,12 @@ void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t clien
     {
         //check to see if there's room for us.
         if (mode == YBP_MODE_WEBSOCKET)
-            if (!logClientIn(client_id))
-                return generateErrorJSON(output, "Too many connections.");
+        {
+          if (!logClientIn(client_id))
+            return generateErrorJSON(output, "Too many connections.");
+        }
+        else if (mode == YBP_MODE_SERIAL)
+          is_serial_authenticated = true;
 
         return generateSuccessJSON(output, "Login successful.");
     }
