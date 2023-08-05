@@ -13,6 +13,9 @@ Firmware:
 Electronics:
 
 * test qwiic
+* move esp32 to front of board for usb access
+* change 24v on R3/D18 to after fuse (no via needed)
+* 
 
 Long term:
 
