@@ -11,6 +11,7 @@
 
 #include <Arduino.h>
 #include "config.h"
+#include "driver/ledc.h"
 
 //keep track of our channel info.
 extern const byte outputPins[CHANNEL_COUNT];
@@ -33,5 +34,6 @@ void channel_setup();
 void channel_loop();
 void updateChannelState(int channelId);
 void checkSoftFuses();
+void channelFade(uint8_t channel, float duty, int fadeTime);
 
 #endif /* !YARR_CHANNEL_H */

@@ -114,6 +114,8 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
       return handleSetChannel(doc, output);
     else if (!strcmp(cmd, "toggle_channel"))
       return handleToggleChannel(doc, output);
+    else if (!strcmp(cmd, "fade_channel"))
+      return handleFadeChannel(doc, output);
     else if (!strcmp(cmd, "get_config"))
       return generateConfigJSON(output);
     else if (!strcmp(cmd, "get_network_config"))
@@ -334,6 +336,38 @@ void handleToggleChannel(const JsonObject& doc, char * output)
 
   //change our output pin to reflect
   updateChannelState(cid);
+
+  return generateOKJSON(output);
+}
+
+void handleFadeChannel(const JsonObject& doc, char * output)
+{
+  //id is required
+  if (!doc.containsKey("id"))
+    return generateErrorJSON(output, "'id' is a required parameter");
+  if (!doc.containsKey("duty"))
+    return generateErrorJSON(output, "'duty' is a required parameter");
+  if (!doc.containsKey("millis"))
+    return generateErrorJSON(output, "'millis' is a required parameter");
+
+  //is it a valid channel?
+  byte cid = doc["id"];
+  if (!isValidChannel(cid))
+    return generateErrorJSON(output, "Invalid channel id");
+
+  float duty = doc["duty"];
+
+  //what do we hate?  va-li-date!
+  if (duty < 0)
+    return generateErrorJSON(output, "Duty cycle must be >= 0");
+  else if (duty > 1)
+    return generateErrorJSON(output, "Duty cycle must be <= 1");
+
+  channelDutyCycle[cid] = duty;
+
+  int fadeDelay = doc["millis"];
+  
+  channelFade(cid, duty, fadeDelay);
 
   return generateOKJSON(output);
 }

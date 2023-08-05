@@ -195,6 +195,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
+    //TODO: maybe check the canSend first and send a throttle message if needed?
+
     char jsonBuffer[MAX_JSON_LENGTH];
 
     StaticJsonDocument<1024> json;
@@ -211,6 +213,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     else
       handleReceivedJSON(doc, jsonBuffer, YBP_MODE_WEBSOCKET, client->id());
 
+    //only send if we're empty.  Ignore it otherwise.
     if (client->canSend())
       ws.text(client->id(), jsonBuffer);
   }

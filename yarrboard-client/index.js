@@ -8,7 +8,12 @@ var socket_retries = 0;
 var retry_time = 0;
 var last_heartbeat = 0;
 const heartbeat_rate = 1000;
-let messageCount = 0;
+
+let receivedMessageCount = 0;
+let sentMessageCount = 0;
+let lastReceivedMessageCount = 0;
+let lastSentMessageCount = 0;
+let lastMessageUpdateTime = Date.now();
 
 function main()
 {
@@ -36,7 +41,7 @@ function createWebsocket()
 
         doLogin("admin", "admin");
 
-        setTimeout(fadePin, 100);
+        setTimeout(fadePinHardware, 100);
         //setTimeout(togglePin, 100);
         
         let cmd;
@@ -46,6 +51,8 @@ function createWebsocket()
         cmd = {"cmd":"set_channel","id": 0, "duty":0.5};
         
         //setTimeout(function (){speedTest(cmd, 10)}, 100);
+
+        setTimeout(printMessageStats, 1000);
     };
 
     client.onclose = function() {
@@ -53,6 +60,21 @@ function createWebsocket()
     };
 
     client.onmessage = onMessage
+}
+
+function printMessageStats()
+{
+    let delta = Date.now() - lastMessageUpdateTime;
+    let rmps = Math.round(((receivedMessageCount - lastReceivedMessageCount) / delta) * 1000);
+    let smps = Math.round(((sentMessageCount - lastSentMessageCount) / delta) * 1000);
+
+    console.log(`Recd m/s: ${rmps} | Sent m/s: ${smps} | Total Received/Sent: ${receivedMessageCount} / ${sentMessageCount}`);
+
+    lastMessageUpdateTime = Date.now();
+    lastSentMessageCount = sentMessageCount;
+    lastReceivedMessageCount = receivedMessageCount;
+
+    setTimeout(printMessageStats, 1000);
 }
 
 function doLogin(username, password)
@@ -66,9 +88,10 @@ function doLogin(username, password)
 
 function onMessage(message)
 {
-    if (typeof message.data === 'string') {
+    receivedMessageCount++;
+    if (typeof message.data === 'string')
+    {
         let data = JSON.parse(message.data);
-        messageCount++;
         last_heartbeat = Date.now();
         
         if (data.msg == "update")
@@ -84,13 +107,13 @@ function onMessage(message)
             true;
         else
             console.log(data);
-
-        console.log(`Messages: ${messageCount}`);
     }
 }
 
 function sendMessage(message)
 {
+    sentMessageCount++;
+
     if (client.readyState == W3CWebSocket.OPEN) {
         try {
             //console.log(message.cmd);
@@ -235,7 +258,7 @@ async function togglePin()
     }
 }
 
-async function fadePin(d = 5)
+async function fadePin(d = 10)
 {
     let steps = 25;
     let channel = 0;
@@ -271,7 +294,46 @@ async function fadePin(d = 5)
 
             await delay(d)
         }
+
+        sendMessage({
+            "cmd": "set_channel",
+            "id": channel,
+            "state": true
+        });
+        await delay(d)
     }
 }
+
+async function fadePinHardware(d = 1000)
+{
+    let channel = 0;
+    
+    while (true)
+    {
+        sendMessage({
+            "cmd": "set_channel",
+            "id": channel,
+            "state": true
+        });
+        await delay(10)
+
+        sendMessage({
+            "cmd": "fade_channel",
+            "id": channel,
+            "duty": 1,
+            "millis": d
+        });
+        await delay(d+10);
+
+        sendMessage({
+            "cmd": "fade_channel",
+            "id": channel,
+            "duty": 0,
+            "millis": d
+        });
+        await delay(d+10);
+    }
+}
+
 
 main();

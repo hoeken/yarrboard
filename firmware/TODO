@@ -1,8 +1,5 @@
 Firmware:
 
-* ledc fade: https://gist.github.com/CelliesProjects/71dac9b77fd49c598434c8be32dd03d9
-* reset reason: https://espressif-docs.readthedocs-hosted.com/projects/arduino-esp32/en/latest/api/reset_reason.html
-* strcpy update: https://github.com/bblanchon/ArduinoJson/discussions/1955
 * refactor to have objects pass the ArduinoJson instead of passing in the buffer.
     * make sure we are using arduinojson properly and not making a ton of copies
 
@@ -15,6 +12,8 @@ Electronics:
 
 Long term:
 
+* add in reset reason: https://espressif-docs.readthedocs-hosted.com/projects/arduino-esp32/en/latest/api/reset_reason.html
+* ledc fade: https://gist.github.com/CelliesProjects/71dac9b77fd49c598434c8be32dd03d9
 * make a channel struct and use that instaed of 10 different arrays
 * reinvestigate firmware signing
 * figure out how to do safe update with spiffs (2 partitions?)

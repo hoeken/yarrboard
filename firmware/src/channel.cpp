@@ -159,3 +159,14 @@ void checkSoftFuses()
     }
   }
 }
+
+void channelFade(uint8_t channel, float duty, int fadeTime)
+{
+ int pwm = duty * MAX_DUTY_CYCLE;
+ 
+  ledc_fade_func_install(0);
+  ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, pwm, fadeTime);
+  ledc_fade_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, LEDC_FADE_NO_WAIT);  
+}
+
+//ledc_set_fade_step_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t) channel, pwm, uint32_t scale, uint32_t cycle_num, ledc_fade_mode_t fade_mode);
