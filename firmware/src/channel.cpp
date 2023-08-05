@@ -23,7 +23,7 @@ float channelAmperage[CHANNEL_COUNT];
 float channelSoftFuseAmperage[CHANNEL_COUNT];
 float channelAmpHour[CHANNEL_COUNT];
 float channelWattHour[CHANNEL_COUNT];
-String channelNames[CHANNEL_COUNT];
+char channelNames[CHANNEL_COUNT][YB_CHANNEL_NAME_LENGTH];
 unsigned int channelStateChangeCount[CHANNEL_COUNT];
 unsigned int channelSoftFuseTripCount[CHANNEL_COUNT];
 
@@ -32,7 +32,7 @@ const int MAX_DUTY_CYCLE = (int)(pow(2, CHANNEL_PWM_RESOLUTION) - 1);
 
 void channel_setup()
 {
-  String prefIndex;
+  char prefIndex[YB_PREF_KEY_LENGTH];
 
   //intitialize our output pins.
   for (short i = 0; i < CHANNEL_COUNT; i++)
@@ -53,44 +53,44 @@ void channel_setup()
     ledcWrite(i, 0);
 
     //lookup our name
-    prefIndex = "cName" + String(i);
-    if (preferences.isKey(prefIndex.c_str()))
-      channelNames[i] = preferences.getString(prefIndex.c_str());
+    sprintf(prefIndex, "cName%d", i);
+    if (preferences.isKey(prefIndex))
+      strlcpy(channelNames[i], preferences.getString(prefIndex).c_str(), YB_CHANNEL_NAME_LENGTH);
     else
-      channelNames[i] = "Channel #" + String(i);
+      sprintf(channelNames[i], "Channel #%d", i);
 
     //enabled or no
-    prefIndex = "cEnabled" + String(i);
-    if (preferences.isKey(prefIndex.c_str()))
-      channelIsEnabled[i] = preferences.getBool(prefIndex.c_str());
+    sprintf(prefIndex, "cEnabled%d", i);
+    if (preferences.isKey(prefIndex))
+      channelIsEnabled[i] = preferences.getBool(prefIndex);
     else
       channelIsEnabled[i] = true;
 
     //lookup our duty cycle
-    prefIndex = "cDuty" + String(i);
-    if (preferences.isKey(prefIndex.c_str()))
-      channelDutyCycle[i] = preferences.getFloat(prefIndex.c_str());
+    sprintf(prefIndex, "cDuty%d", i);
+    if (preferences.isKey(prefIndex))
+      channelDutyCycle[i] = preferences.getFloat(prefIndex);
     else
       channelDutyCycle[i] = 1.0;
 
     //dimmability.
-    prefIndex = "cDimmable" + String(i);
-    if (preferences.isKey(prefIndex.c_str()))
-      channelIsDimmable[i] = preferences.getBool(prefIndex.c_str());
+    sprintf(prefIndex, "cDimmable%d", i);
+    if (preferences.isKey(prefIndex))
+      channelIsDimmable[i] = preferences.getBool(prefIndex);
     else
       channelIsDimmable[i] = true;
 
     //soft fuse
-    prefIndex = "cSoftFuse" + String(i);
-    if (preferences.isKey(prefIndex.c_str()))
-      channelSoftFuseAmperage[i] = preferences.getFloat(prefIndex.c_str());
+    sprintf(prefIndex, "cSoftFuse%d", i);
+    if (preferences.isKey(prefIndex))
+      channelSoftFuseAmperage[i] = preferences.getFloat(prefIndex);
     else
       channelSoftFuseAmperage[i] = 20.0;
 
     //soft fuse trip count
-    prefIndex = "cTripCount" + String(i);
-    if (preferences.isKey(prefIndex.c_str()))
-      channelSoftFuseTripCount[i] = preferences.getUInt(prefIndex.c_str());
+    sprintf(prefIndex, "cTripCount%d", i);
+    if (preferences.isKey(prefIndex))
+      channelSoftFuseTripCount[i] = preferences.getUInt(prefIndex);
     else
       channelSoftFuseTripCount[i] = 0;
   }
@@ -104,8 +104,9 @@ void channel_loop()
     //after 5 secs of no activity, we can save it.
     if (channelDutyCycleIsThrottled[id] && millis() - channelLastDutyCycleUpdate[id] > 5000)
     {
-      String prefIndex = "cDuty" + String(id);
-      preferences.putFloat(prefIndex.c_str(), channelDutyCycle[id]);
+      char prefIndex[YB_PREF_KEY_LENGTH];
+      sprintf(prefIndex, "cDuty%d", id);
+      preferences.putFloat(prefIndex, channelDutyCycle[id]);
       channelDutyCycleIsThrottled[id] = false;
     }
   }
@@ -148,8 +149,9 @@ void checkSoftFuses()
         channelSoftFuseTripCount[channel]++;
 
         //save to our storage
-        String prefIndex = "cTripCount" + String(channel);
-        preferences.putUInt(prefIndex.c_str(), channelSoftFuseTripCount[channel]);
+        char prefIndex[YB_PREF_KEY_LENGTH];
+        sprintf(prefIndex, "cTripCount%d", channel);
+        preferences.putUInt(prefIndex, channelSoftFuseTripCount[channel]);
 
         //actually shut it down!
         updateChannelState(channel);

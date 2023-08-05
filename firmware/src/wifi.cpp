@@ -17,27 +17,27 @@ const byte DNS_PORT = 53;
 DNSServer dnsServer;
 
 //default config info for our wifi
-String wifi_ssid = "Yarrboard";
-String wifi_pass = "";
-String wifi_mode = "ap";
-String local_hostname = "yarrboard";
+char wifi_ssid[YB_WIFI_SSID_LENGTH] = "Yarrboard";
+char wifi_pass[YB_WIFI_PASSWORD_LENGTH] = "";
+char wifi_mode[16] = "ap";
+char local_hostname[YB_HOSTNAME_LENGTH] = "yarrboard";
 
 //identify yourself!
-String uuid;
+char uuid[13];
 bool is_first_boot = true;
 
 void wifi_setup()
 {
   if (preferences.isKey("local_hostname"))
-    local_hostname = preferences.getString("local_hostname");
+    strlcpy(local_hostname, preferences.getString("local_hostname").c_str(), YB_HOSTNAME_LENGTH);
 
   //wifi login info.
   if (preferences.isKey("wifi_mode"))
   {
     is_first_boot = false;
-    wifi_mode = preferences.getString("wifi_mode");
-    wifi_ssid = preferences.getString("wifi_ssid");
-    wifi_pass = preferences.getString("wifi_pass");
+    strlcpy(wifi_mode, preferences.getString("wifi_mode").c_str(), 16);
+    strlcpy(wifi_ssid, preferences.getString("wifi_ssid").c_str(), YB_WIFI_SSID_LENGTH);
+    strlcpy(wifi_pass, preferences.getString("wifi_pass").c_str(), YB_WIFI_PASSWORD_LENGTH);
   }
   else
     is_first_boot = true;
@@ -45,7 +45,7 @@ void wifi_setup()
   //get a unique ID for us
   byte mac[6];
   WiFi.macAddress(mac);
-  uuid = String(mac[0], HEX) + String(mac[1], HEX) + String(mac[2], HEX) + String(mac[3], HEX) + String(mac[4], HEX) + String(mac[5], HEX);
+  sprintf(uuid, "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   Serial.print("UUID: ");
   Serial.println(uuid);
 
@@ -56,15 +56,15 @@ void wifi_setup()
 void wifi_loop()
 {
   //run our dns... for AP mode
-  if (wifi_mode.equals("ap"))
-      dnsServer.processNextRequest();
+  if (!strcmp(wifi_mode, "ap"))
+    dnsServer.processNextRequest();
 }
 
 void setupWifi()
 {
   //some global config
   WiFi.setSleep(false);
-  WiFi.setHostname(local_hostname.c_str());
+  WiFi.setHostname(local_hostname);
   WiFi.useStaticBuffers(true);  //from: https://github.com/espressif/arduino-esp32/issues/7183
   WiFi.mode(WIFI_AP_STA);
 
@@ -73,7 +73,7 @@ void setupWifi()
   Serial.println(".local");
 
   //which mode do we want?
-  if (wifi_mode.equals("client"))
+  if (!strcmp(wifi_mode, "client"))
   {
     Serial.print("Client mode: ");
     Serial.print(wifi_ssid);
@@ -110,13 +110,13 @@ void setupWifi()
   MDNS.addService("http", "tcp", 80);
 }
 
-bool connectToWifi(String ssid, String pass)
+bool connectToWifi(const char * ssid, const char * pass)
 {
   Serial.print("[WiFi] Connecting to ");
   Serial.println(ssid);
 
   WiFi.setAutoReconnect(true);
-  WiFi.begin(ssid.c_str(), pass.c_str());
+  WiFi.begin(ssid, pass);
 
   // How long to try for?
   int tryDelay = 500;

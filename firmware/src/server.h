@@ -24,8 +24,9 @@
 #include "adc.h"
 #include "fans.h"
 
-extern String app_user;
-extern String app_pass;
+extern char app_user[YB_USERNAME_LENGTH];
+extern char app_pass[YB_PASSWORD_LENGTH];
+
 extern bool require_login;
 extern bool app_enable_api;
 extern bool app_enable_serial;
@@ -42,6 +43,6 @@ bool isApiClientLoggedIn(const JsonObject& doc);
 bool isSerialClientLoggedIn(const JsonObject& doc);
 bool logClientIn(uint32_t client_id);
 
-void sendToAllWebsockets(char * jsonString);
+void sendToAllWebsockets(const char * jsonString);
 
 #endif /* !YARR_SERVER_H */

@@ -23,7 +23,7 @@
 #include "wifi.h"
 
 //extern unsigned int handledMessages;
-extern String board_name;
+extern char board_name[YB_BOARD_NAME_LENGTH];
 
 void protocol_setup();
 void protocol_loop();
@@ -50,8 +50,8 @@ void generateNetworkConfigJSON(char * jsonBuffer);
 void generateAppConfigJSON(char * jsonBuffer);
 void generateOTAProgressUpdateJSON(char * jsonBuffer, float progress, int partition);
 void generateOTAProgressFinishedJSON(char * jsonBuffer);
-void generateErrorJSON(char * jsonBuffer, String error);
-void generateSuccessJSON(char * jsonBuffer, String success);
+void generateErrorJSON(char * jsonBuffer, const char * error);
+void generateSuccessJSON(char * jsonBuffer, const char * success);
 void generateLoginRequiredJSON(char * jsonBuffer);
 void generateInvalidChannelJSON(char * jsonBuffer, byte cid);
 void generatePongJSON(char * jsonBuffer);
@@ -60,6 +60,6 @@ void generateOKJSON(char * jsonBuffer);
 void sendUpdate();
 void sendOTAProgressUpdate(float progress, int partition);
 void sendOTAProgressFinished();
-void sendToAll(char * jsonString);
+void sendToAll(const char * jsonString);
 
 #endif /* !YARR_PROTOCOL_H */

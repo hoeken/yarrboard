@@ -21,6 +21,7 @@ void setup()
 {
   //startup our serial
   Serial.begin(115200);
+  Serial.setTimeout(50);
 
   Serial.println("Yarrboard");
   Serial.print("Hardware Version: ");

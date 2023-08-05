@@ -25,7 +25,7 @@ extern float channelAmperage[CHANNEL_COUNT];
 extern float channelSoftFuseAmperage[CHANNEL_COUNT];
 extern float channelAmpHour[CHANNEL_COUNT];
 extern float channelWattHour[CHANNEL_COUNT];
-extern String channelNames[CHANNEL_COUNT];
+extern char channelNames[CHANNEL_COUNT][YB_CHANNEL_NAME_LENGTH];
 extern unsigned int channelStateChangeCount[CHANNEL_COUNT];
 extern unsigned int channelSoftFuseTripCount[CHANNEL_COUNT];
 

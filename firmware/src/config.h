@@ -9,15 +9,6 @@
 #ifndef YARR_CONFIG_H
 #define YARR_CONFIG_H
 
-//bytes for sending json
-#define MAX_JSON_LENGTH 2000
-#define YBP_MODE_WEBSOCKET 0
-#define YBP_MODE_HTTP      1
-#define YBP_MODE_SERIAL    2
-
-//in milliseconds
-#define YB_UPDATE_FREQUENCY 250
-
 // enable one of these
 //#define CONFIG_8CH_MOSFET_REVA
 //#define CONFIG_8CH_MOSFET_REVB
@@ -35,4 +26,23 @@
 #ifndef CHANNEL_PWM_RESOLUTION
   #define CHANNEL_PWM_RESOLUTION 10
 #endif
+
+//bytes for sending json
+#define MAX_JSON_LENGTH 2000
+#define YBP_MODE_WEBSOCKET 0
+#define YBP_MODE_HTTP      1
+#define YBP_MODE_SERIAL    2
+
+//in milliseconds
+#define YB_UPDATE_FREQUENCY 250
+
+#define YB_PREF_KEY_LENGTH 16
+#define YB_BOARD_NAME_LENGTH 31
+#define YB_USERNAME_LENGTH 31
+#define YB_PASSWORD_LENGTH 31
+#define YB_CHANNEL_NAME_LENGTH 31
+#define YB_WIFI_SSID_LENGTH 33
+#define YB_WIFI_PASSWORD_LENGTH 64
+#define YB_HOSTNAME_LENGTH 64
+
 #endif // YARR_CONFIG_H

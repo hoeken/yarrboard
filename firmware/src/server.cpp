@@ -1,8 +1,8 @@
 #include "server.h"
 
 //username / password for websocket authentication
-String app_user = "admin";
-String app_pass = "admin";
+char app_user[YB_USERNAME_LENGTH] = "admin";
+char app_pass[YB_PASSWORD_LENGTH] = "admin";
 bool require_login = true;
 bool app_enable_api = true;
 bool app_enable_serial = false;
@@ -19,13 +19,13 @@ void server_setup()
 {
   //look up our board name
   if (preferences.isKey("boardName"))
-    board_name = preferences.getString("boardName");
+    strlcpy(board_name, preferences.getString("boardName").c_str(), YB_BOARD_NAME_LENGTH);
 
   //look up our username/password
   if (preferences.isKey("app_user"))
-    app_user = preferences.getString("app_user");
+    strlcpy(app_user, preferences.getString("app_user").c_str(), YB_USERNAME_LENGTH);
   if (preferences.isKey("app_pass"))
-    app_pass = preferences.getString("app_pass");
+    strlcpy(app_pass, preferences.getString("app_pass").c_str(), YB_PASSWORD_LENGTH);
   if (preferences.isKey("require_login"))
     require_login = preferences.getBool("require_login");
   if (preferences.isKey("appEnableApi"))
@@ -143,7 +143,7 @@ void server_loop()
   ws.cleanupClients();
 }
 
-void sendToAllWebsockets(char * jsonString)
+void sendToAllWebsockets(const char * jsonString)
 {
   //send the message to all authenticated clients.
   if (require_login)
@@ -204,8 +204,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     //was there a problem, officer?
     if (err)
     {
-      String error = "deserializeJson() failed with code ";
-      error += err.c_str();
+      char error[64];
+      sprintf(error, "deserializeJson() failed with code %s", err.c_str());
       generateErrorJSON(jsonBuffer, error);
     }
     else
@@ -229,11 +229,19 @@ bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id)
 
 bool isApiClientLoggedIn(const JsonObject& doc)
 {
-  String myuser = doc["user"];
-  String mypass = doc["pass"];
+  if (!doc.containsKey("user"))
+    return false;
+  if (!doc.containsKey("pass"))
+    return false;
+
+  //init
+  char myuser[YB_USERNAME_LENGTH];
+  char mypass[YB_PASSWORD_LENGTH];
+  strlcpy(myuser, doc["user"], YB_USERNAME_LENGTH);
+  strlcpy(mypass, doc["pass"], YB_PASSWORD_LENGTH);
 
   //morpheus... i'm in.
-  if (myuser.equals(app_user) && mypass.equals(app_pass))
+  if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
     return true;
 
   //default to fail then.

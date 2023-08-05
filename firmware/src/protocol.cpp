@@ -8,7 +8,7 @@
 
 #include "protocol.h"
 
-String board_name = "Yarrboard";
+char board_name[YB_BOARD_NAME_LENGTH] = "Yarrboard";
 
 //for tracking our message loop
 unsigned long previousMessageMillis = 0;
@@ -56,21 +56,22 @@ void protocol_loop()
 
 void handleSerialJson()
 {
-  String input = Serial.readStringUntil('\n');
-
   StaticJsonDocument<1024> json;
-  DeserializationError err = deserializeJson(json, input);
+  DeserializationError err = deserializeJson(json, Serial);
   JsonObject doc = json.as<JsonObject>();
 
   char jsonBuffer[MAX_JSON_LENGTH];
 
-  //is there a problem, officer?
+  //ignore newlines with serial.
   if (err)
   {
-    String error = "deserializeJson() failed with code ";
-    error += err.c_str();
-    generateErrorJSON(jsonBuffer, error);
-    Serial.println(jsonBuffer);
+    if (strcmp(err.c_str(), "EmptyInput"))
+    {
+      char error[64];
+      sprintf(error, "deserializeJson() failed with code %s", err.c_str());
+      generateErrorJSON(jsonBuffer, error);
+      Serial.println(jsonBuffer);
+    }
   }
   else
   {
@@ -81,19 +82,23 @@ void handleSerialJson()
 
 void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t client_id)
 {
+  //make sure its correct
+  if (!doc.containsKey("cmd"))
+    return generateErrorJSON(output, "'cmd' is a required parameter.");
+
   //what is your command?
-  String cmd = doc["cmd"];
+  const char* cmd = doc["cmd"];
 
   //keep track!
   handledMessages++;
   totalHandledMessages++;
 
   //only pages with no login requirements
-  if (cmd.equals("login") || cmd.equals("ping"))
+  if (!strcmp(cmd, "login") || !strcmp(cmd, "ping"))
   {
-    if (cmd.equals("login"))
+    if (!strcmp(cmd, "login"))
       return handleLogin(doc, output, mode, client_id);
-    else if (cmd.equals("ping"))
+    else if (!strcmp(cmd, "ping"))
       return generatePongJSON(output);
   }
   else
@@ -103,31 +108,31 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
         return generateLoginRequiredJSON(output);
 
     //what is your command?
-    if (cmd.equals("set_boardname"))
+    if (!strcmp(cmd, "set_boardname"))
       return handleSetBoardName(doc, output);   
-    else if (cmd.equals("set_channel"))
+    else if (!strcmp(cmd, "set_channel"))
       return handleSetChannel(doc, output);
-    else if (cmd.equals("toggle_channel"))
+    else if (!strcmp(cmd, "toggle_channel"))
       return handleToggleChannel(doc, output);
-    else if (cmd.equals("get_config"))
+    else if (!strcmp(cmd, "get_config"))
       return generateConfigJSON(output);
-    else if (cmd.equals("get_network_config"))
+    else if (!strcmp(cmd, "get_network_config"))
       return generateNetworkConfigJSON(output);
-    else if (cmd.equals("set_network_config"))
+    else if (!strcmp(cmd, "set_network_config"))
       return handleSetNetworkConfig(doc, output);
-    else if (cmd.equals("get_app_config"))
+    else if (!strcmp(cmd, "get_app_config"))
       return generateAppConfigJSON(output);
-    else if (cmd.equals("set_app_config"))
+    else if (!strcmp(cmd, "set_app_config"))
       return handleSetAppConfig(doc, output);
-    else if (cmd.equals("get_stats"))
+    else if (!strcmp(cmd, "get_stats"))
       return generateStatsJSON(output);
-    else if (cmd.equals("get_update"))
+    else if (!strcmp(cmd, "get_update"))
       return generateUpdateJSON(output);
-    else if (cmd.equals("restart"))
+    else if (!strcmp(cmd, "restart"))
       return handleRestart(doc, output);
-    else if (cmd.equals("factory_reset"))
+    else if (!strcmp(cmd, "factory_reset"))
       return handleFactoryReset(doc, output);
-    else if (cmd.equals("ota_start"))
+    else if (!strcmp(cmd, "ota_start"))
       return handleOTAStart(doc, output);
     else
       return generateErrorJSON(output, "Invalid command.");
@@ -139,15 +144,22 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
 
 void handleSetBoardName(const JsonObject& doc, char * output)
 {
-    String value = doc["value"];
-    if (value.length() > 30)
-      return generateErrorJSON(output, "Maximum board name length is 30 characters.");
+    if (!doc.containsKey("value"))
+      return generateErrorJSON(output, "'value' is a required parameter");
+
+    //is it too long?
+    if (strlen(doc["value"]) > YB_BOARD_NAME_LENGTH-1)
+    {
+      char error[50];
+      sprintf(error, "Maximum board name length is %s characters.", YB_BOARD_NAME_LENGTH-1);
+      return generateErrorJSON(output, error);
+    }
 
     //update variable
-    board_name = value;
+    strlcpy(board_name, doc["value"], YB_BOARD_NAME_LENGTH);
 
     //save to our storage
-    preferences.putString("boardName", value);
+    preferences.putString("boardName", board_name);
 
     //give them the updated config
     return generateConfigJSON(output);
@@ -155,6 +167,8 @@ void handleSetBoardName(const JsonObject& doc, char * output)
 
 void handleSetChannel(const JsonObject& doc, char * output)
 {
+  char prefIndex[YB_PREF_KEY_LENGTH];
+
   //id is required
   if (!doc.containsKey("id"))
     return generateErrorJSON(output, "'id' is a required parameter");
@@ -203,14 +217,15 @@ void handleSetChannel(const JsonObject& doc, char * output)
       return generateErrorJSON(output, "Duty cycle must be >= 0");
     else if (duty > 1)
       return generateErrorJSON(output, "Duty cycle must be <= 1");
-    else {
+    else
+    {
       channelDutyCycle[cid] = duty;
 
       //save to our storage
-      String prefIndex = "cDuty" + String(cid);
+      sprintf(prefIndex, "cDuty%d", cid);
       if (millis() - channelLastDutyCycleUpdate[cid] > 1000)
       {
-        preferences.putFloat(prefIndex.c_str(), duty);
+        preferences.putFloat(prefIndex, duty);
         channelDutyCycleIsThrottled[cid] = false;
       }
       //make a note so we can save later.
@@ -229,16 +244,18 @@ void handleSetChannel(const JsonObject& doc, char * output)
   //channel name
   if (doc.containsKey("name"))
   {
-    //validate yo mamma.
-    String name = doc["name"];
-    if (name.length() > 30)
-      return generateErrorJSON(output, "Maximum channel name length is 30 characters.");
-
-    channelNames[cid] = name;
+    //is it too long?
+    if (strlen(doc["name"]) > YB_CHANNEL_NAME_LENGTH-1)
+    {
+      char error[50];
+      sprintf(error, "Maximum channel name length is %s characters.", YB_CHANNEL_NAME_LENGTH-1);
+      return generateErrorJSON(output, error);
+    }
 
     //save to our storage
-    String prefIndex = "cName" + String(cid);
-    preferences.putString(prefIndex.c_str(), name);
+    strlcpy(channelNames[cid], doc["name"], YB_BOARD_NAME_LENGTH);
+    sprintf(prefIndex, "cName%d", cid);
+    preferences.putString(prefIndex, channelNames[cid]);
 
     //give them the updated config
     return generateConfigJSON(output);
@@ -251,8 +268,8 @@ void handleSetChannel(const JsonObject& doc, char * output)
     channelIsDimmable[cid] = isDimmable;
 
     //save to our storage
-    String prefIndex = "cDimmable" + String(cid);
-    preferences.putBool(prefIndex.c_str(), isDimmable);
+    sprintf(prefIndex, "cDimmable%d", cid);
+    preferences.putBool(prefIndex, isDimmable);
 
     //give them the updated config
     return generateConfigJSON(output);
@@ -266,8 +283,8 @@ void handleSetChannel(const JsonObject& doc, char * output)
     channelIsEnabled[cid] = enabled;
 
     //save to our storage
-    String prefIndex = "cEnabled" + String(cid);
-    preferences.putBool(prefIndex.c_str(), enabled);
+    sprintf(prefIndex, "cEnabled%d", cid);
+    preferences.putBool(prefIndex, enabled);
 
     //give them the updated config
     return generateConfigJSON(output);
@@ -284,8 +301,8 @@ void handleSetChannel(const JsonObject& doc, char * output)
     channelSoftFuseAmperage[cid] = softFuse;
 
     //save to our storage
-    String prefIndex = "cSoftFuse" + String(cid);
-    preferences.putFloat(prefIndex.c_str(), softFuse);
+    sprintf(prefIndex, "cSoftFuse%d", cid);
+    preferences.putFloat(prefIndex, softFuse);
 
     //give them the updated config
     return generateConfigJSON(output);
@@ -326,20 +343,55 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
     //clear our first boot flag since they submitted the network page.
     is_first_boot = false;
 
+    char error[50];
+
+    //error checking
+    if (!doc.containsKey("wifi_mode"))
+      return generateErrorJSON(output, "'wifi_mode' is a required parameter");
+    if (!doc.containsKey("wifi_ssid"))
+      return generateErrorJSON(output, "'wifi_ssid' is a required parameter");
+    if (!doc.containsKey("wifi_pass"))
+      return generateErrorJSON(output, "'wifi_pass' is a required parameter");
+    if (!doc.containsKey("local_hostname"))
+      return generateErrorJSON(output, "'local_hostname' is a required parameter");
+
+    //is it too long?
+    if (strlen(doc["wifi_ssid"]) > YB_WIFI_SSID_LENGTH-1)
+    {
+      sprintf(error, "Maximum wifi ssid length is %s characters.", YB_WIFI_SSID_LENGTH-1);
+      return generateErrorJSON(output, error);
+    }
+
+    if (strlen(doc["wifi_pass"]) > YB_WIFI_PASSWORD_LENGTH-1)
+    {
+      sprintf(error, "Maximum wifi password length is %s characters.", YB_WIFI_PASSWORD_LENGTH-1);
+      return generateErrorJSON(output, error);
+    }
+
+    if (strlen(doc["local_hostname"]) > YB_HOSTNAME_LENGTH-1)
+    {
+      sprintf(error, "Maximum hostname length is %s characters.", YB_HOSTNAME_LENGTH-1);
+      return generateErrorJSON(output, error);
+    }
+
     //get our data
-    String new_wifi_mode = doc["wifi_mode"].as<String>();
-    String new_wifi_ssid = doc["wifi_ssid"].as<String>();
-    String new_wifi_pass = doc["wifi_pass"].as<String>();
-    local_hostname = doc["local_hostname"].as<String>();
+    char new_wifi_mode[16];
+    char new_wifi_ssid[YB_WIFI_SSID_LENGTH];
+    char new_wifi_pass[YB_WIFI_PASSWORD_LENGTH];
+    
+    strlcpy(new_wifi_mode, doc["wifi_mode"], 16);
+    strlcpy(new_wifi_ssid, doc["wifi_ssid"], YB_WIFI_SSID_LENGTH);
+    strlcpy(new_wifi_pass, doc["wifi_pass"], YB_WIFI_PASSWORD_LENGTH);
+    strlcpy(local_hostname, doc["local_hostname"], YB_HOSTNAME_LENGTH);
 
     //no special cases here.
     preferences.putString("local_hostname", local_hostname);
 
     //make sure we can connect before we save
-    if (new_wifi_mode.equals("client"))
+    if (!strcmp(new_wifi_mode, "client"))
     {
       //did we change username/password?
-      if (!new_wifi_ssid.equals(wifi_ssid) || !new_wifi_pass.equals(wifi_pass))
+      if (strcmp(new_wifi_ssid, wifi_ssid) || strcmp(new_wifi_pass, wifi_pass))
       {
         //try connecting.
         if (connectToWifi(new_wifi_ssid, new_wifi_pass))
@@ -348,7 +400,7 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
           return generateSuccessJSON(output, "Connected to new WiFi.");
 
           //changing modes?
-          if (wifi_mode.equals("ap"))
+          if (!strcmp(wifi_mode, "ap"))
             WiFi.softAPdisconnect();
 
           //save to flash
@@ -357,9 +409,9 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
           preferences.putString("wifi_pass", new_wifi_pass);
 
           //save for local use
-          wifi_mode = new_wifi_mode;
-          wifi_ssid = new_wifi_ssid;
-          wifi_pass = new_wifi_pass;
+          strlcpy(wifi_mode, new_wifi_mode, 16);
+          strlcpy(wifi_ssid, new_wifi_ssid, YB_WIFI_SSID_LENGTH);
+          strlcpy(wifi_pass, new_wifi_pass, YB_WIFI_PASSWORD_LENGTH);
         }
         //nope, setup our wifi back to default.
         else
@@ -381,9 +433,9 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
       preferences.putString("wifi_pass", new_wifi_pass);
 
       //save for local use.
-      wifi_mode = new_wifi_mode;
-      wifi_ssid = new_wifi_ssid;
-      wifi_pass = new_wifi_pass;
+      strlcpy(wifi_mode, new_wifi_mode, 16);
+      strlcpy(wifi_ssid, new_wifi_ssid, YB_WIFI_SSID_LENGTH);
+      strlcpy(wifi_pass, new_wifi_pass, YB_WIFI_PASSWORD_LENGTH);
 
       //switch us into AP mode
       setupWifi();
@@ -394,9 +446,30 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
 
 void handleSetAppConfig(const JsonObject& doc, char * output)
 {
+    if (!doc.containsKey("app_user"))
+      return generateErrorJSON(output, "'app_user' is a required parameter");
+    if (!doc.containsKey("app_pass"))
+      return generateErrorJSON(output, "'app_pass' is a required parameter");
+
+    //username length checker
+    if (strlen(doc["app_user"]) > YB_USERNAME_LENGTH-1)
+    {
+      char error[50];
+      sprintf(error, "Maximum username length is %s characters.", YB_USERNAME_LENGTH-1);
+      return generateErrorJSON(output, error);
+    }
+
+    //password length checker
+    if (strlen(doc["app_pass"]) > YB_PASSWORD_LENGTH-1)
+    {
+      char error[50];
+      sprintf(error, "Maximum password length is %s characters.", YB_PASSWORD_LENGTH-1);
+      return generateErrorJSON(output, error);
+    }
+
     //get our data
-    app_user = doc["app_user"].as<String>();
-    app_pass = doc["app_pass"].as<String>();
+    strlcpy(app_user, doc["app_user"], YB_USERNAME_LENGTH);
+    strlcpy(app_pass, doc["app_pass"], YB_PASSWORD_LENGTH);
     require_login = doc["require_login"];
     app_enable_api = doc["app_enable_api"];
     app_enable_serial = doc["app_enable_serial"];
@@ -414,11 +487,20 @@ void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t clien
     if (!require_login)
       return generateErrorJSON(output, "Login not required.");
 
-    String myuser = doc["user"];
-    String mypass = doc["pass"];
+  if (!doc.containsKey("user"))
+    return generateErrorJSON(output, "'user' is a required parameter");
+
+  if (!doc.containsKey("pass"))
+    return generateErrorJSON(output, "'pass' is a required parameter");
+
+    //init
+    char myuser[YB_USERNAME_LENGTH];
+    char mypass[YB_PASSWORD_LENGTH];
+    strlcpy(myuser, doc["user"], YB_USERNAME_LENGTH);
+    strlcpy(mypass, doc["pass"], YB_PASSWORD_LENGTH);
 
     //morpheus... i'm in.
-    if (myuser.equals(app_user) && mypass.equals(app_pass))
+    if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
     {
         //check to see if there's room for us.
         if (mode == YBP_MODE_WEBSOCKET)
@@ -480,7 +562,7 @@ void generateStatsJSON(char * jsonBuffer)
   object["bus_voltage"] = busVoltage;
 
   //what is our IP address?
-  if (wifi_mode.equals("ap"))
+  if (!strcmp(wifi_mode, "ap"))
     object["ip_address"] = apIP;
   else
     object["ip_address"] = WiFi.localIP();
@@ -640,7 +722,7 @@ void generateOTAProgressFinishedJSON(char * jsonBuffer)
   serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
 }
 
-void generateErrorJSON(char * jsonBuffer, String error)
+void generateErrorJSON(char * jsonBuffer, const char* error)
 {
   // create an object
   StaticJsonDocument<256> doc;
@@ -652,7 +734,7 @@ void generateErrorJSON(char * jsonBuffer, String error)
   serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
 }
 
-void generateSuccessJSON(char * jsonBuffer, String success)
+void generateSuccessJSON(char * jsonBuffer, const char* success)
 {
   // create an object
   StaticJsonDocument<256> doc;
@@ -739,7 +821,7 @@ void sendOTAProgressFinished()
   sendToAll(jsonBuffer);
 }
 
-void sendToAll(char * jsonString)
+void sendToAll(const char * jsonString)
 {
   sendToAllWebsockets(jsonString);
 
