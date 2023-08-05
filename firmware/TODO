@@ -27,9 +27,3 @@ Long term:
 * can we get the code smaller?
     * refactor to remove Arduino dependency?
 * N2K support
-
-Case Design:
-
-* spacers should through bolt from bottom of board
-* make walls thicker (2mm?)
-* 

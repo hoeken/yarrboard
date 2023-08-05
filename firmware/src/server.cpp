@@ -158,7 +158,7 @@ void sendToAllWebsockets(const char * jsonString)
     if (ws.availableForWriteAll())
       ws.textAll(jsonString);
     else
-      Serial.println("[socket] queue full");
+      Serial.println("[socket] outbound queue full");
   }
 }
 

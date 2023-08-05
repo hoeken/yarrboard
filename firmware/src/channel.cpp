@@ -34,6 +34,9 @@ void channel_setup()
 {
   char prefIndex[YB_PREF_KEY_LENGTH];
 
+  //for hardware fade
+  ledc_fade_func_install(0);
+
   //intitialize our output pins.
   for (short i = 0; i < CHANNEL_COUNT; i++)
   {
@@ -160,13 +163,49 @@ void checkSoftFuses()
   }
 }
 
-void channelFade(uint8_t channel, float duty, int fadeTime)
+void channelFade(uint8_t channel, float duty, int max_fade_time_ms)
 {
- int pwm = duty * MAX_DUTY_CYCLE;
- 
-  ledc_fade_func_install(0);
-  ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, pwm, fadeTime);
-  ledc_fade_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, LEDC_FADE_NO_WAIT);  
+  int target_duty = duty * MAX_DUTY_CYCLE;
+
+  //this is borrowed from ledc_set_fade_with_time
+  uint32_t freq = CHANNEL_PWM_FREQUENCY;
+  uint32_t max_duty = MAX_DUTY_CYCLE;
+  int duty_cur = ledcRead(channel);
+  uint32_t duty_delta = target_duty > duty_cur ? target_duty - duty_cur : duty_cur - target_duty;
+
+  //Serial.printf("freq: %d\n", freq);
+  //Serial.printf("max duty: %d\n", max_duty);
+  //Serial.printf("duty cur: %d\n", duty_cur);
+  //Serial.printf("duty target: %d\n", target_duty);
+  //Serial.printf("duty delta: %d\n", duty_delta);
+
+  if (duty_delta == 0)
+    return;
+
+  int total_cycles = max_fade_time_ms * freq / 1000;
+  if (total_cycles == 0)
+  {
+    ledcWrite(channel, target_duty);
+    return;
+  }
+
+  int scale, cycle_num;
+  if (total_cycles > duty_delta) {
+      scale = 1;
+      cycle_num = total_cycles / duty_delta;
+  } else {
+      cycle_num = 1;
+      scale = (duty_delta + total_cycles - 1) / total_cycles;
+  }
+
+  if (cycle_num > 255)
+    cycle_num = 255;
+  //end borrowed ledc code
+
+  //Serial.printf("scale: %d\n", scale);
+  //Serial.printf("cycle num: %d\n", cycle_num);
+
+  esp_err_t result = ledc_set_fade_step_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, target_duty, scale, cycle_num, LEDC_FADE_NO_WAIT);
 }
 
 void channelSetDuty(int cid, float duty)

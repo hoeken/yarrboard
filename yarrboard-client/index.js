@@ -22,7 +22,7 @@ function main()
 
 function createWebsocket()
 {
-    client = new W3CWebSocket('ws://yarrboard.local/ws');
+    client = new W3CWebSocket('ws://fullmain.local/ws');
 
     client.onerror = function() {
         console.log('[socket] Connection error');
@@ -39,10 +39,16 @@ function createWebsocket()
         //our connection watcher
         setTimeout(sendHeartbeat, heartbeat_rate);
 
-        doLogin("admin", "admin");
+        //doLogin("admin", "admin");
 
-        setTimeout(fadePinHardware, 100);
-        //setTimeout(togglePin, 100);
+        setTimeout(function (){fadePinHardware(0, 2500)}, 100);
+        setTimeout(function (){fadePinHardware(1, 2000)}, 200);
+        setTimeout(function (){fadePinHardware(2, 1500)}, 300);
+        setTimeout(function (){fadePinHardware(3, 1000)}, 100);
+        setTimeout(function (){fadePinHardware(4, 500)}, 100);
+        setTimeout(function (){fadePinHardware(5, 250)}, 100);
+        setTimeout(function (){fadePinHardware(6, 100)}, 100);
+        setTimeout(function (){fadePinHardware(7, 50)}, 100);
         
         let cmd;
         //cmd = {"cmd":"ping"}
@@ -301,10 +307,8 @@ async function fadePin(d = 10)
     }
 }
 
-async function fadePinHardware(d = 250)
+async function fadePinHardware(channel = 0, d = 250)
 {
-    let channel = 0;
-
     while (true)
     {
         sendMessage({
