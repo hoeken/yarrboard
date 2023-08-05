@@ -102,7 +102,7 @@ void channel_loop()
   for (byte id = 0; id < CHANNEL_COUNT; id++)
   {
     //after 5 secs of no activity, we can save it.
-    if (channelDutyCycleIsThrottled[id] && millis() - channelLastDutyCycleUpdate[id] > 5000)
+    if (channelDutyCycleIsThrottled[id] && millis() - channelLastDutyCycleUpdate[id] > YB_DUTY_SAVE_TIMEOUT)
     {
       char prefIndex[YB_PREF_KEY_LENGTH];
       sprintf(prefIndex, "cDuty%d", id);
@@ -169,4 +169,24 @@ void channelFade(uint8_t channel, float duty, int fadeTime)
   ledc_fade_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, LEDC_FADE_NO_WAIT);  
 }
 
-//ledc_set_fade_step_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t) channel, pwm, uint32_t scale, uint32_t cycle_num, ledc_fade_mode_t fade_mode);
+void channelSetDuty(int cid, float duty)
+{
+  //save to ram
+  channelDutyCycle[cid] = duty;
+
+  //save to our storage
+  char prefIndex[YB_PREF_KEY_LENGTH];
+  sprintf(prefIndex, "cDuty%d", cid);
+  if (millis() - channelLastDutyCycleUpdate[cid] > YB_DUTY_SAVE_TIMEOUT)
+  {
+    preferences.putFloat(prefIndex, duty);
+    channelDutyCycleIsThrottled[cid] = false;
+  }
+  //make a note so we can save later.
+  else
+    channelDutyCycleIsThrottled[cid] = true;
+
+  //we want the clock to reset every time we change the duty cycle
+  //this way, long led fading sessions are only one write.
+  channelLastDutyCycleUpdate[cid] = millis();
+}

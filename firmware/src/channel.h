@@ -35,5 +35,6 @@ void channel_loop();
 void updateChannelState(int channelId);
 void checkSoftFuses();
 void channelFade(uint8_t channel, float duty, int fadeTime);
+void channelSetDuty(int channelId, float duty);
 
 #endif /* !YARR_CHANNEL_H */

@@ -219,25 +219,9 @@ void handleSetChannel(const JsonObject& doc, char * output)
       return generateErrorJSON(output, "Duty cycle must be >= 0");
     else if (duty > 1)
       return generateErrorJSON(output, "Duty cycle must be <= 1");
-    else
-    {
-      channelDutyCycle[cid] = duty;
 
-      //save to our storage
-      sprintf(prefIndex, "cDuty%d", cid);
-      if (millis() - channelLastDutyCycleUpdate[cid] > 1000)
-      {
-        preferences.putFloat(prefIndex, duty);
-        channelDutyCycleIsThrottled[cid] = false;
-      }
-      //make a note so we can save later.
-      else
-        channelDutyCycleIsThrottled[cid] = true;
-
-      //we want the clock to reset every time we change the duty cycle
-      //this way, long led fading sessions are only one write.
-      channelLastDutyCycleUpdate[cid] = millis();
-    }
+    //okay, we're good.
+    channelSetDuty(cid, duty);
 
     //change our output pin to reflect
     updateChannelState(cid);
@@ -363,9 +347,10 @@ void handleFadeChannel(const JsonObject& doc, char * output)
   else if (duty > 1)
     return generateErrorJSON(output, "Duty cycle must be <= 1");
 
-  channelDutyCycle[cid] = duty;
+  //okay, we're good.
+  channelSetDuty(cid, duty);
 
-  int fadeDelay = doc["millis"];
+  int fadeDelay = doc["millis"] | 0;
   
   channelFade(cid, duty, fadeDelay);
 

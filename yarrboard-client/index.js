@@ -304,10 +304,10 @@ async function fadePin(d = 10)
     }
 }
 
-async function fadePinHardware(d = 1000)
+async function fadePinHardware(d = 250)
 {
     let channel = 0;
-    
+
     while (true)
     {
         sendMessage({

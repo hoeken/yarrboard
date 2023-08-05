@@ -27,13 +27,16 @@
   #define CHANNEL_PWM_RESOLUTION 10
 #endif
 
+//time before saving fade pwm to preserve flash
+#define YB_DUTY_SAVE_TIMEOUT 5000
+
 //bytes for sending json
 #define MAX_JSON_LENGTH 1500
 #define YBP_MODE_WEBSOCKET 0
 #define YBP_MODE_HTTP      1
 #define YBP_MODE_SERIAL    2
 
-//in milliseconds
+//milliseconds between sending updates on websocket and serial
 #define YB_UPDATE_FREQUENCY 250
 
 #define YB_PREF_KEY_LENGTH 16
