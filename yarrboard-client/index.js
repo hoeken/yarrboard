@@ -8,6 +8,7 @@ var socket_retries = 0;
 var retry_time = 0;
 var last_heartbeat = 0;
 const heartbeat_rate = 1000;
+let messageCount = 0;
 
 function main()
 {
@@ -35,9 +36,16 @@ function createWebsocket()
 
         doLogin("admin", "admin");
 
-        setTimeout(fadePin, 1000);
-        //setTimeout(togglePin, 1000);
-        //setTimeout(speedTest, 1000);
+        setTimeout(fadePin, 100);
+        //setTimeout(togglePin, 100);
+        
+        let cmd;
+        //cmd = {"cmd":"ping"}
+        //cmd = {"cmd":"toggle_channel","id": 0};
+        //cmd = {"cmd":"set_channel","id": 0, "state":true};
+        cmd = {"cmd":"set_channel","id": 0, "duty":0.5};
+        
+        //setTimeout(function (){speedTest(cmd, 10)}, 100);
     };
 
     client.onclose = function() {
@@ -60,12 +68,24 @@ function onMessage(message)
 {
     if (typeof message.data === 'string') {
         let data = JSON.parse(message.data);
+        messageCount++;
+        last_heartbeat = Date.now();
+        
         if (data.msg == "update")
-            console.log("update");
+            true;
+            //console.log("update");
         else if (data.pong)
-            last_heartbeat = Date.now();
+        {
+            true;
+            //console.log(data.pong);
+            //last_heartbeat = Date.now();
+        }
+        else if (data.ok)
+            true;
         else
             console.log(data);
+
+        console.log(`Messages: ${messageCount}`);
     }
 }
 
@@ -85,7 +105,7 @@ function sendMessage(message)
 function sendHeartbeat()
 {
   //did we not get a heartbeat?
-  if (Date.now() - last_heartbeat > heartbeat_rate * 2)
+  if (Date.now() - last_heartbeat > heartbeat_rate * 3)
   {
     console.log("[socket] Missed heartbeat: " + (Date.now() - last_heartbeat))
     client.close();
@@ -112,6 +132,9 @@ function sendHeartbeat()
 
 function retryConnection()
 {
+  //disable this for now.
+  return;
+
   //bail if its good to go
   if (client.readyState == W3CWebSocket.OPEN)
     return;
@@ -146,13 +169,11 @@ function retryConnection()
   setTimeout(retryConnection, my_timeout);
 }
 
-async function speedTest()
+async function speedTest(msg, delay_ms = 10)
 {
     while(true) {
-        sendMessage({
-            "cmd": "get_config"
-        });
-        await delay(8)
+        sendMessage(msg);
+        await delay(delay_ms);
     }
 }
 
@@ -214,20 +235,21 @@ async function togglePin()
     }
 }
 
-async function fadePin()
+async function fadePin(d = 5)
 {
     let steps = 25;
-    let d = 50;
     let channel = 0;
     let max_duty = 1;
 
-    sendMessage({
-        "cmd": "set_channel",
-        "id": channel,
-        "state": true
-    });
+    while (true)
+    {
+        sendMessage({
+            "cmd": "set_channel",
+            "id": channel,
+            "state": true
+        });
+        await delay(d)
 
-    while (true) {
         for (i=0; i<=steps; i++)
         {
             sendMessage({

@@ -29,15 +29,15 @@ bool is_first_boot = true;
 void wifi_setup()
 {
   if (preferences.isKey("local_hostname"))
-    strlcpy(local_hostname, preferences.getString("local_hostname").c_str(), YB_HOSTNAME_LENGTH);
+    strlcpy(local_hostname, preferences.getString("local_hostname").c_str(), sizeof(local_hostname));
 
   //wifi login info.
   if (preferences.isKey("wifi_mode"))
   {
     is_first_boot = false;
-    strlcpy(wifi_mode, preferences.getString("wifi_mode").c_str(), 16);
-    strlcpy(wifi_ssid, preferences.getString("wifi_ssid").c_str(), YB_WIFI_SSID_LENGTH);
-    strlcpy(wifi_pass, preferences.getString("wifi_pass").c_str(), YB_WIFI_PASSWORD_LENGTH);
+    strlcpy(wifi_mode, preferences.getString("wifi_mode").c_str(), sizeof(wifi_mode));
+    strlcpy(wifi_ssid, preferences.getString("wifi_ssid").c_str(), sizeof(wifi_ssid));
+    strlcpy(wifi_pass, preferences.getString("wifi_pass").c_str(), sizeof(wifi_pass));
   }
   else
     is_first_boot = true;

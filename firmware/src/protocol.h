@@ -32,6 +32,7 @@ bool isLoggedIn(const JsonObject& doc, byte mode, uint32_t client_id);
 bool isValidChannel(byte cid);
 
 void handleSerialJson();
+
 void handleReceivedJSON(const JsonObject& doc, char *output, byte mode, uint32_t client_id);
 void handleSetBoardName(const JsonObject& doc, char * output);
 void handleSetChannel(const JsonObject& doc, char * output);

@@ -19,13 +19,13 @@ void server_setup()
 {
   //look up our board name
   if (preferences.isKey("boardName"))
-    strlcpy(board_name, preferences.getString("boardName").c_str(), YB_BOARD_NAME_LENGTH);
+    strlcpy(board_name, preferences.getString("boardName").c_str(), sizeof(board_name));
 
   //look up our username/password
   if (preferences.isKey("app_user"))
-    strlcpy(app_user, preferences.getString("app_user").c_str(), YB_USERNAME_LENGTH);
+    strlcpy(app_user, preferences.getString("app_user").c_str(), sizeof(app_user));
   if (preferences.isKey("app_pass"))
-    strlcpy(app_pass, preferences.getString("app_pass").c_str(), YB_PASSWORD_LENGTH);
+    strlcpy(app_pass, preferences.getString("app_pass").c_str(), sizeof(app_pass));
   if (preferences.isKey("require_login"))
     require_login = preferences.getBool("require_login");
   if (preferences.isKey("appEnableApi"))
@@ -237,8 +237,8 @@ bool isApiClientLoggedIn(const JsonObject& doc)
   //init
   char myuser[YB_USERNAME_LENGTH];
   char mypass[YB_PASSWORD_LENGTH];
-  strlcpy(myuser, doc["user"], YB_USERNAME_LENGTH);
-  strlcpy(mypass, doc["pass"], YB_PASSWORD_LENGTH);
+  strlcpy(myuser, doc["user"] | "", sizeof(myuser));
+  strlcpy(mypass, doc["pass"] | "", sizeof(myuser));
 
   //morpheus... i'm in.
   if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))

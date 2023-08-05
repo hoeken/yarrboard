@@ -1,0 +1,34 @@
+++++ Error when running speed test and sending ping messages.  Looks like async_tcp just got too busy.
+
+E (19871) task_wdt: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
+E (19871) task_wdt:  - async_tcp (CPU 0/1)
+E (19871) task_wdt: Tasks currently running:
+E (19871) task_wdt: CPU 0: IDLE
+E (19871) task_wdt: CPU 1: IDLE
+E (19871) task_wdt: Aborting.
+
+abort() was called at PC 0x40106b70 on core 0
+
+++++ Next error when running speed test and sending set_channel messages:
+
+Guru Meditation Error: Core  1 panic'ed (Unhandled debug exception). 
+Debug exception reason: Stack canary watchpoint triggered (async_tcp) 
+Core  1 register dump:
+PC      : 0x400e6606  PS      : 0x00060c36  A0      : 0x800e68b8  A1      : 0x3ffe8540  
+A2      : 0x3ffdfe60  A3      : 0x3ffe1241  A4      : 0x00003fa4  A5      : 0x3ffe51e5  
+A6      : 0x000000a5  A7      : 0x000000cd  A8      : 0x0000349f  A9      : 0x3ffe46e0  
+A10     : 0x000000a5  A11     : 0x3ffdfe60  A12     : 0x00000004  A13     : 0x3ffdfea0  
+A14     : 0x3ffe1205  A15     : 0x00000034  SAR     : 0x0000001a  EXCCAUSE: 0x00000001  
+EXCVADDR: 0x00000000  LBEG    : 0x40089afd  LEND    : 0x40089b1f  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x400e6603:0x3ffe8540 0x400e68b5:0x3ffe8580 0x401862a7:0x3ffe85a0 0x401862f6:0x3ffe85d0 0x40186339:0x3ffe85f0 0x40186482:0x3ffe8610 0x401864ff:0x3ffe8630
+
+  #0  0x400e6603:0x3ffe8540 in AsyncWebSocketClient::_onData(void*, unsigned int) at .pio/libdeps/esp32dev/ESP Async WebServer/src/AsyncWebSocket.cpp:645 (discriminator 2)
+  #1  0x400e68b5:0x3ffe8580 in std::_Function_handler<void (void*, AsyncClient*, void*, unsigned int), AsyncWebSocketClient::AsyncWebSocketClient(AsyncWebServerRequest*, AsyncWebSocket*)::{lambda(void*, AsyncClient*, void*, unsigned int)#7}>::_M_invoke(std::_Any_data const&, void*&&, AsyncClient*&&, std::_Any_data const&, unsigned int&&) at .pio/libdeps/esp32dev/ESP Async WebServer/src/AsyncWebSocket.cpp:483
+      (inlined by) _M_invoke at /home/hoeken/.platformio/packages/toolchain-xtensa-esp32/xtensa-esp32-elf/include/c++/8.4.0/bits/std_function.h:297
+  #2  0x401862a7:0x3ffe85a0 in std::function<void (void*, AsyncClient*, void*, unsigned int)>::operator()(void*, AsyncClient*, void*, unsigned int) const at /home/hoeken/.platformio/packages/toolchain-xtensa-esp32/xtensa-esp32-elf/include/c++/8.4.0/bits/std_function.h:687
+  #3  0x401862f6:0x3ffe85d0 in AsyncClient::_recv(tcp_pcb*, pbuf*, signed char) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:934
+  #4  0x40186339:0x3ffe85f0 in AsyncClient::_s_recv(void*, tcp_pcb*, pbuf*, signed char) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:1210
+  #5  0x40186482:0x3ffe8610 in _handle_async_event(lwip_event_packet_t*) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:162
+  #6  0x401864ff:0x3ffe8630 in _async_service_task(void*) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:197

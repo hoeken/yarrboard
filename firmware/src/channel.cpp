@@ -55,7 +55,7 @@ void channel_setup()
     //lookup our name
     sprintf(prefIndex, "cName%d", i);
     if (preferences.isKey(prefIndex))
-      strlcpy(channelNames[i], preferences.getString(prefIndex).c_str(), YB_CHANNEL_NAME_LENGTH);
+      strlcpy(channelNames[i], preferences.getString(prefIndex).c_str(), sizeof(channelNames[i]));
     else
       sprintf(channelNames[i], "Channel #%d", i);
 

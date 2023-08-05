@@ -156,7 +156,7 @@ void handleSetBoardName(const JsonObject& doc, char * output)
     }
 
     //update variable
-    strlcpy(board_name, doc["value"], YB_BOARD_NAME_LENGTH);
+    strlcpy(board_name, doc["value"] | "Yarrboard", sizeof(board_name));
 
     //save to our storage
     preferences.putString("boardName", board_name);
@@ -253,7 +253,7 @@ void handleSetChannel(const JsonObject& doc, char * output)
     }
 
     //save to our storage
-    strlcpy(channelNames[cid], doc["name"], YB_BOARD_NAME_LENGTH);
+    strlcpy(channelNames[cid], doc["name"] | "Channel ?", sizeof(channelNames[cid]));
     sprintf(prefIndex, "cName%d", cid);
     preferences.putString(prefIndex, channelNames[cid]);
 
@@ -379,10 +379,10 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
     char new_wifi_ssid[YB_WIFI_SSID_LENGTH];
     char new_wifi_pass[YB_WIFI_PASSWORD_LENGTH];
     
-    strlcpy(new_wifi_mode, doc["wifi_mode"], 16);
-    strlcpy(new_wifi_ssid, doc["wifi_ssid"], YB_WIFI_SSID_LENGTH);
-    strlcpy(new_wifi_pass, doc["wifi_pass"], YB_WIFI_PASSWORD_LENGTH);
-    strlcpy(local_hostname, doc["local_hostname"], YB_HOSTNAME_LENGTH);
+    strlcpy(new_wifi_mode, doc["wifi_mode"] | "ap", sizeof(new_wifi_mode));
+    strlcpy(new_wifi_ssid, doc["wifi_ssid"] | "SSID", sizeof(new_wifi_ssid));
+    strlcpy(new_wifi_pass, doc["wifi_pass"] | "PASS", sizeof(new_wifi_pass));
+    strlcpy(local_hostname, doc["local_hostname"] | "yarrboard", sizeof(local_hostname));
 
     //no special cases here.
     preferences.putString("local_hostname", local_hostname);
@@ -409,9 +409,9 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
           preferences.putString("wifi_pass", new_wifi_pass);
 
           //save for local use
-          strlcpy(wifi_mode, new_wifi_mode, 16);
-          strlcpy(wifi_ssid, new_wifi_ssid, YB_WIFI_SSID_LENGTH);
-          strlcpy(wifi_pass, new_wifi_pass, YB_WIFI_PASSWORD_LENGTH);
+          strlcpy(wifi_mode, new_wifi_mode, sizeof(wifi_mode));
+          strlcpy(wifi_ssid, new_wifi_ssid, sizeof(wifi_ssid));
+          strlcpy(wifi_pass, new_wifi_pass, sizeof(wifi_pass));
         }
         //nope, setup our wifi back to default.
         else
@@ -433,9 +433,9 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
       preferences.putString("wifi_pass", new_wifi_pass);
 
       //save for local use.
-      strlcpy(wifi_mode, new_wifi_mode, 16);
-      strlcpy(wifi_ssid, new_wifi_ssid, YB_WIFI_SSID_LENGTH);
-      strlcpy(wifi_pass, new_wifi_pass, YB_WIFI_PASSWORD_LENGTH);
+      strlcpy(wifi_mode, new_wifi_mode, sizeof(wifi_mode));
+      strlcpy(wifi_ssid, new_wifi_ssid, sizeof(wifi_ssid));
+      strlcpy(wifi_pass, new_wifi_pass, sizeof(wifi_pass));
 
       //switch us into AP mode
       setupWifi();
@@ -468,8 +468,8 @@ void handleSetAppConfig(const JsonObject& doc, char * output)
     }
 
     //get our data
-    strlcpy(app_user, doc["app_user"], YB_USERNAME_LENGTH);
-    strlcpy(app_pass, doc["app_pass"], YB_PASSWORD_LENGTH);
+    strlcpy(app_user, doc["app_user"] | "admin", sizeof(app_user));
+    strlcpy(app_pass, doc["app_pass"] | "admin", sizeof(app_pass));
     require_login = doc["require_login"];
     app_enable_api = doc["app_enable_api"];
     app_enable_serial = doc["app_enable_serial"];
@@ -496,8 +496,8 @@ void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t clien
     //init
     char myuser[YB_USERNAME_LENGTH];
     char mypass[YB_PASSWORD_LENGTH];
-    strlcpy(myuser, doc["user"], YB_USERNAME_LENGTH);
-    strlcpy(mypass, doc["pass"], YB_PASSWORD_LENGTH);
+    strlcpy(myuser, doc["user"] | "", sizeof(myuser));
+    strlcpy(mypass, doc["pass"] | "", sizeof(mypass));
 
     //morpheus... i'm in.
     if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
