@@ -5,6 +5,8 @@ Firmware:
 
 * refactor channel into an object
 
+* add msgid global parameter and return it in our messages.
+
 * protocol documentation
 * stability fixes as needed
 

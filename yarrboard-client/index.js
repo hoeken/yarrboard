@@ -155,9 +155,6 @@ function sendHeartbeat()
 
 function retryConnection()
 {
-  //disable this for now.
-  return;
-
   //bail if its good to go
   if (client.readyState == W3CWebSocket.OPEN)
     return;
