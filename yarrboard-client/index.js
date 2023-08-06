@@ -190,17 +190,19 @@ function onMessage(message)
             true;
         else if (data.error == "Websocket busy, throttle connection.")
         {
+            //okay are we throttled already?
             let delta = throttleTime - Date.now();
-            if (delta > 0)
-                throttleTime = Date.now() + delta * 2;
+            if (delta > 50)
+                delta = delta * 1.5;
             else
-                throttleTime = Date.now() + 25;
+                delta = 50;
 
-            
-
-            delta = throttleTime - Date.now();
-
+            //maximum throttle 5s
+            delta = Math.min(5000, delta);
             console.log(`Throttling: ${delta}ms`);
+
+            //okay set our time
+            throttleTime = Date.now() + delta;
         }
         else
             console.log(data);

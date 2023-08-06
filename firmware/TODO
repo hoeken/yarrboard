@@ -1,8 +1,7 @@
 Firmware:
 
-* change the way we are handling success/error/ok messages
-* change message parsing to use FIFO
 * refactor channel into an object
+* change the way we are handling success/error/ok messages
 * break yarrboard-client into own npm module
 * protocol documentation
 * stability fixes as needed

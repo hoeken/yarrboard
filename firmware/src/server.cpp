@@ -8,9 +8,7 @@ bool app_enable_api = true;
 bool app_enable_serial = false;
 bool is_serial_authenticated = false;
 
-bool websocketRequestReady[YB_RECEIVE_BUFFER_COUNT];
-int receiveClientId[YB_RECEIVE_BUFFER_COUNT];
-char receiveBuffer[YB_RECEIVE_BUFFER_COUNT][YB_RECEIVE_BUFFER_LENGTH];
+CircularBuffer<WebsocketRequest*, YB_RECEIVE_BUFFER_COUNT> wsRequests;
 
 //keep track of our authenticated clients
 const byte clientLimit = 8;
@@ -21,12 +19,6 @@ AsyncWebServer server(80);
 
 void server_setup()
 {
-  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
-  {
-    websocketRequestReady[YB_RECEIVE_BUFFER_COUNT] = false;
-    receiveClientId[YB_RECEIVE_BUFFER_COUNT] = 0;
-  }
-
   //look up our board name
   if (preferences.isKey("boardName"))
     strlcpy(board_name, preferences.getString("boardName").c_str(), sizeof(board_name));
@@ -98,11 +90,8 @@ void server_loop()
   ws.cleanupClients();
 
   //process our websockets outside the callback.
-  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
-  {
-    if (websocketRequestReady[i])
-      handleWebsocketMessageLoop(i);
-  }
+  if (!wsRequests.isEmpty())
+    handleWebsocketMessageLoop(wsRequests.shift());
 }
 
 void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request)
@@ -129,42 +118,6 @@ void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request)
   //give them valid json at least
   else
     request->send(200, "application/json", "{}");
-}
-
-bool hasWebSocketRequest()
-{
-  //check if we have any.
-  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)\
-  {
-    if (websocketRequestReady[i])
-      return true;
-  }
-
-  return false;
-}
-
-int getWebsocketRequestSlot()
-{
-  //go until we find a slot.
-  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)\
-  {
-    if (!websocketRequestReady[i])
-      return i;
-  }
-
-  return -1;
-}
-
-int getFreeSlots()
-{
-  int count = 0;
-  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
-  {
-    if (!websocketRequestReady[i])
-      count++;
-  }
-
-  return count;
 }
 
 void sendToAllWebsockets(const char * jsonString)
@@ -219,17 +172,16 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-    int slot = getWebsocketRequestSlot();
-    if (slot >= 0)
+    if (!wsRequests.isFull())
     {
-      websocketRequestReady[slot] = true;
-      receiveClientId[slot] = client->id();
-      strlcpy(receiveBuffer[slot], (char *)data, YB_RECEIVE_BUFFER_LENGTH);
-      return;
+      WebsocketRequest* wr = new WebsocketRequest;
+      wr->client_id = client->id();
+      strlcpy(wr->buffer, (char*)data, YB_RECEIVE_BUFFER_LENGTH); 
+      wsRequests.push(wr);
     }
 
     //start throttling a little bit early so we don't miss anything
-    if (getFreeSlots() <= 4)
+    if (wsRequests.capacity <= 4)
     {
       String jsonBuffer = "{\"error\":\"Websocket busy, throttle connection.\"}";
 
@@ -252,9 +204,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 void closeClientConnection(AsyncWebSocketClient *client)
 {
   //you lose your slots
-  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
-    if (receiveClientId[i] == client->id())
-      websocketRequestReady[i] = false;
+  //for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
+  //  if (receiveClientId[i] == client->id())
+  //    websocketRequestReady[i] = false;
 
   //no more auth for you
   for (byte i=0; i<clientLimit; i++)
@@ -265,7 +217,7 @@ void closeClientConnection(AsyncWebSocketClient *client)
   client->close();
 }
 
-void handleWebsocketMessageLoop(byte slot)
+void handleWebsocketMessageLoop(WebsocketRequest* request)
 {
   unsigned long start = micros();
   unsigned long t1, t2, t3, t4 = 0;
@@ -274,7 +226,7 @@ void handleWebsocketMessageLoop(byte slot)
   StaticJsonDocument<2048> output;
 
   StaticJsonDocument<1024> input;
-  DeserializationError err = deserializeJson(input, receiveBuffer[slot]);
+  DeserializationError err = deserializeJson(input, request->buffer);
 
   String mycmd = input["cmd"] | "???";
 
@@ -288,10 +240,9 @@ void handleWebsocketMessageLoop(byte slot)
     generateErrorJSON(output, error);
   }
   else
-    handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, receiveClientId[slot]);
+    handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, request->client_id);
 
   t2 = micros();
-
 
   //empty messages are valid, so don't send a response
   if (output.size())
@@ -300,15 +251,15 @@ void handleWebsocketMessageLoop(byte slot)
     t3 = micros();
 
     //only send if we're empty.  Ignore it otherwise.
-    if (ws.availableForWrite(receiveClientId[slot]))
-      ws.text(receiveClientId[slot], jsonBuffer);
+    if (ws.availableForWrite(request->client_id))
+      ws.text(request->client_id, jsonBuffer);
     else
       Serial.println("[socket] client full");
   }
   else
     t3 = micros();
 
-  websocketRequestReady[slot] = false;
+  delete request;
 
   t4 = micros();
   unsigned long finish = micros();
