@@ -34,7 +34,6 @@ bool isValidChannel(byte cid);
 void handleSerialJson();
 
 void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id);
-
 void handleSetBoardName(JsonVariantConst input, JsonVariant output);
 void handleSetChannel(JsonVariantConst input, JsonVariant output);
 void handleToggleChannel(JsonVariantConst input, JsonVariant output);

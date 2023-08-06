@@ -47,6 +47,7 @@ bool isSerialClientLoggedIn(JsonVariantConst input);
 bool logClientIn(uint32_t client_id);
 bool hasWebSocketRequest();
 int getWebsocketRequestSlot();
+void closeClientConnection(AsyncWebSocketClient *client);
 
 void sendToAllWebsockets(const char * jsonString);
 

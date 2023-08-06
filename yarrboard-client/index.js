@@ -71,7 +71,7 @@ function createWebsocket()
 
         //setTimeout(function (){fadePin(0, 8)}, 1);
 
-        setTimeout(function (){togglePin(0, 8)}, 1);
+        setTimeout(function (){togglePin(0, 10)}, 1);
 
         //setTimeout(testAllFade, 1);
 
@@ -194,11 +194,13 @@ function onMessage(message)
             if (delta > 0)
                 throttleTime = Date.now() + delta * 2;
             else
-                throttleTime = Date.now() + 1000;
+                throttleTime = Date.now() + 25;
+
+            
 
             delta = throttleTime - Date.now();
 
-            //console.log(`Throttling: ${delta}ms`);
+            console.log(`Throttling: ${delta}ms`);
         }
         else
             console.log(data);
@@ -211,7 +213,7 @@ async function sendMessage(message)
     if (throttleTime > Date.now())
     {
         delta = throttleTime - Date.now();
-        console.log(`throttled ${delta}`);
+        //console.log(`throttled ${delta}`);
         return;
     }
     else

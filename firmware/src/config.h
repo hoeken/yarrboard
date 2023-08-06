@@ -44,7 +44,7 @@
 #define YB_RECEIVE_BUFFER_COUNT 16
 
 //milliseconds between sending updates on websocket and serial
-#define YB_UPDATE_FREQUENCY 500
+#define YB_UPDATE_FREQUENCY 250
 #define YB_ADC_INTERVAL 200
 
 #define YB_PREF_KEY_LENGTH 16

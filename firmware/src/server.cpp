@@ -96,7 +96,7 @@ void server_loop()
 {
   //sometimes websocket clients die badly.
   ws.cleanupClients();
-  
+
   //process our websockets outside the callback.
   for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
   {
@@ -227,19 +227,42 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
       strlcpy(receiveBuffer[slot], (char *)data, YB_RECEIVE_BUFFER_LENGTH);
       return;
     }
-    else
-    {
-      Serial.printf("slots: %d\n", getFreeSlots());
 
+    //start throttling a little bit early so we don't miss anything
+    if (getFreeSlots() <= 4)
+    {
+      String jsonBuffer = "{\"error\":\"Websocket busy, throttle connection.\"}";
+
+      /*
       StaticJsonDocument<128> output;
       char jsonBuffer[128];
-
       generateErrorJSON(output, "Websocket busy, throttle connection.");
-
       serializeJson(output, jsonBuffer);
+      */
+
       client->text(jsonBuffer);
     }
+
+    //if you ignore the throttle request, bye.
+    //if (getFreeSlots() == 0)
+    //  closeClientConnection(client);
   }
+}
+
+void closeClientConnection(AsyncWebSocketClient *client)
+{
+  //you lose your slots
+  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
+    if (receiveClientId[i] == client->id())
+      websocketRequestReady[i] = false;
+
+  //no more auth for you
+  for (byte i=0; i<clientLimit; i++)
+    if (authenticatedClientIDs[i] == client->id())
+      authenticatedClientIDs[i] = 0;
+
+  //goodbye
+  client->close();
 }
 
 void handleWebsocketMessageLoop(byte slot)
