@@ -11,21 +11,8 @@
 #include "channel.h"
 #include "prefs.h"
 
-const byte outputPins[CHANNEL_COUNT] = CHANNEL_PINS;
-bool channelState[CHANNEL_COUNT];
-bool channelTripped[CHANNEL_COUNT];
-float channelDutyCycle[CHANNEL_COUNT];
-bool channelIsEnabled[CHANNEL_COUNT];
-bool channelIsDimmable[CHANNEL_COUNT];
-unsigned long channelLastDutyCycleUpdate[CHANNEL_COUNT];
-bool channelDutyCycleIsThrottled[CHANNEL_COUNT];
-float channelAmperage[CHANNEL_COUNT];
-float channelSoftFuseAmperage[CHANNEL_COUNT];
-float channelAmpHour[CHANNEL_COUNT];
-float channelWattHour[CHANNEL_COUNT];
-char channelNames[CHANNEL_COUNT][YB_CHANNEL_NAME_LENGTH];
-unsigned int channelStateChangeCount[CHANNEL_COUNT];
-unsigned int channelSoftFuseTripCount[CHANNEL_COUNT];
+//the main star of the event
+OutputChannel channels[CHANNEL_COUNT];
 
 //flag for hardware fade status
 static volatile bool isChannelFading[FAN_COUNT];
@@ -51,177 +38,173 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
 
 void channel_setup()
 {
-  char prefIndex[YB_PREF_KEY_LENGTH];
 
   //for hardware fade end callback interrupt
   ledc_fade_func_install(0);
-  ledc_cbs_t callbacks = {
-      .fade_cb = cb_ledc_fade_end_event
-  };
-
-  //intitialize our output pins.
+  //intitialize our channel
   for (short i = 0; i < CHANNEL_COUNT; i++)
   {
-    //init our storage variables.
-    channelState[i] = false;
-    channelTripped[i] = false;
-    channelAmperage[i] = 0.0;
-    channelAmpHour[i] = 0.0;
-    channelWattHour[i] = 0.0;
-    channelLastDutyCycleUpdate[i] = 0;
-    channelDutyCycleIsThrottled[i] = false;
-    isChannelFading[i] = false;
-
-    //initialize our PWM channels
-    //pinMode(outputPins[i], OUTPUT);
-    ledcSetup(i, CHANNEL_PWM_FREQUENCY, CHANNEL_PWM_RESOLUTION);
-    ledcAttachPin(outputPins[i], i);
-    ledcWrite(i, 0);
-
-    //this is our callback handler for fade end.
-    int channel = i;
-    ledc_cb_register(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, &callbacks, (void *)channel);
-
-    //lookup our name
-    sprintf(prefIndex, "cName%d", i);
-    if (preferences.isKey(prefIndex))
-      strlcpy(channelNames[i], preferences.getString(prefIndex).c_str(), sizeof(channelNames[i]));
-    else
-      sprintf(channelNames[i], "Channel #%d", i);
-
-    //enabled or no
-    sprintf(prefIndex, "cEnabled%d", i);
-    if (preferences.isKey(prefIndex))
-      channelIsEnabled[i] = preferences.getBool(prefIndex);
-    else
-      channelIsEnabled[i] = true;
-
-    //lookup our duty cycle
-    sprintf(prefIndex, "cDuty%d", i);
-    if (preferences.isKey(prefIndex))
-      channelDutyCycle[i] = preferences.getFloat(prefIndex);
-    else
-      channelDutyCycle[i] = 1.0;
-
-    //dimmability.
-    sprintf(prefIndex, "cDimmable%d", i);
-    if (preferences.isKey(prefIndex))
-      channelIsDimmable[i] = preferences.getBool(prefIndex);
-    else
-      channelIsDimmable[i] = true;
-
-    //soft fuse
-    sprintf(prefIndex, "cSoftFuse%d", i);
-    if (preferences.isKey(prefIndex))
-      channelSoftFuseAmperage[i] = preferences.getFloat(prefIndex);
-    else
-      channelSoftFuseAmperage[i] = 20.0;
-
-    //soft fuse trip count
-    sprintf(prefIndex, "cTripCount%d", i);
-    if (preferences.isKey(prefIndex))
-      channelSoftFuseTripCount[i] = preferences.getUInt(prefIndex);
-    else
-      channelSoftFuseTripCount[i] = 0;
+    channels[i].id = i;
+    channels[i].setup();
   }
 }
 
 void channel_loop()
 {
-  //are any of our channels throttled?
+  //maintenance on our channels.
   for (byte id = 0; id < CHANNEL_COUNT; id++)
+    channels[id].saveThrottledDutyCycle();
+}
+
+void OutputChannel::setup()
+{
+  char prefIndex[YB_PREF_KEY_LENGTH];
+
+  ledc_cbs_t callbacks = {
+      .fade_cb = cb_ledc_fade_end_event
+  };
+
+  //initialize our PWM channels
+  ledcSetup(this->id, CHANNEL_PWM_FREQUENCY, CHANNEL_PWM_RESOLUTION);
+  ledcAttachPin(this->pin, this->id);
+  ledcWrite(this->id, 0);
+
+  //this is our callback handler for fade end.
+  int channel = this->id;
+  ledc_cb_register(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)this->id, &callbacks, (void *)channel);
+
+  //lookup our name
+  sprintf(prefIndex, "cName%d", this->id);
+  if (preferences.isKey(prefIndex))
+    strlcpy(this->name, preferences.getString(prefIndex).c_str(), sizeof(this->name));
+  else
+    sprintf(this->name, "Channel #%d", this->id);
+
+  //enabled or no
+  sprintf(prefIndex, "cEnabled%d", this->id);
+  if (preferences.isKey(prefIndex))
+    this->isEnabled = preferences.getBool(prefIndex);
+  else
+    this->isEnabled = true;
+
+  //lookup our duty cycle
+  sprintf(prefIndex, "cDuty%d", this->id);
+  if (preferences.isKey(prefIndex))
+    this->dutyCycle = preferences.getFloat(prefIndex);
+  else
+    this->dutyCycle = 1.0;
+
+  //dimmability.
+  sprintf(prefIndex, "cDimmable%d", this->id);
+  if (preferences.isKey(prefIndex))
+    this->isDimmable = preferences.getBool(prefIndex);
+  else
+    this->isDimmable = true;
+
+  //soft fuse
+  sprintf(prefIndex, "cSoftFuse%d", this->id);
+  if (preferences.isKey(prefIndex))
+    this->softFuseAmperage = preferences.getFloat(prefIndex);
+  else
+    this->softFuseAmperage = 20.0;
+
+  //soft fuse trip count
+  sprintf(prefIndex, "cTripCount%d", this->id);
+  if (preferences.isKey(prefIndex))
+    this->softFuseTripCount = preferences.getUInt(prefIndex);
+  else
+    this->softFuseTripCount = 0;  
+}
+
+void OutputChannel::saveThrottledDutyCycle()
+{
+  //after 5 secs of no activity, we can save it.
+  if (this->dutyCycleIsThrottled && millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
   {
-    //after 5 secs of no activity, we can save it.
-    if (channelDutyCycleIsThrottled[id] && millis() - channelLastDutyCycleUpdate[id] > YB_DUTY_SAVE_TIMEOUT)
-    {
-      char prefIndex[YB_PREF_KEY_LENGTH];
-      sprintf(prefIndex, "cDuty%d", id);
-      preferences.putFloat(prefIndex, channelDutyCycle[id]);
-      channelDutyCycleIsThrottled[id] = false;
-    }
+    char prefIndex[YB_PREF_KEY_LENGTH];
+    sprintf(prefIndex, "cDuty%d", this->id);
+    preferences.putFloat(prefIndex, this->dutyCycle);
+    this->dutyCycleIsThrottled = false;
   }
 }
 
-void updateChannelState(int channelId)
+void OutputChannel::updateOutput()
 {
   //what PWM do we want?
   int pwm = 0;
-  if (channelIsDimmable[channelId])
-    pwm = channelDutyCycle[channelId] * MAX_DUTY_CYCLE;
+  if (this->isDimmable)
+    pwm = this->dutyCycle * MAX_DUTY_CYCLE;
   else
     pwm = MAX_DUTY_CYCLE;
 
   //if its off, zero it out
-  if (!channelState[channelId])
+  if (!this->state)
     pwm = 0;
 
   //if its tripped, zero it out.
-  if (channelTripped[channelId])
+  if (this->tripped)
     pwm = 0;
 
   //okay, set our pin state.
-  if (!isChannelFading[channelId])
-    ledcWrite(channelId, pwm);
+  if (!isChannelFading[this->id])
+    ledcWrite(this->id, pwm);
 }
 
-void checkSoftFuses()
+void OutputChannel::checkSoftFuse()
 {
-  for (byte channel = 0; channel < CHANNEL_COUNT; channel++)
+  //only trip once....
+  if (!this->tripped)
   {
-    //only trip once....
-    if (!channelTripped[channel])
+    //Check our soft fuse, and our max limit for the board.
+    if (abs(this->amperage) >= this->softFuseAmperage || abs(this->amperage) >= 20.0)
     {
-      //Check our soft fuse, and our max limit for the board.
-      if (abs(channelAmperage[channel]) >= channelSoftFuseAmperage[channel] || abs(channelAmperage[channel]) >= 20.0)
-      {
-        //record some variables
-        channelTripped[channel] = true;
-        channelState[channel] = false;
-        channelSoftFuseTripCount[channel]++;
+      //actually shut it down!
+      this->updateOutput();
 
-        //save to our storage
-        char prefIndex[YB_PREF_KEY_LENGTH];
-        sprintf(prefIndex, "cTripCount%d", channel);
-        preferences.putUInt(prefIndex, channelSoftFuseTripCount[channel]);
+      //record some variables
+      this->tripped = true;
+      this->state = false;
+      this->softFuseTripCount++;
 
-        //actually shut it down!
-        updateChannelState(channel);
-      }
+      //save to our storage
+      char prefIndex[YB_PREF_KEY_LENGTH];
+      sprintf(prefIndex, "cTripCount%d", this->id);
+      preferences.putUInt(prefIndex, this->softFuseTripCount);
     }
   }
 }
 
-void channelFade(uint8_t channel, float duty, int max_fade_time_ms)
+void OutputChannel::setFade(float duty, int max_fade_time_ms)
 {
   int target_duty = duty * MAX_DUTY_CYCLE;
 
   // is our hardware fade over yet?
-  if (!isChannelFading[channel])
+  if (!isChannelFading[this->id])
   {
-    isChannelFading[channel] = true;
-    ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, target_duty, max_fade_time_ms, LEDC_FADE_NO_WAIT);
+    isChannelFading[this->id] = true;
+    ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)this->id, target_duty, max_fade_time_ms, LEDC_FADE_NO_WAIT);
   }
 }
 
-void channelSetDuty(int cid, float duty)
+void OutputChannel::setDuty(float duty)
 {
   //save to ram
-  channelDutyCycle[cid] = duty;
+  this->dutyCycle = duty;
 
   //save to our storage
   char prefIndex[YB_PREF_KEY_LENGTH];
-  sprintf(prefIndex, "cDuty%d", cid);
-  if (millis() - channelLastDutyCycleUpdate[cid] > YB_DUTY_SAVE_TIMEOUT)
+  sprintf(prefIndex, "cDuty%d", this->id);
+  if (millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
   {
     preferences.putFloat(prefIndex, duty);
-    channelDutyCycleIsThrottled[cid] = false;
+    this->dutyCycleIsThrottled = false;
     Serial.printf("saving %s: %f\n", prefIndex, duty);
   }
   //make a note so we can save later.
   else
-    channelDutyCycleIsThrottled[cid] = true;
+    this->dutyCycleIsThrottled = true;
 
   //we want the clock to reset every time we change the duty cycle
   //this way, long led fading sessions are only one write.
-  channelLastDutyCycleUpdate[cid] = millis();
+  this->lastDutyCycleUpdate = millis();
 }

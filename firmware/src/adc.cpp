@@ -7,8 +7,6 @@
 */
 
 #include "adc.h"
-#include "config.h"
-#include "channel.h"
 
 //object for our adc
 MCP3208 adc;
@@ -45,23 +43,24 @@ void adc_loop()
   if (adcDelta >= YB_ADC_INTERVAL)
   {
     //this is a bit slow, so only do it once per update
-    for (byte channel = 0; channel < CHANNEL_COUNT; channel++)
-      channelAmperage[channel] = adc_readAmperage(channel);
+    for (byte i = 0; i < CHANNEL_COUNT; i++)
+      channels[i].amperage = adc_readAmperage(i);
 
     //check what our power is.
     busVoltage = adc_readBusVoltage();
   
     //record our total consumption
     for (byte i = 0; i < CHANNEL_COUNT; i++) {
-      if (channelAmperage[i] > 0)
+      if (channels[i].amperage > 0)
       {
-        channelAmpHour[i] += channelAmperage[i] * ((float)adcDelta / 3600000.0);
-        channelWattHour[i] += channelAmperage[i] * busVoltage * ((float)adcDelta / 3600000.0);
+        channels[i].ampHours += channels[i].amperage * ((float)adcDelta / 3600000.0);
+        channels[i].wattHours += channels[i].amperage * busVoltage * ((float)adcDelta / 3600000.0);
       }
     }
 
     //are our loads ok?
-    checkSoftFuses();
+    for (byte id = 0; id < CHANNEL_COUNT; id++)
+      channels[id].checkSoftFuse();
 
     // Use the snapshot to set track time until next event
     previousADCMillis = millis();

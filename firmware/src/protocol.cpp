@@ -194,32 +194,32 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
   if (input.containsKey("state"))
   {
     //is it enabled?
-    if (!channelIsEnabled[cid])
+    if (!channels[cid].isEnabled)
       return generateErrorJSON(output, "Channel is not enabled.");
 
     //what is our new state?
     bool state = input["state"];
 
     //keep track of how many toggles
-    if (state && channelState[cid] != state)
-      channelStateChangeCount[cid]++;
+    if (state && channels[cid].state != state)
+      channels[cid].stateChangeCount++;
 
     //record our new state
-    channelState[cid] = state;
+    channels[cid].state = state;
 
     //reset soft fuse when we turn on
     if (state)
-      channelTripped[cid] = false;
+      channels[cid].tripped = false;
 
     //change our output pin to reflect
-    updateChannelState(cid);
+    channels[cid].updateOutput();
   }
 
   //our duty cycle
   if (input.containsKey("duty"))
   {
     //is it enabled?
-    if (!channelIsEnabled[cid])
+    if (!channels[cid].isEnabled)
       return generateErrorJSON(output, "Channel is not enabled.");
 
     float duty = input["duty"];
@@ -231,10 +231,10 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
       return generateErrorJSON(output, "Duty cycle must be <= 1");
 
     //okay, we're good.
-    channelSetDuty(cid, duty);
+    channels[cid].setDuty(duty);
 
     //change our output pin to reflect
-    updateChannelState(cid);
+    channels[cid].updateOutput();
   }
 
   //channel name
@@ -249,9 +249,9 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
     }
 
     //save to our storage
-    strlcpy(channelNames[cid], input["name"] | "Channel ?", sizeof(channelNames[cid]));
+    strlcpy(channels[cid].name, input["name"] | "Channel ?", sizeof(channels[cid].name));
     sprintf(prefIndex, "cName%d", cid);
-    preferences.putString(prefIndex, channelNames[cid]);
+    preferences.putString(prefIndex, channels[cid].name);
 
     //give them the updated config
     return generateConfigJSON(output);
@@ -261,7 +261,7 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
   if (input.containsKey("isDimmable"))
   {
     bool isDimmable = input["isDimmable"];
-    channelIsDimmable[cid] = isDimmable;
+    channels[cid].isDimmable = isDimmable;
 
     //save to our storage
     sprintf(prefIndex, "cDimmable%d", cid);
@@ -276,7 +276,7 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
   {
     //save right nwo.
     bool enabled = input["enabled"];
-    channelIsEnabled[cid] = enabled;
+    channels[cid].isEnabled = enabled;
 
     //save to our storage
     sprintf(prefIndex, "cEnabled%d", cid);
@@ -294,7 +294,7 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
     softFuse = constrain(softFuse, 0.01, 20.0);
 
     //save right nwo.
-    channelSoftFuseAmperage[cid] = softFuse;
+    channels[cid].softFuseAmperage = softFuse;
 
     //save to our storage
     sprintf(prefIndex, "cSoftFuse%d", cid);
@@ -317,17 +317,17 @@ void handleToggleChannel(JsonVariantConst input, JsonVariant output)
     return generateErrorJSON(output, "Invalid channel id");
 
   //keep track of how many toggles
-  channelStateChangeCount[cid]++;
+  channels[cid].stateChangeCount++;
 
   //record our new state
-  channelState[cid] = !channelState[cid];
+  channels[cid].state = !channels[cid].state;
 
   //reset soft fuse when we turn on
-  if (channelState[cid])
-    channelTripped[cid] = false;
+  if (channels[cid].state)
+    channels[cid].tripped = false;
 
   //change our output pin to reflect
-  updateChannelState(cid);
+  channels[cid].updateOutput();
 }
 
 void handleFadeChannel(JsonVariantConst input, JsonVariant output)
@@ -359,13 +359,13 @@ void handleFadeChannel(JsonVariantConst input, JsonVariant output)
   t1 = micros();
 
   //okay, we're good.
-  channelSetDuty(cid, duty);
+  channels[cid].setDuty(duty);
 
   t2 = micros();
 
   int fadeDelay = input["millis"] | 0;
   
-  channelFade(cid, duty, fadeDelay);
+  channels[cid].setFade(duty, fadeDelay);
 
   t3 = micros();
 
@@ -616,11 +616,11 @@ void generateStatsJSON(JsonVariant output)
   //info about each of our channels
   for (byte i = 0; i < CHANNEL_COUNT; i++) {
     output["channels"][i]["id"] = i;
-    output["channels"][i]["name"] = channelNames[i];
-    output["channels"][i]["aH"] = channelAmpHour[i];
-    output["channels"][i]["wH"] = channelWattHour[i];
-    output["channels"][i]["state_change_count"] = channelStateChangeCount[i];
-    output["channels"][i]["soft_fuse_trip_count"] = channelSoftFuseTripCount[i];
+    output["channels"][i]["name"] = channels[i].name;
+    output["channels"][i]["aH"] = channels[i].ampHours;
+    output["channels"][i]["wH"] = channels[i].wattHours;
+    output["channels"][i]["state_change_count"] = channels[i].stateChangeCount;
+    output["channels"][i]["soft_fuse_trip_count"] = channels[i].softFuseTripCount;
   }
 }
 
@@ -639,15 +639,15 @@ void generateUpdateJSON(JsonVariant output)
 
   for (byte i = 0; i < CHANNEL_COUNT; i++) {
     output["channels"][i]["id"] = i;
-    output["channels"][i]["state"] = channelState[i];
-    if (channelIsDimmable[i])
-      output["channels"][i]["duty"] = round2(channelDutyCycle[i]);
+    output["channels"][i]["state"] = channels[i].state;
+    if (channels[i].isDimmable)
+      output["channels"][i]["duty"] = round2(channels[i].dutyCycle);
 
-    output["channels"][i]["current"] = round2(channelAmperage[i]);
-    output["channels"][i]["aH"] = round3(channelAmpHour[i]);
-    output["channels"][i]["wH"] = round3(channelWattHour[i]);
+    output["channels"][i]["current"] = round2(channels[i].amperage);
+    output["channels"][i]["aH"] = round3(channels[i].ampHours);
+    output["channels"][i]["wH"] = round3(channels[i].wattHours);
 
-    if (channelTripped[i])
+    if (channels[i].tripped)
       output["channels"][i]["soft_fuse_tripped"] = true;
   }
 }
@@ -669,13 +669,13 @@ void generateConfigJSON(JsonVariant output)
   //send our configuration
   for (byte i = 0; i < CHANNEL_COUNT; i++) {
     output["channels"][i]["id"] = i;
-    output["channels"][i]["name"] = channelNames[i];
+    output["channels"][i]["name"] = channels[i].name;
     output["channels"][i]["type"] = "mosfet";
-    output["channels"][i]["enabled"] = channelIsEnabled[i];
+    output["channels"][i]["enabled"] = channels[i].isEnabled;
     output["channels"][i]["hasPWM"] = true;
     output["channels"][i]["hasCurrent"] = true;
-    output["channels"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
-    output["channels"][i]["isDimmable"] = channelIsDimmable[i];
+    output["channels"][i]["softFuse"] = round2(channels[i].softFuseAmperage);
+    output["channels"][i]["isDimmable"] = channels[i].isDimmable;
   }
 }
 

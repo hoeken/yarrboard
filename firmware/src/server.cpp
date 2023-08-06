@@ -194,10 +194,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 
       client->text(jsonBuffer);
     }
-
-    //if you ignore the throttle request, bye.
-    //if (getFreeSlots() == 0)
-    //  closeClientConnection(client);
   }
 }
 

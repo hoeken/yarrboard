@@ -1,6 +1,5 @@
 Firmware:
 
-* refactor channel into an object
 * change the way we are handling success/error/ok messages
 * break yarrboard-client into own npm module
 * protocol documentation
