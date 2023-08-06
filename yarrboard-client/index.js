@@ -60,16 +60,18 @@ function createWebsocket()
         if (options.login)
             doLogin(options.user, options.pass);
 
-        // setTimeout(function (){fadePinHardware(7, 2500)}, 100);
-        // setTimeout(function (){fadePinHardware(6, 2000)}, 200);
-        // setTimeout(function (){fadePinHardware(5, 1500)}, 300);
-        // setTimeout(function (){fadePinHardware(4, 1000)}, 100);
-        // setTimeout(function (){fadePinHardware(3, 500)}, 100);
-        // setTimeout(function (){fadePinHardware(2, 300)}, 100);
-        // setTimeout(function (){fadePinHardware(1, 250)}, 100);
-        // setTimeout(function (){fadePinHardware(0, 250)}, 100);
+        setTimeout(function (){fadePinHardware(7, 2500)}, 100);
+        setTimeout(function (){fadePinHardware(6, 2000)}, 200);
+        setTimeout(function (){fadePinHardware(5, 1500)}, 300);
+        setTimeout(function (){fadePinHardware(4, 1000)}, 100);
+        setTimeout(function (){fadePinHardware(3, 500)}, 100);
+        setTimeout(function (){fadePinHardware(2, 300)}, 100);
+        setTimeout(function (){fadePinHardware(1, 250)}, 100);
+        setTimeout(function (){fadePinHardware(0, 100)}, 100);
 
-        setTimeout(testAllFade, 1);
+        //setTimeout(testAllFade, 1);
+
+        //setTimeout(testFadeInterrupt, 1);
 
         let cmd;
         cmd = {"cmd":"ping"}
@@ -86,6 +88,30 @@ function createWebsocket()
     };
 
     client.onmessage = onMessage
+}
+
+async function testFadeInterrupt()
+{
+    while (true)
+    {
+        sendMessage({
+            "cmd": "fade_channel",
+            "id": 2,
+            "duty": 1,
+            "millis": 1000
+        });
+
+        await delay(500);
+
+        sendMessage({
+            "cmd": "fade_channel",
+            "id": 2,
+            "duty": 0,
+            "millis": 1000
+        });
+
+        await delay(500);
+    }
 }
 
 async function testAllFade(d = 1000)
@@ -379,22 +405,22 @@ async function fadePin(d = 10)
 
 async function fadePinHardware(channel = 0, d = 250)
 {
+    sendMessage({
+        "cmd": "set_channel",
+        "id": channel,
+        "state": true
+    });
+    await delay(10)
+
     while (true)
     {
-        sendMessage({
-            "cmd": "set_channel",
-            "id": channel,
-            "state": true
-        });
-        await delay(10)
-
         sendMessage({
             "cmd": "fade_channel",
             "id": channel,
             "duty": 1,
             "millis": d
         });
-        await delay(d+10);
+        await delay(d+100);
 
         sendMessage({
             "cmd": "fade_channel",
@@ -402,7 +428,7 @@ async function fadePinHardware(channel = 0, d = 250)
             "duty": 0,
             "millis": d
         });
-        await delay(d+10);
+        await delay(d+100);
     }
 }
 
