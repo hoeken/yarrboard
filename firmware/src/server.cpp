@@ -55,96 +55,35 @@ void server_setup()
 
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json)
   {
-    char jsonBuffer[MAX_JSON_LENGTH];
-
-    StaticJsonDocument<3000> output;
-
-    if (app_enable_api)
-      handleReceivedJSON(json, output, YBP_MODE_HTTP, 0);
-    else
-      generateErrorJSON(output, "Web API is disabled.");      
-
-    AsyncResponseStream *response = request->beginResponseStream("application/json");
-    serializeJson(output, *response);
-    request->send(response);
-
-    //request->send(200, "application/json", jsonBuffer);
+    handleWebServerRequest(json, request);
   });
   server.addHandler(handler);
 
   //send config json
   server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    /*
-    char jsonBuffer[MAX_JSON_LENGTH];
+    StaticJsonDocument<256> json;
+    json["cmd"] = "get_config";
 
-    if (app_enable_api)
-    {
-      StaticJsonDocument<256> json;
-      json["cmd"] = "get_config";
-
-      if (request->hasParam("user"))
-        json["user"] = request->getParam("user")->value();
-      if (request->hasParam("pass"))
-        json["pass"] = request->getParam("pass")->value();
-
-      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
-    }
-    else
-      generateErrorJSON(jsonBuffer, "Web API is disabled.");      
-
-    request->send(200, "application/json", jsonBuffer);
-    */
+    handleWebServerRequest(json, request);
   });
 
   //send stats json
   server.on("/api/stats", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    /*
-    char jsonBuffer[MAX_JSON_LENGTH];
+    StaticJsonDocument<256> json;
+    json["cmd"] = "get_stats";
 
-    if (app_enable_api)
-    {
-      StaticJsonDocument<256> json;
-      json["cmd"] = "get_stats";
-
-      if (request->hasParam("user"))
-        json["user"] = request->getParam("user")->value();
-      if (request->hasParam("pass"))
-        json["pass"] = request->getParam("pass")->value();
-
-      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
-    }
-    else
-      generateErrorJSON(jsonBuffer, "Web API is disabled.");      
-    
-    request->send(200, "application/json", jsonBuffer);
-    */
+    handleWebServerRequest(json, request);
   });
 
   //send update json
   server.on("/api/update", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    /*
-    char jsonBuffer[MAX_JSON_LENGTH];
+    StaticJsonDocument<256> json;
+    json["cmd"] = "get_update";
 
-    if (app_enable_api)
-    {
-      StaticJsonDocument<256> json;
-      json["cmd"] = "get_update";
-
-      if (request->hasParam("user"))
-        json["user"] = request->getParam("user")->value();
-      if (request->hasParam("pass"))
-        json["pass"] = request->getParam("pass")->value();
-
-      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
-    }
-    else
-      generateErrorJSON(jsonBuffer, "Web API is disabled.");      
-
-    request->send(200, "application/json", jsonBuffer);
-    */
+    handleWebServerRequest(json, request);
   });
 
   //we are only serving static files - big cache
@@ -164,6 +103,25 @@ void server_loop()
     if (websocketRequestReady[i])
       handleWebsocketMessageLoop(i);
   }
+}
+
+void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request)
+{
+  StaticJsonDocument<3000> output;
+
+  if (request->hasParam("user"))
+    input["user"] = request->getParam("user")->value();
+  if (request->hasParam("pass"))
+    input["pass"] = request->getParam("pass")->value();
+
+  if (app_enable_api)
+    handleReceivedJSON(input, output, YBP_MODE_HTTP, 0);
+  else
+    generateErrorJSON(output, "Web API is disabled.");      
+
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  serializeJson(output, *response);
+  request->send(response);
 }
 
 bool hasWebSocketRequest()
