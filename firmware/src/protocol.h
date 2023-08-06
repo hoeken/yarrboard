@@ -28,36 +28,37 @@ extern char board_name[YB_BOARD_NAME_LENGTH];
 void protocol_setup();
 void protocol_loop();
 
-bool isLoggedIn(const JsonObject& doc, byte mode, uint32_t client_id);
+bool isLoggedIn(JsonVariantConst input, byte mode, uint32_t client_id);
 bool isValidChannel(byte cid);
 
 void handleSerialJson();
 
-void handleReceivedJSON(const JsonObject& doc, char *output, byte mode, uint32_t client_id);
-void handleSetBoardName(const JsonObject& doc, char * output);
-void handleSetChannel(const JsonObject& doc, char * output);
-void handleToggleChannel(const JsonObject& doc, char * output);
-void handleFadeChannel(const JsonObject& doc, char * output);
-void handleSetNetworkConfig(const JsonObject& doc, char * output);
-void handleSetAppConfig(const JsonObject& doc, char * output);
-void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t client_id);
-void handleRestart(const JsonObject& doc, char * output);
-void handleFactoryReset(const JsonObject& doc, char * output);
-void handleOTAStart(const JsonObject& doc, char * output);
+void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id);
 
-void generateUpdateJSON(char * jsonBuffer);
-void generateConfigJSON(char * jsonBuffer);
-void generateStatsJSON(char * jsonBuffer);
-void generateNetworkConfigJSON(char * jsonBuffer);
-void generateAppConfigJSON(char * jsonBuffer);
-void generateOTAProgressUpdateJSON(char * jsonBuffer, float progress, int partition);
-void generateOTAProgressFinishedJSON(char * jsonBuffer);
-void generateErrorJSON(char * jsonBuffer, const char * error);
-void generateSuccessJSON(char * jsonBuffer, const char * success);
-void generateLoginRequiredJSON(char * jsonBuffer);
-void generateInvalidChannelJSON(char * jsonBuffer, byte cid);
-void generatePongJSON(char * jsonBuffer);
-void generateOKJSON(char * jsonBuffer);
+void handleSetBoardName(JsonVariantConst input, JsonVariant output);
+void handleSetChannel(JsonVariantConst input, JsonVariant output);
+void handleToggleChannel(JsonVariantConst input, JsonVariant output);
+void handleFadeChannel(JsonVariantConst input, JsonVariant output);
+void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output);
+void handleSetAppConfig(JsonVariantConst input, JsonVariant output);
+void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id);
+void handleRestart(JsonVariantConst input, JsonVariant output);
+void handleFactoryReset(JsonVariantConst input, JsonVariant output);
+void handleOTAStart(JsonVariantConst input, JsonVariant output);
+
+void generateUpdateJSON(JsonVariant output);
+void generateConfigJSON(JsonVariant output);
+void generateStatsJSON(JsonVariant output);
+void generateNetworkConfigJSON(JsonVariant output);
+void generateAppConfigJSON(JsonVariant output);
+void generateOTAProgressUpdateJSON(JsonVariant output, float progress, int partition);
+void generateOTAProgressFinishedJSON(JsonVariant output);
+void generateErrorJSON(JsonVariant output, const char * error);
+void generateSuccessJSON(JsonVariant output, const char * success);
+void generateLoginRequiredJSON(JsonVariant output);
+void generateInvalidChannelJSON(JsonVariant output, byte cid);
+void generatePongJSON(JsonVariant output);
+void generateOKJSON(JsonVariant output);
 
 void sendUpdate();
 void sendOTAProgressUpdate(float progress, int partition);

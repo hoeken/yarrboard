@@ -57,21 +57,25 @@ void server_setup()
   {
     char jsonBuffer[MAX_JSON_LENGTH];
 
-    if (app_enable_api)
-    {
-      JsonObject doc = json.as<JsonObject>();
-      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
-    }
-    else
-      generateErrorJSON(jsonBuffer, "Web API is disabled.");      
+    StaticJsonDocument<3000> output;
 
-    request->send(200, "application/json", jsonBuffer);
+    if (app_enable_api)
+      handleReceivedJSON(json, output, YBP_MODE_HTTP, 0);
+    else
+      generateErrorJSON(output, "Web API is disabled.");      
+
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    serializeJson(output, *response);
+    request->send(response);
+
+    //request->send(200, "application/json", jsonBuffer);
   });
   server.addHandler(handler);
 
   //send config json
   server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request)
   {
+    /*
     char jsonBuffer[MAX_JSON_LENGTH];
 
     if (app_enable_api)
@@ -84,18 +88,19 @@ void server_setup()
       if (request->hasParam("pass"))
         json["pass"] = request->getParam("pass")->value();
 
-      JsonObject doc = json.as<JsonObject>();
       handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
     }
     else
       generateErrorJSON(jsonBuffer, "Web API is disabled.");      
 
     request->send(200, "application/json", jsonBuffer);
+    */
   });
 
   //send stats json
   server.on("/api/stats", HTTP_GET, [](AsyncWebServerRequest *request)
   {
+    /*
     char jsonBuffer[MAX_JSON_LENGTH];
 
     if (app_enable_api)
@@ -108,18 +113,19 @@ void server_setup()
       if (request->hasParam("pass"))
         json["pass"] = request->getParam("pass")->value();
 
-      JsonObject doc = json.as<JsonObject>();
       handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
     }
     else
       generateErrorJSON(jsonBuffer, "Web API is disabled.");      
     
     request->send(200, "application/json", jsonBuffer);
+    */
   });
 
   //send update json
   server.on("/api/update", HTTP_GET, [](AsyncWebServerRequest *request)
   {
+    /*
     char jsonBuffer[MAX_JSON_LENGTH];
 
     if (app_enable_api)
@@ -132,13 +138,13 @@ void server_setup()
       if (request->hasParam("pass"))
         json["pass"] = request->getParam("pass")->value();
 
-      JsonObject doc = json.as<JsonObject>();
       handleReceivedJSON(doc, jsonBuffer, YBP_MODE_HTTP, 0);
     }
     else
       generateErrorJSON(jsonBuffer, "Web API is disabled.");      
 
     request->send(200, "application/json", jsonBuffer);
+    */
   });
 
   //we are only serving static files - big cache
@@ -258,9 +264,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     }
     else
     {
-      char error[64];
-      generateErrorJSON(error, "Websocket busy, throttle connection.");
-      client->text(error);
+      StaticJsonDocument<128> output;
+      char jsonBuffer[128];
+
+      generateErrorJSON(output, "Websocket busy, throttle connection.");
+
+      serializeJson(output, jsonBuffer);
+      client->text(jsonBuffer);
 
       Serial.printf("slots: %d\n", getFreeSlots());
     }
@@ -270,37 +280,43 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 void handleWebsocketMessageLoop(byte slot)
 {
   unsigned long start = micros();
+  unsigned long t1, t2, t3, t4 = 0;
 
   char jsonBuffer[MAX_JSON_LENGTH];
-  StaticJsonDocument<1024> json;
+  StaticJsonDocument<2048> output;
 
-  DeserializationError err = deserializeJson(json, receiveBuffer[slot]);
-  JsonObject doc = json.as<JsonObject>();
+  StaticJsonDocument<1024> input;
+  DeserializationError err = deserializeJson(input, receiveBuffer[slot]);
 
-  String mycmd = doc["cmd"] | "???";
+  String mycmd = input["cmd"] | "???";
 
-  unsigned long t1 = micros();
+  t1 = micros();
 
   //was there a problem, officer?
   if (err)
   {
     char error[64];
     sprintf(error, "deserializeJson() failed with code %s", err.c_str());
-    generateErrorJSON(jsonBuffer, error);
+    generateErrorJSON(output, error);
   }
   else
-    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_WEBSOCKET, receiveClientId[slot]);
+    handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, receiveClientId[slot]);
 
-  unsigned long t2 = micros();
+  t2 = micros();
+
+  serializeJson(output, jsonBuffer);
+
+  t3 = micros();
 
   //only send if we're empty.  Ignore it otherwise.
   if (ws.availableForWrite(receiveClientId[slot]))
     ws.text(receiveClientId[slot], jsonBuffer);
-
-  unsigned long t3 = micros();
+  else
+    Serial.println("[socket] client full");
 
   websocketRequestReady[slot] = false;
 
+  t4 = micros();
   unsigned long finish = micros();
 
   if (finish-start > 10000)
@@ -308,13 +324,14 @@ void handleWebsocketMessageLoop(byte slot)
     Serial.println(mycmd);
     Serial.printf("deserialize: %dus\n", t1-start); 
     Serial.printf("handle: %dus\n", t2-t1); 
-    Serial.printf("transmit: %dus\n", t3-t2); 
+    Serial.printf("serialize: %dus\n", t3-t2); 
+    Serial.printf("transmit: %dus\n", t4-t3); 
     Serial.printf("total: %dus\n", finish-start);
     Serial.println();
   }
 }
 
-bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id)
+bool isWebsocketClientLoggedIn(JsonVariantConst doc, uint32_t client_id)
 {
   //are they in our auth array?
   for (byte i=0; i<clientLimit; i++)
@@ -325,7 +342,7 @@ bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id)
   return isApiClientLoggedIn(doc);
 }
 
-bool isApiClientLoggedIn(const JsonObject& doc)
+bool isApiClientLoggedIn(JsonVariantConst doc)
 {
   if (!doc.containsKey("user"))
     return false;
@@ -346,7 +363,7 @@ bool isApiClientLoggedIn(const JsonObject& doc)
   return false;  
 }
 
-bool isSerialClientLoggedIn(const JsonObject& doc)
+bool isSerialClientLoggedIn(JsonVariantConst doc)
 {
   if (is_serial_authenticated)
     return true;

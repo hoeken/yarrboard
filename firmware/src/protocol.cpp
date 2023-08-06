@@ -20,9 +20,10 @@ void protocol_setup()
 {
   if (app_enable_serial)
   {
-    char jsonBuffer[MAX_JSON_LENGTH];
-    generateConfigJSON(jsonBuffer);
-    Serial.println(jsonBuffer);
+    StaticJsonDocument<3000> output;
+
+    generateConfigJSON(output);
+    serializeJson(output, Serial);
   }
 }
 
@@ -56,11 +57,10 @@ void protocol_loop()
 
 void handleSerialJson()
 {
-  StaticJsonDocument<1024> json;
-  DeserializationError err = deserializeJson(json, Serial);
-  JsonObject doc = json.as<JsonObject>();
+  StaticJsonDocument<1024> input;
+  DeserializationError err = deserializeJson(input, Serial);
 
-  char jsonBuffer[MAX_JSON_LENGTH];
+  StaticJsonDocument<3000> output;
 
   //ignore newlines with serial.
   if (err)
@@ -69,25 +69,25 @@ void handleSerialJson()
     {
       char error[64];
       sprintf(error, "deserializeJson() failed with code %s", err.c_str());
-      generateErrorJSON(jsonBuffer, error);
-      Serial.println(jsonBuffer);
+      generateErrorJSON(output, error);
+      serializeJson(output, Serial);
     }
   }
   else
   {
-    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_SERIAL, 0);
-    Serial.println(jsonBuffer);
+    handleReceivedJSON(input, output, YBP_MODE_SERIAL, 0);
+    serializeJson(output, Serial);
   }
 }
 
-void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t client_id)
+void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id)
 {
   //make sure its correct
-  if (!doc.containsKey("cmd"))
+  if (!input.containsKey("cmd"))
     return generateErrorJSON(output, "'cmd' is a required parameter.");
 
   //what is your command?
-  const char* cmd = doc["cmd"];
+  const char* cmd = input["cmd"];
 
   //keep track!
   handledMessages++;
@@ -97,45 +97,45 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   if (!strcmp(cmd, "login") || !strcmp(cmd, "ping"))
   {
     if (!strcmp(cmd, "login"))
-      return handleLogin(doc, output, mode, client_id);
+      return handleLogin(input, output, mode, client_id);
     else if (!strcmp(cmd, "ping"))
       return generatePongJSON(output);
   }
   else
   {
     //need to be logged in here.
-    if (!isLoggedIn(doc, mode, client_id))
+    if (!isLoggedIn(input, mode, client_id))
         return generateLoginRequiredJSON(output);
 
     //what is your command?
     if (!strcmp(cmd, "set_boardname"))
-      return handleSetBoardName(doc, output);   
+      return handleSetBoardName(input, output);   
     else if (!strcmp(cmd, "set_channel"))
-      return handleSetChannel(doc, output);
+      return handleSetChannel(input, output);
     else if (!strcmp(cmd, "toggle_channel"))
-      return handleToggleChannel(doc, output);
+      return handleToggleChannel(input, output);
     else if (!strcmp(cmd, "fade_channel"))
-      return handleFadeChannel(doc, output);
+      return handleFadeChannel(input, output);
     else if (!strcmp(cmd, "get_config"))
       return generateConfigJSON(output);
     else if (!strcmp(cmd, "get_network_config"))
       return generateNetworkConfigJSON(output);
     else if (!strcmp(cmd, "set_network_config"))
-      return handleSetNetworkConfig(doc, output);
+      return handleSetNetworkConfig(input, output);
     else if (!strcmp(cmd, "get_app_config"))
       return generateAppConfigJSON(output);
     else if (!strcmp(cmd, "set_app_config"))
-      return handleSetAppConfig(doc, output);
+      return handleSetAppConfig(input, output);
     else if (!strcmp(cmd, "get_stats"))
       return generateStatsJSON(output);
     else if (!strcmp(cmd, "get_update"))
       return generateUpdateJSON(output);
     else if (!strcmp(cmd, "restart"))
-      return handleRestart(doc, output);
+      return handleRestart(input, output);
     else if (!strcmp(cmd, "factory_reset"))
-      return handleFactoryReset(doc, output);
+      return handleFactoryReset(input, output);
     else if (!strcmp(cmd, "ota_start"))
-      return handleOTAStart(doc, output);
+      return handleOTAStart(input, output);
     else
       return generateErrorJSON(output, "Invalid command.");
   }
@@ -144,13 +144,13 @@ void handleReceivedJSON(const JsonObject &doc, char *output, byte mode, uint32_t
   return generateErrorJSON(output, "Malformed json.");
 }
 
-void handleSetBoardName(const JsonObject& doc, char * output)
+void handleSetBoardName(JsonVariantConst input, JsonVariant output)
 {
-    if (!doc.containsKey("value"))
+    if (!input.containsKey("value"))
       return generateErrorJSON(output, "'value' is a required parameter");
 
     //is it too long?
-    if (strlen(doc["value"]) > YB_BOARD_NAME_LENGTH-1)
+    if (strlen(input["value"]) > YB_BOARD_NAME_LENGTH-1)
     {
       char error[50];
       sprintf(error, "Maximum board name length is %s characters.", YB_BOARD_NAME_LENGTH-1);
@@ -158,7 +158,7 @@ void handleSetBoardName(const JsonObject& doc, char * output)
     }
 
     //update variable
-    strlcpy(board_name, doc["value"] | "Yarrboard", sizeof(board_name));
+    strlcpy(board_name, input["value"] | "Yarrboard", sizeof(board_name));
 
     //save to our storage
     preferences.putString("boardName", board_name);
@@ -167,28 +167,28 @@ void handleSetBoardName(const JsonObject& doc, char * output)
     return generateConfigJSON(output);
 }
 
-void handleSetChannel(const JsonObject& doc, char * output)
+void handleSetChannel(JsonVariantConst input, JsonVariant output)
 {
   char prefIndex[YB_PREF_KEY_LENGTH];
 
   //id is required
-  if (!doc.containsKey("id"))
+  if (!input.containsKey("id"))
     return generateErrorJSON(output, "'id' is a required parameter");
 
   //is it a valid channel?
-  byte cid = doc["id"];
+  byte cid = input["id"];
   if (!isValidChannel(cid))
     return generateErrorJSON(output, "Invalid channel id");
 
   //change state
-  if (doc.containsKey("state"))
+  if (input.containsKey("state"))
   {
     //is it enabled?
     if (!channelIsEnabled[cid])
       return generateErrorJSON(output, "Channel is not enabled.");
 
     //what is our new state?
-    bool state = doc["state"];
+    bool state = input["state"];
 
     //keep track of how many toggles
     if (state && channelState[cid] != state)
@@ -206,13 +206,13 @@ void handleSetChannel(const JsonObject& doc, char * output)
   }
 
   //our duty cycle
-  if (doc.containsKey("duty"))
+  if (input.containsKey("duty"))
   {
     //is it enabled?
     if (!channelIsEnabled[cid])
       return generateErrorJSON(output, "Channel is not enabled.");
 
-    float duty = doc["duty"];
+    float duty = input["duty"];
 
     //what do we hate?  va-li-date!
     if (duty < 0)
@@ -228,10 +228,10 @@ void handleSetChannel(const JsonObject& doc, char * output)
   }
 
   //channel name
-  if (doc.containsKey("name"))
+  if (input.containsKey("name"))
   {
     //is it too long?
-    if (strlen(doc["name"]) > YB_CHANNEL_NAME_LENGTH-1)
+    if (strlen(input["name"]) > YB_CHANNEL_NAME_LENGTH-1)
     {
       char error[50];
       sprintf(error, "Maximum channel name length is %s characters.", YB_CHANNEL_NAME_LENGTH-1);
@@ -239,7 +239,7 @@ void handleSetChannel(const JsonObject& doc, char * output)
     }
 
     //save to our storage
-    strlcpy(channelNames[cid], doc["name"] | "Channel ?", sizeof(channelNames[cid]));
+    strlcpy(channelNames[cid], input["name"] | "Channel ?", sizeof(channelNames[cid]));
     sprintf(prefIndex, "cName%d", cid);
     preferences.putString(prefIndex, channelNames[cid]);
 
@@ -248,9 +248,9 @@ void handleSetChannel(const JsonObject& doc, char * output)
   }
 
   //dimmability
-  if (doc.containsKey("isDimmable"))
+  if (input.containsKey("isDimmable"))
   {
-    bool isDimmable = doc["isDimmable"];
+    bool isDimmable = input["isDimmable"];
     channelIsDimmable[cid] = isDimmable;
 
     //save to our storage
@@ -262,10 +262,10 @@ void handleSetChannel(const JsonObject& doc, char * output)
   }
 
   //enabled
-  if (doc.containsKey("enabled"))
+  if (input.containsKey("enabled"))
   {
     //save right nwo.
-    bool enabled = doc["enabled"];
+    bool enabled = input["enabled"];
     channelIsEnabled[cid] = enabled;
 
     //save to our storage
@@ -277,10 +277,10 @@ void handleSetChannel(const JsonObject& doc, char * output)
   }
 
   //soft fuse
-  if (doc.containsKey("softFuse"))
+  if (input.containsKey("softFuse"))
   {
     //i crave validation!
-    float softFuse = doc["softFuse"];
+    float softFuse = input["softFuse"];
     softFuse = constrain(softFuse, 0.01, 20.0);
 
     //save right nwo.
@@ -297,14 +297,14 @@ void handleSetChannel(const JsonObject& doc, char * output)
   return generateOKJSON(output);
 }
 
-void handleToggleChannel(const JsonObject& doc, char * output)
+void handleToggleChannel(JsonVariantConst input, JsonVariant output)
 {
   //id is required
-  if (!doc.containsKey("id"))
+  if (!input.containsKey("id"))
     return generateErrorJSON(output, "'id' is a required parameter");
 
   //is it a valid channel?
-  byte cid = doc["id"];
+  byte cid = input["id"];
   if (!isValidChannel(cid))
     return generateErrorJSON(output, "Invalid channel id");
 
@@ -324,22 +324,22 @@ void handleToggleChannel(const JsonObject& doc, char * output)
   return generateOKJSON(output);
 }
 
-void handleFadeChannel(const JsonObject& doc, char * output)
+void handleFadeChannel(JsonVariantConst input, JsonVariant output)
 {
   //id is required
-  if (!doc.containsKey("id"))
+  if (!input.containsKey("id"))
     return generateErrorJSON(output, "'id' is a required parameter");
-  if (!doc.containsKey("duty"))
+  if (!input.containsKey("duty"))
     return generateErrorJSON(output, "'duty' is a required parameter");
-  if (!doc.containsKey("millis"))
+  if (!input.containsKey("millis"))
     return generateErrorJSON(output, "'millis' is a required parameter");
 
   //is it a valid channel?
-  byte cid = doc["id"];
+  byte cid = input["id"];
   if (!isValidChannel(cid))
     return generateErrorJSON(output, "Invalid channel id");
 
-  float duty = doc["duty"];
+  float duty = input["duty"];
 
   //what do we hate?  va-li-date!
   if (duty < 0)
@@ -350,14 +350,14 @@ void handleFadeChannel(const JsonObject& doc, char * output)
   //okay, we're good.
   channelSetDuty(cid, duty);
 
-  int fadeDelay = doc["millis"] | 0;
+  int fadeDelay = input["millis"] | 0;
   
   channelFade(cid, duty, fadeDelay);
 
   return generateOKJSON(output);
 }
 
-void handleSetNetworkConfig(const JsonObject& doc, char * output)
+void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)
 {
     //clear our first boot flag since they submitted the network page.
     is_first_boot = false;
@@ -365,29 +365,29 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
     char error[50];
 
     //error checking
-    if (!doc.containsKey("wifi_mode"))
+    if (!input.containsKey("wifi_mode"))
       return generateErrorJSON(output, "'wifi_mode' is a required parameter");
-    if (!doc.containsKey("wifi_ssid"))
+    if (!input.containsKey("wifi_ssid"))
       return generateErrorJSON(output, "'wifi_ssid' is a required parameter");
-    if (!doc.containsKey("wifi_pass"))
+    if (!input.containsKey("wifi_pass"))
       return generateErrorJSON(output, "'wifi_pass' is a required parameter");
-    if (!doc.containsKey("local_hostname"))
+    if (!input.containsKey("local_hostname"))
       return generateErrorJSON(output, "'local_hostname' is a required parameter");
 
     //is it too long?
-    if (strlen(doc["wifi_ssid"]) > YB_WIFI_SSID_LENGTH-1)
+    if (strlen(input["wifi_ssid"]) > YB_WIFI_SSID_LENGTH-1)
     {
       sprintf(error, "Maximum wifi ssid length is %s characters.", YB_WIFI_SSID_LENGTH-1);
       return generateErrorJSON(output, error);
     }
 
-    if (strlen(doc["wifi_pass"]) > YB_WIFI_PASSWORD_LENGTH-1)
+    if (strlen(input["wifi_pass"]) > YB_WIFI_PASSWORD_LENGTH-1)
     {
       sprintf(error, "Maximum wifi password length is %s characters.", YB_WIFI_PASSWORD_LENGTH-1);
       return generateErrorJSON(output, error);
     }
 
-    if (strlen(doc["local_hostname"]) > YB_HOSTNAME_LENGTH-1)
+    if (strlen(input["local_hostname"]) > YB_HOSTNAME_LENGTH-1)
     {
       sprintf(error, "Maximum hostname length is %s characters.", YB_HOSTNAME_LENGTH-1);
       return generateErrorJSON(output, error);
@@ -398,10 +398,10 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
     char new_wifi_ssid[YB_WIFI_SSID_LENGTH];
     char new_wifi_pass[YB_WIFI_PASSWORD_LENGTH];
     
-    strlcpy(new_wifi_mode, doc["wifi_mode"] | "ap", sizeof(new_wifi_mode));
-    strlcpy(new_wifi_ssid, doc["wifi_ssid"] | "SSID", sizeof(new_wifi_ssid));
-    strlcpy(new_wifi_pass, doc["wifi_pass"] | "PASS", sizeof(new_wifi_pass));
-    strlcpy(local_hostname, doc["local_hostname"] | "yarrboard", sizeof(local_hostname));
+    strlcpy(new_wifi_mode, input["wifi_mode"] | "ap", sizeof(new_wifi_mode));
+    strlcpy(new_wifi_ssid, input["wifi_ssid"] | "SSID", sizeof(new_wifi_ssid));
+    strlcpy(new_wifi_pass, input["wifi_pass"] | "PASS", sizeof(new_wifi_pass));
+    strlcpy(local_hostname, input["local_hostname"] | "yarrboard", sizeof(local_hostname));
 
     //no special cases here.
     preferences.putString("local_hostname", local_hostname);
@@ -463,15 +463,15 @@ void handleSetNetworkConfig(const JsonObject& doc, char * output)
     }
 }
 
-void handleSetAppConfig(const JsonObject& doc, char * output)
+void handleSetAppConfig(JsonVariantConst input, JsonVariant output)
 {
-    if (!doc.containsKey("app_user"))
+    if (!input.containsKey("app_user"))
       return generateErrorJSON(output, "'app_user' is a required parameter");
-    if (!doc.containsKey("app_pass"))
+    if (!input.containsKey("app_pass"))
       return generateErrorJSON(output, "'app_pass' is a required parameter");
 
     //username length checker
-    if (strlen(doc["app_user"]) > YB_USERNAME_LENGTH-1)
+    if (strlen(input["app_user"]) > YB_USERNAME_LENGTH-1)
     {
       char error[50];
       sprintf(error, "Maximum username length is %s characters.", YB_USERNAME_LENGTH-1);
@@ -479,7 +479,7 @@ void handleSetAppConfig(const JsonObject& doc, char * output)
     }
 
     //password length checker
-    if (strlen(doc["app_pass"]) > YB_PASSWORD_LENGTH-1)
+    if (strlen(input["app_pass"]) > YB_PASSWORD_LENGTH-1)
     {
       char error[50];
       sprintf(error, "Maximum password length is %s characters.", YB_PASSWORD_LENGTH-1);
@@ -487,11 +487,11 @@ void handleSetAppConfig(const JsonObject& doc, char * output)
     }
 
     //get our data
-    strlcpy(app_user, doc["app_user"] | "admin", sizeof(app_user));
-    strlcpy(app_pass, doc["app_pass"] | "admin", sizeof(app_pass));
-    require_login = doc["require_login"];
-    app_enable_api = doc["app_enable_api"];
-    app_enable_serial = doc["app_enable_serial"];
+    strlcpy(app_user, input["app_user"] | "admin", sizeof(app_user));
+    strlcpy(app_pass, input["app_pass"] | "admin", sizeof(app_pass));
+    require_login = input["require_login"];
+    app_enable_api = input["app_enable_api"];
+    app_enable_serial = input["app_enable_serial"];
 
     //no special cases here.
     preferences.putString("app_user", app_user);
@@ -501,22 +501,22 @@ void handleSetAppConfig(const JsonObject& doc, char * output)
     preferences.putBool("appEnableSerial", app_enable_serial);  
 }
 
-void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t client_id)
+void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id)
 {
     if (!require_login)
       return generateErrorJSON(output, "Login not required.");
 
-  if (!doc.containsKey("user"))
+  if (!input.containsKey("user"))
     return generateErrorJSON(output, "'user' is a required parameter");
 
-  if (!doc.containsKey("pass"))
+  if (!input.containsKey("pass"))
     return generateErrorJSON(output, "'pass' is a required parameter");
 
     //init
     char myuser[YB_USERNAME_LENGTH];
     char mypass[YB_PASSWORD_LENGTH];
-    strlcpy(myuser, doc["user"] | "", sizeof(myuser));
-    strlcpy(mypass, doc["pass"] | "", sizeof(mypass));
+    strlcpy(myuser, input["user"] | "", sizeof(myuser));
+    strlcpy(mypass, input["pass"] | "", sizeof(mypass));
 
     //morpheus... i'm in.
     if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
@@ -537,12 +537,12 @@ void handleLogin(const JsonObject& doc, char * output, byte mode, uint32_t clien
     return generateErrorJSON(output, "Wrong username/password.");
 }
 
-void handleRestart(const JsonObject& doc, char * output)
+void handleRestart(JsonVariantConst input, JsonVariant output)
 {
   ESP.restart();
 }
 
-void handleFactoryReset(const JsonObject& doc, char * output)
+void handleFactoryReset(JsonVariantConst input, JsonVariant output)
 {
   //delete all our prefs
   preferences.clear();
@@ -552,7 +552,7 @@ void handleFactoryReset(const JsonObject& doc, char * output)
   ESP.restart();
 }
 
-void handleOTAStart(const JsonObject& doc, char * output)
+void handleOTAStart(JsonVariantConst input, JsonVariant output)
 {
   //look for new firmware
   bool updatedNeeded = FOTA.execHTTPcheck();
@@ -562,210 +562,147 @@ void handleOTAStart(const JsonObject& doc, char * output)
     return generateErrorJSON(output, "Firmware already up to date.");
 }
 
-void generateStatsJSON(char * jsonBuffer)
+void generateStatsJSON(JsonVariant output)
 {
-  //stuff for working with json
-  StaticJsonDocument<1536> doc;
-  JsonObject object = doc.to<JsonObject>();
-
   //some basic statistics and info
-  object["msg"] = "stats";
-  object["uuid"] = uuid;
-  object["messages"] = totalHandledMessages;
-  object["uptime"] = millis();
-  object["heap_size"] = ESP.getHeapSize();
-  object["free_heap"] = ESP.getFreeHeap();
-  object["min_free_heap"] = ESP.getMinFreeHeap();
-  object["max_alloc_heap"] = ESP.getMaxAllocHeap();
-  object["rssi"] = WiFi.RSSI();
-  object["bus_voltage"] = busVoltage;
+  output["msg"] = "stats";
+  output["uuid"] = uuid;
+  output["messages"] = totalHandledMessages;
+  output["uptime"] = millis();
+  output["heap_size"] = ESP.getHeapSize();
+  output["free_heap"] = ESP.getFreeHeap();
+  output["min_free_heap"] = ESP.getMinFreeHeap();
+  output["max_alloc_heap"] = ESP.getMaxAllocHeap();
+  output["rssi"] = WiFi.RSSI();
+  output["bus_voltage"] = busVoltage;
 
   //what is our IP address?
   if (!strcmp(wifi_mode, "ap"))
-    object["ip_address"] = apIP;
+    output["ip_address"] = apIP;
   else
-    object["ip_address"] = WiFi.localIP();
+    output["ip_address"] = WiFi.localIP();
 
   //info about each of our fans
   for (byte i = 0; i < FAN_COUNT; i++) {
-    object["fans"][i]["rpm"] = fans_last_rpm[i];
-    object["fans"][i]["pwm"] = fans_last_pwm[i];
+    output["fans"][i]["rpm"] = fans_last_rpm[i];
+    output["fans"][i]["pwm"] = fans_last_pwm[i];
   }
 
   //info about each of our channels
   for (byte i = 0; i < CHANNEL_COUNT; i++) {
-    object["channels"][i]["id"] = i;
-    object["channels"][i]["name"] = channelNames[i];
-    object["channels"][i]["aH"] = channelAmpHour[i];
-    object["channels"][i]["wH"] = channelWattHour[i];
-    object["channels"][i]["state_change_count"] = channelStateChangeCount[i];
-    object["channels"][i]["soft_fuse_trip_count"] = channelSoftFuseTripCount[i];
+    output["channels"][i]["id"] = i;
+    output["channels"][i]["name"] = channelNames[i];
+    output["channels"][i]["aH"] = channelAmpHour[i];
+    output["channels"][i]["wH"] = channelWattHour[i];
+    output["channels"][i]["state_change_count"] = channelStateChangeCount[i];
+    output["channels"][i]["soft_fuse_trip_count"] = channelSoftFuseTripCount[i];
   }
-
-  //okay prep our json and send it off
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
 }
 
-void generateUpdateJSON(char * jsonBuffer)
+void generateUpdateJSON(JsonVariant output)
 {
-  // create an object
-  StaticJsonDocument<3000> doc;
-  JsonObject object = doc.to<JsonObject>();
-
-  object["msg"] = "update";
-  object["bus_voltage"] = busVoltage;
+  output["msg"] = "update";
+  output["bus_voltage"] = busVoltage;
 
   /*
     if (getLocalTime(&timeinfo)) {
       char buffer[80];
       strftime(buffer, 80, "%FT%T%z", &timeinfo);
-      object["time"] = buffer;
+      output["time"] = buffer;
     }
   */
 
   for (byte i = 0; i < CHANNEL_COUNT; i++) {
-    object["channels"][i]["id"] = i;
-    object["channels"][i]["state"] = channelState[i];
+    output["channels"][i]["id"] = i;
+    output["channels"][i]["state"] = channelState[i];
     if (channelIsDimmable[i])
-      object["channels"][i]["duty"] = round2(channelDutyCycle[i]);
+      output["channels"][i]["duty"] = round2(channelDutyCycle[i]);
 
-    object["channels"][i]["current"] = round2(channelAmperage[i]);
-    object["channels"][i]["aH"] = round3(channelAmpHour[i]);
-    object["channels"][i]["wH"] = round3(channelWattHour[i]);
+    output["channels"][i]["current"] = round2(channelAmperage[i]);
+    output["channels"][i]["aH"] = round3(channelAmpHour[i]);
+    output["channels"][i]["wH"] = round3(channelWattHour[i]);
 
     if (channelTripped[i])
-      object["channels"][i]["soft_fuse_tripped"] = true;
+      output["channels"][i]["soft_fuse_tripped"] = true;
   }
-
-  //send it.
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
 }
 
-void generateConfigJSON(char * jsonBuffer)
+void generateConfigJSON(JsonVariant output)
 {
-  // create an object
-  StaticJsonDocument<2048> doc;
-  JsonObject object = doc.to<JsonObject>();
-
   //our identifying info
-  object["firmware_version"] = FIRMWARE_VERSION;
-  object["hardware_version"] = HARDWARE_VERSION;
-  object["name"] = board_name;
-  object["hostname"] = local_hostname;
-  object["uuid"] = uuid;
-  object["msg"] = "config";
+  output["firmware_version"] = FIRMWARE_VERSION;
+  output["hardware_version"] = HARDWARE_VERSION;
+  output["name"] = board_name;
+  output["hostname"] = local_hostname;
+  output["uuid"] = uuid;
+  output["msg"] = "config";
 
   //do we want to flag it for config?
   if (is_first_boot)
-    object["first_boot"] = true;
+    output["first_boot"] = true;
 
   //send our configuration
   for (byte i = 0; i < CHANNEL_COUNT; i++) {
-    object["channels"][i]["id"] = i;
-    object["channels"][i]["name"] = channelNames[i];
-    object["channels"][i]["type"] = "mosfet";
-    object["channels"][i]["enabled"] = channelIsEnabled[i];
-    object["channels"][i]["hasPWM"] = true;
-    object["channels"][i]["hasCurrent"] = true;
-    object["channels"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
-    object["channels"][i]["isDimmable"] = channelIsDimmable[i];
+    output["channels"][i]["id"] = i;
+    output["channels"][i]["name"] = channelNames[i];
+    output["channels"][i]["type"] = "mosfet";
+    output["channels"][i]["enabled"] = channelIsEnabled[i];
+    output["channels"][i]["hasPWM"] = true;
+    output["channels"][i]["hasCurrent"] = true;
+    output["channels"][i]["softFuse"] = round2(channelSoftFuseAmperage[i]);
+    output["channels"][i]["isDimmable"] = channelIsDimmable[i];
   }
-
-  //send it.
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
 }
 
-void generateNetworkConfigJSON(char * jsonBuffer)
+void generateNetworkConfigJSON(JsonVariant output)
 {
-  // create an object
-  StaticJsonDocument<256> doc;
-  JsonObject object = doc.to<JsonObject>();
-
   //our identifying info
-  object["msg"] = "network_config";
-  object["wifi_mode"] = wifi_mode;
-  object["wifi_ssid"] = wifi_ssid;
-  object["wifi_pass"] = wifi_pass;
-  object["local_hostname"] = local_hostname;
-
-  //send it.
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+  output["msg"] = "network_config";
+  output["wifi_mode"] = wifi_mode;
+  output["wifi_ssid"] = wifi_ssid;
+  output["wifi_pass"] = wifi_pass;
+  output["local_hostname"] = local_hostname;
 }
 
-void generateAppConfigJSON(char * jsonBuffer)
+void generateAppConfigJSON(JsonVariant output)
 {
-  // create an object
-  StaticJsonDocument<256> doc;
-  JsonObject object = doc.to<JsonObject>();
-
   //our identifying info
-  object["msg"] = "app_config";
-  object["require_login"] = require_login;
-  object["app_user"] = app_user;
-  object["app_pass"] = app_pass;
-  object["app_enable_api"] = app_enable_api;
-  object["app_enable_serial"] = app_enable_serial;
-
-  //send it.
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+  output["msg"] = "app_config";
+  output["require_login"] = require_login;
+  output["app_user"] = app_user;
+  output["app_pass"] = app_pass;
+  output["app_enable_api"] = app_enable_api;
+  output["app_enable_serial"] = app_enable_serial;
 }
 
-void generateOTAProgressUpdateJSON(char * jsonBuffer, float progress, int partition)
+void generateOTAProgressUpdateJSON(JsonVariant output, float progress, int partition)
 {
-  // create an object
-  StaticJsonDocument<96> doc;
-  JsonObject object = doc.to<JsonObject>();
-
-  object["msg"] = "ota_progress";
+  output["msg"] = "ota_progress";
 
   if (partition == U_SPIFFS)
-    object["partition"] = "spiffs";
+    output["partition"] = "spiffs";
   else
-    object["partition"] = "firmware";
+    output["partition"] = "firmware";
 
-  object["progress"] = round2(progress);
-
-  //send it.
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+  output["progress"] = round2(progress);
 }
 
-void generateOTAProgressFinishedJSON(char * jsonBuffer)
+void generateOTAProgressFinishedJSON(JsonVariant output)
 {
-  // create an object
-  StaticJsonDocument<96> doc;
-  JsonObject object = doc.to<JsonObject>();
-
-  object["msg"] = "ota_finished";
-
-  //send it.
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+  output["msg"] = "ota_finished";
 }
 
-void generateErrorJSON(char * jsonBuffer, const char* error)
+void generateErrorJSON(JsonVariant output, const char* error)
 {
-  // create an object
-  StaticJsonDocument<256> doc;
-  JsonObject object = doc.to<JsonObject>();
-
-  object["error"] = error;
-
-  //send it.
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+  output["error"] = error;
 }
 
-void generateSuccessJSON(char * jsonBuffer, const char* success)
+void generateSuccessJSON(JsonVariant output, const char* success)
 {
-  // create an object
-  StaticJsonDocument<256> doc;
-  JsonObject object = doc.to<JsonObject>();
-
-  object["success"] = success;
-
-  //send it.
-  serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+  output["success"] = success;
 }
 
-bool isLoggedIn(const JsonObject& doc, byte mode, uint32_t client_id = 0)
+bool isLoggedIn(JsonVariantConst input, byte mode, uint32_t client_id = 0)
 {
   //also only if enabled
   if (!require_login)
@@ -773,18 +710,18 @@ bool isLoggedIn(const JsonObject& doc, byte mode, uint32_t client_id = 0)
 
   //login only required for websockets.
   if (mode == YBP_MODE_WEBSOCKET)
-    return isWebsocketClientLoggedIn(doc, client_id);
+    return isWebsocketClientLoggedIn(input, client_id);
   else if (mode == YBP_MODE_HTTP)
-    return isApiClientLoggedIn(doc);
+    return isApiClientLoggedIn(input);
   else if (mode == YBP_MODE_SERIAL)
-    return isSerialClientLoggedIn(doc);
+    return isSerialClientLoggedIn(input);
   else
     return false;
 }
 
-void generateLoginRequiredJSON(char * jsonBuffer)
+void generateLoginRequiredJSON(JsonVariant output)
 {
-  return generateErrorJSON(jsonBuffer, "You must be logged in.");
+  generateErrorJSON(output, "You must be logged in.");
 }
 
 bool isValidChannel(byte cid)
@@ -795,48 +732,46 @@ bool isValidChannel(byte cid)
     return true;
 }
 
-void generatePongJSON(char * jsonBuffer)
+void generatePongJSON(JsonVariant output)
 {
-    StaticJsonDocument<16> doc;
-
-    // create an object
-    JsonObject object = doc.to<JsonObject>();
-    object["pong"] = millis();
-
-    //send it.
-    serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+  output["pong"] = millis();
 }
 
-void generateOKJSON(char * jsonBuffer)
+void generateOKJSON(JsonVariant output)
 {
-    StaticJsonDocument<16> doc;
-
-    // create an object
-    JsonObject object = doc.to<JsonObject>();
-    object["ok"] = millis();
-
-    //send it.
-    serializeJson(doc, jsonBuffer, MAX_JSON_LENGTH);
+  output["ok"] = millis();
 }
 
 void sendUpdate()
 {
+  StaticJsonDocument<3000> output;
   char jsonBuffer[MAX_JSON_LENGTH];
-  generateUpdateJSON(jsonBuffer);
+
+  generateUpdateJSON(output);
+
+  serializeJson(output, jsonBuffer);
   sendToAll(jsonBuffer);
 }
 
 void sendOTAProgressUpdate(float progress, int partition)
 {
-  char jsonBuffer[MAX_JSON_LENGTH];
-  generateOTAProgressUpdateJSON(jsonBuffer, progress, partition);
+  StaticJsonDocument<256> output;
+  char jsonBuffer[256];
+
+  generateOTAProgressUpdateJSON(output, progress, partition);
+
+  serializeJson(output, jsonBuffer);
   sendToAll(jsonBuffer);
 }
 
 void sendOTAProgressFinished()
 {
-  char jsonBuffer[MAX_JSON_LENGTH];
-  generateOTAProgressFinishedJSON(jsonBuffer);
+  StaticJsonDocument<256> output;
+  char jsonBuffer[256];
+
+  generateOTAProgressFinishedJSON(output);
+
+  serializeJson(output, jsonBuffer);
   sendToAll(jsonBuffer);
 }
 

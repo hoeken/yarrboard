@@ -9,6 +9,8 @@
 #ifndef YARR_CONFIG_H
 #define YARR_CONFIG_H
 
+#include <ArduinoTrace.h>
+
 // enable one of these
 //#define CONFIG_8CH_MOSFET_REVA
 //#define CONFIG_8CH_MOSFET_REVB
