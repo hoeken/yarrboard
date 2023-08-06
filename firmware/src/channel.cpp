@@ -6,10 +6,7 @@
   License: GPLv3
 */
 
-#include <Arduino.h>
-#include "config.h"
 #include "channel.h"
-#include "prefs.h"
 
 //the main star of the event
 OutputChannel channels[CHANNEL_COUNT];
@@ -66,12 +63,13 @@ void OutputChannel::setup()
 
   //initialize our PWM channels
   ledcSetup(this->id, CHANNEL_PWM_FREQUENCY, CHANNEL_PWM_RESOLUTION);
-  ledcAttachPin(this->pin, this->id);
+  ledcAttachPin(this->_pins[this->id], this->id);
   ledcWrite(this->id, 0);
 
   //this is our callback handler for fade end.
   int channel = this->id;
   ledc_cb_register(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)this->id, &callbacks, (void *)channel);
+  isChannelFading[this->id] = false;
 
   //lookup our name
   sprintf(prefIndex, "cName%d", this->id);

@@ -10,14 +10,16 @@
 #define YARR_CHANNEL_H
 
 #include <Arduino.h>
+#include "prefs.h"
 #include "config.h"
 #include "driver/ledc.h"
 
 class OutputChannel
 {
+  byte _pins[CHANNEL_COUNT] = CHANNEL_PINS;
+
   public:
     byte id = 0;
-    byte pin = 0;
     bool state = false;
     bool tripped = false;
     char name[YB_CHANNEL_NAME_LENGTH];
