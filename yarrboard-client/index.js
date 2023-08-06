@@ -15,6 +15,8 @@ let lastReceivedMessageCount = 0;
 let lastSentMessageCount = 0;
 let lastMessageUpdateTime = Date.now();
 
+let throttleTime = Date.now();
+
 function main()
 {
     createWebsocket();
@@ -22,7 +24,7 @@ function main()
 
 function createWebsocket()
 {
-    client = new W3CWebSocket('ws://fullmain.local/ws');
+    client = new W3CWebSocket('ws://yarrboard.local/ws');
 
     client.onerror = function() {
         console.log('[socket] Connection error');
@@ -37,25 +39,27 @@ function createWebsocket()
         last_heartbeat = Date.now();
 
         //our connection watcher
-        setTimeout(sendHeartbeat, heartbeat_rate);
+        //setTimeout(sendHeartbeat, heartbeat_rate);
 
-        //doLogin("admin", "admin");
+        doLogin("admin", "admin");
 
-        setTimeout(function (){fadePinHardware(0, 2500)}, 100);
-        setTimeout(function (){fadePinHardware(1, 2000)}, 200);
-        setTimeout(function (){fadePinHardware(2, 1500)}, 300);
-        setTimeout(function (){fadePinHardware(3, 1000)}, 100);
-        setTimeout(function (){fadePinHardware(4, 500)}, 100);
-        setTimeout(function (){fadePinHardware(5, 250)}, 100);
-        setTimeout(function (){fadePinHardware(6, 100)}, 100);
-        setTimeout(function (){fadePinHardware(7, 50)}, 100);
-        
+
+        // setTimeout(function (){fadePinHardware(7, 2500)}, 100);
+        // setTimeout(function (){fadePinHardware(6, 2000)}, 200);
+        // setTimeout(function (){fadePinHardware(5, 1500)}, 300);
+        // setTimeout(function (){fadePinHardware(4, 1000)}, 100);
+        // setTimeout(function (){fadePinHardware(3, 500)}, 100);
+        // setTimeout(function (){fadePinHardware(2, 300)}, 100);
+        // setTimeout(function (){fadePinHardware(1, 250)}, 100);
+        // setTimeout(function (){fadePinHardware(0, 250)}, 100);
+
+        setTimeout(testAllFade, 1);
+
         let cmd;
-        //cmd = {"cmd":"ping"}
+        cmd = {"cmd":"ping"}
         //cmd = {"cmd":"toggle_channel","id": 0};
         //cmd = {"cmd":"set_channel","id": 0, "state":true};
-        cmd = {"cmd":"set_channel","id": 0, "duty":0.5};
-        
+        //cmd = {"cmd":"set_channel","id": 0, "duty":0.5};
         //setTimeout(function (){speedTest(cmd, 10)}, 100);
 
         setTimeout(printMessageStats, 1000);
@@ -66,6 +70,33 @@ function createWebsocket()
     };
 
     client.onmessage = onMessage
+}
+
+async function testAllFade(d = 1000)
+{
+    while (true)
+    {
+        for (let i=0; i<8; i++)
+            sendMessage({
+                "cmd": "fade_channel",
+                "id": i,
+                "duty": 1,
+                "millis": d
+            });
+
+        await delay(d*2);
+
+        for (let i=0; i<8; i++)
+            sendMessage({
+                "cmd": "fade_channel",
+                "id": i,
+                "duty": 0,
+                "millis": d
+            });
+
+            await delay(d*2);
+
+    }
 }
 
 function printMessageStats()
@@ -111,23 +142,46 @@ function onMessage(message)
         }
         else if (data.ok)
             true;
+        else if (data.error == "Websocket busy, throttle connection.")
+        {
+            let delta = throttleTime - Date.now();
+            if (delta > 0)
+                throttleTime = Date.now() + delta * 2;
+            else
+                throttleTime = Date.now() + 1000;
+
+            delta = throttleTime - Date.now();
+
+            //console.log(`Throttling: ${delta}ms`);
+        }
         else
             console.log(data);
     }
 }
 
-function sendMessage(message)
+async function sendMessage(message)
 {
-    sentMessageCount++;
-
-    if (client.readyState == W3CWebSocket.OPEN) {
-        try {
-            //console.log(message.cmd);
-            client.send(JSON.stringify(message));
-        } catch (error) {
-            console.error("Send: " + error);
-        }
+    //are we throttled?
+    if (throttleTime > Date.now())
+    {
+        delta = throttleTime - Date.now();
+        console.log(`throttled ${delta}`);
+        return;
     }
+    else
+    {
+        sentMessageCount++;
+
+        if (client.readyState == W3CWebSocket.OPEN) {
+            try {
+                //console.log(message.cmd);
+                client.send(JSON.stringify(message));
+            } catch (error) {
+                console.error("Send: " + error);
+            }
+        }    
+    }
+
 }
 
 //our heartbeat timer.
