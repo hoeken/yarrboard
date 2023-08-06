@@ -17,6 +17,22 @@ let lastMessageUpdateTime = Date.now();
 
 let throttleTime = Date.now();
 
+const commander = require('commander');
+
+commander
+  .version('1.0.0', '-v, --version')
+  .usage('[OPTIONS]...')
+  .option('-h, --host <value>', 'Yarrboard hostname', 'yarrboard.local')
+  .option('-u, --user <value>', 'Username', 'admin')
+  .option('-p, --pass <value>', 'Password', 'admin')
+  .option('-l, --login', 'Login or not')
+  .parse(process.argv);
+
+const options = commander.opts();
+
+console.log('Host:', `${options.host}`);
+
+
 function main()
 {
     createWebsocket();
@@ -24,7 +40,7 @@ function main()
 
 function createWebsocket()
 {
-    client = new W3CWebSocket('ws://yarrboard.local/ws');
+    client = new W3CWebSocket(`ws://${options.host}/ws`);
 
     client.onerror = function() {
         console.log('[socket] Connection error');
@@ -39,10 +55,10 @@ function createWebsocket()
         last_heartbeat = Date.now();
 
         //our connection watcher
-        //setTimeout(sendHeartbeat, heartbeat_rate);
+        setTimeout(sendHeartbeat, heartbeat_rate);
 
-        doLogin("admin", "admin");
-
+        if (options.login)
+            doLogin(options.user, options.pass);
 
         // setTimeout(function (){fadePinHardware(7, 2500)}, 100);
         // setTimeout(function (){fadePinHardware(6, 2000)}, 200);

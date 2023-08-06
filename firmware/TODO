@@ -1,5 +1,7 @@
 Firmware:
 
+* change message parsing to use FIFO
+
 * refactor to have objects pass the ArduinoJson instead of passing in the buffer.
     * make sure we are using arduinojson properly and not making a ton of copies
 
@@ -15,7 +17,14 @@ Electronics:
 * test qwiic
 * move esp32 to front of board for usb access
 * change 24v on R3/D18 to after fuse (no via needed)
-* 
+
+Case Design:
+
+* add breakaway tabs
+* design power post cover w/ breakaway tabs
+* add Gnarboard logo / text
+* add +/- signs over busbars
+* add overlap to top cover
 
 Long term:
 
