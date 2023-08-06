@@ -332,6 +332,9 @@ void handleToggleChannel(JsonVariantConst input, JsonVariant output)
 
 void handleFadeChannel(JsonVariantConst input, JsonVariant output)
 {
+  unsigned long start = micros();
+  unsigned long t1, t2, t3, t4 = 0;
+
   //id is required
   if (!input.containsKey("id"))
     return generateErrorJSON(output, "'id' is a required parameter");
@@ -353,12 +356,30 @@ void handleFadeChannel(JsonVariantConst input, JsonVariant output)
   else if (duty > 1)
     return generateErrorJSON(output, "Duty cycle must be <= 1");
 
+  t1 = micros();
+
   //okay, we're good.
   channelSetDuty(cid, duty);
+
+  t2 = micros();
 
   int fadeDelay = input["millis"] | 0;
   
   channelFade(cid, duty, fadeDelay);
+
+  t3 = micros();
+
+  unsigned long finish = micros();
+
+  if (finish-start > 10000)
+  {
+    Serial.println("led fade");
+    Serial.printf("params: %dus\n", t1-start); 
+    Serial.printf("channelSetDuty: %dus\n", t2-t1); 
+    Serial.printf("channelFade: %dus\n", t3-t2); 
+    Serial.printf("total: %dus\n", finish-start);
+    Serial.println();
+  }
 }
 
 void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)

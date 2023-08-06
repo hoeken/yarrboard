@@ -27,15 +27,37 @@ char channelNames[CHANNEL_COUNT][YB_CHANNEL_NAME_LENGTH];
 unsigned int channelStateChangeCount[CHANNEL_COUNT];
 unsigned int channelSoftFuseTripCount[CHANNEL_COUNT];
 
+//flag for hardware fade status
+static volatile bool isChannelFading[FAN_COUNT];
+
 /* Setting PWM Properties */
 const int MAX_DUTY_CYCLE = (int)(pow(2, CHANNEL_PWM_RESOLUTION) - 1);
+
+/*
+ * This callback function will be called when fade operation has ended
+ * Use callback only if you are aware it is being called inside an ISR
+ * Otherwise, you can use a semaphore to unblock tasks
+ */
+static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
+{
+    portBASE_TYPE taskAwoken = pdFALSE;
+
+    if (param->event == LEDC_FADE_END_EVT) {
+        isChannelFading[(int)user_arg] = false;
+    }
+
+    return (taskAwoken == pdTRUE);
+}
 
 void channel_setup()
 {
   char prefIndex[YB_PREF_KEY_LENGTH];
 
-  //for hardware fade
+  //for hardware fade end callback interrupt
   ledc_fade_func_install(0);
+  ledc_cbs_t callbacks = {
+      .fade_cb = cb_ledc_fade_end_event
+  };
 
   //intitialize our output pins.
   for (short i = 0; i < CHANNEL_COUNT; i++)
@@ -48,12 +70,17 @@ void channel_setup()
     channelWattHour[i] = 0.0;
     channelLastDutyCycleUpdate[i] = 0;
     channelDutyCycleIsThrottled[i] = false;
+    isChannelFading[i] = false;
 
     //initialize our PWM channels
     //pinMode(outputPins[i], OUTPUT);
     ledcSetup(i, CHANNEL_PWM_FREQUENCY, CHANNEL_PWM_RESOLUTION);
     ledcAttachPin(outputPins[i], i);
     ledcWrite(i, 0);
+
+    //this is our callback handler for fade end.
+    int channel = i;
+    ledc_cb_register(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, &callbacks, (void *)channel);
 
     //lookup our name
     sprintf(prefIndex, "cName%d", i);
@@ -133,7 +160,8 @@ void updateChannelState(int channelId)
     pwm = 0;
 
   //okay, set our pin state.
-  ledcWrite(channelId, pwm);
+  if (!isChannelFading[channelId])
+    ledcWrite(channelId, pwm);
 }
 
 void checkSoftFuses()
@@ -167,7 +195,12 @@ void channelFade(uint8_t channel, float duty, int max_fade_time_ms)
 {
   int target_duty = duty * MAX_DUTY_CYCLE;
 
-   ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, target_duty, max_fade_time_ms, LEDC_FADE_NO_WAIT);
+  // is our hardware fade over yet?
+  if (!isChannelFading[channel])
+  {
+    isChannelFading[channel] = true;
+    ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, target_duty, max_fade_time_ms, LEDC_FADE_NO_WAIT);
+  }
 }
 
 void channelSetDuty(int cid, float duty)
