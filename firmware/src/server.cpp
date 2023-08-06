@@ -229,6 +229,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     }
     else
     {
+      Serial.printf("slots: %d\n", getFreeSlots());
+
       StaticJsonDocument<128> output;
       char jsonBuffer[128];
 
@@ -236,8 +238,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 
       serializeJson(output, jsonBuffer);
       client->text(jsonBuffer);
-
-      Serial.printf("slots: %d\n", getFreeSlots());
     }
   }
 }

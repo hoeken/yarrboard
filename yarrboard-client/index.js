@@ -60,14 +60,18 @@ function createWebsocket()
         if (options.login)
             doLogin(options.user, options.pass);
 
-        setTimeout(function (){fadePinHardware(7, 2500)}, 100);
-        setTimeout(function (){fadePinHardware(6, 2000)}, 200);
-        setTimeout(function (){fadePinHardware(5, 1500)}, 300);
-        setTimeout(function (){fadePinHardware(4, 1000)}, 100);
-        setTimeout(function (){fadePinHardware(3, 500)}, 100);
-        setTimeout(function (){fadePinHardware(2, 300)}, 100);
-        setTimeout(function (){fadePinHardware(1, 250)}, 100);
-        setTimeout(function (){fadePinHardware(0, 100)}, 100);
+        // setTimeout(function (){fadePinHardware(7, 2500)}, 100);
+        // setTimeout(function (){fadePinHardware(6, 2000)}, 200);
+        // setTimeout(function (){fadePinHardware(5, 1500)}, 300);
+        // setTimeout(function (){fadePinHardware(4, 1000)}, 100);
+        // setTimeout(function (){fadePinHardware(3, 500)}, 100);
+        // setTimeout(function (){fadePinHardware(2, 300)}, 100);
+        // setTimeout(function (){fadePinHardware(1, 250)}, 100);
+        // setTimeout(function (){fadePinHardware(0, 100)}, 100);
+
+        //setTimeout(function (){fadePin(0, 8)}, 1);
+
+        setTimeout(function (){togglePin(0, 8)}, 1);
 
         //setTimeout(testAllFade, 1);
 
@@ -357,10 +361,21 @@ async function togglePin()
     }
 }
 
-async function fadePin(d = 10)
+async function togglePin(channel = 0, d = 10)
+{
+    while (true)
+    {
+        sendMessage({
+            "cmd": "toggle_channel",
+            "id": channel
+        });
+        await delay(d)
+    }
+}
+
+async function fadePin(channel = 0, d = 10)
 {
     let steps = 25;
-    let channel = 0;
     let max_duty = 1;
 
     while (true)
