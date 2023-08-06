@@ -119,9 +119,16 @@ void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request)
   else
     generateErrorJSON(output, "Web API is disabled.");      
 
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  serializeJson(output, *response);
-  request->send(response);
+  //we can have empty messages
+  if (output.size())
+  {
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    serializeJson(output.as<JsonObject>(), *response);
+    request->send(response);
+  }
+  //give them valid json at least
+  else
+    request->send(200, "application/json", "{}");
 }
 
 bool hasWebSocketRequest()
@@ -262,15 +269,21 @@ void handleWebsocketMessageLoop(byte slot)
 
   t2 = micros();
 
-  serializeJson(output, jsonBuffer);
 
-  t3 = micros();
+  //empty messages are valid, so don't send a response
+  if (output.size())
+  {
+    serializeJson(output, jsonBuffer);
+    t3 = micros();
 
-  //only send if we're empty.  Ignore it otherwise.
-  if (ws.availableForWrite(receiveClientId[slot]))
-    ws.text(receiveClientId[slot], jsonBuffer);
+    //only send if we're empty.  Ignore it otherwise.
+    if (ws.availableForWrite(receiveClientId[slot]))
+      ws.text(receiveClientId[slot], jsonBuffer);
+    else
+      Serial.println("[socket] client full");
+  }
   else
-    Serial.println("[socket] client full");
+    t3 = micros();
 
   websocketRequestReady[slot] = false;
 

@@ -58,7 +58,6 @@ void generateSuccessJSON(JsonVariant output, const char * success);
 void generateLoginRequiredJSON(JsonVariant output);
 void generateInvalidChannelJSON(JsonVariant output, byte cid);
 void generatePongJSON(JsonVariant output);
-void generateOKJSON(JsonVariant output);
 
 void sendUpdate();
 void sendOTAProgressUpdate(float progress, int partition);

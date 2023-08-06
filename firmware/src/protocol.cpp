@@ -76,7 +76,10 @@ void handleSerialJson()
   else
   {
     handleReceivedJSON(input, output, YBP_MODE_SERIAL, 0);
-    serializeJson(output, Serial);
+
+    //we can have empty responses
+    if (output.size())
+      serializeJson(output, Serial);    
   }
 }
 
@@ -88,6 +91,13 @@ void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, u
 
   //what is your command?
   const char* cmd = input["cmd"];
+
+  //let the client keep track of messages
+  if (input.containsKey("msgid"))
+  {
+    int msgid = input["msgid"];
+    output["msgid"] = msgid;
+  }
 
   //keep track!
   handledMessages++;
@@ -293,8 +303,6 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
     //give them the updated config
     return generateConfigJSON(output);
   }
-
-  return generateOKJSON(output);
 }
 
 void handleToggleChannel(JsonVariantConst input, JsonVariant output)
@@ -320,8 +328,6 @@ void handleToggleChannel(JsonVariantConst input, JsonVariant output)
 
   //change our output pin to reflect
   updateChannelState(cid);
-
-  return generateOKJSON(output);
 }
 
 void handleFadeChannel(JsonVariantConst input, JsonVariant output)
@@ -353,8 +359,6 @@ void handleFadeChannel(JsonVariantConst input, JsonVariant output)
   int fadeDelay = input["millis"] | 0;
   
   channelFade(cid, duty, fadeDelay);
-
-  return generateOKJSON(output);
 }
 
 void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)
@@ -735,11 +739,6 @@ bool isValidChannel(byte cid)
 void generatePongJSON(JsonVariant output)
 {
   output["pong"] = millis();
-}
-
-void generateOKJSON(JsonVariant output)
-{
-  output["ok"] = millis();
 }
 
 void sendUpdate()
