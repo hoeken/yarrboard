@@ -167,48 +167,7 @@ void channelFade(uint8_t channel, float duty, int max_fade_time_ms)
 {
   int target_duty = duty * MAX_DUTY_CYCLE;
 
-  //this is borrowed from ledc_set_fade_with_time
-  uint32_t freq = CHANNEL_PWM_FREQUENCY;
-  uint32_t max_duty = MAX_DUTY_CYCLE;
-  int duty_cur = ledcRead(channel);
-  uint32_t duty_delta = target_duty > duty_cur ? target_duty - duty_cur : duty_cur - target_duty;
-
-  //Serial.printf("freq: %d\n", freq);
-  //Serial.printf("max duty: %d\n", max_duty);
-  //Serial.printf("duty cur: %d\n", duty_cur);
-  //Serial.printf("duty target: %d\n", target_duty);
-  //Serial.printf("duty delta: %d\n", duty_delta);
-
-  if (duty_delta == 0)
-    return;
-
-  int total_cycles = max_fade_time_ms * freq / 1000;
-  if (total_cycles == 0)
-  {
-    ledcWrite(channel, target_duty);
-    return;
-  }
-
-  int scale, cycle_num;
-  if (total_cycles > duty_delta) {
-      scale = 1;
-      cycle_num = total_cycles / duty_delta;
-  } else {
-      cycle_num = 1;
-      scale = (duty_delta + total_cycles - 1) / total_cycles;
-  }
-
-  //end borrowed ledc code
-
-  //limit to about 5 seconds max: ((1/5000 * 1000)  * 1024 * 25) / 1000
-  //anything longer seems to want to crash the software
-  if (cycle_num > 25)
-    cycle_num = 25;
-
-  //Serial.printf("scale: %d\n", scale);
-  //Serial.printf("cycle num: %d\n", cycle_num);
-
-  esp_err_t result = ledc_set_fade_step_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, target_duty, scale, cycle_num, LEDC_FADE_NO_WAIT);
+   ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, target_duty, max_fade_time_ms, LEDC_FADE_NO_WAIT);
 }
 
 void channelSetDuty(int cid, float duty)
@@ -223,6 +182,7 @@ void channelSetDuty(int cid, float duty)
   {
     preferences.putFloat(prefIndex, duty);
     channelDutyCycleIsThrottled[cid] = false;
+    Serial.printf("saving %s: %f\n", prefIndex, duty);
   }
   //make a note so we can save later.
   else
