@@ -181,6 +181,10 @@ void OutputChannel::setFade(float duty, int max_fade_time_ms)
   // is our hardware fade over yet?
   if (!isChannelFading[this->id])
   {
+    //fading turns on the channel.
+    this->state = true;
+
+    //call our hardware fader
     isChannelFading[this->id] = true;
     ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)this->id, target_duty, max_fade_time_ms, LEDC_FADE_NO_WAIT);
   }
