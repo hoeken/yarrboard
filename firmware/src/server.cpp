@@ -269,13 +269,17 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 
 void handleWebsocketMessageLoop(byte slot)
 {
-  unsigned long t1 = micros();
+  unsigned long start = micros();
 
   char jsonBuffer[MAX_JSON_LENGTH];
   StaticJsonDocument<1024> json;
 
   DeserializationError err = deserializeJson(json, receiveBuffer[slot]);
   JsonObject doc = json.as<JsonObject>();
+
+  String mycmd = doc["cmd"] | "???";
+
+  unsigned long t1 = micros();
 
   //was there a problem, officer?
   if (err)
@@ -287,16 +291,27 @@ void handleWebsocketMessageLoop(byte slot)
   else
     handleReceivedJSON(doc, jsonBuffer, YBP_MODE_WEBSOCKET, receiveClientId[slot]);
 
+  unsigned long t2 = micros();
+
   //only send if we're empty.  Ignore it otherwise.
   if (ws.availableForWrite(receiveClientId[slot]))
     ws.text(receiveClientId[slot], jsonBuffer);
 
+  unsigned long t3 = micros();
+
   websocketRequestReady[slot] = false;
 
-  unsigned long t2 = micros();
-  Serial.printf("handled: %dus\n", t2-t1);
-  Serial.printf("loop slots: %d\n", getFreeSlots());
+  unsigned long finish = micros();
 
+  if (finish-start > 10000)
+  {
+    Serial.println(mycmd);
+    Serial.printf("deserialize: %dus\n", t1-start); 
+    Serial.printf("handle: %dus\n", t2-t1); 
+    Serial.printf("transmit: %dus\n", t3-t2); 
+    Serial.printf("total: %dus\n", finish-start);
+    Serial.println();
+  }
 }
 
 bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id)
