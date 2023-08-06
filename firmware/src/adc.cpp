@@ -18,7 +18,6 @@ const byte adc_cs_pin = 17;
 float busVoltage = 0;
 
 //for tracking our ADC loop
-int adcInterval = 100;
 unsigned long previousADCMillis = 0;
 
 #ifdef BUS_VOLTAGE_MCP3221
@@ -43,7 +42,7 @@ void adc_loop()
 {
   //run our ADC on a faster loop
   int adcDelta = millis() - previousADCMillis;
-  if (adcDelta >= adcInterval)
+  if (adcDelta >= YB_ADC_INTERVAL)
   {
     //this is a bit slow, so only do it once per update
     for (byte channel = 0; channel < CHANNEL_COUNT; channel++)

@@ -8,6 +8,10 @@ bool app_enable_api = true;
 bool app_enable_serial = false;
 bool is_serial_authenticated = false;
 
+bool websocketRequestReady[YB_RECEIVE_BUFFER_COUNT];
+int receiveClientId[YB_RECEIVE_BUFFER_COUNT];
+char receiveBuffer[YB_RECEIVE_BUFFER_COUNT][YB_RECEIVE_BUFFER_LENGTH];
+
 //keep track of our authenticated clients
 const byte clientLimit = 8;
 uint32_t authenticatedClientIDs[clientLimit];
@@ -17,6 +21,12 @@ AsyncWebServer server(80);
 
 void server_setup()
 {
+  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
+  {
+    websocketRequestReady[YB_RECEIVE_BUFFER_COUNT] = false;
+    receiveClientId[YB_RECEIVE_BUFFER_COUNT] = 0;
+  }
+
   //look up our board name
   if (preferences.isKey("boardName"))
     strlcpy(board_name, preferences.getString("boardName").c_str(), sizeof(board_name));
@@ -141,6 +151,49 @@ void server_loop()
 {
   //sometimes websocket clients die badly.
   ws.cleanupClients();
+  
+  //process our websockets outside the callback.
+  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
+  {
+    if (websocketRequestReady[i])
+      handleWebsocketMessageLoop(i);
+  }
+}
+
+bool hasWebSocketRequest()
+{
+  //check if we have any.
+  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)\
+  {
+    if (websocketRequestReady[i])
+      return true;
+  }
+
+  return false;
+}
+
+int getWebsocketRequestSlot()
+{
+  //go until we find a slot.
+  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)\
+  {
+    if (!websocketRequestReady[i])
+      return i;
+  }
+
+  return -1;
+}
+
+int getFreeSlots()
+{
+  int count = 0;
+  for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
+  {
+    if (!websocketRequestReady[i])
+      count++;
+  }
+
+  return count;
 }
 
 void sendToAllWebsockets(const char * jsonString)
@@ -195,28 +248,55 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-    //TODO: maybe check the canSend first and send a throttle message if needed?
-
-    char jsonBuffer[MAX_JSON_LENGTH];
-
-    StaticJsonDocument<1024> json;
-    DeserializationError err = deserializeJson(json, (char *)data);
-    JsonObject doc = json.as<JsonObject>();
-
-    //was there a problem, officer?
-    if (err)
+    int slot = getWebsocketRequestSlot();
+    if (slot >= 0)
     {
-      char error[64];
-      sprintf(error, "deserializeJson() failed with code %s", err.c_str());
-      generateErrorJSON(jsonBuffer, error);
+      websocketRequestReady[slot] = true;
+      receiveClientId[slot] = client->id();
+      strlcpy(receiveBuffer[slot], (char *)data, YB_RECEIVE_BUFFER_LENGTH);
+      return;
     }
     else
-      handleReceivedJSON(doc, jsonBuffer, YBP_MODE_WEBSOCKET, client->id());
+    {
+      char error[64];
+      generateErrorJSON(error, "Websocket busy, throttle connection.");
+      client->text(error);
 
-    //only send if we're empty.  Ignore it otherwise.
-    if (client->canSend())
-      ws.text(client->id(), jsonBuffer);
+      Serial.printf("slots: %d\n", getFreeSlots());
+    }
   }
+}
+
+void handleWebsocketMessageLoop(byte slot)
+{
+  unsigned long t1 = micros();
+
+  char jsonBuffer[MAX_JSON_LENGTH];
+  StaticJsonDocument<1024> json;
+
+  DeserializationError err = deserializeJson(json, receiveBuffer[slot]);
+  JsonObject doc = json.as<JsonObject>();
+
+  //was there a problem, officer?
+  if (err)
+  {
+    char error[64];
+    sprintf(error, "deserializeJson() failed with code %s", err.c_str());
+    generateErrorJSON(jsonBuffer, error);
+  }
+  else
+    handleReceivedJSON(doc, jsonBuffer, YBP_MODE_WEBSOCKET, receiveClientId[slot]);
+
+  //only send if we're empty.  Ignore it otherwise.
+  if (ws.availableForWrite(receiveClientId[slot]))
+    ws.text(receiveClientId[slot], jsonBuffer);
+
+  websocketRequestReady[slot] = false;
+
+  unsigned long t2 = micros();
+  Serial.printf("handled: %dus\n", t2-t1);
+  Serial.printf("loop slots: %d\n", getFreeSlots());
+
 }
 
 bool isWebsocketClientLoggedIn(const JsonObject& doc, uint32_t client_id)

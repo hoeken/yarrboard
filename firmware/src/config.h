@@ -20,7 +20,7 @@
 #endif
 
 #ifndef CHANNEL_PWM_FREQUENCY
-  #define CHANNEL_PWM_FREQUENCY 5000
+  #define CHANNEL_PWM_FREQUENCY 1000
 #endif
 
 #ifndef CHANNEL_PWM_RESOLUTION
@@ -32,12 +32,18 @@
 
 //bytes for sending json
 #define MAX_JSON_LENGTH 1500
+
 #define YBP_MODE_WEBSOCKET 0
 #define YBP_MODE_HTTP      1
 #define YBP_MODE_SERIAL    2
 
+//for handling messages outside of the loop
+#define YB_RECEIVE_BUFFER_LENGTH 512
+#define YB_RECEIVE_BUFFER_COUNT 16
+
 //milliseconds between sending updates on websocket and serial
-#define YB_UPDATE_FREQUENCY 250
+#define YB_UPDATE_FREQUENCY 500
+#define YB_ADC_INTERVAL 200
 
 #define YB_PREF_KEY_LENGTH 16
 #define YB_BOARD_NAME_LENGTH 31

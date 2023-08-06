@@ -198,9 +198,12 @@ void channelFade(uint8_t channel, float duty, int max_fade_time_ms)
       scale = (duty_delta + total_cycles - 1) / total_cycles;
   }
 
-  if (cycle_num > 255)
-    cycle_num = 255;
   //end borrowed ledc code
+
+  //limit to about 5 seconds max: ((1/5000 * 1000)  * 1024 * 25) / 1000
+  //anything longer seems to want to crash the software
+  if (cycle_num > 25)
+    cycle_num = 25;
 
   //Serial.printf("scale: %d\n", scale);
   //Serial.printf("cycle num: %d\n", cycle_num);
