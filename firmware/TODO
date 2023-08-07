@@ -4,13 +4,16 @@ Firmware:
 
 Electronics:
 
+* test MCP3221 + busvoltage
+* test new driver chip
+* test new mosfet
+* test small mosfet
 * test qwiic
 * move esp32 to front of board for usb access
 * change 24v on R3/D18 to after fuse (no via needed)
 
 Case Design:
 
-* add breakaway tabs
 * design power post cover w/ breakaway tabs
 * add Gnarboard logo / text
 * add +/- signs over busbars
