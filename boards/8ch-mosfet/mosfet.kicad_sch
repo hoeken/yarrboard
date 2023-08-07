@@ -1559,8 +1559,8 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid abfd9d39-40e7-4441-a55c-a019dae87901))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44aa3))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44aa3))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44aa4))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44aa4))
     (pin "3" (uuid bc1d5f51-a708-4946-a607-dc92b3201b6f))
     (instances
       (project "8ch-mosfet"
@@ -1772,8 +1772,8 @@
     (property "Vendor" "OQ0271500000G, TJ0271500000G" (at 160.02 137.16 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 52c4b1a6-ccb7-415b-8a30-b742b872136e))
-    (pin "2" (uuid 660c5687-2944-4c7d-9eab-f9c8e18b7b1c))
+    (pin "1" (uuid 153fecda-aa57-43fa-a7d1-904acabe1f56))
+    (pin "2" (uuid 10da534f-6f65-4ecd-ae40-d04111411969))
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0eec6767-666b-42c0-ba36-2a83c9caeade"

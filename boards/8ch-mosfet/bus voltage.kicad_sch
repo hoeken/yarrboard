@@ -777,8 +777,8 @@
     (property "Vendor" "652-CR0805JW-104ELF" (at 113.03 99.06 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid b5ef49d0-1cd6-4404-82b3-f13ff84385e9))
-    (pin "2" (uuid ca6bb26b-9a85-4cd5-9688-dd39fb5b2c9c))
+    (pin "1" (uuid 3a52a34d-55e4-4214-bdb5-1a005af4a4b3))
+    (pin "2" (uuid 9c5a224d-9112-41d1-8a3a-8351b93cb183))
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
