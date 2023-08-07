@@ -200,6 +200,9 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
     //what is our new state?
     bool state = input["state"];
 
+    //this can crash after long fading sessions, reset it with a manual toggle
+    //isChannelFading[this->id] = false;
+
     //keep track of how many toggles
     if (state && channels[cid].state != state)
       channels[cid].stateChangeCount++;
@@ -357,10 +360,6 @@ void handleFadeChannel(JsonVariantConst input, JsonVariant output)
     return generateErrorJSON(output, "Duty cycle must be <= 1");
 
   t1 = micros();
-
-  //okay, we're good.
-  channels[cid].setDuty(duty);
-
   t2 = micros();
 
   int fadeDelay = input["millis"] | 0;

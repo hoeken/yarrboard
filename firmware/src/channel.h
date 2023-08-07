@@ -31,6 +31,12 @@ class OutputChannel
     unsigned long lastDutyCycleUpdate = 0;
     unsigned long dutyCycleIsThrottled = 0;
 
+    bool fadeRequested = true;
+    unsigned long fadeStartTime = 0;
+    unsigned long fadeEndTime = 0;
+    float fadeDutyCycleStart = 0;
+    float fadeDutyCycleEnd = 0;
+
     float amperage = 0.0;
     float softFuseAmperage = 0.0;
     float ampHours = 0.0;
@@ -43,6 +49,7 @@ class OutputChannel
     void saveThrottledDutyCycle();
     void updateOutput();
     void checkSoftFuse();
+    void checkIfFadeOver();
     void setFade(float duty, int max_fade_time_ms);
     void setDuty(float duty);
 };

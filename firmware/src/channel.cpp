@@ -50,7 +50,10 @@ void channel_loop()
 {
   //maintenance on our channels.
   for (byte id = 0; id < CHANNEL_COUNT; id++)
+  {
     channels[id].saveThrottledDutyCycle();
+    channels[id].checkIfFadeOver();
+  }
 }
 
 void OutputChannel::setup()
@@ -174,17 +177,63 @@ void OutputChannel::checkSoftFuse()
 
 void OutputChannel::setFade(float duty, int max_fade_time_ms)
 {
-  int target_duty = duty * MAX_DUTY_CYCLE;
-
-  // is our hardware fade over yet?
+  // is our earlier hardware fade over yet?
   if (!isChannelFading[this->id])
   {
     //fading turns on the channel.
     this->state = true;
 
-    //call our hardware fader
+    //some vars for tracking.
     isChannelFading[this->id] = true;
+    this->fadeRequested = true;
+    this->fadeDutyCycleStart = this->dutyCycle;
+    this->fadeDutyCycleEnd = duty;
+    this->fadeStartTime = millis();
+    this->fadeEndTime = millis() + max_fade_time_ms + 100;
+
+    //call our hardware fader
+    int target_duty = duty * MAX_DUTY_CYCLE;
     ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)this->id, target_duty, max_fade_time_ms, LEDC_FADE_NO_WAIT);
+  }
+}
+
+void OutputChannel::checkIfFadeOver()
+{
+  //we're looking to see if the fade is over yet
+  if (this->fadeRequested)
+  {
+    //has our fade ended?
+    if (millis() > this->fadeEndTime)
+    {
+      //this is a potential bug fix.. had the board "lock" into a fade.
+      //it was responsive but wouldnt toggle some pins.  I think it was this flag not getting cleared
+      if (isChannelFading[this->id])
+      {
+        isChannelFading[this->id];
+        Serial.println("error fading");
+      }
+
+      this->fadeRequested = false;
+      this->setDuty(fadeDutyCycleEnd);
+    }
+    //okay, update our duty cycle as we go for good UI
+    else
+    {
+      unsigned long delta = this->fadeEndTime - this->fadeStartTime;
+      unsigned long nowDelta = millis() - this->fadeStartTime;
+      float dutyDelta = this->fadeDutyCycleEnd - this->fadeDutyCycleStart;
+
+      if (delta > 0)
+      {
+        float currentDuty = this->fadeDutyCycleStart + ((float)nowDelta / (float)delta) * dutyDelta;
+        this->setDuty(currentDuty);
+      }
+    }
+
+    if (this->dutyCycle == 0)
+      this->state = false;
+    else
+      this->state = true;
   }
 }
 
@@ -194,10 +243,10 @@ void OutputChannel::setDuty(float duty)
   this->dutyCycle = duty;
 
   //save to our storage
-  char prefIndex[YB_PREF_KEY_LENGTH];
-  sprintf(prefIndex, "cDuty%d", this->id);
   if (millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
   {
+    char prefIndex[YB_PREF_KEY_LENGTH];
+    sprintf(prefIndex, "cDuty%d", this->id);
     preferences.putFloat(prefIndex, duty);
     this->dutyCycleIsThrottled = false;
     Serial.printf("saving %s: %f\n", prefIndex, duty);

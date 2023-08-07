@@ -20,6 +20,8 @@ yb = new YarrboardClient(options.host, options.user, options.pass, options.login
 function main()
 {
     yb = new YarrboardClient(options.host, options.user, options.pass, options.login);
+    setTimeout(yb.printMessageStats.bind(yb), 1000);    
+
     yb.onopen = function () {
         if (options.host == "fullmain.local")
         {
@@ -32,8 +34,18 @@ function main()
             setTimeout(function (){fadePinHardware(1, 250)}, 1);
             setTimeout(function (){fadePinHardware(0, 100)}, 1);                
         }
-        else
-            setTimeout(function (){togglePin(0, 25)}, 1);
+        else if (options.host == "yarrboard.local")
+        {
+            setTimeout(function (){fadePinHardware(7, 2500)}, 1);
+            setTimeout(function (){fadePinHardware(6, 2000)}, 1);
+            setTimeout(function (){fadePinHardware(5, 1500)}, 1);
+            setTimeout(function (){fadePinHardware(4, 1000)}, 1);
+            setTimeout(function (){fadePinHardware(3, 500)}, 1);
+            setTimeout(function (){fadePinHardware(2, 300)}, 1);
+            setTimeout(function (){fadePinHardware(1, 250)}, 1);
+            setTimeout(function (){fadePinHardware(0, 100)}, 1);                
+        }
+//        setTimeout(function (){togglePin(0, 25)}, 1);
     
         //setTimeout(function (){fadePin(0, 8)}, 1);
     
@@ -49,7 +61,6 @@ function main()
         //cmd = {"cmd":"set_channel","id": 0, "duty":0.5};
         //setTimeout(function (){speedTest(cmd, 10)}, 100);
     
-        setTimeout(yb.printMessageStats.bind(yb), 1000);    
     }
     yb.onmessage = function (msg) {
     }
@@ -146,18 +157,20 @@ async function fadePinManual(channel = 0, d = 10)
     }
 }
 
-async function fadePinHardware(channel = 0, d = 250)
+async function fadePinHardware(channel = 0, d = 250, knee = 0)
 {
-    yb.setChannelState(channel, true);
-    await delay(10)
+    if (!knee)
+        knee = d/2;
 
-    while (true)
+        while (true)
     {
+        //yb.log(`fading to 1 in ${d}ms`);
         yb.fadeChannel(channel, 1, d);
-        await delay(d+100);
+        await delay(d+knee);
 
+        //yb.log(`fading to 0 in ${d}ms`);
         yb.fadeChannel(channel, 0, d);
-        await delay(d+100);
+        await delay(d+knee);
     }
 }
 
