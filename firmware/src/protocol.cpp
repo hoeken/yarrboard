@@ -719,12 +719,14 @@ void generateOTAProgressFinishedJSON(JsonVariant output)
 
 void generateErrorJSON(JsonVariant output, const char* error)
 {
+  output["msg"] = "status";
   output["status"] = "error";
   output["message"] = error;
 }
 
 void generateSuccessJSON(JsonVariant output, const char* success)
 {
+  output["msg"] = "status";
   output["status"] = "success";
   output["message"] = success;
 }
