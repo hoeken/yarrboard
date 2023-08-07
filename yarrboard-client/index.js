@@ -60,22 +60,10 @@ async function testFadeInterrupt()
 {
     while (true)
     {
-        yb.json({
-            "cmd": "fade_channel",
-            "id": 2,
-            "duty": 1,
-            "millis": 1000
-        });
-
+        yb.fadeChannel(2, 1, 1000);
         await delay(500);
 
-        yb.json({
-            "cmd": "fade_channel",
-            "id": 2,
-            "duty": 0,
-            "millis": 1000
-        });
-
+        yb.fadeChannel(2, 0, 1000);
         await delay(500);
     }
 }
@@ -85,25 +73,13 @@ async function testAllFade(d = 1000)
     while (true)
     {
         for (let i=0; i<8; i++)
-            yb.json({
-                "cmd": "fade_channel",
-                "id": i,
-                "duty": 1,
-                "millis": d
-            });
+            yb.fadeChannel(i, 1, d);
 
         await delay(d*2);
 
         for (let i=0; i<8; i++)
-            yb.json({
-                "cmd": "fade_channel",
-                "id": i,
-                "duty": 0,
-                "millis": d
-            });
-
-            await delay(d*2);
-
+            yb.fadeChannel(i, 0, d);
+        await delay(d*2);
     }
 }
 
@@ -120,141 +96,67 @@ async function exercisePins()
     while (true) {
         for (i=0; i<8; i++)
         {
-            yb.json({
-                "cmd": "set_channel",
-                "id": i,
-                "duty": Math.random()
-            });
-            yb.json({
-                "cmd": "set_channel",
-                "id": i,
-                "state": true
-            });
+            yb.setChannelDuty(i, Math.random());
+            yb.setChannelState(i, true);
 
             await delay(200)
         }
 
         for (i=0; i<8; i++)
         {
-            yb.json({
-                "cmd": "set_channel",
-                "id": i,
-                "state": false
-            });
+            yb.setChannelState(i, false);
            	await delay(200)
         }
     }
 }
 
-async function togglePin()
-{
-    yb.json({
-        "cmd": "set_channel",
-        "id": 0,
-        "duty": 1
-    });
-
-    while (true) {
-        yb.json({
-            "cmd": "set_channel",
-            "id": 0,
-            "state": true
-        });
-
-        await delay(1000)
-
-        yb.json({
-            "cmd": "set_channel",
-            "id": 0,
-            "state": false
-        });
-
-        await delay(2000)
-    }
-}
-
 async function togglePin(channel = 0, d = 10)
 {
+    yb.setChannelDuty(channel, 1);
     while (true)
     {
-        yb.json({
-            "cmd": "toggle_channel",
-            "id": channel
-        });
+        yb.toggleChannel(channel);
         await delay(d)
     }
 }
 
-async function fadePin(channel = 0, d = 10)
+async function fadePinManual(channel = 0, d = 10)
 {
     let steps = 25;
     let max_duty = 1;
 
     while (true)
     {
-        yb.json({
-            "cmd": "set_channel",
-            "id": channel,
-            "state": true
-        });
+        yb.setChannelState(channel, true);
         await delay(d)
 
         for (i=0; i<=steps; i++)
         {
-            yb.json({
-                "cmd": "set_channel",
-                "id": channel,
-                "duty": (i / steps) * max_duty
-            });
-
+            yb.setChannelDuty(channel, (i / steps) * max_duty)
             await delay(d)
         }
 
         for (i=steps; i>=0; i--)
         {
-            yb.json({
-                "cmd": "set_channel",
-                "id": channel,
-                "duty": (i / steps) * max_duty
-            });
-
+            yb.setChannelDuty(channel, (i / steps) * max_duty)
             await delay(d)
         }
 
-        yb.json({
-            "cmd": "set_channel",
-            "id": channel,
-            "state": true
-        });
         await delay(d)
     }
 }
 
 async function fadePinHardware(channel = 0, d = 250)
 {
-    yb.json({
-        "cmd": "set_channel",
-        "id": channel,
-        "state": true
-    });
+    yb.setChannelState(channel, true);
     await delay(10)
 
     while (true)
     {
-        yb.json({
-            "cmd": "fade_channel",
-            "id": channel,
-            "duty": 1,
-            "millis": d
-        });
+        yb.fadeChannel(channel, 1, d);
         await delay(d+100);
 
-        yb.json({
-            "cmd": "fade_channel",
-            "id": channel,
-            "duty": 0,
-            "millis": d
-        });
+        yb.fadeChannel(channel, 0, d);
         await delay(d+100);
     }
 }
