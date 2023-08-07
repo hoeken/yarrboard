@@ -181,9 +181,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     }
 
     //start throttling a little bit early so we don't miss anything
-    if (wsRequests.capacity <= 4)
+    if (wsRequests.capacity <= YB_RECEIVE_BUFFER_COUNT/2)
     {
-      String jsonBuffer = "{\"error\":\"Websocket busy, throttle connection.\"}";
+      String jsonBuffer = "{\"status\":\"error\",\"message\":\"Websocket busy, throttle connection.\"}";
 
       /*
       StaticJsonDocument<128> output;

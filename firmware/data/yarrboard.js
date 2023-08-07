@@ -471,28 +471,28 @@ function start_websocket()
         }, 2500); 
       }
     }
-    else if (msg.error)
+    else if (msg.status == "error")
     {
       //did we turn login off?
-      if (msg.error == "Login not required.")
+      if (msg.message == "Login not required.")
       {
         Cookies.remove("username");
         Cookies.remove("password");    
       }
 
       //keep the u gotta login to the login page.
-      if (msg.error == "You must be logged in.")
+      if (msg.message == "You must be logged in.")
       {
         console.log("you must log in");
         open_page("login");
       }
       else
-        show_alert(msg.error);
+        show_alert(msg.message);
     }
-    else if (msg.success)
+    else if (msg.status == "success")
     {
       //keep the login success stuff on the login page.
-      if (msg.success == "Login successful.")
+      if (msg.message == "Login successful.")
       {
         //only needed for login page, otherwise its autologin
         if (current_page == "login")
@@ -515,7 +515,7 @@ function start_websocket()
         }
       }
       else
-        show_alert(msg.success, "success");
+        show_alert(msg.message, "success");
     }
     else if (msg.pong)
     {

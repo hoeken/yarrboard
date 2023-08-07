@@ -1,9 +1,7 @@
 Firmware:
 
-* change the way we are handling success/error/ok messages
-* break yarrboard-client into own npm module
+* move yarrboard-client into own npm module
 * protocol documentation
-* stability fixes as needed
 
 Electronics:
 
@@ -21,9 +19,6 @@ Case Design:
 
 Long term:
 
-* add in reset reason: https://espressif-docs.readthedocs-hosted.com/projects/arduino-esp32/en/latest/api/reset_reason.html
-* ledc fade: https://gist.github.com/CelliesProjects/71dac9b77fd49c598434c8be32dd03d9
-* make a channel struct and use that instaed of 10 different arrays
 * reinvestigate firmware signing
 * figure out how to do safe update with spiffs (2 partitions?)
 * can we get the code smaller?

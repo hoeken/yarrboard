@@ -60,18 +60,22 @@ function createWebsocket()
         if (options.login)
             doLogin(options.user, options.pass);
 
-        // setTimeout(function (){fadePinHardware(7, 2500)}, 100);
-        // setTimeout(function (){fadePinHardware(6, 2000)}, 200);
-        // setTimeout(function (){fadePinHardware(5, 1500)}, 300);
-        // setTimeout(function (){fadePinHardware(4, 1000)}, 100);
-        // setTimeout(function (){fadePinHardware(3, 500)}, 100);
-        // setTimeout(function (){fadePinHardware(2, 300)}, 100);
-        // setTimeout(function (){fadePinHardware(1, 250)}, 100);
-        // setTimeout(function (){fadePinHardware(0, 100)}, 100);
+        if (options.host == "fullmain")
+        {
+            setTimeout(function (){fadePinHardware(7, 2500)}, 1);
+            setTimeout(function (){fadePinHardware(6, 2000)}, 1);
+            setTimeout(function (){fadePinHardware(5, 1500)}, 1);
+            setTimeout(function (){fadePinHardware(4, 1000)}, 1);
+            setTimeout(function (){fadePinHardware(3, 500)}, 1);
+            setTimeout(function (){fadePinHardware(2, 300)}, 1);
+            setTimeout(function (){fadePinHardware(1, 250)}, 1);
+            setTimeout(function (){fadePinHardware(0, 100)}, 1);                
+        }
+        else
+            setTimeout(function (){togglePin(0, 10)}, 1);
 
         //setTimeout(function (){fadePin(0, 8)}, 1);
 
-        setTimeout(function (){togglePin(0, 10)}, 1);
 
         //setTimeout(testAllFade, 1);
 
@@ -188,7 +192,7 @@ function onMessage(message)
         }
         else if (data.ok)
             true;
-        else if (data.error == "Websocket busy, throttle connection.")
+        else if (data.status == "error" && data.message == "Websocket busy, throttle connection.")
         {
             //okay are we throttled already?
             let delta = throttleTime - Date.now();

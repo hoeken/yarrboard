@@ -719,12 +719,14 @@ void generateOTAProgressFinishedJSON(JsonVariant output)
 
 void generateErrorJSON(JsonVariant output, const char* error)
 {
-  output["error"] = error;
+  output["status"] = "error";
+  output["message"] = error;
 }
 
 void generateSuccessJSON(JsonVariant output, const char* success)
 {
-  output["success"] = success;
+  output["status"] = "success";
+  output["message"] = success;
 }
 
 bool isLoggedIn(JsonVariantConst input, byte mode, uint32_t client_id = 0)
