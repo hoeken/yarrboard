@@ -20,6 +20,8 @@ yb = new YarrboardClient(options.host, options.user, options.pass, options.login
 function main()
 {
     yb = new YarrboardClient(options.host, options.user, options.pass, options.login);
+    //yb.addMessageId = true;
+
     setTimeout(yb.printMessageStats.bind(yb), 1000);    
 
     yb.onopen = function () {
@@ -37,13 +39,13 @@ function main()
         else if (options.host == "yarrboard.local")
         {
             setTimeout(function (){fadePinHardware(7, 2500)}, 1);
-            setTimeout(function (){fadePinHardware(6, 2000)}, 1);
-            setTimeout(function (){fadePinHardware(5, 1500)}, 1);
-            setTimeout(function (){fadePinHardware(4, 1000)}, 1);
-            setTimeout(function (){fadePinHardware(3, 500)}, 1);
-            setTimeout(function (){fadePinHardware(2, 300)}, 1);
-            setTimeout(function (){fadePinHardware(1, 250)}, 1);
-            setTimeout(function (){fadePinHardware(0, 100)}, 1);                
+            // setTimeout(function (){fadePinHardware(6, 2000)}, 1);
+            // setTimeout(function (){fadePinHardware(5, 1500)}, 1);
+            // setTimeout(function (){fadePinHardware(4, 1000)}, 1);
+            // setTimeout(function (){fadePinHardware(3, 500)}, 1);
+            // setTimeout(function (){fadePinHardware(2, 300)}, 1);
+            // setTimeout(function (){fadePinHardware(1, 250)}, 1);
+            // setTimeout(function (){fadePinHardware(0, 100)}, 1);                
         }
 //        setTimeout(function (){togglePin(0, 25)}, 1);
     
@@ -63,6 +65,8 @@ function main()
     
     }
     yb.onmessage = function (msg) {
+        if (msg.msgid)
+            this.log(msg.msgid);
     }
     yb.start();
 }

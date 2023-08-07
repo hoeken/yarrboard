@@ -95,7 +95,8 @@ void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, u
   //let the client keep track of messages
   if (input.containsKey("msgid"))
   {
-    int msgid = input["msgid"];
+    unsigned int msgid = input["msgid"];
+    output["status"] = "ok";
     output["msgid"] = msgid;
   }
 

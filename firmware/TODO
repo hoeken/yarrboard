@@ -1,8 +1,5 @@
 Firmware:
 
-* add check for end fade to turn off channel state
-* add msg and status when we see msgid
-* add msg checking to the js client
 * protocol documentation
 
 Electronics:
