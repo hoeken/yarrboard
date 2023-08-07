@@ -38,14 +38,7 @@ function main()
         }
         else if (options.host == "yarrboard.local")
         {
-            setTimeout(function (){fadePinHardware(7, 2500)}, 1);
-            // setTimeout(function (){fadePinHardware(6, 2000)}, 1);
-            // setTimeout(function (){fadePinHardware(5, 1500)}, 1);
-            // setTimeout(function (){fadePinHardware(4, 1000)}, 1);
-            // setTimeout(function (){fadePinHardware(3, 500)}, 1);
-            // setTimeout(function (){fadePinHardware(2, 300)}, 1);
-            // setTimeout(function (){fadePinHardware(1, 250)}, 1);
-            // setTimeout(function (){fadePinHardware(0, 100)}, 1);                
+            setTimeout(function (){fadePinHardware(0, 1000)}, 1);
         }
 //        setTimeout(function (){togglePin(0, 25)}, 1);
     
