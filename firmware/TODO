@@ -4,10 +4,7 @@ Firmware:
 
 Electronics:
 
-* test small mosfet
-* test new mosfet
 * move esp32 to front of board for usb access
-* change 24v on R3/D18 to after fuse (no via needed)
 * test MCP3221 + busvoltage
 * test new driver chip
 
