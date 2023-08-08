@@ -12,6 +12,10 @@ Electronics:
 * move esp32 to front of board for usb access
 * change 24v on R3/D18 to after fuse (no via needed)
 
+Case:
+
+* add zip tie mounts to top
+
 Long term:
 
 * reinvestigate firmware signing
