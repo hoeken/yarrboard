@@ -19,7 +19,6 @@ float busVoltage = 0;
 unsigned long previousADCMillis = 0;
 
 #ifdef BUS_VOLTAGE_MCP3221
-  MCP3221 mcp3221(BUS_VOLTAGE_ADDRESS);
 #endif
 
 void adc_setup()
@@ -32,7 +31,6 @@ void adc_setup()
   #endif
 
   #ifdef BUS_VOLTAGE_MCP3221
-    mcp3221.init();
   #endif
 }
 
@@ -118,6 +116,5 @@ int adc_readBusVoltageADC()
   #endif
 
   #ifdef BUS_VOLTAGE_MCP3221
-    return mcp3221.read();
   #endif
 }

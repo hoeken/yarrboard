@@ -13,7 +13,6 @@
 #include <MCP3208.h>
 
 #include <Wire.h>
-#include <MCP3X21.h>
 #include "channel.h"
 
 extern float busVoltage;
