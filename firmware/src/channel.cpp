@@ -107,7 +107,7 @@ void OutputChannel::setup()
   if (preferences.isKey(prefIndex))
     this->softFuseAmperage = preferences.getFloat(prefIndex);
   else
-    this->softFuseAmperage = 20.0;
+    this->softFuseAmperage = YB_FAN_MAX_CHANNEL_AMPS;
 
   //soft fuse trip count
   sprintf(prefIndex, "cTripCount%d", this->id);
@@ -157,7 +157,7 @@ void OutputChannel::checkSoftFuse()
   if (!this->tripped)
   {
     //Check our soft fuse, and our max limit for the board.
-    if (abs(this->amperage) >= this->softFuseAmperage || abs(this->amperage) >= 20.0)
+    if (abs(this->amperage) >= this->softFuseAmperage || abs(this->amperage) >= YB_FAN_MAX_CHANNEL_AMPS)
     {
       //actually shut it down!
       this->updateOutput();

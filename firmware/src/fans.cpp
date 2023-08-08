@@ -76,15 +76,15 @@ void fans_loop()
             measure_fan_rpm(i);
 
             //one channel on high?
-            if (amps_max > 1)
+            if (amps_max > YB_FAN_SINGLE_CHANNEL_AMPS)
             {
                 set_fan_pwm(i, 255);
                 Serial.println("Fan Full Blast");
             }
             //high average amps?
-            else if (amps_avg > 5)
+            else if (amps_avg > YB_FAN_AVERAGE_CHANNEL_AMPS)
             {
-                byte pwm = map(amps_avg, 5, 20, 0, 255);
+                byte pwm = map(amps_avg, YB_FAN_AVERAGE_CHANNEL_AMPS, YB_FAN_MAX_CHANNEL_AMPS, 0, 255);
                 pwm = constrain(pwm, 0, 255);
                 set_fan_pwm(i, pwm);
 

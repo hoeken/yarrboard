@@ -31,7 +31,7 @@ class OutputChannel
     unsigned long lastDutyCycleUpdate = 0;
     unsigned long dutyCycleIsThrottled = 0;
 
-    bool fadeRequested = true;
+    bool fadeRequested = false;
     unsigned long fadeStartTime = 0;
     unsigned long fadeEndTime = 0;
     float fadeDutyCycleStart = 0;

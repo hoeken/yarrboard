@@ -29,6 +29,10 @@
   #define CHANNEL_PWM_RESOLUTION 10
 #endif
 
+#define YB_FAN_SINGLE_CHANNEL_AMPS 5.0
+#define YB_FAN_AVERAGE_CHANNEL_AMPS 5.0
+#define YB_FAN_MAX_CHANNEL_AMPS 20.0
+
 //time before saving fade pwm to preserve flash
 #define YB_DUTY_SAVE_TIMEOUT 5000
 
