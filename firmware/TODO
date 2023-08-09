@@ -8,10 +8,7 @@ Electronics:
 * push mosfet and other passives towards top of the board away from acs725
 * test MCP3221 + busvoltage
 * test new driver chip
-
-Case:
-
-* add zip tie mounts to top
+* fix center point of fuse holder
 
 Long term:
 
