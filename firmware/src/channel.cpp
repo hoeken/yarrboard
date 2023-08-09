@@ -159,13 +159,13 @@ void OutputChannel::checkSoftFuse()
     //Check our soft fuse, and our max limit for the board.
     if (abs(this->amperage) >= this->softFuseAmperage || abs(this->amperage) >= YB_FAN_MAX_CHANNEL_AMPS)
     {
-      //actually shut it down!
-      this->updateOutput();
-
       //record some variables
       this->tripped = true;
       this->state = false;
       this->softFuseTripCount++;
+
+      //actually shut it down!
+      this->updateOutput();
 
       //save to our storage
       char prefIndex[YB_PREF_KEY_LENGTH];

@@ -20,7 +20,7 @@ extern float busVoltage;
 void adc_setup();
 void adc_loop();
 
-uint16_t adc_readMCP3208Channel(byte channel, byte samples = 64);
+uint16_t adc_readMCP3208Channel(byte channel);
 float adc_readAmperage(byte channel);
 
 float adc_readBusVoltage();

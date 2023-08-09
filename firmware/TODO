@@ -1,5 +1,6 @@
 Firmware:
 
+* update ADC code to do averaging every time message is sent out, not during reading.
 * protocol documentation
 
 Electronics:

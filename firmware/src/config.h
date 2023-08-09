@@ -49,7 +49,8 @@
 
 //milliseconds between sending updates on websocket and serial
 #define YB_UPDATE_FREQUENCY 250
-#define YB_ADC_INTERVAL 200
+#define YB_ADC_INTERVAL 50
+#define YB_ADC_SAMPLES 1
 
 #define YB_PREF_KEY_LENGTH 16
 #define YB_BOARD_NAME_LENGTH 31

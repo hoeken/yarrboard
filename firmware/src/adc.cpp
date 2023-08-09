@@ -38,7 +38,7 @@ void adc_loop()
 {
   //run our ADC on a faster loop
   int adcDelta = millis() - previousADCMillis;
-  if (adcDelta >= YB_ADC_INTERVAL)
+  //if (adcDelta >= YB_ADC_INTERVAL)
   {
     //this is a bit slow, so only do it once per update
     for (byte i = 0; i < CHANNEL_COUNT; i++)
@@ -65,16 +65,17 @@ void adc_loop()
   }
 }
 
-uint16_t adc_readMCP3208Channel(byte channel, byte samples)
+uint16_t adc_readMCP3208Channel(byte channel)
 {
   uint32_t value = 0;
 
-  if (samples > 1)
+  if (YB_ADC_SAMPLES > 1)
   {
-    for (byte i = 0; i < samples; i++)
+    for (byte i = 0; i < YB_ADC_SAMPLES; i++)
       value += adc.readADC(channel);
-    value = value / samples;
-  } else
+    value = value / YB_ADC_SAMPLES;
+  }
+  else
     value = adc.readADC(channel);
 
   return (uint16_t)value;
