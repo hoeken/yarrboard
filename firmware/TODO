@@ -5,6 +5,7 @@ Firmware:
 Electronics:
 
 * move esp32 to front of board for usb access
+* push mosfet and other passives towards top of the board away from acs725
 * test MCP3221 + busvoltage
 * test new driver chip
 
