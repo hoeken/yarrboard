@@ -97,6 +97,7 @@ void OutputChannel::setup()
     this->dutyCycle = preferences.getFloat(prefIndex);
   else
     this->dutyCycle = 1.0;
+  this->lastDutyCycle = this->dutyCycle;
 
   //dimmability.
   sprintf(prefIndex, "cDimmable%d", this->id);
@@ -203,13 +204,19 @@ void OutputChannel::setFade(float duty, int max_fade_time_ms)
   // is our earlier hardware fade over yet?
   if (!isChannelFading[this->id])
   {
+    //dutyCycle is a default - will be non-zero when state is off
+    if (this->state)
+      this->fadeDutyCycleStart = this->dutyCycle;
+    else
+      this->fadeDutyCycleStart = 0.0;
+
     //fading turns on the channel.
     this->state = true;
 
     //some vars for tracking.
     isChannelFading[this->id] = true;
     this->fadeRequested = true;
-    this->fadeDutyCycleStart = this->dutyCycle;
+
     this->fadeDutyCycleEnd = duty;
     this->fadeStartTime = millis();
     this->fadeEndTime = millis() + max_fade_time_ms + 100;
@@ -241,6 +248,13 @@ void OutputChannel::checkIfFadeOver()
       //ignore the zero duty cycle part
       if (fadeDutyCycleEnd > 0)
         this->setDuty(fadeDutyCycleEnd);
+      else
+        this->dutyCycle = fadeDutyCycleStart;
+
+      if (fadeDutyCycleEnd == 0)
+        this->state = false;
+      else
+        this->state = true;
     }
     //okay, update our duty cycle as we go for good UI
     else
@@ -254,12 +268,12 @@ void OutputChannel::checkIfFadeOver()
         float currentDuty = this->fadeDutyCycleStart + ((float)nowDelta / (float)delta) * dutyDelta;
         this->dutyCycle = currentDuty;
       }
-    }
 
-    if (this->dutyCycle == 0)
-      this->state = false;
-    else
-      this->state = true;
+      if (this->dutyCycle == 0)
+        this->state = false;
+      else
+        this->state = true;
+    }
   }
 }
 
@@ -270,18 +284,23 @@ void OutputChannel::setDuty(float duty)
   //it only makes sense to change it to non-zero.
   if (this->dutyCycle > 0)
   {
-    //we don't want to swamp the flash
-    if (millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
+    if (this->dutyCycle != this->lastDutyCycle)
     {
-      char prefIndex[YB_PREF_KEY_LENGTH];
-      sprintf(prefIndex, "cDuty%d", this->id);
-      preferences.putFloat(prefIndex, duty);
-      this->dutyCycleIsThrottled = false;
-      Serial.printf("saving %s: %f\n", prefIndex, this->dutyCycle);
+      //we don't want to swamp the flash
+      if (millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
+      {
+        char prefIndex[YB_PREF_KEY_LENGTH];
+        sprintf(prefIndex, "cDuty%d", this->id);
+        preferences.putFloat(prefIndex, duty);
+        this->dutyCycleIsThrottled = false;
+        Serial.printf("saving %s: %f\n", prefIndex, this->dutyCycle);
+
+        this->lastDutyCycle = this->dutyCycle;
+      }
+      //make a note so we can save later.
+      else
+        this->dutyCycleIsThrottled = true;
     }
-    //make a note so we can save later.
-    else
-      this->dutyCycleIsThrottled = true;
   }
 
   //we want the clock to reset every time we change the duty cycle

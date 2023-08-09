@@ -1,6 +1,5 @@
 Firmware:
 
-* setting fade or duty cycle to 0 shouldn't save it in that mode
 * protocol documentation
 
 Electronics:

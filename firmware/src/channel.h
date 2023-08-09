@@ -30,6 +30,7 @@ class OutputChannel
     unsigned int softFuseTripCount = 0;
 
     float dutyCycle = 0.0;
+    float lastDutyCycle = 0.0;
     unsigned long lastDutyCycleUpdate = 0;
     unsigned long dutyCycleIsThrottled = 0;
 
@@ -63,27 +64,7 @@ class OutputChannel
 
 extern OutputChannel channels[CHANNEL_COUNT];
 
-//keep track of our channel info.
-/*
-extern const byte outputPins[CHANNEL_COUNT];
-extern bool channelState[CHANNEL_COUNT];
-extern bool channelTripped[CHANNEL_COUNT];
-extern float channelDutyCycle[CHANNEL_COUNT];
-extern bool channelIsEnabled[CHANNEL_COUNT];
-extern bool channelIsDimmable[CHANNEL_COUNT];
-extern unsigned long channelLastDutyCycleUpdate[CHANNEL_COUNT];
-extern bool channelDutyCycleIsThrottled[CHANNEL_COUNT];
-extern float channelAmperage[CHANNEL_COUNT];
-extern float channelSoftFuseAmperage[CHANNEL_COUNT];
-extern float channelAmpHour[CHANNEL_COUNT];
-extern float channelWattHour[CHANNEL_COUNT];
-extern char channelNames[CHANNEL_COUNT][YB_CHANNEL_NAME_LENGTH];
-extern unsigned int channelStateChangeCount[CHANNEL_COUNT];
-extern unsigned int channelSoftFuseTripCount[CHANNEL_COUNT];
-*/
-
 void channel_setup();
 void channel_loop();
-void checkSoftFuses();
 
 #endif /* !YARR_CHANNEL_H */
