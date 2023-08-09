@@ -126,12 +126,7 @@ void OutputChannel::saveThrottledDutyCycle()
 {
   //after 5 secs of no activity, we can save it.
   if (this->dutyCycleIsThrottled && millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
-  {
-    char prefIndex[YB_PREF_KEY_LENGTH];
-    sprintf(prefIndex, "cDuty%d", this->id);
-    preferences.putFloat(prefIndex, this->dutyCycle);
-    this->dutyCycleIsThrottled = false;
-  }
+    this->setDuty(this->dutyCycle);
 }
 
 void OutputChannel::updateOutput()
@@ -242,7 +237,10 @@ void OutputChannel::checkIfFadeOver()
       }
 
       this->fadeRequested = false;
-      this->setDuty(fadeDutyCycleEnd);
+  
+      //ignore the zero duty cycle part
+      if (fadeDutyCycleEnd > 0)
+        this->setDuty(fadeDutyCycleEnd);
     }
     //okay, update our duty cycle as we go for good UI
     else
@@ -254,7 +252,7 @@ void OutputChannel::checkIfFadeOver()
       if (delta > 0)
       {
         float currentDuty = this->fadeDutyCycleStart + ((float)nowDelta / (float)delta) * dutyDelta;
-        this->setDuty(currentDuty);
+        this->dutyCycle = currentDuty;
       }
     }
 
@@ -267,21 +265,24 @@ void OutputChannel::checkIfFadeOver()
 
 void OutputChannel::setDuty(float duty)
 {
-  //save to ram
   this->dutyCycle = duty;
 
-  //save to our storage
-  if (millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
+  //it only makes sense to change it to non-zero.
+  if (this->dutyCycle > 0)
   {
-    char prefIndex[YB_PREF_KEY_LENGTH];
-    sprintf(prefIndex, "cDuty%d", this->id);
-    preferences.putFloat(prefIndex, duty);
-    this->dutyCycleIsThrottled = false;
-    Serial.printf("saving %s: %f\n", prefIndex, duty);
+    //we don't want to swamp the flash
+    if (millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
+    {
+      char prefIndex[YB_PREF_KEY_LENGTH];
+      sprintf(prefIndex, "cDuty%d", this->id);
+      preferences.putFloat(prefIndex, duty);
+      this->dutyCycleIsThrottled = false;
+      Serial.printf("saving %s: %f\n", prefIndex, this->dutyCycle);
+    }
+    //make a note so we can save later.
+    else
+      this->dutyCycleIsThrottled = true;
   }
-  //make a note so we can save later.
-  else
-    this->dutyCycleIsThrottled = true;
 
   //we want the clock to reset every time we change the duty cycle
   //this way, long led fading sessions are only one write.

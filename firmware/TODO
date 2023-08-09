@@ -1,7 +1,6 @@
 Firmware:
 
 * setting fade or duty cycle to 0 shouldn't save it in that mode
-* don't save duty cycle at the very beginning of a fade.
 * protocol documentation
 
 Electronics:
