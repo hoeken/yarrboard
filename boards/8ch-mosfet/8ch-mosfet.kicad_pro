@@ -569,6 +569,14 @@
     [
       "b87f80e1-ecbd-4ee0-be26-4b252158928b",
       "Bus Voltage"
+    ],
+    [
+      "0036d08f-39b5-4a29-8e4d-ea832b2cc879",
+      "Connectors"
+    ],
+    [
+      "e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef",
+      "Power Supply"
     ]
   ],
   "text_variables": {}
