@@ -17,6 +17,8 @@ static volatile bool isChannelFading[FAN_COUNT];
 /* Setting PWM Properties */
 const int MAX_DUTY_CYCLE = (int)(pow(2, CHANNEL_PWM_RESOLUTION) - 1);
 
+MCP3208Helper foo;
+
 /*
  * This callback function will be called when fade operation has ended
  * Use callback only if you are aware it is being called inside an ISR
@@ -51,6 +53,7 @@ void channel_loop()
   //maintenance on our channels.
   for (byte id = 0; id < CHANNEL_COUNT; id++)
   {
+    channels[id].checkAmperage();
     channels[id].saveThrottledDutyCycle();
     channels[id].checkIfFadeOver();
   }
@@ -114,7 +117,9 @@ void OutputChannel::setup()
   if (preferences.isKey(prefIndex))
     this->softFuseTripCount = preferences.getUInt(prefIndex);
   else
-    this->softFuseTripCount = 0;  
+    this->softFuseTripCount = 0;
+
+  this->adcHelper = new MCP3208Helper(3.3, this->id, &_adcMCP3208);  
 }
 
 void OutputChannel::saveThrottledDutyCycle()
@@ -151,6 +156,27 @@ void OutputChannel::updateOutput()
     ledcWrite(this->id, pwm);
 }
 
+float OutputChannel::toAmperage(float voltage)
+{
+  float amps = (voltage - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
+
+  //our floor is zero amps
+  amps = max((float)0.0, amps);
+
+  return amps;
+}
+
+float OutputChannel::getAmperage()
+{
+  return this->toAmperage(this->adcHelper->toVoltage(this->adcHelper->getReading()));
+}
+
+void OutputChannel::checkAmperage()
+{
+  this->amperage = this->getAmperage();
+  this->checkSoftFuse();
+}
+
 void OutputChannel::checkSoftFuse()
 {
   //only trip once....
@@ -159,6 +185,8 @@ void OutputChannel::checkSoftFuse()
     //Check our soft fuse, and our max limit for the board.
     if (abs(this->amperage) >= this->softFuseAmperage || abs(this->amperage) >= YB_FAN_MAX_CHANNEL_AMPS)
     {
+      //TODO: maybe double check the amperage again here?
+
       //record some variables
       this->tripped = true;
       this->state = false;
@@ -258,4 +286,17 @@ void OutputChannel::setDuty(float duty)
   //we want the clock to reset every time we change the duty cycle
   //this way, long led fading sessions are only one write.
   this->lastDutyCycleUpdate = millis();
+}
+
+void OutputChannel::calculateAverages(unsigned int delta)
+{
+  this->amperage = this->toAmperage(this->adcHelper->getAverageVoltage());
+  this->adcHelper->resetAverage();
+
+  //record our total consumption
+  if (this->amperage > 0)
+  {
+    this->ampHours += this->amperage * ((float)delta / 3600000.0);
+    this->wattHours += this->amperage * busVoltage * ((float)delta / 3600000.0);
+  }
 }

@@ -30,9 +30,15 @@ void protocol_setup()
 void protocol_loop()
 {
   //lookup our info periodically
-  int messageDelta = millis() - previousMessageMillis;
+  unsigned int messageDelta = millis() - previousMessageMillis;
   if (messageDelta >= YB_UPDATE_FREQUENCY)
   {
+    //update our averages, etc.
+    for (byte i=0; i<CHANNEL_COUNT; i++)
+      channels[i].calculateAverages(messageDelta);
+
+    busVoltage = getBusVoltage();
+
     //read and send out our json update
     sendUpdate();
   

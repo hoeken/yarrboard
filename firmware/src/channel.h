@@ -13,6 +13,8 @@
 #include "prefs.h"
 #include "config.h"
 #include "driver/ledc.h"
+#include "adchelper.h"
+#include "protocol.h"
 
 class OutputChannel
 {
@@ -37,6 +39,7 @@ class OutputChannel
     float fadeDutyCycleStart = 0;
     float fadeDutyCycleEnd = 0;
 
+    MCP3208Helper *adcHelper;
     float amperage = 0.0;
     float softFuseAmperage = 0.0;
     float ampHours = 0.0;
@@ -48,10 +51,14 @@ class OutputChannel
     void setup();
     void saveThrottledDutyCycle();
     void updateOutput();
+    float getAmperage();
+    float toAmperage(float voltage);
+    void checkAmperage();
     void checkSoftFuse();
     void checkIfFadeOver();
     void setFade(float duty, int max_fade_time_ms);
     void setDuty(float duty);
+    void calculateAverages(unsigned int delta);
 };
 
 extern OutputChannel channels[CHANNEL_COUNT];

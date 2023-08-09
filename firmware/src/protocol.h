@@ -12,7 +12,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
-#include "adc.h"
+#include "adchelper.h"
 #include "channel.h"
 #include "fans.h"
 //#include "ntp.h"

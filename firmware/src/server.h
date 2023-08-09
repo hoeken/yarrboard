@@ -22,7 +22,7 @@
 #include "prefs.h"
 #include "wifi.h"
 #include "ota.h"
-#include "adc.h"
+#include "adchelper.h"
 #include "fans.h"
 
 typedef struct {

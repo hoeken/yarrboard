@@ -12,7 +12,7 @@
 #include "channel.h"
 #include "server.h"
 #include "utility.h"
-#include "adc.h"
+#include "adchelper.h"
 #include "fans.h"
 #include "ota.h"
 //#include "ntp.h"
