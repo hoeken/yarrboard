@@ -401,7 +401,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "error",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "simulation_model_issue": "ignore",
@@ -572,7 +572,7 @@
     ],
     [
       "b87f80e1-ecbd-4ee0-be26-4b252158928b",
-      "Bus Voltage"
+      "ADC"
     ],
     [
       "0036d08f-39b5-4a29-8e4d-ea832b2cc879",

@@ -1,5 +1,6 @@
 Firmware:
 
+* add an option to enable/disable wifi sleep mode
 * protocol documentation
 
 Electronics:
