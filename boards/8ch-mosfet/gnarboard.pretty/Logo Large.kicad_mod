@@ -1,11 +1,11 @@
-(footprint "Logo" (version 20221018) (generator pcbnew)
+(footprint "Logo Large" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
   (attr smd)
   (fp_text reference "REF**" (at -18.702518 -20.177145 unlocked) (layer "F.SilkS") hide
       (effects (font (size 1 1) (thickness 0.1)))
     (tstamp 23c0d12f-260f-4478-8896-57af641290f3)
   )
-  (fp_text value "Logo" (at -18.702518 -18.677145 unlocked) (layer "F.Fab") hide
+  (fp_text value "Logo Large" (at -18.702518 -18.677145 unlocked) (layer "F.Fab") hide
       (effects (font (size 1 1) (thickness 0.15)))
     (tstamp 92b00d56-b703-4a70-88c7-67d58d3f9c68)
   )

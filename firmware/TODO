@@ -4,9 +4,7 @@ Firmware:
 
 Electronics:
 
-* test MCP3221 + busvoltage
 * test new driver chip
-* fix silkscreen
 * confirm part numbers on all parts
 * add test points
 * order pcb
