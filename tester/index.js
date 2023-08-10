@@ -154,7 +154,7 @@ async function fadePinManual(channel = 0, d = 10)
     }
 }
 
-async function fadePinHardware(channel = 0, d = 250, knee = 1000)
+async function fadePinHardware(channel = 0, d = 250, knee = 50)
 {
     if (!knee)
         knee = d/2;
