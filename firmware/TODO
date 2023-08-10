@@ -4,10 +4,12 @@ Firmware:
 
 Electronics:
 
-* push mosfet and other passives towards top of the board away from acs725
 * test MCP3221 + busvoltage
 * test new driver chip
-* fix center point of fuse holder
+* fix silkscreen
+* confirm part numbers on all parts
+* add test points
+* order pcb
 
 Long term:
 
