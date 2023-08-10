@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "gnarboard")(type "KiCad")(uri "${KIPRJMOD}/gnarboard.pretty")(options "")(descr ""))
+)
