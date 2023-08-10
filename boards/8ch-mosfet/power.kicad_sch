@@ -1295,6 +1295,10 @@
     (stroke (width 0) (type default))
     (uuid c9178a60-1e66-4edd-b0b3-857476d56c8b)
   )
+  (wire (pts (xy 87.63 78.74) (xy 92.71 78.74))
+    (stroke (width 0) (type default))
+    (uuid ca51d5b9-b14a-49b2-ab18-54d096641f67)
+  )
   (wire (pts (xy 45.72 144.145) (xy 49.53 144.145))
     (stroke (width 0) (type default))
     (uuid ca70927a-96a7-4a53-b7a3-dd6ee7c1ff91)
@@ -1303,7 +1307,7 @@
     (stroke (width 0) (type default))
     (uuid cf2c1e69-6770-43f0-a6fb-e9003165e74c)
   )
-  (wire (pts (xy 74.295 78.74) (xy 92.71 78.74))
+  (wire (pts (xy 74.295 78.74) (xy 80.01 78.74))
     (stroke (width 0) (type default))
     (uuid d32fca64-1e17-4d85-82eb-28ddbdb5b88e)
   )
@@ -2310,6 +2314,62 @@
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
           (reference "C27") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "Device:D_Schottky") (at 83.82 78.74 180) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid c94afec1-5bdd-489f-b849-f19511fd6e50)
+    (property "Reference" "D18" (at 83.82 72.39 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "SX33L" (at 83.82 74.93 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Diode_SMD:D_SMA" (at 83.82 78.74 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (at 83.82 78.74 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Vendor" " 610-CMHSH5-2L" (at 83.82 78.74 90)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid bab27ae8-6862-4d25-a336-7a595160084b))
+    (pin "2" (uuid a16f4530-f1d4-4294-b594-b8661717d4e8))
+    (instances
+      (project "8ch-mosfet"
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0eec6767-666b-42c0-ba36-2a83c9caeade"
+          (reference "D18") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/ccdb1c25-8d0f-4f30-ab70-bbc1ecf3f6f7"
+          (reference "D19") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/1e692482-a022-407a-8cb5-d9a3b23521a6"
+          (reference "D20") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/5952e660-2bb6-45cf-b9ea-f7a7c2d0954e"
+          (reference "D21") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/772d44f5-8758-48db-a140-72ed8e75e88c"
+          (reference "D22") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/424e7b24-5644-46f2-85bb-1e459a343705"
+          (reference "D23") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/4c1df725-56ca-4be4-8107-a39054acbca4"
+          (reference "D24") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/a8a81147-5613-4820-beb3-a7ca76d0db8e"
+          (reference "D25") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
+          (reference "D26") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
+          (reference "D38") (unit 1)
         )
       )
     )
