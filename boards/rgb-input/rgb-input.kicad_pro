@@ -59,9 +59,7 @@
         "courtyards_overlap|13468570|129986114|9a0a1cb8-984b-4961-829c-f728b988c84e|b8dd3fcd-68a3-4a66-b715-e84302f29a76",
         "courtyards_overlap|16396001|89534001|70c1b6aa-080d-4a54-b488-a99caf35d7c8|9a0a1cb8-984b-4961-829c-f728b988c84e",
         "courtyards_overlap|19486001|100396001|8ced32d7-8106-45eb-9126-c75d93160eec|9a0a1cb8-984b-4961-829c-f728b988c84e",
-        "courtyards_overlap|19486001|102936001|28739508-4caa-4694-9a05-0c2080e26e79|9a0a1cb8-984b-4961-829c-f728b988c84e",
-        "silk_over_copper|7805039|19561000|65451809-817c-4e27-82e7-32c09a303eb4|00000000-0000-0000-0000-000000000000",
-        "silk_over_copper|7805039|8258000|82742a79-bf6e-4936-968b-f1cfe91663de|00000000-0000-0000-0000-000000000000"
+        "courtyards_overlap|19486001|102936001|28739508-4caa-4694-9a05-0c2080e26e79|9a0a1cb8-984b-4961-829c-f728b988c84e"
       ],
       "meta": {
         "version": 2
@@ -531,16 +529,176 @@
       ""
     ],
     [
+      "4f50afed-9381-4977-8e27-209f0f88ad4e",
+      "Input Switch1"
+    ],
+    [
+      "4175a172-5c0b-4d6a-88bb-129f5f07b813",
+      "Input Switch2"
+    ],
+    [
+      "6f6f2d8d-82f6-4691-bba7-8caa1bd52e96",
+      "Input Switch3"
+    ],
+    [
+      "ef548cdc-9d5d-4f8e-8f54-0c2e96dbe3f0",
+      "Input Switch0"
+    ],
+    [
+      "145fa34f-e19e-43e2-bb48-aff2e824ef0a",
+      "Input Switch4"
+    ],
+    [
+      "5fc618b8-7830-4bbf-bf46-7753631e9b1e",
+      "Input Switch5"
+    ],
+    [
+      "802175d5-fb4b-4457-a117-b0f397189ff7",
+      "Input Switch6"
+    ],
+    [
+      "803edf1a-5825-4947-a8b9-85d3a29697e5",
+      "Input Switch7"
+    ],
+    [
+      "a581b924-afd8-4b56-b69e-790286072066",
+      "Input Switch8"
+    ],
+    [
+      "120468c6-3bec-414c-9049-57af589f397a",
+      "ADC Input1"
+    ],
+    [
       "b87f80e1-ecbd-4ee0-be26-4b252158928b",
       "ADC"
     ],
     [
       "0036d08f-39b5-4a29-8e4d-ea832b2cc879",
-      "Connectors"
+      "Peripherals"
     ],
     [
       "e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef",
       "Power Supply"
+    ],
+    [
+      "f06c9bf0-de4e-49a2-91ec-1c9426377826",
+      "ADC Input"
+    ],
+    [
+      "c9e1b2da-9064-45a5-a0a2-ee072f7e1acf",
+      "ADC Input2"
+    ],
+    [
+      "1ca70e91-4481-4c96-8c08-39dd142498e5",
+      "ADC Input3"
+    ],
+    [
+      "597c781a-3a73-4808-b6ed-8c917478e623",
+      "ADC Input4"
+    ],
+    [
+      "7fda9512-7a31-4b6e-85db-2478bfe7f375",
+      "ADC Input5"
+    ],
+    [
+      "d24c7443-0875-4d8e-b56e-81b211cd6f3d",
+      "ADC Input6"
+    ],
+    [
+      "76149826-8526-4a6c-8e11-6dc0109cc281",
+      "ADC Input7"
+    ],
+    [
+      "d9202946-506a-48d9-939c-5d39e3218bd0",
+      "Input Switch12"
+    ],
+    [
+      "1b0ccdb4-a46e-4f53-87bd-37f82f1db88c",
+      "RGB Output0"
+    ],
+    [
+      "cf1aab08-94c1-4bc0-914e-a74bb7fd137f",
+      "Input Switch11"
+    ],
+    [
+      "2c275ed9-e58a-403d-982f-79a49e483b85",
+      "Input Switch10"
+    ],
+    [
+      "9e6cdf4f-246e-427e-8315-a488968192f4",
+      "Input Switch9"
+    ],
+    [
+      "9f4c4100-f7ad-41c6-bb30-0282b2fbed77",
+      "Input Switch13"
+    ],
+    [
+      "131b4902-e694-4a22-9f36-6bfcc27d1b6c",
+      "RGB Output1"
+    ],
+    [
+      "8581c3c5-fbb4-40b9-aecf-656f91de6ef4",
+      "RGB Output2"
+    ],
+    [
+      "add74a42-7713-46b0-aac6-4fd9ca032b1b",
+      "Input Switch15"
+    ],
+    [
+      "b28a4abb-d7c6-4d37-897c-3a1605d30be6",
+      "Input Switch14"
+    ],
+    [
+      "e052a92a-68b4-4d77-9789-b49f4d54571c",
+      "RGB Output3"
+    ],
+    [
+      "3bf6a23c-fe89-4cad-9175-93f1f9014f4e",
+      "RGB Output5"
+    ],
+    [
+      "acbf8b73-08b4-42af-b68a-3031c653d8d3",
+      "RGB Output4"
+    ],
+    [
+      "ac13fd52-5223-40f6-9660-88f664d27725",
+      "RGB Output7"
+    ],
+    [
+      "98ff67fa-836d-4398-ae2e-4de502686e74",
+      "RGB Output6"
+    ],
+    [
+      "c944480d-f466-4f37-9084-04744ddd1743",
+      "RGB Output9"
+    ],
+    [
+      "2eddcc46-507f-42bb-b2ee-a9adb4dc1a69",
+      "RGB Output8"
+    ],
+    [
+      "84650d50-dfdc-453b-9c25-ff0cdadd4c61",
+      "RGB Output11"
+    ],
+    [
+      "b6166dcd-1532-4cae-891b-13eb1dad3f98",
+      "RGB Output10"
+    ],
+    [
+      "669ce98e-ece6-48f6-b74b-459ff1ea6b2e",
+      "RGB Output13"
+    ],
+    [
+      "2cf79b1a-b499-409c-bd58-92542a5d968e",
+      "RGB Output12"
+    ],
+    [
+      "484f88df-4bdc-46cc-ad24-f664603cbfc8",
+      "RGB Output15"
+    ],
+    [
+      "a0610afd-0021-4896-afd1-2d3edf9a4d43",
+      "RGB Output14"
     ]
   ],
   "text_variables": {}
