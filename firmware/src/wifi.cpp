@@ -63,7 +63,7 @@ void wifi_loop()
 void setupWifi()
 {
   //some global config
-  WiFi.setSleep(false);
+  //WiFi.setSleep(false);
   WiFi.setHostname(local_hostname);
   WiFi.useStaticBuffers(true);  //from: https://github.com/espressif/arduino-esp32/issues/7183
   WiFi.mode(WIFI_AP_STA);
