@@ -577,12 +577,12 @@
       "Peripherals"
     ],
     [
-      "e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef",
-      "Power Supply"
-    ],
-    [
       "f06c9bf0-de4e-49a2-91ec-1c9426377826",
       "ADC Input"
+    ],
+    [
+      "e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef",
+      "Power Supply"
     ],
     [
       "c9e1b2da-9064-45a5-a0a2-ee072f7e1acf",
@@ -613,8 +613,8 @@
       "Input Switch12"
     ],
     [
-      "1b0ccdb4-a46e-4f53-87bd-37f82f1db88c",
-      "RGB Output0"
+      "73a643e0-fbf3-4727-9372-cdfb98644f2b",
+      "RGB Output10"
     ],
     [
       "cf1aab08-94c1-4bc0-914e-a74bb7fd137f",
@@ -633,12 +633,12 @@
       "Input Switch13"
     ],
     [
-      "131b4902-e694-4a22-9f36-6bfcc27d1b6c",
-      "RGB Output1"
+      "4933e1bb-c091-434e-9b53-9e49635c754a",
+      "RGB Output14"
     ],
     [
-      "8581c3c5-fbb4-40b9-aecf-656f91de6ef4",
-      "RGB Output2"
+      "6a4af211-a0de-4f53-9c70-b04933a803ee",
+      "RGB Output9"
     ],
     [
       "add74a42-7713-46b0-aac6-4fd9ca032b1b",
@@ -649,56 +649,68 @@
       "Input Switch14"
     ],
     [
-      "e052a92a-68b4-4d77-9789-b49f4d54571c",
-      "RGB Output3"
+      "4cf71e04-4cc2-49e9-a207-2c420ddbac39",
+      "RGB Output2"
     ],
     [
-      "3bf6a23c-fe89-4cad-9175-93f1f9014f4e",
+      "1a23e144-e8e8-4225-b5a6-d9d839ced076",
+      "LED Driver1"
+    ],
+    [
+      "dd1109e7-db19-436a-9857-04fe64d33c8d",
       "RGB Output5"
     ],
     [
-      "acbf8b73-08b4-42af-b68a-3031c653d8d3",
-      "RGB Output4"
-    ],
-    [
-      "ac13fd52-5223-40f6-9660-88f664d27725",
-      "RGB Output7"
-    ],
-    [
-      "98ff67fa-836d-4398-ae2e-4de502686e74",
-      "RGB Output6"
-    ],
-    [
-      "c944480d-f466-4f37-9084-04744ddd1743",
-      "RGB Output9"
-    ],
-    [
-      "2eddcc46-507f-42bb-b2ee-a9adb4dc1a69",
-      "RGB Output8"
-    ],
-    [
-      "84650d50-dfdc-453b-9c25-ff0cdadd4c61",
-      "RGB Output11"
-    ],
-    [
-      "b6166dcd-1532-4cae-891b-13eb1dad3f98",
-      "RGB Output10"
-    ],
-    [
-      "669ce98e-ece6-48f6-b74b-459ff1ea6b2e",
+      "89e0f9e3-f416-4d27-a460-fdbdf406a535",
       "RGB Output13"
     ],
     [
-      "2cf79b1a-b499-409c-bd58-92542a5d968e",
+      "95d97fc6-1e8e-4e27-8189-59e9d8a863b5",
+      "RGB Output1"
+    ],
+    [
+      "8cbd9f30-0d72-47cc-a0ef-6616a3441a30",
+      "RGB Output11"
+    ],
+    [
+      "720a8c4a-525c-4eec-8216-6ac4d044fce4",
+      "LED Driver"
+    ],
+    [
+      "57eacfa1-bd1b-4f81-a975-13c11131c995",
+      "RGB Output6"
+    ],
+    [
+      "fc18fc4e-d186-44c5-9f35-18819eb3ec12",
+      "RGB Output4"
+    ],
+    [
+      "cbe6ca1d-7699-465e-a361-e4ccfff3fbb9",
+      "RGB Output3"
+    ],
+    [
+      "47947154-7d9b-40f5-8ef1-0b77217b064b",
       "RGB Output12"
     ],
     [
-      "484f88df-4bdc-46cc-ad24-f664603cbfc8",
+      "4b5b6d65-3d7e-4304-bbd6-cc6cba1fbb7c",
+      "RGB Output7"
+    ],
+    [
+      "5e86179b-eaf5-4509-b1a2-8ceb96530038",
       "RGB Output15"
     ],
     [
-      "a0610afd-0021-4896-afd1-2d3edf9a4d43",
-      "RGB Output14"
+      "6c8610e7-d6b1-47b3-9305-cbf0e3fd8f06",
+      "RGB Output8"
+    ],
+    [
+      "b5668cae-f4d9-403a-8522-3df05fb06658",
+      "RGB Output0"
+    ],
+    [
+      "846833bc-7ec6-4ec6-86e7-310fef01b65c",
+      "LEDS"
     ]
   ],
   "text_variables": {}
