@@ -228,10 +228,10 @@
   (symbol (lib_id "Connector_Generic:Conn_01x04") (at 134.62 105.41 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid d804beb3-3c7c-42e2-a3a0-0231df0a6f84)
-    (property "Reference" "J41" (at 134.62 96.52 0)
+    (property "Reference" "RGB0" (at 134.62 96.52 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "Conn_01x04" (at 134.62 99.06 0)
+    (property "Value" "~" (at 134.62 99.06 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical" (at 134.62 105.41 0)
@@ -247,52 +247,52 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/b5668cae-f4d9-403a-8522-3df05fb06658"
-          (reference "J41") (unit 1)
+          (reference "RGB0") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/95d97fc6-1e8e-4e27-8189-59e9d8a863b5"
-          (reference "J33") (unit 1)
+          (reference "RGB1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/4cf71e04-4cc2-49e9-a207-2c420ddbac39"
-          (reference "J27") (unit 1)
+          (reference "RGB2") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/cbe6ca1d-7699-465e-a361-e4ccfff3fbb9"
-          (reference "J36") (unit 1)
+          (reference "RGB3") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/fc18fc4e-d186-44c5-9f35-18819eb3ec12"
-          (reference "J35") (unit 1)
+          (reference "RGB4") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/dd1109e7-db19-436a-9857-04fe64d33c8d"
-          (reference "J31") (unit 1)
+          (reference "RGB5") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/57eacfa1-bd1b-4f81-a975-13c11131c995"
-          (reference "J34") (unit 1)
+          (reference "RGB6") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/4b5b6d65-3d7e-4304-bbd6-cc6cba1fbb7c"
-          (reference "J38") (unit 1)
+          (reference "RGB7") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/6c8610e7-d6b1-47b3-9305-cbf0e3fd8f06"
-          (reference "J40") (unit 1)
+          (reference "RGB8") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/6a4af211-a0de-4f53-9c70-b04933a803ee"
-          (reference "J26") (unit 1)
+          (reference "RGB9") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/73a643e0-fbf3-4727-9372-cdfb98644f2b"
-          (reference "J14") (unit 1)
+          (reference "RGB10") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/47947154-7d9b-40f5-8ef1-0b77217b064b"
-          (reference "J37") (unit 1)
+          (reference "RGB12") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/8cbd9f30-0d72-47cc-a0ef-6616a3441a30"
-          (reference "J32") (unit 1)
+          (reference "RGB11") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/4933e1bb-c091-434e-9b53-9e49635c754a"
-          (reference "J20") (unit 1)
+          (reference "RGB14") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/89e0f9e3-f416-4d27-a460-fdbdf406a535"
-          (reference "J30") (unit 1)
+          (reference "RGB13") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/5e86179b-eaf5-4509-b1a2-8ceb96530038"
-          (reference "J39") (unit 1)
+          (reference "RGB15") (unit 1)
         )
       )
     )

@@ -499,10 +499,10 @@
   (symbol (lib_id "Connector_Generic:Conn_01x02") (at 130.81 90.805 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 37c02c77-c7a7-405f-9995-4c5c4259cf3f)
-    (property "Reference" "J1" (at 128.27 90.805 0)
+    (property "Reference" "INPUT0" (at 128.27 90.805 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "Conn_01x02" (at 128.27 93.345 0)
+    (property "Value" "~" (at 128.27 93.345 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical" (at 130.81 90.805 0)
@@ -516,52 +516,52 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/ef548cdc-9d5d-4f8e-8f54-0c2e96dbe3f0"
-          (reference "J1") (unit 1)
+          (reference "INPUT0") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/4f50afed-9381-4977-8e27-209f0f88ad4e"
-          (reference "J2") (unit 1)
+          (reference "INPUT1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/4175a172-5c0b-4d6a-88bb-129f5f07b813"
-          (reference "J3") (unit 1)
+          (reference "INPUT2") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/6f6f2d8d-82f6-4691-bba7-8caa1bd52e96"
-          (reference "J4") (unit 1)
+          (reference "INPUT3") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/145fa34f-e19e-43e2-bb48-aff2e824ef0a"
-          (reference "J5") (unit 1)
+          (reference "INPUT4") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/5fc618b8-7830-4bbf-bf46-7753631e9b1e"
-          (reference "J6") (unit 1)
+          (reference "INPUT5") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/802175d5-fb4b-4457-a117-b0f397189ff7"
-          (reference "J7") (unit 1)
+          (reference "INPUT6") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/803edf1a-5825-4947-a8b9-85d3a29697e5"
-          (reference "J8") (unit 1)
+          (reference "INPUT7") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/a581b924-afd8-4b56-b69e-790286072066"
-          (reference "J9") (unit 1)
+          (reference "INPUT8") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/9e6cdf4f-246e-427e-8315-a488968192f4"
-          (reference "J24") (unit 1)
+          (reference "INPUT9") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/2c275ed9-e58a-403d-982f-79a49e483b85"
-          (reference "J23") (unit 1)
+          (reference "INPUT10") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/cf1aab08-94c1-4bc0-914e-a74bb7fd137f"
-          (reference "J22") (unit 1)
+          (reference "INPUT11") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/d9202946-506a-48d9-939c-5d39e3218bd0"
-          (reference "J21") (unit 1)
+          (reference "INPUT12") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/9f4c4100-f7ad-41c6-bb30-0282b2fbed77"
-          (reference "J25") (unit 1)
+          (reference "INPUT13") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/b28a4abb-d7c6-4d37-897c-3a1605d30be6"
-          (reference "J29") (unit 1)
+          (reference "INPUT14") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/add74a42-7713-46b0-aac6-4fd9ca032b1b"
-          (reference "J28") (unit 1)
+          (reference "INPUT15") (unit 1)
         )
       )
     )
@@ -853,7 +853,7 @@
   (symbol (lib_id "Device:D_TVS") (at 142.24 92.075 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e4ec23cd-f790-4268-a335-562dfdad7e27)
-    (property "Reference" "D9" (at 144.78 90.805 90)
+    (property "Reference" "D29" (at 144.78 90.805 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 144.78 93.345 90)
@@ -869,8 +869,8 @@
     (pin "2" (uuid be776e63-d8ad-417c-a65d-2aedf749d706))
     (instances
       (project "rgb-input"
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/803edf1a-5825-4947-a8b9-85d3a29697e5"
-          (reference "D9") (unit 1)
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
+          (reference "D29") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/ef548cdc-9d5d-4f8e-8f54-0c2e96dbe3f0"
           (reference "D2") (unit 1)
@@ -893,11 +893,11 @@
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/802175d5-fb4b-4457-a117-b0f397189ff7"
           (reference "D8") (unit 1)
         )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/803edf1a-5825-4947-a8b9-85d3a29697e5"
+          (reference "D9") (unit 1)
+        )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/a581b924-afd8-4b56-b69e-790286072066"
           (reference "D10") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D29") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/9e6cdf4f-246e-427e-8315-a488968192f4"
           (reference "D22") (unit 1)
