@@ -213,7 +213,7 @@
           (reference "#PWR079") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/4933e1bb-c091-434e-9b53-9e49635c754a"
-          (reference "#PWR058") (unit 1)
+          (reference "#PWR0102") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/89e0f9e3-f416-4d27-a460-fdbdf406a535"
           (reference "#PWR078") (unit 1)
