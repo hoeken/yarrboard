@@ -32,3 +32,31 @@ Backtrace: 0x400e6603:0x3ffe8540 0x400e68b5:0x3ffe8580 0x401862a7:0x3ffe85a0 0x4
   #4  0x40186339:0x3ffe85f0 in AsyncClient::_s_recv(void*, tcp_pcb*, pbuf*, signed char) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:1210
   #5  0x40186482:0x3ffe8610 in _handle_async_event(lwip_event_packet_t*) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:162
   #6  0x401864ff:0x3ffe8630 in _async_service_task(void*) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:197
+
+
+  CORRUPT HEAP: Bad tail at 0x3ffded7c. Expected 0xbaad5678 got 0x00000000
+
+assert failed: multi_heap_free multi_heap_poisoning.c:253 (head != NULL)
+
+8/11/2023:
+
+Backtrace: 0x40083acd:0x3ffe8350 0x4008d9e5:0x3ffe8370 0x400938cd:0x3ffe8390 0x40093523:0x3ffe84c0 0x40083f91:0x3ffe84e0 0x400938fd:0x3ffe8500 0x4018364d:0x3ffe8520 0x400e62a6:0x3ffe8540 0x400e6de1:0x3ffe8560 0x400e6df9:0x3ffe8580 0x40186bab:0x3ffe85a0 0x40186be7:0x3ffe85d0 0x40186bfc:0x3ffe85f0 0x40186e3a:0x3ffe8610 0x40186e9b:0x3ffe8630
+
+  #0  0x40083acd:0x3ffe8350 in panic_abort at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/esp_system/panic.c:408
+  #1  0x4008d9e5:0x3ffe8370 in esp_system_abort at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/esp_system/esp_system.c:137
+  #2  0x400938cd:0x3ffe8390 in __assert_func at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/newlib/assert.c:85
+  #3  0x40093523:0x3ffe84c0 in multi_heap_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/heap/multi_heap_poisoning.c:253
+      (inlined by) multi_heap_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/heap/multi_heap_poisoning.c:245
+  #4  0x40083f91:0x3ffe84e0 in heap_caps_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/heap/heap_caps.c:361
+  #5  0x400938fd:0x3ffe8500 in free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/newlib/heap.c:39
+  #6  0x4018364d:0x3ffe8520 in operator delete(void*) at /builds/idf/crosstool-NG/.build/xtensa-esp32-elf/src/gcc/libstdc++-v3/libsupc++/del_op.cc:49
+  #7  0x400e62a6:0x3ffe8540 in LinkedList<AsyncWebSocketMessage*, LinkedListNode>::remove(AsyncWebSocketMessage* const&) at .pio/libdeps/esp32dev/ESP Async WebServer/src/StringArray.h:131
+      (inlined by) AsyncWebSocketClient::_runQueue() at .pio/libdeps/esp32dev/ESP Async WebServer/src/AsyncWebSocket.cpp:528
+  #8  0x400e6de1:0x3ffe8560 in AsyncWebSocketClient::_onAck(unsigned int, unsigned int) at .pio/libdeps/esp32dev/ESP Async WebServer/src/AsyncWebSocket.cpp:515
+  #9  0x400e6df9:0x3ffe8580 in std::_Function_handler<void (void*, AsyncClient*, unsigned int, unsigned int), AsyncWebSocketClient::AsyncWebSocketClient(AsyncWebServerRequest*, AsyncWebSocket*)::{lambda(void*, AsyncClient*, unsigned int, unsigned int)#4}>::_M_invoke(std::_Any_data const&, void*&&, AsyncClient*&&, unsigned int&&, AsyncClient*&&) at .pio/libdeps/esp32dev/ESP Async WebServer/src/AsyncWebSocket.cpp:480
+      (inlined by) _M_invoke at /home/hoeken/.platformio/packages/toolchain-xtensa-esp32/xtensa-esp32-elf/include/c++/8.4.0/bits/std_function.h:297
+  #10 0x40186bab:0x3ffe85a0 in std::function<void (void*, AsyncClient*, unsigned int, unsigned int)>::operator()(void*, AsyncClient*, unsigned int, unsigned int) const at /home/hoeken/.platformio/packages/toolchain-xtensa-esp32/xtensa-esp32-elf/include/c++/8.4.0/bits/std_function.h:687
+  #11 0x40186be7:0x3ffe85d0 in AsyncClient::_sent(tcp_pcb*, unsigned short) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:917
+  #12 0x40186bfc:0x3ffe85f0 in AsyncClient::_s_sent(void*, tcp_pcb*, unsigned short) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:1222
+  #13 0x40186e3a:0x3ffe8610 in _handle_async_event(lwip_event_packet_t*) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:168
+  #14 0x40186e9b:0x3ffe8630 in _async_service_task(void*) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:197
