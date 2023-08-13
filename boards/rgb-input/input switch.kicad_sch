@@ -853,7 +853,7 @@
   (symbol (lib_id "Device:D_TVS") (at 142.24 92.075 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e4ec23cd-f790-4268-a335-562dfdad7e27)
-    (property "Reference" "D10" (at 144.78 90.805 90)
+    (property "Reference" "D29" (at 144.78 90.805 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 144.78 93.345 90)
@@ -869,8 +869,8 @@
     (pin "2" (uuid be776e63-d8ad-417c-a65d-2aedf749d706))
     (instances
       (project "rgb-input"
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/a581b924-afd8-4b56-b69e-790286072066"
-          (reference "D10") (unit 1)
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
+          (reference "D29") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/add74a42-7713-46b0-aac6-4fd9ca032b1b"
           (reference "D34") (unit 1)
@@ -893,11 +893,11 @@
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/9e6cdf4f-246e-427e-8315-a488968192f4"
           (reference "D22") (unit 1)
         )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D29") (unit 1)
-        )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/803edf1a-5825-4947-a8b9-85d3a29697e5"
           (reference "D9") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/a581b924-afd8-4b56-b69e-790286072066"
+          (reference "D10") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/802175d5-fb4b-4457-a117-b0f397189ff7"
           (reference "D8") (unit 1)
