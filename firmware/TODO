@@ -1,7 +1,8 @@
 Firmware:
 
-* add an option to enable/disable wifi sleep mode
 * protocol documentation
+* investigate mongoose: https://mongoose.ws/documentation/tutorials/esp32/device-dashboard
+    * https://github.com/jeremypoulter/ArduinoMongoose
 
 Electronics:
 

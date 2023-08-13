@@ -60,3 +60,33 @@ Backtrace: 0x40083acd:0x3ffe8350 0x4008d9e5:0x3ffe8370 0x400938cd:0x3ffe8390 0x4
   #12 0x40186bfc:0x3ffe85f0 in AsyncClient::_s_sent(void*, tcp_pcb*, unsigned short) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:1222
   #13 0x40186e3a:0x3ffe8610 in _handle_async_event(lwip_event_packet_t*) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:168
   #14 0x40186e9b:0x3ffe8630 in _async_service_task(void*) at .pio/libdeps/esp32dev/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.cpp:197
+
+
+
+8/13/23 - with wifi sleep disabled:
+
+CORRUPT HEAP: Bad head at 0x3fff45d0. Expected 0xabba1234 got 0x3ffe4364
+
+assert failed: multi_heap_free multi_heap_poisoning.c:253 (head != NULL)
+
+Backtrace: 0x40083acd:0x3ffb2b50 0x4008d9e5:0x3ffb2b70 0x400938cd:0x3ffb2b90 0x40093523:0x3ffb2cc0 0x40083f91:0x3ffb2ce0 0x400938fd:0x3ffb2d00 0x4011793f:0x3ffb2d20 0x401184fa:0x3ffb2d40 0x4011994d:0x3ffb2d60 0x4011ae35:0x3ffb2d80 0x4011b0da:0x3ffb2da0 0x4011c706:0x3ffb2dd0 0x40121796:0x3ffb2e40 0x4012580a:0x3ffb2e70 0x40116575:0x3ffb2e90
+
+  #0  0x40083acd:0x3ffb2b50 in panic_abort at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/esp_system/panic.c:408
+  #1  0x4008d9e5:0x3ffb2b70 in esp_system_abort at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/esp_system/esp_system.c:137
+  #2  0x400938cd:0x3ffb2b90 in __assert_func at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/newlib/assert.c:85
+  #3  0x40093523:0x3ffb2cc0 in multi_heap_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/heap/multi_heap_poisoning.c:253
+      (inlined by) multi_heap_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/heap/multi_heap_poisoning.c:245
+  #4  0x40083f91:0x3ffb2ce0 in heap_caps_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/heap/heap_caps.c:361
+  #5  0x400938fd:0x3ffb2d00 in free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/newlib/heap.c:39
+  #6  0x4011793f:0x3ffb2d20 in mem_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/mem.c:264 (discriminator 2)
+  #7  0x401184fa:0x3ffb2d40 in pbuf_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/pbuf.c:789
+      (inlined by) pbuf_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/pbuf.c:729
+  #8  0x4011994d:0x3ffb2d60 in tcp_seg_free at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/tcp.c:1628
+  #9  0x4011ae35:0x3ffb2d80 in tcp_free_acked_segments at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/tcp_in.c:1120
+  #10 0x4011b0da:0x3ffb2da0 in tcp_receive at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/tcp_in.c:1289 (discriminator 4)
+  #11 0x4011c706:0x3ffb2dd0 in tcp_process at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/tcp_in.c:987
+      (inlined by) tcp_input at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/tcp_in.c:438
+  #12 0x40121796:0x3ffb2e40 in ip4_input at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/core/ipv4/ip4.c:803
+  #13 0x4012580a:0x3ffb2e70 in ethernet_input at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/netif/ethernet.c:186
+  #14 0x40116575:0x3ffb2e90 in tcpip_thread_handle_msg at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/api/tcpip.c:180
+      (inlined by) tcpip_thread at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/api/tcpip.c:154
