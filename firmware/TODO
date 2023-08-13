@@ -6,8 +6,6 @@ Firmware:
 
 Electronics:
 
-* change i2c back to qwiic r/a header (part?)
-* move i2c to underneath the esp32
 * confirm part numbers on all parts
 * order pcb
 
