@@ -24,7 +24,7 @@ function main()
 
     setTimeout(yb.printMessageStats.bind(yb), 1000);    
 
-    yb.onopen = function () {
+    setTimeout(function () {
         if (options.host == "fullmain.local")
         {
             setTimeout(function (){fadePinHardware(7, 2500)}, 1);
@@ -56,7 +56,8 @@ function main()
         //cmd = {"cmd":"set_channel","id": 0, "duty":0.5};
         //setTimeout(function (){speedTest(cmd, 10)}, 100);
     
-    }
+    }, 1000);
+
     yb.onmessage = function (msg) {
         if (msg.msgid)
             this.log(msg.msgid);
