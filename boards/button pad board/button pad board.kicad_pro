@@ -243,7 +243,9 @@
     }
   },
   "libraries": {
-    "pinned_footprint_libs": [],
+    "pinned_footprint_libs": [
+      "yarrboard"
+    ],
     "pinned_symbol_libs": []
   },
   "meta": {
