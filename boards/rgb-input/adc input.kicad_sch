@@ -412,11 +412,11 @@
         )
       )
     )
-    (symbol "power:GNDD" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+    (symbol "power:GNDA" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
       (property "Reference" "#PWR" (at 0 -6.35 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "Value" "GNDD" (at 0 -3.175 0)
+      (property "Value" "GNDA" (at 0 -3.81 0)
         (effects (font (size 1.27 1.27)))
       )
       (property "Footprint" "" (at 0 0 0)
@@ -428,26 +428,26 @@
       (property "ki_keywords" "global power" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_description" "Power symbol creates a global label with name \"GNDD\" , digital ground" (at 0 0 0)
+      (property "ki_description" "Power symbol creates a global label with name \"GNDA\" , analog ground" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "GNDD_0_1"
-        (rectangle (start -1.27 -1.524) (end 1.27 -2.032)
-          (stroke (width 0.254) (type default))
-          (fill (type outline))
-        )
+      (symbol "GNDA_0_1"
         (polyline
           (pts
             (xy 0 0)
-            (xy 0 -1.524)
+            (xy 0 -1.27)
+            (xy 1.27 -1.27)
+            (xy 0 -2.54)
+            (xy -1.27 -1.27)
+            (xy 0 -1.27)
           )
           (stroke (width 0) (type default))
           (fill (type none))
         )
       )
-      (symbol "GNDD_1_1"
+      (symbol "GNDA_1_1"
         (pin power_in line (at 0 0 270) (length 0) hide
-          (name "GNDD" (effects (font (size 1.27 1.27))))
+          (name "GNDA" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
         )
       )
@@ -600,6 +600,52 @@
     )
   )
 
+  (symbol (lib_id "power:GNDA") (at 139.7 104.14 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid 7dc915e6-a7e9-45da-ad02-7a9e93cc2de6)
+    (property "Reference" "#PWR032" (at 139.7 110.49 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "GNDA" (at 139.7 109.22 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 139.7 104.14 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 139.7 104.14 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 2834ed02-5798-432f-9194-5baaa26fc906))
+    (instances
+      (project "rgb-input"
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/c9e1b2da-9064-45a5-a0a2-ee072f7e1acf"
+          (reference "#PWR032") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/120468c6-3bec-414c-9049-57af589f397a"
+          (reference "#PWR027") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/f06c9bf0-de4e-49a2-91ec-1c9426377826"
+          (reference "#PWR030") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/1ca70e91-4481-4c96-8c08-39dd142498e5"
+          (reference "#PWR034") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/597c781a-3a73-4808-b6ed-8c917478e623"
+          (reference "#PWR036") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/7fda9512-7a31-4b6e-85db-2478bfe7f375"
+          (reference "#PWR038") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/d24c7443-0875-4d8e-b56e-81b211cd6f3d"
+          (reference "#PWR040") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/76149826-8526-4a6c-8e11-6dc0109cc281"
+          (reference "#PWR042") (unit 1)
+        )
+      )
+    )
+  )
+
   (symbol (lib_id "Device:R_US") (at 156.21 90.17 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 90d342ab-cac3-41bc-a686-2e4ba3f654ff)
@@ -717,79 +763,6 @@
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/76149826-8526-4a6c-8e11-6dc0109cc281"
           (reference "ADC7") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "power:GNDD") (at 139.7 104.14 0) (mirror y) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid a540d060-78c2-4fd1-b090-b64c4fc04755)
-    (property "Reference" "#PWR03" (at 139.7 110.49 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "GNDD" (at 139.7 107.95 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 139.7 104.14 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 139.7 104.14 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid ff9d0c9b-7965-4235-abdb-d6fdc90f6efa))
-    (instances
-      (project "rgb-input"
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/ef548cdc-9d5d-4f8e-8f54-0c2e96dbe3f0"
-          (reference "#PWR03") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/76149826-8526-4a6c-8e11-6dc0109cc281"
-          (reference "#PWR042") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/d24c7443-0875-4d8e-b56e-81b211cd6f3d"
-          (reference "#PWR040") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/7fda9512-7a31-4b6e-85db-2478bfe7f375"
-          (reference "#PWR038") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/597c781a-3a73-4808-b6ed-8c917478e623"
-          (reference "#PWR036") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/1ca70e91-4481-4c96-8c08-39dd142498e5"
-          (reference "#PWR034") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/c9e1b2da-9064-45a5-a0a2-ee072f7e1acf"
-          (reference "#PWR032") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/120468c6-3bec-414c-9049-57af589f397a"
-          (reference "#PWR030") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/a581b924-afd8-4b56-b69e-790286072066"
-          (reference "#PWR025") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/f06c9bf0-de4e-49a2-91ec-1c9426377826"
-          (reference "#PWR027") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/803edf1a-5825-4947-a8b9-85d3a29697e5"
-          (reference "#PWR023") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/802175d5-fb4b-4457-a117-b0f397189ff7"
-          (reference "#PWR021") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/5fc618b8-7830-4bbf-bf46-7753631e9b1e"
-          (reference "#PWR019") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/145fa34f-e19e-43e2-bb48-aff2e824ef0a"
-          (reference "#PWR017") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/6f6f2d8d-82f6-4691-bba7-8caa1bd52e96"
-          (reference "#PWR015") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/4175a172-5c0b-4d6a-88bb-129f5f07b813"
-          (reference "#PWR013") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/4f50afed-9381-4977-8e27-209f0f88ad4e"
-          (reference "#PWR08") (unit 1)
         )
       )
     )
