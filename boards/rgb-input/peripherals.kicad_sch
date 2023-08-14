@@ -5,12 +5,12 @@
   (paper "A4")
 
   (lib_symbols
-    (symbol "Connector_Generic:Conn_01x04" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+    (symbol "Connector_Generic_MountingPin:Conn_01x04_MountingPin" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 5.08 0)
         (effects (font (size 1.27 1.27)))
       )
-      (property "Value" "Conn_01x04" (at 0 -7.62 0)
-        (effects (font (size 1.27 1.27)))
+      (property "Value" "Conn_01x04_MountingPin" (at 1.27 -7.62 0)
+        (effects (font (size 1.27 1.27)) (justify left))
       )
       (property "Footprint" "" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
@@ -21,13 +21,13 @@
       (property "ki_keywords" "connector" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)" (at 0 0 0)
+      (property "ki_description" "Generic connectable mounting pin connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_fp_filters" "Connector*:*_1x??_*" (at 0 0 0)
+      (property "ki_fp_filters" "Connector*:*_1x??-1MP*" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "Conn_01x04_1_1"
+      (symbol "Conn_01x04_MountingPin_1_1"
         (rectangle (start -1.27 -4.953) (end 0 -5.207)
           (stroke (width 0.1524) (type default))
           (fill (type none))
@@ -48,6 +48,17 @@
           (stroke (width 0.254) (type default))
           (fill (type background))
         )
+        (polyline
+          (pts
+            (xy -1.016 -7.112)
+            (xy 1.016 -7.112)
+          )
+          (stroke (width 0.1524) (type default))
+          (fill (type none))
+        )
+        (text "Mounting" (at 0 -6.731 0)
+          (effects (font (size 0.381 0.381)))
+        )
         (pin passive line (at -5.08 2.54 0) (length 3.81)
           (name "Pin_1" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
@@ -63,6 +74,10 @@
         (pin passive line (at -5.08 -5.08 0) (length 3.81)
           (name "Pin_4" (effects (font (size 1.27 1.27))))
           (number "4" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at 0 -10.16 90) (length 3.048)
+          (name "MountPin" (effects (font (size 1.27 1.27))))
+          (number "MP" (effects (font (size 1.27 1.27))))
         )
       )
     )
@@ -307,6 +322,8 @@
     (uuid a70ea526-c100-427e-b563-7594512f8c76)
   )
 
+  (no_connect (at 165.1 71.12) (uuid 98dce30c-e7c0-4039-8aea-ab4667e87737))
+
   (wire (pts (xy 191.77 100.33) (xy 191.77 97.79))
     (stroke (width 0) (type default))
     (uuid 179bbd46-c091-4eb4-bbd9-2c64725c4117)
@@ -420,7 +437,7 @@
     (uuid fec75608-40f7-4cac-99ab-3af976a06265)
   )
 
-  (text "I2C" (at 168.91 72.39 0)
+  (text "I2C" (at 175.895 72.39 0)
     (effects (font (size 2.54 2.54)) (justify right bottom))
     (uuid 87bf8681-8ff6-4f6a-b889-1a4d179e68d4)
   )
@@ -492,7 +509,7 @@
     )
   )
 
-  (symbol (lib_id "Connector_Generic:Conn_01x04") (at 165.1 81.28 180) (unit 1)
+  (symbol (lib_id "Connector_Generic_MountingPin:Conn_01x04_MountingPin") (at 165.1 81.28 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 75e730d5-04f6-4425-a255-db025d65b10b)
     (property "Reference" "J2" (at 162.56 81.28 0)
@@ -514,6 +531,7 @@
     (pin "2" (uuid 79a25df8-93ce-4790-aeb0-d91720c755d7))
     (pin "3" (uuid 448a2225-d53e-4fc7-baf2-a25c1f049a73))
     (pin "4" (uuid ec0dbc7f-5ee4-4b57-ae21-778b9adb606c))
+    (pin "MP" (uuid 4bc48ec2-56a7-4e14-8f63-656dd6e0a6ae))
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
