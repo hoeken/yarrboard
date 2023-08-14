@@ -90,3 +90,27 @@ Backtrace: 0x40083acd:0x3ffb2b50 0x4008d9e5:0x3ffb2b70 0x400938cd:0x3ffb2b90 0x4
   #13 0x4012580a:0x3ffb2e70 in ethernet_input at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/netif/ethernet.c:186
   #14 0x40116575:0x3ffb2e90 in tcpip_thread_handle_msg at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/api/tcpip.c:180
       (inlined by) tcpip_thread at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/api/tcpip.c:154
+
+8/14/23 - same code
+
+Guru Meditation Error: Core  0 panic'ed (LoadProhibited). Exception was unhandled.
+
+Core  0 register dump:
+PC      : 0x4012579f  PS      : 0x00060430  A0      : 0x80116578  A1      : 0x3ffb2e70  
+A2      : 0x3ffdeca8  A3      : 0x00000000  A4      : 0x00000000  A5      : 0x03c72f74  
+A6      : 0x00000001  A7      : 0x00000000  A8      : 0x0000000e  A9      : 0x3ffb2e20  
+A10     : 0x00000001  A11     : 0x00000000  A12     : 0x3ffb98b8  A13     : 0x00000001  
+A14     : 0x00000000  A15     : 0x00000014  SAR     : 0x00000018  EXCCAUSE: 0x0000001c  
+EXCVADDR: 0x000000ee  LBEG    : 0x40089c08  LEND    : 0x40089c1e  LCOUNT  : 0xffffffff  
+
+
+Backtrace: 0x4012579c:0x3ffb2e70 0x40116575:0x3ffb2e90
+
+  #0  0x4012579c:0x3ffb2e70 in ethernet_input at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/netif/ethernet.c:99
+  #1  0x40116575:0x3ffb2e90 in tcpip_thread_handle_msg at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/api/tcpip.c:180
+      (inlined by) tcpip_thread at /Users/ficeto/Desktop/ESP32/ESP32S2/esp-idf-public/components/lwip/lwip/src/api/tcpip.c:154
+
+
+
+
+ELF file SHA256: 120f107cee4c5812
