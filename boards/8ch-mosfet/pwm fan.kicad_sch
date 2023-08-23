@@ -659,7 +659,7 @@
     (property "Value" "Fan_4pin" (at 128.27 88.9 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "gnarboard:Molex 0470531000" (at 133.35 87.376 0)
+    (property "Footprint" "yarrboard:Molex 0470531000" (at 133.35 87.376 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "http://www.formfactors.org/developer%5Cspecs%5Crev1_2_public.pdf" (at 133.35 87.376 0)

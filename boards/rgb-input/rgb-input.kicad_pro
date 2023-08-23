@@ -486,7 +486,7 @@
       "step": "Gnarboard.step",
       "vrml": "Gnarboard.wrl"
     },
-    "page_layout_descr_file": "${KICAD_USER_TEMPLATE_DIR}/blank.kicad_wks"
+    "page_layout_descr_file": ""
   },
   "schematic": {
     "annotate_start_num": 0,
