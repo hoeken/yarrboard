@@ -38,7 +38,6 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client);
 void handleWebsocketMessageLoop(WebsocketRequest* request);
 void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request);
-void sendToAllWebsockets(const char * jsonString);
 
 bool isWebsocketClientLoggedIn(JsonVariantConst input, uint32_t client_id);
 bool isApiClientLoggedIn(JsonVariantConst input);
@@ -48,7 +47,9 @@ bool logClientIn(uint32_t client_id);
 int getWebsocketRequestSlot();
 void closeClientConnection(AsyncWebSocketClient *client);
 
+void sendToAllWebsockets(const char * jsonString);
 
 int getFreeSlots();
+
 
 #endif /* !YARR_SERVER_H */

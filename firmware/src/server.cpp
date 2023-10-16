@@ -244,6 +244,35 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
   }
 }
 
+bool logClientIn(uint32_t client_id)
+{
+  byte i;
+  for (i=0; i<clientLimit; i++)
+  {
+    //did we find an empty slot?
+    if (authenticatedClientIDs[i] == 0)
+    {
+      authenticatedClientIDs[i] = client_id;
+      break;
+    }
+
+    //are we already authenticated?
+    if (authenticatedClientIDs[i] == client_id)
+      break;
+  }
+
+  //did we not find a spot?
+  if (i == clientLimit)
+  {
+    AsyncWebSocketClient* client = ws.client(client_id);
+    client->close();
+
+    return false;
+  }
+
+  return true;
+}
+
 bool isWebsocketClientLoggedIn(JsonVariantConst doc, uint32_t client_id)
 {
   //are they in our auth array?
@@ -282,33 +311,4 @@ bool isSerialClientLoggedIn(JsonVariantConst doc)
     return true;
   else
     return isApiClientLoggedIn(doc);
-}
-
-bool logClientIn(uint32_t client_id)
-{
-  byte i;
-  for (i=0; i<clientLimit; i++)
-  {
-    //did we find an empty slot?
-    if (authenticatedClientIDs[i] == 0)
-    {
-      authenticatedClientIDs[i] = client_id;
-      break;
-    }
-
-    //are we already authenticated?
-    if (authenticatedClientIDs[i] == client_id)
-      break;
-  }
-
-  //did we not find a spot?
-  if (i == clientLimit)
-  {
-    AsyncWebSocketClient* client = ws.client(client_id);
-    client->close();
-
-    return false;
-  }
-
-  return true;
 }
