@@ -1,13 +1,5 @@
 #include "server.h"
 
-//username / password for websocket authentication
-char app_user[YB_USERNAME_LENGTH] = "admin";
-char app_pass[YB_PASSWORD_LENGTH] = "admin";
-bool require_login = true;
-bool app_enable_api = true;
-bool app_enable_serial = false;
-bool is_serial_authenticated = false;
-
 CircularBuffer<WebsocketRequest*, YB_RECEIVE_BUFFER_COUNT> wsRequests;
 
 //keep track of our authenticated clients
@@ -19,22 +11,6 @@ AsyncWebServer server(80);
 
 void server_setup()
 {
-  //look up our board name
-  if (preferences.isKey("boardName"))
-    strlcpy(board_name, preferences.getString("boardName").c_str(), sizeof(board_name));
-
-  //look up our username/password
-  if (preferences.isKey("app_user"))
-    strlcpy(app_user, preferences.getString("app_user").c_str(), sizeof(app_user));
-  if (preferences.isKey("app_pass"))
-    strlcpy(app_pass, preferences.getString("app_pass").c_str(), sizeof(app_pass));
-  if (preferences.isKey("require_login"))
-    require_login = preferences.getBool("require_login");
-  if (preferences.isKey("appEnableApi"))
-    app_enable_api = preferences.getBool("appEnableApi");
-  if (preferences.isKey("appEnableSerial"))
-    app_enable_serial = preferences.getBool("appEnableSerial");
-
   //config for our websocket server
   ws.onEvent(onEvent);
   server.addHandler(&ws);
