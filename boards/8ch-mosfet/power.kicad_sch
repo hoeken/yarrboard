@@ -4,6 +4,11 @@
 
   (paper "A4")
 
+  (title_block
+    (title "Yarrboard 8ch Mosfet Driver")
+    (company "https://github.com/hoeken/yarrboard")
+  )
+
   (lib_symbols
     (symbol "Connector:Screw_Terminal_01x08" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 10.16 0)

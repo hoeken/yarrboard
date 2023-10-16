@@ -4,6 +4,11 @@
 
   (paper "A4")
 
+  (title_block
+    (title "Yarrboard 8ch Mosfet Driver")
+    (company "https://github.com/hoeken/yarrboard")
+  )
+
   (lib_symbols
     (symbol "Device:D_TVS" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "D" (at 0 2.54 0)

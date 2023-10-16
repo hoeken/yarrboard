@@ -4,6 +4,11 @@
 
   (paper "A4")
 
+  (title_block
+    (title "Yarrboard 8ch Mosfet Driver")
+    (company "https://github.com/hoeken/yarrboard")
+  )
+
   (lib_symbols
     (symbol "Analog_ADC:MCP3208" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
       (property "Reference" "U" (at -5.08 13.335 0)
@@ -1660,13 +1665,16 @@
     (property "Reference" "U13" (at 77.47 72.39 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "MCP1502" (at 77.47 74.93 0)
+    (property "Value" "MCP1502-33" (at 77.47 74.93 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Package_TO_SOT_SMD:SOT-23-6" (at 71.12 82.55 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/20005474E.pdf" (at 71.12 82.55 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Mouser" "579-MCP1502T-33E/CHY" (at 71.12 82.55 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 540a8a88-694f-4db2-a7d6-ad3930cd12d9))

@@ -4,6 +4,11 @@
 
   (paper "A4")
 
+  (title_block
+    (title "Yarrboard 8ch Mosfet Driver")
+    (company "https://github.com/hoeken/yarrboard")
+  )
+
   (lib_symbols
     (symbol "Connector:Screw_Terminal_01x02" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 2.54 0)
@@ -1619,8 +1624,8 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid abfd9d39-40e7-4441-a55c-a019dae87901))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44abe))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44abe))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44abf))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44abf))
     (pin "3" (uuid bc1d5f51-a708-4946-a607-dc92b3201b6f))
     (instances
       (project "8ch-mosfet"

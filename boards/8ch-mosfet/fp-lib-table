@@ -1,5 +1,4 @@
 (fp_lib_table
   (version 7)
-  (lib (name "gnarboard")(type "KiCad")(uri "${KIPRJMOD}/gnarboard.pretty")(options "")(descr ""))
-  (lib (name "yarrboard")(type "KiCad")(uri "/Users/hoeken/yarrboard/boards/yarrboard.pretty")(options "")(descr ""))
+  (lib (name "yarrboard")(type "KiCad")(uri "/home/hoeken/github/yarrboard/boards/yarrboard.pretty")(options "")(descr ""))
 )

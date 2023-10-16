@@ -5,7 +5,9 @@
   (paper "A4")
 
   (title_block
+    (title "Yarrboard 8ch Mosfet Driver")
     (rev "B")
+    (company "https://github.com/hoeken/yarrboard")
   )
 
   (lib_symbols
