@@ -2,3 +2,4 @@
 */node_modules
 .~*
 *.bkp
+boards/8ch-mosfet/bom/ibom.html
