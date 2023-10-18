@@ -457,6 +457,10 @@ void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)
     strlcpy(new_wifi_pass, input["wifi_pass"] | "PASS", sizeof(new_wifi_pass));
     strlcpy(local_hostname, input["local_hostname"] | "yarrboard", sizeof(local_hostname));
 
+    Serial.println(new_wifi_mode);
+    Serial.println(new_wifi_ssid);
+    Serial.println(new_wifi_pass);
+
     //no special cases here.
     preferences.putString("local_hostname", local_hostname);
 
@@ -469,9 +473,6 @@ void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)
         //try connecting.
         if (connectToWifi(new_wifi_ssid, new_wifi_pass))
         {
-          //let the client know.
-          return generateSuccessJSON(output, "Connected to new WiFi.");
-
           //changing modes?
           if (!strcmp(wifi_mode, "ap"))
             WiFi.softAPdisconnect();
@@ -485,6 +486,9 @@ void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)
           strlcpy(wifi_mode, new_wifi_mode, sizeof(wifi_mode));
           strlcpy(wifi_ssid, new_wifi_ssid, sizeof(wifi_ssid));
           strlcpy(wifi_pass, new_wifi_pass, sizeof(wifi_pass));
+
+          //let the client know.
+          return generateSuccessJSON(output, "Connected to new WiFi.");
         }
         //nope, setup our wifi back to default.
         else
