@@ -1069,7 +1069,7 @@
   )
 
   (symbol (lib_id "Mechanical:MountingHole_Pad") (at 15.24 177.8 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom no) (on_board yes) (dnp yes) (fields_autoplaced)
     (uuid 3c6f0f26-f10e-4b4a-8a0d-8ecdf3a54d63)
     (property "Reference" "H3" (at 17.78 176.53 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -1119,7 +1119,7 @@
   )
 
   (symbol (lib_id "Mechanical:MountingHole_Pad") (at 15.24 193.04 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom no) (on_board yes) (dnp yes) (fields_autoplaced)
     (uuid a4167764-c682-42f3-ae6a-e02e64f4d820)
     (property "Reference" "H5" (at 17.78 191.77 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -1144,7 +1144,7 @@
   )
 
   (symbol (lib_id "Mechanical:MountingHole_Pad") (at 15.24 170.18 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom no) (on_board yes) (dnp yes) (fields_autoplaced)
     (uuid b6910c97-047e-48e0-b766-6909aa5133c2)
     (property "Reference" "H2" (at 17.78 168.91 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -1183,7 +1183,7 @@
     (property "Datasheet" "" (at 204.47 49.53 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Vendor" "356-ESP32-DEVKITC32E " (at 204.47 76.2 0)
+    (property "Mouser" "356-ESP32-DEVKITC32E " (at 204.47 76.2 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 712bf99e-ebf9-4a43-88a2-e365c3eeebb2))
@@ -1234,7 +1234,7 @@
   )
 
   (symbol (lib_id "Mechanical:MountingHole_Pad") (at 15.24 162.56 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom no) (on_board yes) (dnp yes) (fields_autoplaced)
     (uuid c8c5b976-67b8-4c71-b558-3ba3f58bc55c)
     (property "Reference" "H1" (at 17.78 161.29 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -1259,7 +1259,7 @@
   )
 
   (symbol (lib_id "Mechanical:MountingHole_Pad") (at 15.24 185.42 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom no) (on_board yes) (dnp yes) (fields_autoplaced)
     (uuid df608621-6c39-4291-8161-8b80862f7ebd)
     (property "Reference" "H4" (at 17.78 184.15 0)
       (effects (font (size 1.27 1.27)) (justify left))
