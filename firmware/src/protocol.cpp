@@ -457,10 +457,6 @@ void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)
     strlcpy(new_wifi_pass, input["wifi_pass"] | "PASS", sizeof(new_wifi_pass));
     strlcpy(local_hostname, input["local_hostname"] | "yarrboard", sizeof(local_hostname));
 
-    Serial.println(new_wifi_mode);
-    Serial.println(new_wifi_ssid);
-    Serial.println(new_wifi_pass);
-
     //no special cases here.
     preferences.putString("local_hostname", local_hostname);
 
