@@ -27,14 +27,18 @@ function main()
     setTimeout(function () {
         if (options.host == "fullmain.local")
         {
-            setTimeout(function (){fadePinHardware(7, 2500)}, 1);
-            setTimeout(function (){fadePinHardware(6, 2000)}, 1);
-            setTimeout(function (){fadePinHardware(5, 1500)}, 1);
-            setTimeout(function (){fadePinHardware(4, 1000)}, 1);
-            setTimeout(function (){fadePinHardware(3, 500)}, 1);
-            setTimeout(function (){fadePinHardware(2, 300)}, 1);
-            setTimeout(function (){fadePinHardware(1, 250)}, 1);
-            setTimeout(function (){fadePinHardware(0, 100)}, 1);                
+            setTimeout(function (){fadePinHardware(0, 2500)}, 1);                
+            setTimeout(function (){fadePinHardware(1, 2000)}, 1);
+            setTimeout(function (){fadePinHardware(2, 1500)}, 1);
+            setTimeout(function (){fadePinHardware(3, 1000)}, 1);
+            // setTimeout(function (){fadePinHardware(0, 100)}, 1);                
+            // setTimeout(function (){fadePinHardware(1, 250)}, 1);
+            // setTimeout(function (){fadePinHardware(2, 300)}, 1);
+            // setTimeout(function (){fadePinHardware(3, 500)}, 1);
+            // setTimeout(function (){fadePinHardware(4, 1000)}, 1);
+            // setTimeout(function (){fadePinHardware(5, 1500)}, 1);
+            // setTimeout(function (){fadePinHardware(6, 2000)}, 1);
+            // setTimeout(function (){fadePinHardware(7, 2500)}, 1);
         }
         else if (options.host == "yarrboard.local")
         {
