@@ -1,0 +1,4 @@
+https://maximeborges.github.io/esp-stacktrace-decoder/
+
+tio -e -t -l --log-file fullmain.log --map ICRNL,INLCRNL /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_9a5da85f4224ed1199318ae8f9a97352-if00-port0
+tio -e -t -l --log-file firstreef.log --map ICRNL,INLCRNL /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_b292b27ee023ed1193bc8ce8f9a97352-if00-port0
