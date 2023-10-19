@@ -105,13 +105,16 @@ void sendToAllWebsockets(const char * jsonString)
       if (authenticatedClientIDs[i])
         if (ws.availableForWrite(authenticatedClientIDs[i]))
           ws.text(authenticatedClientIDs[i], jsonString);
+        else
+          Serial.println("[socket] client queue full");
   }
   //nope, just sent it to all.
   else {
-    if (ws.availableForWriteAll())
-      ws.textAll(jsonString);
-    else
-      Serial.println("[socket] outbound queue full");
+    ws.textAll(jsonString);
+    // if (ws.availableForWriteAll())
+    //   ws.textAll(jsonString);
+    // else
+    //   Serial.println("[socket] outbound queue full");
   }
 }
 
