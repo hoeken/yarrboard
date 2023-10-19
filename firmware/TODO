@@ -16,6 +16,8 @@ Firmware:
     * digital input debounce
 * protocol documentation
 
+* try running this fork with stability upgrades: https://github.com/nthd/ESPAsyncWebServer
+
 Electronics:
 
 * finish design of button board
