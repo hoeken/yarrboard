@@ -3,3 +3,4 @@
 .~*
 *.bkp
 boards/8ch-mosfet/bom/ibom.html
+*.log
