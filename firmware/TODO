@@ -1,13 +1,28 @@
 Firmware:
 
+* update for 8ch mosfet Rev B
+    * 2 fans now
+    * bus voltage from MCP3425
+* update for input board
+    * board config
+        * adc inputs
+        * digital inputs
+        * rgb outputs
+    * update web app to handle new board
+        * adc inputs
+        * digital inputs
+        * rgb outputs
+    * write code for LED driver
+    * digital input debounce
 * protocol documentation
-* investigate mongoose: https://mongoose.ws/documentation/tutorials/esp32/device-dashboard
-    * https://github.com/jeremypoulter/ArduinoMongoose
 
 Electronics:
 
-* confirm part numbers on all parts
-* order pcbs
+* finish design of button board
+* order button board + parts
+* update 3dp case for 8ch mosfet
+* design case for input board
+* design case for button board
 
 Long term:
 
