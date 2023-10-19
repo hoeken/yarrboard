@@ -5,6 +5,58 @@
   (paper "A4")
 
   (lib_symbols
+    (symbol "power:+5V" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "#PWR" (at 0 -3.81 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Value" "+5V" (at 0 3.556 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Datasheet" "" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_keywords" "global power" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_description" "Power symbol creates a global label with name \"+5V\"" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "+5V_0_1"
+        (polyline
+          (pts
+            (xy -0.762 1.27)
+            (xy 0 2.54)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 2.54)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0.762 1.27)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+      )
+      (symbol "+5V_1_1"
+        (pin power_in line (at 0 0 90) (length 0) hide
+          (name "+5V" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
     (symbol "power:GND" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
       (property "Reference" "#PWR" (at 0 -6.35 0)
         (effects (font (size 1.27 1.27)) hide)
@@ -41,58 +93,6 @@
       (symbol "GND_1_1"
         (pin power_in line (at 0 0 270) (length 0) hide
           (name "GND" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27))))
-        )
-      )
-    )
-    (symbol "power:VCC" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
-      (property "Reference" "#PWR" (at 0 -3.81 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Value" "VCC" (at 0 3.81 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Footprint" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_keywords" "global power" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_description" "Power symbol creates a global label with name \"VCC\"" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "VCC_0_1"
-        (polyline
-          (pts
-            (xy -0.762 1.27)
-            (xy 0 2.54)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 0)
-            (xy 0 2.54)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 2.54)
-            (xy 0.762 1.27)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-      )
-      (symbol "VCC_1_1"
-        (pin power_in line (at 0 0 90) (length 0) hide
-          (name "VCC" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
         )
       )
@@ -730,6 +730,40 @@
     )
   )
 
+  (symbol (lib_id "power:+5V") (at 139.7 59.69 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid 2d46292f-39da-4c97-8929-7e28a4e13d31)
+    (property "Reference" "#PWR01" (at 139.7 63.5 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+5V" (at 139.7 54.61 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 139.7 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 139.7 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 194f5313-7335-4a34-97ed-045e61015892))
+    (instances
+      (project "button pad board"
+        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/544cec96-03d5-4637-ae41-3c1a8e8dda15"
+          (reference "#PWR01") (unit 1)
+        )
+        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/edbb582d-fe2b-48b6-8d6d-cfd6eb008018"
+          (reference "#PWR02") (unit 1)
+        )
+        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/d32bb895-5dd5-4c02-b031-f9ed3ff2fbb5"
+          (reference "#PWR05") (unit 1)
+        )
+        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/214ea90b-349a-415c-a8ca-f88377356f85"
+          (reference "#PWR06") (unit 1)
+        )
+      )
+    )
+  )
+
   (symbol (lib_id "yarrboard:2x2_RGB_Button") (at 157.48 76.2 0) (unit 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 337535db-0329-49b9-ab57-12c2af33f631)
@@ -772,43 +806,6 @@
         )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/214ea90b-349a-415c-a8ca-f88377356f85"
           (reference "U4") (unit 2)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "power:VCC") (at 166.37 97.79 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid 5463bdfc-7ec3-4de9-9fe0-5849ad23b663)
-    (property "Reference" "#PWR03" (at 166.37 101.6 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "VCC" (at 166.37 92.71 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 166.37 97.79 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 166.37 97.79 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 2129f3e9-003b-43ec-85b3-3d9bed4e94f2))
-    (instances
-      (project "button pad board"
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9"
-          (reference "#PWR03") (unit 1)
-        )
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/544cec96-03d5-4637-ae41-3c1a8e8dda15"
-          (reference "#PWR06") (unit 1)
-        )
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/edbb582d-fe2b-48b6-8d6d-cfd6eb008018"
-          (reference "#PWR014") (unit 1)
-        )
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/d32bb895-5dd5-4c02-b031-f9ed3ff2fbb5"
-          (reference "#PWR022") (unit 1)
-        )
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/214ea90b-349a-415c-a8ca-f88377356f85"
-          (reference "#PWR030") (unit 1)
         )
       )
     )
@@ -1068,75 +1065,35 @@
     )
   )
 
-  (symbol (lib_id "power:VCC") (at 139.7 97.79 0) (unit 1)
+  (symbol (lib_id "power:+5V") (at 166.37 97.79 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid 942b482f-bd33-4804-a9e7-a936d1b4c018)
-    (property "Reference" "#PWR04" (at 139.7 101.6 0)
+    (uuid 9c0d3e01-8b59-4c89-8546-92782e05607b)
+    (property "Reference" "#PWR017" (at 166.37 101.6 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "VCC" (at 139.7 92.71 0)
+    (property "Value" "+5V" (at 166.37 92.71 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 139.7 97.79 0)
+    (property "Footprint" "" (at 166.37 97.79 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "" (at 139.7 97.79 0)
+    (property "Datasheet" "" (at 166.37 97.79 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 08236fb1-7c74-470e-b6e5-613cfcc5a19d))
+    (pin "1" (uuid 8ee3f253-82e9-46ce-8ffe-edc39f3985ee))
     (instances
       (project "button pad board"
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9"
-          (reference "#PWR04") (unit 1)
-        )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/544cec96-03d5-4637-ae41-3c1a8e8dda15"
-          (reference "#PWR05") (unit 1)
+          (reference "#PWR017") (unit 1)
         )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/edbb582d-fe2b-48b6-8d6d-cfd6eb008018"
-          (reference "#PWR013") (unit 1)
+          (reference "#PWR018") (unit 1)
         )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/d32bb895-5dd5-4c02-b031-f9ed3ff2fbb5"
           (reference "#PWR021") (unit 1)
         )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/214ea90b-349a-415c-a8ca-f88377356f85"
-          (reference "#PWR029") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "power:VCC") (at 166.37 59.69 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid 9cc89bda-5223-437d-9c18-7a790f0f198d)
-    (property "Reference" "#PWR02" (at 166.37 63.5 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "VCC" (at 166.37 54.61 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 166.37 59.69 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 166.37 59.69 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 7e3e5092-3bc5-4d91-a588-0fab189d6938))
-    (instances
-      (project "button pad board"
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9"
-          (reference "#PWR02") (unit 1)
-        )
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/544cec96-03d5-4637-ae41-3c1a8e8dda15"
-          (reference "#PWR02") (unit 1)
-        )
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/edbb582d-fe2b-48b6-8d6d-cfd6eb008018"
-          (reference "#PWR010") (unit 1)
-        )
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/d32bb895-5dd5-4c02-b031-f9ed3ff2fbb5"
-          (reference "#PWR018") (unit 1)
-        )
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/214ea90b-349a-415c-a8ca-f88377356f85"
-          (reference "#PWR026") (unit 1)
+          (reference "#PWR022") (unit 1)
         )
       )
     )
@@ -1285,38 +1242,69 @@
     )
   )
 
-  (symbol (lib_id "power:VCC") (at 139.7 59.69 0) (unit 1)
+  (symbol (lib_id "power:+5V") (at 139.7 97.79 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid e07b64e7-53b8-4445-b966-fe12133617fd)
-    (property "Reference" "#PWR01" (at 139.7 63.5 0)
+    (uuid d19c2f04-a25e-4e46-abd6-8dc35a83943b)
+    (property "Reference" "#PWR025" (at 139.7 101.6 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "VCC" (at 139.7 54.61 0)
+    (property "Value" "+5V" (at 139.7 92.71 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 139.7 59.69 0)
+    (property "Footprint" "" (at 139.7 97.79 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "" (at 139.7 59.69 0)
+    (property "Datasheet" "" (at 139.7 97.79 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 74b363da-7527-4d58-b828-713a90b4efc6))
+    (pin "1" (uuid 91f6e3ae-7f30-4410-a7a0-fbd243f956eb))
     (instances
       (project "button pad board"
-        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9"
-          (reference "#PWR01") (unit 1)
-        )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/544cec96-03d5-4637-ae41-3c1a8e8dda15"
-          (reference "#PWR01") (unit 1)
+          (reference "#PWR025") (unit 1)
         )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/edbb582d-fe2b-48b6-8d6d-cfd6eb008018"
-          (reference "#PWR09") (unit 1)
+          (reference "#PWR026") (unit 1)
         )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/d32bb895-5dd5-4c02-b031-f9ed3ff2fbb5"
-          (reference "#PWR017") (unit 1)
+          (reference "#PWR029") (unit 1)
         )
         (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/214ea90b-349a-415c-a8ca-f88377356f85"
-          (reference "#PWR025") (unit 1)
+          (reference "#PWR030") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "power:+5V") (at 166.37 59.69 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid d3b88781-9400-4d57-bbc4-e67082552df6)
+    (property "Reference" "#PWR09" (at 166.37 63.5 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+5V" (at 166.37 54.61 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 166.37 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 166.37 59.69 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 847881e6-228b-4eb7-8d5c-64af9e842214))
+    (instances
+      (project "button pad board"
+        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/544cec96-03d5-4637-ae41-3c1a8e8dda15"
+          (reference "#PWR09") (unit 1)
+        )
+        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/edbb582d-fe2b-48b6-8d6d-cfd6eb008018"
+          (reference "#PWR010") (unit 1)
+        )
+        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/d32bb895-5dd5-4c02-b031-f9ed3ff2fbb5"
+          (reference "#PWR013") (unit 1)
+        )
+        (path "/66d98af2-097e-4f68-99f2-351c9b9568f9/214ea90b-349a-415c-a8ca-f88377356f85"
+          (reference "#PWR014") (unit 1)
         )
       )
     )
