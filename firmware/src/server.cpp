@@ -235,7 +235,7 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
   t4 = micros();
   unsigned long finish = micros();
 
-  if (finish-start > 10000)
+  if (finish-start > 15000)
   {
     Serial.println(mycmd);
     Serial.printf("deserialize: %dus\n", t1-start); 
