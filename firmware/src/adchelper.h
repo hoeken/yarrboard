@@ -13,7 +13,7 @@
 #include <MCP3208.h>
 #include <Wire.h>
 #include "config.h"
-#include <MCP342X.h>
+#include <MCP342x.h>
 
 class ADCHelper
 {
