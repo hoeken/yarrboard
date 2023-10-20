@@ -27,14 +27,16 @@ function main()
     setTimeout(function () {
         if (options.host == "fullmain.local")
         {
-            setTimeout(function (){fadePinHardware(0, 30)}, 1);                
-            setTimeout(function (){fadePinHardware(1, 40)}, 1);
-            setTimeout(function (){fadePinHardware(2, 50)}, 1);
-            setTimeout(function (){fadePinHardware(3, 60)}, 1);
-            setTimeout(function (){fadePinHardware(4, 70)}, 1);
-            setTimeout(function (){fadePinHardware(5, 80)}, 1);
-            setTimeout(function (){fadePinHardware(6, 90)}, 1);
-            setTimeout(function (){fadePinHardware(7, 100)}, 1);
+            let foo = 50;
+            let bar = 10;
+            setTimeout(function (){fadePinHardware(0, foo+bar*0)}, 1);                
+            setTimeout(function (){fadePinHardware(1, foo+bar*1)}, 1);
+            setTimeout(function (){fadePinHardware(2, foo+bar*2)}, 1);
+            setTimeout(function (){fadePinHardware(3, foo+bar*3)}, 1);
+            setTimeout(function (){fadePinHardware(4, foo+bar*4)}, 1);
+            setTimeout(function (){fadePinHardware(5, foo+bar*5)}, 1);
+            setTimeout(function (){fadePinHardware(6, foo+bar*6)}, 1);
+            setTimeout(function (){fadePinHardware(7, foo+bar*7)}, 1);
         }
         else if (options.host == "firstreef.local")
         {
