@@ -27,32 +27,31 @@ function main()
     setTimeout(function () {
         if (options.host == "fullmain.local")
         {
-            setTimeout(function (){fadePinHardware(0, 2500)}, 1);                
-            setTimeout(function (){fadePinHardware(1, 2000)}, 1);
-            setTimeout(function (){fadePinHardware(2, 1500)}, 1);
-            setTimeout(function (){fadePinHardware(3, 1000)}, 1);
-            // setTimeout(function (){fadePinHardware(0, 100)}, 1);                
-            // setTimeout(function (){fadePinHardware(1, 250)}, 1);
-            // setTimeout(function (){fadePinHardware(2, 300)}, 1);
-            // setTimeout(function (){fadePinHardware(3, 500)}, 1);
-            // setTimeout(function (){fadePinHardware(4, 1000)}, 1);
-            // setTimeout(function (){fadePinHardware(5, 1500)}, 1);
-            // setTimeout(function (){fadePinHardware(6, 2000)}, 1);
-            // setTimeout(function (){fadePinHardware(7, 2500)}, 1);
+            setTimeout(function (){fadePinHardware(0, 100)}, 1);                
+            setTimeout(function (){fadePinHardware(1, 250)}, 1);
+            setTimeout(function (){fadePinHardware(2, 300)}, 1);
+            setTimeout(function (){fadePinHardware(3, 500)}, 1);
+            setTimeout(function (){fadePinHardware(4, 1000)}, 1);
+            setTimeout(function (){fadePinHardware(5, 1500)}, 1);
+            setTimeout(function (){fadePinHardware(6, 2000)}, 1);
+            setTimeout(function (){fadePinHardware(7, 2500)}, 1);
         }
-        else if (options.host == "yarrboard.local")
+        else if (options.host == "firstreef.local")
         {
-            setTimeout(function (){fadePinHardware(0, 1000)}, 1);
+            setTimeout(function (){togglePin(0, 50)}, 1);
+            setTimeout(function (){togglePin(1, 100)}, 2);
+            setTimeout(function (){togglePin(2, 150)}, 3);
+            setTimeout(function (){togglePin(3, 200)}, 4);
+            setTimeout(function (){togglePin(4, 250)}, 5);
+            setTimeout(function (){togglePin(5, 300)}, 6);
+            setTimeout(function (){togglePin(6, 350)}, 7);
+            setTimeout(function (){togglePin(7, 400)}, 8);
         }
-//        setTimeout(function (){togglePin(0, 25)}, 1);
-    
-        //setTimeout(function (){fadePin(0, 8)}, 1);
-    
-    
-        //setTimeout(testAllFade, 1);
-    
-        //setTimeout(testFadeInterrupt, 1);
-    
+        else
+        {
+            setTimeout(function (){togglePin(0, 250)}, 1);
+        }
+
         let cmd;
         cmd = {"cmd":"ping"}
         //cmd = {"cmd":"toggle_channel","id": 0};
