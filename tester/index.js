@@ -27,25 +27,28 @@ function main()
     setTimeout(function () {
         if (options.host == "fullmain.local")
         {
-            setTimeout(function (){fadePinHardware(0, 100)}, 1);                
-            setTimeout(function (){fadePinHardware(1, 250)}, 1);
-            setTimeout(function (){fadePinHardware(2, 300)}, 1);
-            setTimeout(function (){fadePinHardware(3, 500)}, 1);
-            setTimeout(function (){fadePinHardware(4, 1000)}, 1);
-            setTimeout(function (){fadePinHardware(5, 1500)}, 1);
-            setTimeout(function (){fadePinHardware(6, 2000)}, 1);
-            setTimeout(function (){fadePinHardware(7, 2500)}, 1);
+            setTimeout(function (){fadePinHardware(0, 30)}, 1);                
+            setTimeout(function (){fadePinHardware(1, 40)}, 1);
+            setTimeout(function (){fadePinHardware(2, 50)}, 1);
+            setTimeout(function (){fadePinHardware(3, 60)}, 1);
+            setTimeout(function (){fadePinHardware(4, 70)}, 1);
+            setTimeout(function (){fadePinHardware(5, 80)}, 1);
+            setTimeout(function (){fadePinHardware(6, 90)}, 1);
+            setTimeout(function (){fadePinHardware(7, 100)}, 1);
         }
         else if (options.host == "firstreef.local")
         {
-            setTimeout(function (){togglePin(0, 50)}, 1);
-            setTimeout(function (){togglePin(1, 100)}, 2);
-            setTimeout(function (){togglePin(2, 150)}, 3);
-            setTimeout(function (){togglePin(3, 200)}, 4);
-            setTimeout(function (){togglePin(4, 250)}, 5);
-            setTimeout(function (){togglePin(5, 300)}, 6);
-            setTimeout(function (){togglePin(6, 350)}, 7);
-            setTimeout(function (){togglePin(7, 400)}, 8);
+            setTimeout(function (){togglePin(0, 5)}, 1);
+            // setTimeout(function (){togglePin(1, 100)}, 2);
+            // setTimeout(function (){togglePin(2, 150)}, 3);
+            // setTimeout(function (){togglePin(3, 200)}, 4);
+            // setTimeout(function (){togglePin(4, 250)}, 5);
+            // setTimeout(function (){togglePin(5, 300)}, 6);
+            // setTimeout(function (){togglePin(6, 350)}, 7);
+            // setTimeout(function (){togglePin(7, 400)}, 8);
+
+            //cmd = {"cmd":"set_channel","id": 0, "state":true};
+            //setTimeout(function (){speedTest(cmd, 10)}, 100);
         }
         else
         {
@@ -56,8 +59,6 @@ function main()
         cmd = {"cmd":"ping"}
         //cmd = {"cmd":"toggle_channel","id": 0};
         //cmd = {"cmd":"set_channel","id": 0, "state":true};
-        //cmd = {"cmd":"set_channel","id": 0, "duty":0.5};
-        //setTimeout(function (){speedTest(cmd, 10)}, 100);
     
     }, 1000);
 
