@@ -50,6 +50,8 @@ class OutputChannel
     bool isDimmable = false;
 
     void setup();
+    void setupLedc();
+    void setupInterrupt();
     void saveThrottledDutyCycle();
     void updateOutput();
     float getAmperage();

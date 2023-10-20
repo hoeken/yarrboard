@@ -37,15 +37,24 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
 
 void channel_setup()
 {
+  //the init here needs to be done in a specific way, otherwise it will hang or get caught in a crash loop if the board finished a fade during the last crash
+  //based on this issue: https://github.com/espressif/esp-idf/issues/5167
 
-  //for hardware fade end callback interrupt
-  ledc_fade_func_install(0);
   //intitialize our channel
   for (short i = 0; i < CHANNEL_COUNT; i++)
   {
     channels[i].id = i;
     channels[i].setup();
+    channels[i].setupLedc();
   }
+
+  //fade function
+  ledc_fade_func_uninstall();
+  ledc_fade_func_install(0);
+
+  //intitialize our interrupts afterwards
+  for (short i = 0; i < CHANNEL_COUNT; i++)
+    channels[i].setupInterrupt();
 }
 
 void channel_loop()
@@ -62,20 +71,6 @@ void channel_loop()
 void OutputChannel::setup()
 {
   char prefIndex[YB_PREF_KEY_LENGTH];
-
-  ledc_cbs_t callbacks = {
-      .fade_cb = cb_ledc_fade_end_event
-  };
-
-  //initialize our PWM channels
-  ledcSetup(this->id, CHANNEL_PWM_FREQUENCY, CHANNEL_PWM_RESOLUTION);
-  ledcAttachPin(this->_pins[this->id], this->id);
-  ledcWrite(this->id, 0);
-
-  //this is our callback handler for fade end.
-  int channel = this->id;
-  ledc_cb_register(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)this->id, &callbacks, (void *)channel);
-  isChannelFading[this->id] = false;
 
   //lookup our name
   sprintf(prefIndex, "cName%d", this->id);
@@ -121,6 +116,31 @@ void OutputChannel::setup()
     this->softFuseTripCount = 0;
 
   this->adcHelper = new MCP3208Helper(3.3, this->id, &_adcMCP3208);  
+}
+
+void OutputChannel::setupLedc()
+{
+  //deinitialize our pin.
+  //ledc_fade_func_uninstall();
+  ledcDetachPin(this->_pins[this->id]);
+
+  //initialize our PWM channels
+  ledcSetup(this->id, CHANNEL_PWM_FREQUENCY, CHANNEL_PWM_RESOLUTION);
+  ledcAttachPin(this->_pins[this->id], this->id);
+  ledcWrite(this->id, 0);
+}
+
+void OutputChannel::setupInterrupt()
+{
+  int channel = this->id;
+  isChannelFading[this->id] = false;
+
+  ledc_cbs_t callbacks = {
+      .fade_cb = cb_ledc_fade_end_event
+  };
+
+  //this is our callback handler for fade end.
+  ledc_cb_register(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, &callbacks, (void *)channel);
 }
 
 void OutputChannel::saveThrottledDutyCycle()

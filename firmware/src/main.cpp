@@ -31,13 +31,28 @@ void setup()
 
   //ntp_setup();
   prefs_setup();
-  channel_setup();
-  adc_setup();
-  fans_setup();
-  wifi_setup();
-  server_setup();
+  Serial.println("Prefs ok");
+
   ota_setup();
+  Serial.println("OTA ok");
+
+  adc_setup();
+  Serial.println("ADC ok");
+  
+  channel_setup();
+  Serial.println("Channels ok");
+  
+  fans_setup();
+  Serial.println("Fans ok");
+  
+  wifi_setup();
+  Serial.println("WiFi ok");
+  
+  server_setup();
+  Serial.println("Server ok");
+  
   protocol_setup();
+  Serial.println("Protocol ok");
 }
 
 void loop()

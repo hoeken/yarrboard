@@ -593,6 +593,7 @@ void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t
 
 void handleRestart(JsonVariantConst input, JsonVariant output)
 {
+  Serial.println("Restarting board.");
   ESP.restart();
 }
 
