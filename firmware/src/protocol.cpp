@@ -222,7 +222,7 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
 
     //is it a valid channel?
     byte cid = input["id"];
-    if (!isValidChannel(cid))
+    if (!isValidOutputChannel(cid))
       return generateErrorJSON(output, "Invalid channel id");
 
     //change state
@@ -355,7 +355,7 @@ void handleToggleChannel(JsonVariantConst input, JsonVariant output)
 
     //is it a valid channel?
     byte cid = input["id"];
-    if (!isValidChannel(cid))
+    if (!isValidOutputChannel(cid))
       return generateErrorJSON(output, "Invalid channel id");
 
     //keep track of how many toggles
@@ -391,7 +391,7 @@ void handleFadeChannel(JsonVariantConst input, JsonVariant output)
 
     //is it a valid channel?
     byte cid = input["id"];
-    if (!isValidChannel(cid))
+    if (!isValidOutputChannel(cid))
       return generateErrorJSON(output, "Invalid channel id");
 
     float duty = input["duty"];
@@ -811,14 +811,6 @@ bool isLoggedIn(JsonVariantConst input, byte mode, uint32_t client_id = 0)
 void generateLoginRequiredJSON(JsonVariant output)
 {
   generateErrorJSON(output, "You must be logged in.");
-}
-
-bool isValidChannel(byte cid)
-{
-  if (cid < 0 || cid >= YB_OUTPUT_CHANNEL_COUNT)
-    return false;
-  else
-    return true;
 }
 
 void generatePongJSON(JsonVariant output)

@@ -40,7 +40,6 @@ void protocol_setup();
 void protocol_loop();
 
 bool isLoggedIn(JsonVariantConst input, byte mode, uint32_t client_id);
-bool isValidChannel(byte cid);
 
 void handleSerialJson();
 

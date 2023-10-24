@@ -11,10 +11,14 @@
 
 #include <ArduinoTrace.h>
 
+#ifndef YB_FIRMWARE_VERSION
+  #define YB_FIRMWARE_VERSION "0.0.7"
+#endif
+
 // enable one of these
 //#define YB_CONFIG_8CH_MOSFET_REVA
 //#define YB_CONFIG_8CH_MOSFET_REVB
-//#define YB_CONFIG_RGB_INPUT_REVA
+#define YB_CONFIG_RGB_INPUT_REVA
 
 #if defined YB_CONFIG_8CH_MOSFET_REVA
   #include "./configs/config.8ch-mosfet-reva.h"

@@ -68,5 +68,6 @@ extern OutputChannel channels[YB_OUTPUT_CHANNEL_COUNT];
 
 void channel_setup();
 void channel_loop();
+bool isValidOutputChannel(byte cid);
 
 #endif /* !YARR_OUTPUT_CHANNEL_H */

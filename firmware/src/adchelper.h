@@ -13,7 +13,7 @@
 #include <MCP3208.h>
 #include <Wire.h>
 #include "config.h"
-//#include <MCP342x.h>
+#include <MCP342x.h>
 
 class ADCHelper
 {
@@ -59,6 +59,17 @@ class MCP3208Helper : public ADCHelper
   private:
     MCP3208 *adc;
     uint8_t channel;
+};
+
+class MCP3425Helper : public ADCHelper
+{
+  public:
+    MCP3425Helper();
+    MCP3425Helper(float vref, MCP342x *adc);
+    unsigned int getReading();
+
+  private:
+    MCP342x *adc;
 };
 
 extern MCP3208 _adcMCP3208;

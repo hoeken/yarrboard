@@ -23,7 +23,9 @@ const byte adc_cs_pin = 17;
     esp32Helper busADC = esp32Helper(3.3, YB_BUS_VOLTAGE_PIN);
   #endif
 
-  #ifdef YB_BUS_VOLTAGE_MCP3221
+  #ifdef YB_BUS_VOLTAGE_MCP3425
+    MCP342x _adcMCP3425 = MCP342x(YB_BUS_VOLTAGE_ADDRESS);
+    MCP3425Helper busADC = MCP3425Helper((float)3.3, &_adcMCP3425);
   #endif
 #endif
 
@@ -37,7 +39,7 @@ void adc_setup()
       analogSetAttenuation(ADC_11db);
     #endif
 
-    #ifdef YB_BUS_VOLTAGE_MCP3221
+    #ifdef YB_BUS_VOLTAGE_MCP3425
     #endif
   #endif
 }
@@ -147,4 +149,19 @@ unsigned int MCP3208Helper::getReading()
   this->addReading(reading);
 
   return reading;
+}
+
+MCP3425Helper::MCP3425Helper() : ADCHelper::ADCHelper() {}
+MCP3425Helper::MCP3425Helper(float vref, MCP342x *adc) : ADCHelper::ADCHelper(vref, 12)
+{
+  this->adc = adc;
+}
+
+unsigned int MCP3425Helper::getReading()
+{
+  return 0;
+  // unsigned int reading = this->adc->readADC(this->channel);
+  // this->addReading(reading);
+
+  // return reading;
 }

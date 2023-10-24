@@ -72,6 +72,14 @@ void channel_loop()
   }
 }
 
+bool isValidOutputChannel(byte cid)
+{
+  if (cid < 0 || cid >= YB_OUTPUT_CHANNEL_COUNT)
+    return false;
+  else
+    return true;
+}
+
 void OutputChannel::setup()
 {
   char prefIndex[YB_PREF_KEY_LENGTH];
