@@ -6,6 +6,10 @@
   License: GPLv3
 */
 
+#include "config.h"
+
+#ifdef YB_HAS_OUTPUT_CHANNELS
+
 #include "channel.h"
 
 //the main star of the event
@@ -340,3 +344,5 @@ void OutputChannel::calculateAverages(unsigned int delta)
     this->wattHours += this->amperage * busVoltage * ((float)delta / 3600000.0);
   }
 }
+
+#endif

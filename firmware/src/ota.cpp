@@ -67,12 +67,16 @@ bool doOTAUpdate = false;
 int ota_current_partition = U_SPIFFS;
 unsigned long ota_last_message = 0;
 
+char* hardware_version = HARDWARE_VERSION;
+char* manifest_url = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
+char* firmware_version = FIRMWARE_VERSION;
+
 void ota_setup()
 {
   auto cfg = FOTA.getConfig();
-  cfg.name          = "8CH-MOSFET-REV-A";
-  cfg.manifest_url  = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
-  cfg.sem           = FIRMWARE_VERSION;
+  cfg.name          = hardware_version;
+  cfg.manifest_url  = manifest_url;
+  cfg.sem           = firmware_version;
   cfg.check_sig     = false; // verify signed firmware with rsa public key
   cfg.unsafe        = true; // disable certificate check when using TLS
   cfg.root_ca       = MyRootCA;

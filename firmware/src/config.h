@@ -14,11 +14,14 @@
 // enable one of these
 //#define CONFIG_8CH_MOSFET_REVA
 //#define CONFIG_8CH_MOSFET_REVB
+//#define CONFIG_RGB_INPUT_REVA
 
 #if defined CONFIG_8CH_MOSFET_REVA
   #include "./configs/config.8ch-mosfet-reva.h"
 #elif defined CONFIG_8CH_MOSFET_REVB
   #include "./configs/config.8ch-mosfet-revb.h"
+#elif defined CONFIG_RGB_INPUT_REVA
+  #include "./configs/config.rgb-input-reva.h"
 #endif
 
 #ifndef CHANNEL_PWM_FREQUENCY

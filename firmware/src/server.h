@@ -18,13 +18,19 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
-#include "channel.h"
 #include "protocol.h"
 #include "prefs.h"
 #include "wifi.h"
 #include "ota.h"
 #include "adchelper.h"
-#include "fans.h"
+
+#ifdef YB_HAS_OUTPUT_CHANNELS
+  #include "channel.h"
+#endif
+
+#ifdef YB_HAS_FANS
+  #include "fans.h"
+#endif
 
 typedef struct {
   unsigned int client_id;

@@ -62,11 +62,13 @@ class MCP3208Helper : public ADCHelper
 };
 
 extern MCP3208 _adcMCP3208;
-extern float busVoltage;
 
 void adc_setup();
 void adc_loop();
 
-float getBusVoltage();
+#ifdef YB_HAS_BUS_VOLTAGE
+  extern float busVoltage;
+  float getBusVoltage();
+#endif
 
 #endif /* !YARR_ADC_H */

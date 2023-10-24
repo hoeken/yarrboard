@@ -13,14 +13,19 @@
 #include <ArduinoJson.h>
 
 #include "adchelper.h"
-#include "channel.h"
-#include "fans.h"
-//#include "ntp.h"
 #include "ota.h"
 #include "prefs.h"
 #include "server.h"
 #include "utility.h"
 #include "wifi.h"
+
+#ifdef YB_HAS_OUTPUT_CHANNELS
+  #include "channel.h"
+#endif
+
+#ifdef YB_HAS_FANS
+  #include "fans.h"
+#endif
 
 //extern unsigned int handledMessages;
 extern char board_name[YB_BOARD_NAME_LENGTH];

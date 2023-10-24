@@ -6,8 +6,11 @@
   License: GPLv3
 */
 
-#include <Arduino.h>
 #include "config.h"
+
+#ifdef YB_HAS_FANS
+
+#include <Arduino.h>
 #include "fans.h"
 #include "channel.h"
 
@@ -126,3 +129,5 @@ void set_fan_pwm(byte i, byte pwm)
     fans_last_pwm[i] = pwm;
     ledcWrite(CHANNEL_COUNT+i, pwm);
 }
+
+#endif

@@ -9,13 +9,20 @@
 #include "config.h"
 #include "wifi.h"
 #include "prefs.h"
-#include "channel.h"
+#include "ota.h"
 #include "server.h"
 #include "utility.h"
-#include "adchelper.h"
-#include "fans.h"
-#include "ota.h"
 //#include "ntp.h"
+
+#ifdef YB_HAS_OUTPUT_CHANNELS
+  #include "channel.h"
+#endif
+
+#ifdef YB_HAS_FANS
+  #include "fans.h"
+#endif
+
+#include "adchelper.h"
 
 void setup()
 {
@@ -39,12 +46,16 @@ void setup()
   adc_setup();
   Serial.println("ADC ok");
   
-  channel_setup();
-  Serial.println("Channels ok");
-  
-  fans_setup();
-  Serial.println("Fans ok");
-  
+  #ifdef YB_HAS_OUTPUT_CHANNELS
+    channel_setup();
+    Serial.println("Channels ok");
+  #endif
+
+  #ifdef YB_HAS_FANS
+    fans_setup();
+    Serial.println("Fans ok");
+  #endif
+
   wifi_setup();
   Serial.println("WiFi ok");
   
@@ -58,9 +69,16 @@ void setup()
 void loop()
 {
   //ntp_loop();
-  channel_loop();
+  #ifdef YB_HAS_OUTPUT_CHANNELS
+    channel_loop();
+  #endif
+
   adc_loop();
-  fans_loop();
+
+  #ifdef YB_HAS_FANS
+   fans_loop();
+  #endif
+
   wifi_loop();
   server_loop();
   ota_loop();

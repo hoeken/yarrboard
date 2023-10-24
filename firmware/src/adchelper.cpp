@@ -8,51 +8,60 @@
 
 #include "adchelper.h"
 
+//for tracking our ADC loop
+unsigned long previousADCMillis = 0;
+
 //object for our adc
 MCP3208 _adcMCP3208;
 const byte adc_cs_pin = 17;
 
-//for watching our power supply
-float busVoltage = 0;
+#ifdef YB_HAS_BUS_VOLTAGE
+  //for watching our power supply
+  float busVoltage = 0;
 
-//for tracking our ADC loop
-unsigned long previousADCMillis = 0;
+  #ifdef BUS_VOLTAGE_ESP32
+    esp32Helper busADC = esp32Helper(3.3, BUS_VOLTAGE_PIN);
+  #endif
 
-#ifdef BUS_VOLTAGE_ESP32
-  esp32Helper busADC = esp32Helper(3.3, BUS_VOLTAGE_PIN);
-#endif
-
-#ifdef BUS_VOLTAGE_MCP3221
+  #ifdef BUS_VOLTAGE_MCP3221
+  #endif
 #endif
 
 void adc_setup()
 {
   _adcMCP3208.begin(adc_cs_pin);
 
-  #ifdef BUS_VOLTAGE_ESP32
-    adcAttachPin(BUS_VOLTAGE_PIN);
-    analogSetAttenuation(ADC_11db);
-  #endif
+  #ifdef YB_HAS_BUS_VOLTAGE
+    #ifdef BUS_VOLTAGE_ESP32
+      adcAttachPin(BUS_VOLTAGE_PIN);
+      analogSetAttenuation(ADC_11db);
+    #endif
 
-  #ifdef BUS_VOLTAGE_MCP3221
+    #ifdef BUS_VOLTAGE_MCP3221
+    #endif
   #endif
 }
 
 void adc_loop()
 {
-  //check what our power is.
-  busADC.getReading();
+  #ifdef YB_HAS_BUS_VOLTAGE
+    //check what our power is.
+    busADC.getReading();
+  #endif
 }
 
-float getBusVoltage()
-{
-  unsigned int reading = busADC.getAverageReading();
-  float voltage = busADC.toVoltage(reading);
 
-  busADC.resetAverage();
+#ifdef YB_HAS_BUS_VOLTAGE
+  float getBusVoltage()
+  {
+    unsigned int reading = busADC.getAverageReading();
+    float voltage = busADC.toVoltage(reading);
 
-  return voltage / (BUS_VOLTAGE_R2 / (BUS_VOLTAGE_R2+BUS_VOLTAGE_R1));
-}
+    busADC.resetAverage();
+
+    return voltage / (BUS_VOLTAGE_R2 / (BUS_VOLTAGE_R2+BUS_VOLTAGE_R1));
+  }
+#endif
 
 ADCHelper::ADCHelper()
 {
