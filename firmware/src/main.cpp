@@ -18,6 +18,10 @@
   #include "output_channel.h"
 #endif
 
+#ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+  #include "input_channel.h"
+#endif
+
 #ifdef YB_HAS_FANS
   #include "fans.h"
 #endif
@@ -45,7 +49,12 @@ void setup()
 
   adc_setup();
   Serial.println("ADC ok");
-  
+
+  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+    input_channels_setup();
+    Serial.println("Input channels ok");
+  #endif
+
   #ifdef YB_HAS_OUTPUT_CHANNELS
     output_channels_setup();
     Serial.println("Output channels ok");
@@ -68,19 +77,23 @@ void setup()
 
 void loop()
 {
-  //ntp_loop();
   #ifdef YB_HAS_OUTPUT_CHANNELS
     output_channels_loop();
   #endif
 
+  //this should be right after output for soft fuse reasons
   adc_loop();
 
   #ifdef YB_HAS_FANS
    fans_loop();
   #endif
 
+  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+    input_channels_loop();
+  #endif
+
   wifi_loop();
   server_loop();
-  ota_loop();
   protocol_loop();
+  ota_loop();
 }
