@@ -67,9 +67,9 @@ bool doOTAUpdate = false;
 int ota_current_partition = U_SPIFFS;
 unsigned long ota_last_message = 0;
 
-char* hardware_version = HARDWARE_VERSION;
+char* hardware_version = YB_HARDWARE_VERSION;
 char* manifest_url = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
-char* firmware_version = FIRMWARE_VERSION;
+char* firmware_version = YB_FIRMWARE_VERSION;
 
 void ota_setup()
 {

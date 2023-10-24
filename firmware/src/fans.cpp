@@ -12,18 +12,18 @@
 
 #include <Arduino.h>
 #include "fans.h"
-#include "channel.h"
+#include "output_channel.h"
 
 //Lots of code borrowed from: https://github.com/KlausMu/esp32-fan-controller
 
-byte fan_pwm_pins[FAN_COUNT] = FAN_PWM_PINS;
-byte fan_tach_pins[FAN_COUNT] = FAN_TACH_PINS;
+byte fan_pwm_pins[YB_FAN_COUNT] = YB_FAN_PWM_PINS;
+byte fan_tach_pins[YB_FAN_COUNT] = YB_FAN_TACH_PINS;
 
-static volatile int counter_rpm[FAN_COUNT];
-unsigned long last_tacho_measurement[FAN_COUNT];
+static volatile int counter_rpm[YB_FAN_COUNT];
+unsigned long last_tacho_measurement[YB_FAN_COUNT];
 
-int fans_last_rpm[FAN_COUNT];
-int fans_last_pwm[FAN_COUNT];
+int fans_last_rpm[YB_FAN_COUNT];
+int fans_last_pwm[YB_FAN_COUNT];
 
 // Interrupt counting every rotation of the fan
 // https://desire.giesecke.tk/index.php/2018/01/30/change-global-variables-from-isr/
@@ -37,14 +37,14 @@ void IRAM_ATTR rpm_fan_1() {
 
 void fans_setup()
 {
-    for (byte i=0; i<FAN_COUNT; i++)
+    for (byte i=0; i<YB_FAN_COUNT; i++)
     {
-        ledcSetup(CHANNEL_COUNT+i, 25000, 8);
-        ledcAttachPin(fan_pwm_pins[i], CHANNEL_COUNT+i);
+        ledcSetup(YB_OUTPUT_CHANNEL_COUNT+i, 25000, 8);
+        ledcAttachPin(fan_pwm_pins[i], YB_OUTPUT_CHANNEL_COUNT+i);
         set_fan_pwm(i, 0);
     }
 
-    for (byte i=0; i<FAN_COUNT; i++)
+    for (byte i=0; i<YB_FAN_COUNT; i++)
     {
         counter_rpm[i] = 0;
         last_tacho_measurement[i] = 0;
@@ -64,14 +64,14 @@ void fans_loop()
 {
     float amps_avg = 0;
     float amps_max = 0;
-    for (byte id=0; id<CHANNEL_COUNT; id++)
+    for (byte id=0; id<YB_OUTPUT_CHANNEL_COUNT; id++)
     {
         amps_avg += channels[id].amperage;
         amps_max = max(amps_max, channels[id].amperage);
     }
-    amps_avg = amps_avg / CHANNEL_COUNT;
+    amps_avg = amps_avg / YB_OUTPUT_CHANNEL_COUNT;
 
-    for (byte i=0; i<FAN_COUNT; i++)
+    for (byte i=0; i<YB_FAN_COUNT; i++)
     {
         if ((unsigned long)(millis() - last_tacho_measurement[i]) >= 1000)
         { 
@@ -127,7 +127,7 @@ void measure_fan_rpm(byte i)
 void set_fan_pwm(byte i, byte pwm)
 {
     fans_last_pwm[i] = pwm;
-    ledcWrite(CHANNEL_COUNT+i, pwm);
+    ledcWrite(YB_OUTPUT_CHANNEL_COUNT+i, pwm);
 }
 
 #endif

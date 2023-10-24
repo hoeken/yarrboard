@@ -15,7 +15,7 @@
 //#include "ntp.h"
 
 #ifdef YB_HAS_OUTPUT_CHANNELS
-  #include "channel.h"
+  #include "output_channel.h"
 #endif
 
 #ifdef YB_HAS_FANS
@@ -32,9 +32,9 @@ void setup()
 
   Serial.println("Yarrboard");
   Serial.print("Hardware Version: ");
-  Serial.println(HARDWARE_VERSION);
+  Serial.println(YB_HARDWARE_VERSION);
   Serial.print("Firmware Version: ");
-  Serial.println(FIRMWARE_VERSION);
+  Serial.println(YB_FIRMWARE_VERSION);
 
   //ntp_setup();
   prefs_setup();

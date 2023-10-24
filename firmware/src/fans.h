@@ -9,8 +9,8 @@
 #ifndef YARR_FANS_H
 #define YARR_FANS_H
 
-extern int fans_last_rpm[FAN_COUNT];
-extern int fans_last_pwm[FAN_COUNT];
+extern int fans_last_rpm[YB_FAN_COUNT];
+extern int fans_last_pwm[YB_FAN_COUNT];
 
 void fans_setup();
 void fans_loop();

@@ -58,7 +58,7 @@ void protocol_loop()
   {
     #ifdef YB_HAS_OUTPUT_CHANNELS
       //update our averages, etc.
-      for (byte i=0; i<CHANNEL_COUNT; i++)
+      for (byte i=0; i<YB_OUTPUT_CHANNEL_COUNT; i++)
         channels[i].calculateAverages(messageDelta);
     #endif
     
@@ -658,7 +658,7 @@ void generateStatsJSON(JsonVariant output)
 
   #ifdef YB_HAS_FANS
     //info about each of our fans
-    for (byte i = 0; i < FAN_COUNT; i++) {
+    for (byte i = 0; i < YB_FAN_COUNT; i++) {
       output["fans"][i]["rpm"] = fans_last_rpm[i];
       output["fans"][i]["pwm"] = fans_last_pwm[i];
     }
@@ -666,7 +666,7 @@ void generateStatsJSON(JsonVariant output)
 
   #ifdef YB_HAS_OUTPUT_CHANNELS
     //info about each of our channels
-    for (byte i = 0; i < CHANNEL_COUNT; i++) {
+    for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
       output["channels"][i]["id"] = i;
       output["channels"][i]["name"] = channels[i].name;
       output["channels"][i]["aH"] = channels[i].ampHours;
@@ -694,7 +694,7 @@ void generateUpdateJSON(JsonVariant output)
   */
 
   #ifdef YB_HAS_OUTPUT_CHANNELS
-    for (byte i = 0; i < CHANNEL_COUNT; i++) {
+    for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
       output["channels"][i]["id"] = i;
       output["channels"][i]["state"] = channels[i].state;
       if (channels[i].isDimmable)
@@ -713,8 +713,8 @@ void generateUpdateJSON(JsonVariant output)
 void generateConfigJSON(JsonVariant output)
 {
   //our identifying info
-  output["firmware_version"] = FIRMWARE_VERSION;
-  output["hardware_version"] = HARDWARE_VERSION;
+  output["firmware_version"] = YB_FIRMWARE_VERSION;
+  output["hardware_version"] = YB_HARDWARE_VERSION;
   output["name"] = board_name;
   output["hostname"] = local_hostname;
   output["uuid"] = uuid;
@@ -726,7 +726,7 @@ void generateConfigJSON(JsonVariant output)
 
   //send our configuration
   #ifdef YB_HAS_OUTPUT_CHANNELS
-    for (byte i = 0; i < CHANNEL_COUNT; i++) {
+    for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
       output["channels"][i]["id"] = i;
       output["channels"][i]["name"] = channels[i].name;
       output["channels"][i]["type"] = "mosfet";
@@ -815,7 +815,7 @@ void generateLoginRequiredJSON(JsonVariant output)
 
 bool isValidChannel(byte cid)
 {
-  if (cid < 0 || cid >= CHANNEL_COUNT)
+  if (cid < 0 || cid >= YB_OUTPUT_CHANNEL_COUNT)
     return false;
   else
     return true;
@@ -829,7 +829,7 @@ void generatePongJSON(JsonVariant output)
 void sendUpdate()
 {
   StaticJsonDocument<3000> output;
-  char jsonBuffer[MAX_JSON_LENGTH];
+  char jsonBuffer[YB_MAX_JSON_LENGTH];
 
   generateUpdateJSON(output);
 

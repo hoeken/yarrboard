@@ -25,7 +25,7 @@
 #include "adchelper.h"
 
 #ifdef YB_HAS_OUTPUT_CHANNELS
-  #include "channel.h"
+  #include "output_channel.h"
 #endif
 
 #ifdef YB_HAS_FANS

@@ -19,11 +19,11 @@ const byte adc_cs_pin = 17;
   //for watching our power supply
   float busVoltage = 0;
 
-  #ifdef BUS_VOLTAGE_ESP32
-    esp32Helper busADC = esp32Helper(3.3, BUS_VOLTAGE_PIN);
+  #ifdef YB_BUS_VOLTAGE_ESP32
+    esp32Helper busADC = esp32Helper(3.3, YB_BUS_VOLTAGE_PIN);
   #endif
 
-  #ifdef BUS_VOLTAGE_MCP3221
+  #ifdef YB_BUS_VOLTAGE_MCP3221
   #endif
 #endif
 
@@ -32,12 +32,12 @@ void adc_setup()
   _adcMCP3208.begin(adc_cs_pin);
 
   #ifdef YB_HAS_BUS_VOLTAGE
-    #ifdef BUS_VOLTAGE_ESP32
-      adcAttachPin(BUS_VOLTAGE_PIN);
+    #ifdef YB_BUS_VOLTAGE_ESP32
+      adcAttachPin(YB_BUS_VOLTAGE_PIN);
       analogSetAttenuation(ADC_11db);
     #endif
 
-    #ifdef BUS_VOLTAGE_MCP3221
+    #ifdef YB_BUS_VOLTAGE_MCP3221
     #endif
   #endif
 }
@@ -59,7 +59,7 @@ void adc_loop()
 
     busADC.resetAverage();
 
-    return voltage / (BUS_VOLTAGE_R2 / (BUS_VOLTAGE_R2+BUS_VOLTAGE_R1));
+    return voltage / (YB_BUS_VOLTAGE_R2 / (YB_BUS_VOLTAGE_R2+YB_BUS_VOLTAGE_R1));
   }
 #endif
 

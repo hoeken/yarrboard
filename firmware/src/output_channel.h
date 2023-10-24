@@ -6,8 +6,8 @@
   License: GPLv3
 */
 
-#ifndef YARR_CHANNEL_H
-#define YARR_CHANNEL_H
+#ifndef YARR_OUTPUT_CHANNEL_H
+#define YARR_OUTPUT_CHANNEL_H
 
 #include <Arduino.h>
 #include "prefs.h"
@@ -18,7 +18,7 @@
 
 class OutputChannel
 {
-  byte _pins[CHANNEL_COUNT] = CHANNEL_PINS;
+  byte _pins[YB_OUTPUT_CHANNEL_COUNT] = YB_OUTPUT_CHANNEL_PINS;
 
   public:
     byte id = 0;
@@ -64,9 +64,9 @@ class OutputChannel
     void calculateAverages(unsigned int delta);
 };
 
-extern OutputChannel channels[CHANNEL_COUNT];
+extern OutputChannel channels[YB_OUTPUT_CHANNEL_COUNT];
 
 void channel_setup();
 void channel_loop();
 
-#endif /* !YARR_CHANNEL_H */
+#endif /* !YARR_OUTPUT_CHANNEL_H */

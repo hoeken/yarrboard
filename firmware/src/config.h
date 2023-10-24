@@ -12,35 +12,23 @@
 #include <ArduinoTrace.h>
 
 // enable one of these
-//#define CONFIG_8CH_MOSFET_REVA
-//#define CONFIG_8CH_MOSFET_REVB
-//#define CONFIG_RGB_INPUT_REVA
+//#define YB_CONFIG_8CH_MOSFET_REVA
+//#define YB_CONFIG_8CH_MOSFET_REVB
+//#define YB_CONFIG_RGB_INPUT_REVA
 
-#if defined CONFIG_8CH_MOSFET_REVA
+#if defined YB_CONFIG_8CH_MOSFET_REVA
   #include "./configs/config.8ch-mosfet-reva.h"
-#elif defined CONFIG_8CH_MOSFET_REVB
+#elif defined YB_CONFIG_8CH_MOSFET_REVB
   #include "./configs/config.8ch-mosfet-revb.h"
-#elif defined CONFIG_RGB_INPUT_REVA
+#elif defined YB_CONFIG_RGB_INPUT_REVA
   #include "./configs/config.rgb-input-reva.h"
 #endif
-
-#ifndef CHANNEL_PWM_FREQUENCY
-  #define CHANNEL_PWM_FREQUENCY 1000
-#endif
-
-#ifndef CHANNEL_PWM_RESOLUTION
-  #define CHANNEL_PWM_RESOLUTION 10
-#endif
-
-#define YB_FAN_SINGLE_CHANNEL_AMPS 5.0
-#define YB_FAN_AVERAGE_CHANNEL_AMPS 5.0
-#define YB_FAN_MAX_CHANNEL_AMPS 20.0
 
 //time before saving fade pwm to preserve flash
 #define YB_DUTY_SAVE_TIMEOUT 5000
 
 //bytes for sending json
-#define MAX_JSON_LENGTH 1500
+#define YB_MAX_JSON_LENGTH 1500
 
 #define YBP_MODE_WEBSOCKET 0
 #define YBP_MODE_HTTP      1

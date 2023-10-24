@@ -10,16 +10,16 @@
 
 #ifdef YB_HAS_OUTPUT_CHANNELS
 
-#include "channel.h"
+#include "output_channel.h"
 
 //the main star of the event
-OutputChannel channels[CHANNEL_COUNT];
+OutputChannel channels[YB_OUTPUT_CHANNEL_COUNT];
 
 //flag for hardware fade status
-static volatile bool isChannelFading[FAN_COUNT];
+static volatile bool isChannelFading[YB_FAN_COUNT];
 
 /* Setting PWM Properties */
-const int MAX_DUTY_CYCLE = (int)(pow(2, CHANNEL_PWM_RESOLUTION) - 1);
+const int MAX_DUTY_CYCLE = (int)(pow(2, YB_OUTPUT_CHANNEL_PWM_RESOLUTION) - 1);
 
 MCP3208Helper foo;
 
@@ -45,7 +45,7 @@ void channel_setup()
   //based on this issue: https://github.com/espressif/esp-idf/issues/5167
 
   //intitialize our channel
-  for (short i = 0; i < CHANNEL_COUNT; i++)
+  for (short i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++)
   {
     channels[i].id = i;
     channels[i].setup();
@@ -57,14 +57,14 @@ void channel_setup()
   ledc_fade_func_install(0);
 
   //intitialize our interrupts afterwards
-  for (short i = 0; i < CHANNEL_COUNT; i++)
+  for (short i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++)
     channels[i].setupInterrupt();
 }
 
 void channel_loop()
 {
   //maintenance on our channels.
-  for (byte id = 0; id < CHANNEL_COUNT; id++)
+  for (byte id = 0; id < YB_OUTPUT_CHANNEL_COUNT; id++)
   {
     channels[id].checkAmperage();
     channels[id].saveThrottledDutyCycle();
@@ -129,7 +129,7 @@ void OutputChannel::setupLedc()
   ledcDetachPin(this->_pins[this->id]);
 
   //initialize our PWM channels
-  ledcSetup(this->id, CHANNEL_PWM_FREQUENCY, CHANNEL_PWM_RESOLUTION);
+  ledcSetup(this->id, YB_OUTPUT_CHANNEL_PWM_FREQUENCY, YB_OUTPUT_CHANNEL_PWM_RESOLUTION);
   ledcAttachPin(this->_pins[this->id], this->id);
   ledcWrite(this->id, 0);
 }

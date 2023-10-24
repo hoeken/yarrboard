@@ -193,7 +193,7 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
   unsigned long start = micros();
   unsigned long t1, t2, t3, t4 = 0;
 
-  char jsonBuffer[MAX_JSON_LENGTH];
+  char jsonBuffer[YB_MAX_JSON_LENGTH];
   StaticJsonDocument<2048> output;
 
   StaticJsonDocument<1024> input;
