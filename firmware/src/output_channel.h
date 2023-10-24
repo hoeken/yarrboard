@@ -64,10 +64,10 @@ class OutputChannel
     void calculateAverages(unsigned int delta);
 };
 
-extern OutputChannel channels[YB_OUTPUT_CHANNEL_COUNT];
+extern OutputChannel output_channels[YB_OUTPUT_CHANNEL_COUNT];
 
-void channel_setup();
-void channel_loop();
+void output_channels_setup();
+void output_channels_loop();
 bool isValidOutputChannel(byte cid);
 
 #endif /* !YARR_OUTPUT_CHANNEL_H */

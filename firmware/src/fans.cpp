@@ -66,8 +66,8 @@ void fans_loop()
     float amps_max = 0;
     for (byte id=0; id<YB_OUTPUT_CHANNEL_COUNT; id++)
     {
-        amps_avg += channels[id].amperage;
-        amps_max = max(amps_max, channels[id].amperage);
+        amps_avg += output_channels[id].amperage;
+        amps_max = max(amps_max, output_channels[id].amperage);
     }
     amps_avg = amps_avg / YB_OUTPUT_CHANNEL_COUNT;
 

@@ -47,8 +47,8 @@ void setup()
   Serial.println("ADC ok");
   
   #ifdef YB_HAS_OUTPUT_CHANNELS
-    channel_setup();
-    Serial.println("Channels ok");
+    output_channels_setup();
+    Serial.println("Output channels ok");
   #endif
 
   #ifdef YB_HAS_FANS
@@ -70,7 +70,7 @@ void loop()
 {
   //ntp_loop();
   #ifdef YB_HAS_OUTPUT_CHANNELS
-    channel_loop();
+    output_channels_loop();
   #endif
 
   adc_loop();

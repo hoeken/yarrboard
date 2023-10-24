@@ -13,7 +13,7 @@
 #include "output_channel.h"
 
 //the main star of the event
-OutputChannel channels[YB_OUTPUT_CHANNEL_COUNT];
+OutputChannel output_channels[YB_OUTPUT_CHANNEL_COUNT];
 
 //flag for hardware fade status
 static volatile bool isChannelFading[YB_FAN_COUNT];
@@ -39,7 +39,7 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
     return (taskAwoken == pdTRUE);
 }
 
-void channel_setup()
+void output_channels_setup()
 {
   //the init here needs to be done in a specific way, otherwise it will hang or get caught in a crash loop if the board finished a fade during the last crash
   //based on this issue: https://github.com/espressif/esp-idf/issues/5167
@@ -47,9 +47,9 @@ void channel_setup()
   //intitialize our channel
   for (short i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++)
   {
-    channels[i].id = i;
-    channels[i].setup();
-    channels[i].setupLedc();
+    output_channels[i].id = i;
+    output_channels[i].setup();
+    output_channels[i].setupLedc();
   }
 
   //fade function
@@ -58,17 +58,17 @@ void channel_setup()
 
   //intitialize our interrupts afterwards
   for (short i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++)
-    channels[i].setupInterrupt();
+    output_channels[i].setupInterrupt();
 }
 
-void channel_loop()
+void output_channels_loop()
 {
   //maintenance on our channels.
   for (byte id = 0; id < YB_OUTPUT_CHANNEL_COUNT; id++)
   {
-    channels[id].checkAmperage();
-    channels[id].saveThrottledDutyCycle();
-    channels[id].checkIfFadeOver();
+    output_channels[id].checkAmperage();
+    output_channels[id].saveThrottledDutyCycle();
+    output_channels[id].checkIfFadeOver();
   }
 }
 
