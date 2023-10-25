@@ -48,14 +48,13 @@ function buildfs_inline(cb) {
         .pipe(favicon({src: "html"}))
         .pipe(inline({
             base: 'html/',
-            js: uglify,
+//            js: uglify,
             css: [cleancss, inlineImages],
 //            disabledTypes: ['svg', 'img']
         }))
         .pipe(htmlmin({
-            collapseWhitespace: true,
+//            collapseWhitespace: true,
             removecomments: true,
-            aside: true,
             minifyCSS: true,
             minifyJS: true
         }))

@@ -76,7 +76,7 @@ void server_setup()
     }
   });
 
-  server.onNotFound([](AsyncWebServerRequest *request){ request->send(404); });
+  //server.onNotFound([](AsyncWebServerRequest *request){ request->send(404); });
 
   server.begin();
 }
