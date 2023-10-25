@@ -15,6 +15,8 @@
 //the main star of the event
 InputChannel input_channels[YB_INPUT_CHANNEL_COUNT];
 
+unsigned long lastInputCheckMillis = 0;
+
 void input_channels_setup()
 {
   //intitialize our channel
@@ -27,10 +29,13 @@ void input_channels_setup()
 
 void input_channels_loop()
 {
-  //maintenance on our channels.
-  for (byte id = 0; id < YB_INPUT_CHANNEL_COUNT; id++)
+  if (millis() > lastInputCheckMillis + YB_DEBOUNCE_RATE_MS)
   {
-    //output_channels[id].checkIfFadeOver();
+    //maintenance on our channels.
+    for (byte id = 0; id < YB_INPUT_CHANNEL_COUNT; id++)
+        input_channels[id].update();
+
+    lastInputCheckMillis = millis();
   }
 }
 
@@ -55,11 +60,24 @@ void InputChannel::setup()
 
   //setup our pin
   pinMode(this->_pins[this->id], INPUT);
+
+  //initial values
+  this->state = digitalRead(this->_pins[this->id]);
+  this->lastState = this->state;
+  this->stateChangeCount = 0;
 }
 
 void InputChannel::update()
 {
+    bool currentState = digitalRead(this->_pins[this->id]);
 
+    if (currentState == this->lastState && currentState != this->state)
+    {
+        this->state = this->lastState;
+        this->stateChangeCount++;
+    }
+
+    this->lastState = currentState;
 }
 
 #endif
