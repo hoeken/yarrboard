@@ -288,7 +288,7 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
 
       //save to our storage
       strlcpy(output_channels[cid].name, input["name"] | "Channel ?", sizeof(output_channels[cid].name));
-      sprintf(prefIndex, "cName%d", cid);
+      sprintf(prefIndex, "pwmName%d", cid);
       preferences.putString(prefIndex, output_channels[cid].name);
 
       //give them the updated config
@@ -302,7 +302,7 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
       output_channels[cid].isDimmable = isDimmable;
 
       //save to our storage
-      sprintf(prefIndex, "cDimmable%d", cid);
+      sprintf(prefIndex, "pwmDimmable%d", cid);
       preferences.putBool(prefIndex, isDimmable);
 
       //give them the updated config
@@ -317,7 +317,7 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
       output_channels[cid].isEnabled = enabled;
 
       //save to our storage
-      sprintf(prefIndex, "cEnabled%d", cid);
+      sprintf(prefIndex, "pwmEnabled%d", cid);
       preferences.putBool(prefIndex, enabled);
 
       //give them the updated config
@@ -335,7 +335,7 @@ void handleSetChannel(JsonVariantConst input, JsonVariant output)
       output_channels[cid].softFuseAmperage = softFuse;
 
       //save to our storage
-      sprintf(prefIndex, "cSoftFuse%d", cid);
+      sprintf(prefIndex, "pwmSoftFuse%d", cid);
       preferences.putFloat(prefIndex, softFuse);
 
       //give them the updated config

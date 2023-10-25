@@ -52,14 +52,14 @@ void InputChannel::setup()
   char prefIndex[YB_PREF_KEY_LENGTH];
 
   //lookup our name
-  sprintf(prefIndex, "cName%d", this->id);
+  sprintf(prefIndex, "iptName%d", this->id);
   if (preferences.isKey(prefIndex))
     strlcpy(this->name, preferences.getString(prefIndex).c_str(), sizeof(this->name));
   else
     sprintf(this->name, "Switch #%d", this->id);
 
   //enabled or no
-  sprintf(prefIndex, "cEnabled%d", this->id);
+  sprintf(prefIndex, "iptEnabled%d", this->id);
   if (preferences.isKey(prefIndex))
     this->isEnabled = preferences.getBool(prefIndex);
   else

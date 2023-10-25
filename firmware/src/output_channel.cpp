@@ -91,21 +91,21 @@ void OutputChannel::setup()
   char prefIndex[YB_PREF_KEY_LENGTH];
 
   //lookup our name
-  sprintf(prefIndex, "cName%d", this->id);
+  sprintf(prefIndex, "pwmName%d", this->id);
   if (preferences.isKey(prefIndex))
     strlcpy(this->name, preferences.getString(prefIndex).c_str(), sizeof(this->name));
   else
     sprintf(this->name, "Channel #%d", this->id);
 
   //enabled or no
-  sprintf(prefIndex, "cEnabled%d", this->id);
+  sprintf(prefIndex, "pwmEnabled%d", this->id);
   if (preferences.isKey(prefIndex))
     this->isEnabled = preferences.getBool(prefIndex);
   else
     this->isEnabled = true;
 
   //lookup our duty cycle
-  sprintf(prefIndex, "cDuty%d", this->id);
+  sprintf(prefIndex, "pwmDuty%d", this->id);
   if (preferences.isKey(prefIndex))
     this->dutyCycle = preferences.getFloat(prefIndex);
   else
@@ -113,21 +113,21 @@ void OutputChannel::setup()
   this->lastDutyCycle = this->dutyCycle;
 
   //dimmability.
-  sprintf(prefIndex, "cDimmable%d", this->id);
+  sprintf(prefIndex, "pwmDimmable%d", this->id);
   if (preferences.isKey(prefIndex))
     this->isDimmable = preferences.getBool(prefIndex);
   else
     this->isDimmable = true;
 
   //soft fuse
-  sprintf(prefIndex, "cSoftFuse%d", this->id);
+  sprintf(prefIndex, "pwmSoftFuse%d", this->id);
   if (preferences.isKey(prefIndex))
     this->softFuseAmperage = preferences.getFloat(prefIndex);
   else
     this->softFuseAmperage = YB_FAN_MAX_CHANNEL_AMPS;
 
   //soft fuse trip count
-  sprintf(prefIndex, "cTripCount%d", this->id);
+  sprintf(prefIndex, "pwmTripCount%d", this->id);
   if (preferences.isKey(prefIndex))
     this->softFuseTripCount = preferences.getUInt(prefIndex);
   else
@@ -231,7 +231,7 @@ void OutputChannel::checkSoftFuse()
 
       //save to our storage
       char prefIndex[YB_PREF_KEY_LENGTH];
-      sprintf(prefIndex, "cTripCount%d", this->id);
+      sprintf(prefIndex, "pwmTripCount%d", this->id);
       preferences.putUInt(prefIndex, this->softFuseTripCount);
     }
   }
@@ -328,7 +328,7 @@ void OutputChannel::setDuty(float duty)
       if (millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
       {
         char prefIndex[YB_PREF_KEY_LENGTH];
-        sprintf(prefIndex, "cDuty%d", this->id);
+        sprintf(prefIndex, "pwmDuty%d", this->id);
         preferences.putFloat(prefIndex, duty);
         this->dutyCycleIsThrottled = false;
         Serial.printf("saving %s: %f\n", prefIndex, this->dutyCycle);
