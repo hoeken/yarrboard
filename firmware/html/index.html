@@ -5,42 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Yarrboard</title>
     <!-- Icon source: https://icon-icons.com -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+    <!-- shortcut::favicon.png -->
+    <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
-    <script src="yarrboard.js?v=0.0.3"></script>
+    <script src="yarrboard.js"></script>
     <script src="jquery-3.7.0.min.js"></script> 
     <script src="bootstrap.min.js"></script>
     <script src="jscookie.js"></script>
     <style>
-        .form-label {
-            font-weight: bold;
-        }
-        html,
-        body {
-            height: 100%;
-        }
 
-        .form-signin {
-            max-width: 330px;
-            padding: 1rem;
-        }
-
-        .form-signin .form-floating:focus-within {
-            z-index: 2;
-        }
-
-        .form-signin input[type="username"] {
-            margin-bottom: -1px;
-            border-bottom-right-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-
-        .form-signin input[type="password"] {
-            margin-bottom: 10px;
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
-        }
     </style>
 </head>
 <body>
@@ -331,7 +304,7 @@
                     <input type="password" class="form-control" id="password" placeholder="admin">
                     <label for="password">Password</label>
                 </div>
-                <button class="btn btn-primary w-100 py-2" onclick="do_login()"">Log in</button>
+                <button class="btn btn-primary w-100 py-2" onclick="do_login()">Log in</button>
                 <p class="text-center text-muted my-2">Default: admin / admin</p>
                 <div id="liveAlertPlaceholder"></div>
                 <script>

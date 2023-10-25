@@ -11,7 +11,6 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <SPIFFS.h>
 #include <CircularBuffer.h>
 
 #include <AsyncJson.h>
@@ -23,6 +22,8 @@
 #include "wifi.h"
 #include "ota.h"
 #include "adchelper.h"
+
+#include "index.html.gz.h"
 
 #ifdef YB_HAS_OUTPUT_CHANNELS
   #include "output_channel.h"

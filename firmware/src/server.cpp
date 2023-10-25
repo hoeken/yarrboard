@@ -1,5 +1,8 @@
 #include "server.h"
 
+// Variable to hold the last modification datetime
+char last_modified[50];
+
 CircularBuffer<WebsocketRequest*, YB_RECEIVE_BUFFER_COUNT> wsRequests;
 
 //keep track of our authenticated clients
@@ -11,16 +14,14 @@ AsyncWebServer server(80);
 
 void server_setup()
 {
+  // Populate the last modification date based on build datetime
+  sprintf(last_modified, "%s %s GMT", __DATE__, __TIME__);
+
   //config for our websocket server
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
-  // Initialize SPIFFS
-  if(!SPIFFS.begin(true)){
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-
+  //main API endpoint
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json)
   {
     handleWebServerRequest(json, request);
@@ -54,8 +55,28 @@ void server_setup()
     handleWebServerRequest(json, request);
   });
 
-  //we are only serving static files - big cache
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=2592000");
+  //our home page
+  server.rewrite("/", "/index.html");
+  server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
+    // Check if the client already has the same version and respond with a 304 (Not modified)
+    if (request->header("If-Modified-Since").equals(last_modified)) {
+        request->send(304);
+    } else {
+        // Dump the byte array in PROGMEM with a 200 HTTP code (OK)
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_html_gz, index_html_gz_len);
+
+        // Tell the browswer the contemnt is Gzipped
+        response->addHeader("Content-Encoding", "gzip");
+
+        // And set the last-modified datetime so we can check if we need to send it again next time or not
+        response->addHeader("Last-Modified", last_modified);
+
+        request->send(response);
+    }
+  });
+
+  server.onNotFound([](AsyncWebServerRequest *request){ request->send(404); });
 
   server.begin();
 }
