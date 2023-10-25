@@ -12,6 +12,7 @@
 #include "ota.h"
 #include "server.h"
 #include "utility.h"
+#include "adchelper.h"
 //#include "ntp.h"
 
 #ifdef YB_HAS_OUTPUT_CHANNELS
@@ -30,7 +31,9 @@
   #include "fans.h"
 #endif
 
-#include "adchelper.h"
+#ifdef YB_HAS_BUS_VOLTAGE
+  #include "bus_voltage.h"
+#endif
 
 void setup()
 {
@@ -50,9 +53,6 @@ void setup()
 
   ota_setup();
   Serial.println("OTA ok");
-
-  adc_setup();
-  Serial.println("ADC ok");
 
   #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
     input_channels_setup();
@@ -74,6 +74,11 @@ void setup()
     Serial.println("Fans ok");
   #endif
 
+  #ifdef YB_HAS_BUS_VOLTAGE
+    bus_voltage_setup();
+    Serial.println("Bus voltage ok");
+  #endif
+
   wifi_setup();
   Serial.println("WiFi ok");
   
@@ -86,8 +91,6 @@ void setup()
 
 void loop()
 {
-  adc_loop();
-
   #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
     input_channels_loop();
   #endif
@@ -102,6 +105,10 @@ void loop()
 
   #ifdef YB_HAS_FANS
    fans_loop();
+  #endif
+
+  #ifdef YB_HAS_BUS_VOLTAGE
+    bus_voltage_loop();
   #endif
 
   wifi_loop();

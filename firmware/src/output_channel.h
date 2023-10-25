@@ -15,6 +15,7 @@
 #include "driver/ledc.h"
 #include "adchelper.h"
 #include "protocol.h"
+#include "bus_voltage.h"
 
 class OutputChannel
 {

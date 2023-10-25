@@ -73,12 +73,4 @@ class MCP3425Helper : public ADCHelper
     MCP342x *adc;
 };
 
-void adc_setup();
-void adc_loop();
-
-#ifdef YB_HAS_BUS_VOLTAGE
-  extern float busVoltage;
-  float getBusVoltage();
-#endif
-
 #endif /* !YARR_ADC_H */

@@ -31,6 +31,10 @@
   #include "fans.h"
 #endif
 
+#ifdef YB_HAS_BUS_VOLTAGE
+  #include "bus_voltage.h"
+#endif
+
 //extern unsigned int handledMessages;
 extern char board_name[YB_BOARD_NAME_LENGTH];
 extern char app_user[YB_USERNAME_LENGTH];
