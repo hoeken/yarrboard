@@ -21,7 +21,9 @@ static volatile bool isChannelFading[YB_FAN_COUNT];
 /* Setting PWM Properties */
 const int MAX_DUTY_CYCLE = (int)(pow(2, YB_OUTPUT_CHANNEL_PWM_RESOLUTION) - 1);
 
-MCP3208Helper foo;
+#ifdef YB_OUTPUT_CHANNEL_ADC_DRIVER_MCP3208
+  MCP3208 _adcCurrentMCP3208;
+#endif
 
 /*
  * This callback function will be called when fade operation has ended
@@ -41,6 +43,10 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
 
 void output_channels_setup()
 {
+  #ifdef YB_OUTPUT_CHANNEL_ADC_DRIVER_MCP3208
+    _adcCurrentMCP3208.begin(YB_OUTPUT_CHANNEL_ADC_CS);
+  #endif
+
   //the init here needs to be done in a specific way, otherwise it will hang or get caught in a crash loop if the board finished a fade during the last crash
   //based on this issue: https://github.com/espressif/esp-idf/issues/5167
 
@@ -127,7 +133,7 @@ void OutputChannel::setup()
   else
     this->softFuseTripCount = 0;
 
-  this->adcHelper = new MCP3208Helper(3.3, this->id, &_adcMCP3208);  
+  this->adcHelper = new MCP3208Helper(3.3, this->id, &_adcCurrentMCP3208);  
 }
 
 void OutputChannel::setupLedc()

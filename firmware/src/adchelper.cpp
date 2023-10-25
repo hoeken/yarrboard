@@ -11,10 +11,6 @@
 //for tracking our ADC loop
 unsigned long previousADCMillis = 0;
 
-//object for our adc
-MCP3208 _adcMCP3208;
-const byte adc_cs_pin = 17;
-
 #ifdef YB_HAS_BUS_VOLTAGE
   //for watching our power supply
   float busVoltage = 0;
@@ -31,8 +27,6 @@ const byte adc_cs_pin = 17;
 
 void adc_setup()
 {
-  _adcMCP3208.begin(adc_cs_pin);
-
   #ifdef YB_HAS_BUS_VOLTAGE
     #ifdef YB_BUS_VOLTAGE_ESP32
       adcAttachPin(YB_BUS_VOLTAGE_PIN);

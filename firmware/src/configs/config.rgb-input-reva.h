@@ -9,7 +9,9 @@
 #define YB_DEBOUNCE_RATE_MS 20
 
 #define YB_HAS_ADC
+#define YB_ADC_CHANNEL_COUNT 8
 #define YB_ADC_DRIVER_MCP3208
+#define YB_ADC_CS 17
 
 #define YB_HAS_RGB_OUTPUT
 #define YB_RGB_CHANNEL_COUNT 16

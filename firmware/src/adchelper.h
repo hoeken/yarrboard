@@ -12,8 +12,9 @@
 #include <Arduino.h>
 #include <MCP3208.h>
 #include <Wire.h>
-#include "config.h"
 #include <MCP342x.h>
+
+#include "config.h"
 
 class ADCHelper
 {
@@ -71,8 +72,6 @@ class MCP3425Helper : public ADCHelper
   private:
     MCP342x *adc;
 };
-
-extern MCP3208 _adcMCP3208;
 
 void adc_setup();
 void adc_loop();

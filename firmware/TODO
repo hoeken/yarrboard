@@ -1,6 +1,7 @@
 Firmware:
 
-* sometimes after crashing, reboot stalls before wifi... why?
+* add uptime to signalk integration?
+* move bus adc stuff to own files
 
 * update for 8ch mosfet Rev B
     * 2 fans now
