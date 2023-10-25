@@ -18,16 +18,6 @@ Firmware:
     * digital input debounce
 * protocol documentation
 
-* look into integrating the FS into the binary
-    * maybe https://github.com/jkent/frogfs
-    * maybe this way? https://esp32.com/viewtopic.php?t=29875
-    * this might be easiest: https://docs.platformio.org/en/latest/platforms/espressif32.html#embedding-binary-data
-        * change to small spiffs partition: https://github.com/espressif/arduino-esp32/blob/master/tools/partitions/min_spiffs.csv
-        * automatically gzip files: https://community.platformio.org/t/question-esp32-compress-files-in-data-to-gzip-before-upload-possible-to-spiffs/6274/14
-        * or possibly use gulp: https://tinkerman.cat/post/optimizing-files-for-spiffs-with-gulp/
-        * https://tinkerman.cat/post/embed-your-website-in-your-esp8266-firmware-image/
-        * gulp looks nice since we can compress every thing into one file or at least html + css + js + images and use modified date for caching.
-
 Electronics:
 
 * finish design of button board
