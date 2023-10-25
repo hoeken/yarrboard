@@ -16,6 +16,7 @@ Firmware:
         * rgb outputs
     * write code for LED driver
     * digital input debounce
+
 * protocol documentation
 
 Electronics:
@@ -29,7 +30,4 @@ Electronics:
 Long term:
 
 * reinvestigate firmware signing
-* figure out how to do safe update with spiffs (2 partitions?)
-* can we get the code smaller?
-    * refactor to remove Arduino dependency?
 * N2K support
