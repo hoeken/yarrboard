@@ -74,4 +74,19 @@ void ADCChannel::update()
   this->adcHelper->getReading();
 }
 
+unsigned int ADCChannel::getReading()
+{
+  return this->adcHelper->getAverageReading();
+}
+
+float ADCChannel::getVoltage()
+{
+  return this->adcHelper->getAverageVoltage();
+}
+
+void ADCChannel::resetAverage()
+{
+  this->adcHelper->resetAverage();
+}
+
 #endif

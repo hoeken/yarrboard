@@ -1,7 +1,5 @@
 Firmware:
 
-* add uptime to signalk integration?
-
 * update for 8ch mosfet Rev B
     * 2 fans now
     * bus voltage from MCP3425
@@ -18,6 +16,7 @@ Firmware:
     * digital input debounce
 
 * protocol documentation
+* add uptime to signalk integration?
 
 Electronics:
 

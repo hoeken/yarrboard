@@ -25,6 +25,9 @@ class ADCChannel
 
     void setup();
     void update();
+    unsigned int getReading();
+    float getVoltage();
+    void resetAverage();
 };
 
 extern ADCChannel adc_channels[YB_ADC_CHANNEL_COUNT];

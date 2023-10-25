@@ -23,6 +23,14 @@
   #include "input_channel.h"
 #endif
 
+#ifdef YB_HAS_ADC
+  #include "adc_channel.h"
+#endif
+
+#ifdef YB_HAS_RGB_OUTPUT
+  #include "rgb_channel.h"
+#endif
+
 #ifdef YB_HAS_OUTPUT_CHANNELS
   #include "output_channel.h"
 #endif

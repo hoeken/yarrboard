@@ -663,14 +663,6 @@ void generateStatsJSON(JsonVariant output)
     }
   #endif
 
-  #ifdef YB_HAS_FANS
-    //info about each of our fans
-    for (byte i = 0; i < YB_FAN_COUNT; i++) {
-      output["fans"][i]["rpm"] = fans_last_rpm[i];
-      output["fans"][i]["pwm"] = fans_last_pwm[i];
-    }
-  #endif
-
   #ifdef YB_HAS_OUTPUT_CHANNELS
     //info about each of our channels
     for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
@@ -682,29 +674,23 @@ void generateStatsJSON(JsonVariant output)
       output["channels"][i]["soft_fuse_trip_count"] = output_channels[i].softFuseTripCount;
     }
   #endif
+
+  #ifdef YB_HAS_FANS
+    //info about each of our fans
+    for (byte i = 0; i < YB_FAN_COUNT; i++) {
+      output["fans"][i]["rpm"] = fans_last_rpm[i];
+      output["fans"][i]["pwm"] = fans_last_pwm[i];
+    }
+  #endif
 }
 
 void generateUpdateJSON(JsonVariant output)
 {
   output["msg"] = "update";
+  output["uptime"] = millis();
 
   #ifdef YB_HAS_BUS_VOLTAGE
     output["bus_voltage"] = busVoltage;
-  #endif
-
-  /*
-    if (getLocalTime(&timeinfo)) {
-      char buffer[80];
-      strftime(buffer, 80, "%FT%T%z", &timeinfo);
-      output["time"] = buffer;
-    }
-  */
-
-  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
-    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
-      output["switches"][i]["id"] = i;
-      output["switches"][i]["state"] = input_channels[i].state;
-    }
   #endif
 
   #ifdef YB_HAS_OUTPUT_CHANNELS
@@ -722,31 +708,51 @@ void generateUpdateJSON(JsonVariant output)
         output["channels"][i]["soft_fuse_tripped"] = true;
     }
   #endif
+
+  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
+      output["switches"][i]["id"] = i;
+      output["switches"][i]["state"] = input_channels[i].state;
+    }
+  #endif
+
+  //input / analog ADC channesl
+  #ifdef YB_HAS_ADC
+    for (byte i = 0; i < YB_ADC_CHANNEL_COUNT; i++) {
+      output["adc"][i]["id"] = i;
+      output["adc"][i]["voltage"] = adc_channels[i].getVoltage();
+      output["adc"][i]["reading"] = adc_channels[i].getReading();
+      adc_channels[i].resetAverage();
+    }
+  #endif
+
+  //input / analog ADC channesl
+  #ifdef YB_HAS_RGB_OUTPUT
+    for (byte i = 0; i < YB_RGB_CHANNEL_COUNT; i++) {
+      output["rgb"][i]["id"] = i;
+      output["rgb"][i]["state"] = rgb_channels[i].state;
+      output["rgb"][i]["red"] = rgb_channels[i].red;
+      output["rgb"][i]["green"] = rgb_channels[i].green;
+      output["rgb"][i]["blue"] = rgb_channels[i].blue;
+    }
+  #endif
 }
 
 void generateConfigJSON(JsonVariant output)
 {
   //our identifying info
+  output["msg"] = "config";
   output["firmware_version"] = YB_FIRMWARE_VERSION;
   output["hardware_version"] = YB_HARDWARE_VERSION;
   output["name"] = board_name;
   output["hostname"] = local_hostname;
   output["uuid"] = uuid;
-  output["msg"] = "config";
 
   //do we want to flag it for config?
   if (is_first_boot)
     output["first_boot"] = true;
 
-  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
-    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
-      output["switches"][i]["id"] = i;
-      output["switches"][i]["name"] = input_channels[i].name;
-      output["switches"][i]["enabled"] = input_channels[i].isEnabled;
-    }
-  #endif
-
-  //send our configuration
+  //output / pwm channels
   #ifdef YB_HAS_OUTPUT_CHANNELS
     for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
       output["channels"][i]["id"] = i;
@@ -757,6 +763,33 @@ void generateConfigJSON(JsonVariant output)
       output["channels"][i]["hasCurrent"] = true;
       output["channels"][i]["softFuse"] = round2(output_channels[i].softFuseAmperage);
       output["channels"][i]["isDimmable"] = output_channels[i].isDimmable;
+    }
+  #endif
+
+  //input / digital IO channels
+  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
+      output["switches"][i]["id"] = i;
+      output["switches"][i]["name"] = input_channels[i].name;
+      output["switches"][i]["enabled"] = input_channels[i].isEnabled;
+    }
+  #endif
+
+  //input / analog ADC channesl
+  #ifdef YB_HAS_ADC
+    for (byte i = 0; i < YB_ADC_CHANNEL_COUNT; i++) {
+      output["adc"][i]["id"] = i;
+      output["adc"][i]["name"] = adc_channels[i].name;
+      output["adc"][i]["enabled"] = adc_channels[i].isEnabled;
+    }
+  #endif
+
+  //input / analog ADC channesl
+  #ifdef YB_HAS_RGB_OUTPUT
+    for (byte i = 0; i < YB_RGB_CHANNEL_COUNT; i++) {
+      output["rgb"][i]["id"] = i;
+      output["rgb"][i]["name"] = rgb_channels[i].name;
+      output["rgb"][i]["enabled"] = rgb_channels[i].isEnabled;
     }
   #endif
 }
