@@ -7,9 +7,9 @@
 */
 
 #include "config.h"
+#include "ota.h"
 #include "wifi.h"
 #include "prefs.h"
-#include "ota.h"
 #include "server.h"
 #include "utility.h"
 #include "adchelper.h"

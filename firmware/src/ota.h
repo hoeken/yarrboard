@@ -11,6 +11,8 @@
 
 #include "utility.h"
 #include "server.h"
+
+#define DISABLE_ALL_LIBRARY_WARNINGS
 #include <esp32FOTA.hpp>
 
 extern esp32FOTA FOTA;
