@@ -27,6 +27,10 @@
   #include "adc_channel.h"
 #endif
 
+#ifdef YB_HAS_RGB_OUTPUT
+  #include "rgb_channel.h"
+#endif
+
 #ifdef YB_HAS_FANS
   #include "fans.h"
 #endif
@@ -64,6 +68,11 @@ void setup()
     Serial.println("ADC channels ok");
   #endif
 
+  #ifdef YB_HAS_RGB_OUTPUT
+    rgb_channels_setup();
+    Serial.println("RGB channels ok");
+  #endif
+
   #ifdef YB_HAS_OUTPUT_CHANNELS
     output_channels_setup();
     Serial.println("Output channels ok");
@@ -97,6 +106,10 @@ void loop()
 
   #ifdef YB_HAS_ADC
     adc_channels_loop();
+  #endif
+
+  #ifdef YB_HAS_RGB_OUTPUT
+    rgb_channels_loop();
   #endif
 
   #ifdef YB_HAS_OUTPUT_CHANNELS
