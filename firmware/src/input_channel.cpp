@@ -56,7 +56,14 @@ void InputChannel::setup()
   if (preferences.isKey(prefIndex))
     strlcpy(this->name, preferences.getString(prefIndex).c_str(), sizeof(this->name));
   else
-    sprintf(this->name, "Channel #%d", this->id);
+    sprintf(this->name, "Switch #%d", this->id);
+
+  //enabled or no
+  sprintf(prefIndex, "cEnabled%d", this->id);
+  if (preferences.isKey(prefIndex))
+    this->isEnabled = preferences.getBool(prefIndex);
+  else
+    this->isEnabled = true;
 
   //setup our pin
   pinMode(this->_pins[this->id], INPUT);

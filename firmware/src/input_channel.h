@@ -20,6 +20,7 @@ class InputChannel
   public:
     byte id = 0;
     bool state = false;
+    bool isEnabled = true;
     char name[YB_CHANNEL_NAME_LENGTH];
 
     unsigned int stateChangeCount = 0;

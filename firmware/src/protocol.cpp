@@ -656,6 +656,13 @@ void generateStatsJSON(JsonVariant output)
     output["bus_voltage"] = busVoltage;
   #endif
 
+  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
+      output["switches"][i]["id"] = i;
+      output["switches"][i]["state_change_count"] = input_channels[i].stateChangeCount;
+    }
+  #endif
+
   #ifdef YB_HAS_FANS
     //info about each of our fans
     for (byte i = 0; i < YB_FAN_COUNT; i++) {
@@ -693,6 +700,13 @@ void generateUpdateJSON(JsonVariant output)
     }
   */
 
+  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
+      output["switches"][i]["id"] = i;
+      output["switches"][i]["state"] = input_channels[i].state;
+    }
+  #endif
+
   #ifdef YB_HAS_OUTPUT_CHANNELS
     for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
       output["channels"][i]["id"] = i;
@@ -723,6 +737,14 @@ void generateConfigJSON(JsonVariant output)
   //do we want to flag it for config?
   if (is_first_boot)
     output["first_boot"] = true;
+
+  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
+      output["switches"][i]["id"] = i;
+      output["switches"][i]["name"] = input_channels[i].name;
+      output["switches"][i]["enabled"] = input_channels[i].isEnabled;
+    }
+  #endif
 
   //send our configuration
   #ifdef YB_HAS_OUTPUT_CHANNELS
