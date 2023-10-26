@@ -22,6 +22,7 @@ RGBChannel rgb_channels[YB_RGB_CHANNEL_COUNT];
 const int MAX_RGB_RESOLUTION = (int)(pow(2, YB_RGB_CHANNEL_RESOLUTION) - 1);
 
 unsigned long lastRGBUpdateMillis = 0;
+bool rgb_is_dirty = false;
 
 void rgb_channels_setup()
 {
@@ -42,9 +43,14 @@ void rgb_channels_loop()
   //only update every so often
   if (millis() > lastRGBUpdateMillis + YB_RGB_UPDATE_RATE_MS)
   {
-    #ifdef YB_RGB_DRIVER_TLC5947
-      tlc.write();
-    #endif
+    if (rgb_is_dirty)
+    {
+      #ifdef YB_RGB_DRIVER_TLC5947
+        tlc.write();
+      #endif
+
+      rgb_is_dirty = false;
+    }
 
     lastRGBUpdateMillis = millis();
   }
@@ -94,7 +100,8 @@ void RGBChannel::setup()
   else
     this->blue = 0.0;
 
-  this->setRGB(this->red, this->green, this->blue);
+  if (this->red > 0.0 || this->green > 0.0 || this->blue > 0.0)
+    this->setRGB(this->red, this->green, this->blue);
 }
 
 void RGBChannel::setRGB(float red, float green, float blue)
@@ -106,6 +113,8 @@ void RGBChannel::setRGB(float red, float green, float blue)
   #ifdef YB_RGB_DRIVER_TLC5947
     tlc.setLED(this->id, this->red*MAX_RGB_RESOLUTION, this->green*MAX_RGB_RESOLUTION, this->blue*MAX_RGB_RESOLUTION);
   #endif
+
+  rgb_is_dirty = true;
 }
 
 #endif
