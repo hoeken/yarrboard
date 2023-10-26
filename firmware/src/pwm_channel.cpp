@@ -8,20 +8,20 @@
 
 #include "config.h"
 
-#ifdef YB_HAS_OUTPUT_CHANNELS
+#ifdef YB_HAS_PWM_CHANNELS
 
 #include "pwm_channel.h"
 
 //the main star of the event
-OutputChannel output_channels[YB_OUTPUT_CHANNEL_COUNT];
+PWMChannel pwm_channels[YB_PWM_CHANNEL_COUNT];
 
 //flag for hardware fade status
 static volatile bool isChannelFading[YB_FAN_COUNT];
 
 /* Setting PWM Properties */
-const int MAX_DUTY_CYCLE = (int)(pow(2, YB_OUTPUT_CHANNEL_PWM_RESOLUTION) - 1);
+const int MAX_DUTY_CYCLE = (int)(pow(2, YB_PWM_CHANNEL_RESOLUTION) - 1);
 
-#ifdef YB_OUTPUT_CHANNEL_ADC_DRIVER_MCP3208
+#ifdef YB_PWM_CHANNEL_ADC_DRIVER_MCP3208
   MCP3208 _adcCurrentMCP3208;
 #endif
 
@@ -41,21 +41,21 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
     return (taskAwoken == pdTRUE);
 }
 
-void output_channels_setup()
+void pwm_channels_setup()
 {
-  #ifdef YB_OUTPUT_CHANNEL_ADC_DRIVER_MCP3208
-    _adcCurrentMCP3208.begin(YB_OUTPUT_CHANNEL_ADC_CS);
+  #ifdef YB_PWM_CHANNEL_ADC_DRIVER_MCP3208
+    _adcCurrentMCP3208.begin(YB_PWM_CHANNEL_ADC_CS);
   #endif
 
   //the init here needs to be done in a specific way, otherwise it will hang or get caught in a crash loop if the board finished a fade during the last crash
   //based on this issue: https://github.com/espressif/esp-idf/issues/5167
 
   //intitialize our channel
-  for (short i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++)
+  for (short i = 0; i < YB_PWM_CHANNEL_COUNT; i++)
   {
-    output_channels[i].id = i;
-    output_channels[i].setup();
-    output_channels[i].setupLedc();
+    pwm_channels[i].id = i;
+    pwm_channels[i].setup();
+    pwm_channels[i].setupLedc();
   }
 
   //fade function
@@ -63,30 +63,30 @@ void output_channels_setup()
   ledc_fade_func_install(0);
 
   //intitialize our interrupts afterwards
-  for (short i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++)
-    output_channels[i].setupInterrupt();
+  for (short i = 0; i < YB_PWM_CHANNEL_COUNT; i++)
+    pwm_channels[i].setupInterrupt();
 }
 
-void output_channels_loop()
+void pwm_channels_loop()
 {
   //maintenance on our channels.
-  for (byte id = 0; id < YB_OUTPUT_CHANNEL_COUNT; id++)
+  for (byte id = 0; id < YB_PWM_CHANNEL_COUNT; id++)
   {
-    output_channels[id].checkAmperage();
-    output_channels[id].saveThrottledDutyCycle();
-    output_channels[id].checkIfFadeOver();
+    pwm_channels[id].checkAmperage();
+    pwm_channels[id].saveThrottledDutyCycle();
+    pwm_channels[id].checkIfFadeOver();
   }
 }
 
-bool isValidOutputChannel(byte cid)
+bool isValidPWMChannel(byte cid)
 {
-  if (cid < 0 || cid >= YB_OUTPUT_CHANNEL_COUNT)
+  if (cid < 0 || cid >= YB_PWM_CHANNEL_COUNT)
     return false;
   else
     return true;
 }
 
-void OutputChannel::setup()
+void PWMChannel::setup()
 {
   char prefIndex[YB_PREF_KEY_LENGTH];
 
@@ -95,7 +95,7 @@ void OutputChannel::setup()
   if (preferences.isKey(prefIndex))
     strlcpy(this->name, preferences.getString(prefIndex).c_str(), sizeof(this->name));
   else
-    sprintf(this->name, "Channel #%d", this->id);
+    sprintf(this->name, "PWM #%d", this->id);
 
   //enabled or no
   sprintf(prefIndex, "pwmEnabled%d", this->id);
@@ -136,19 +136,19 @@ void OutputChannel::setup()
   this->adcHelper = new MCP3208Helper(3.3, this->id, &_adcCurrentMCP3208);  
 }
 
-void OutputChannel::setupLedc()
+void PWMChannel::setupLedc()
 {
   //deinitialize our pin.
   //ledc_fade_func_uninstall();
   ledcDetachPin(this->_pins[this->id]);
 
   //initialize our PWM channels
-  ledcSetup(this->id, YB_OUTPUT_CHANNEL_PWM_FREQUENCY, YB_OUTPUT_CHANNEL_PWM_RESOLUTION);
+  ledcSetup(this->id, YB_PWM_CHANNEL_FREQUENCY, YB_PWM_CHANNEL_RESOLUTION);
   ledcAttachPin(this->_pins[this->id], this->id);
   ledcWrite(this->id, 0);
 }
 
-void OutputChannel::setupInterrupt()
+void PWMChannel::setupInterrupt()
 {
   int channel = this->id;
   isChannelFading[this->id] = false;
@@ -161,14 +161,14 @@ void OutputChannel::setupInterrupt()
   ledc_cb_register(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)channel, &callbacks, (void *)channel);
 }
 
-void OutputChannel::saveThrottledDutyCycle()
+void PWMChannel::saveThrottledDutyCycle()
 {
   //after 5 secs of no activity, we can save it.
   if (this->dutyCycleIsThrottled && millis() - this->lastDutyCycleUpdate > YB_DUTY_SAVE_TIMEOUT)
     this->setDuty(this->dutyCycle);
 }
 
-void OutputChannel::updateOutput()
+void PWMChannel::updateOutput()
 {
   //what PWM do we want?
   int pwm = 0;
@@ -190,7 +190,7 @@ void OutputChannel::updateOutput()
     ledcWrite(this->id, pwm);
 }
 
-float OutputChannel::toAmperage(float voltage)
+float PWMChannel::toAmperage(float voltage)
 {
   float amps = (voltage - (3.3 * 0.1)) / (0.132); //ACS725LLCTR-20AU
 
@@ -200,18 +200,18 @@ float OutputChannel::toAmperage(float voltage)
   return amps;
 }
 
-float OutputChannel::getAmperage()
+float PWMChannel::getAmperage()
 {
   return this->toAmperage(this->adcHelper->toVoltage(this->adcHelper->getReading()));
 }
 
-void OutputChannel::checkAmperage()
+void PWMChannel::checkAmperage()
 {
   this->amperage = this->getAmperage();
   this->checkSoftFuse();
 }
 
-void OutputChannel::checkSoftFuse()
+void PWMChannel::checkSoftFuse()
 {
   //only trip once....
   if (!this->tripped)
@@ -237,7 +237,7 @@ void OutputChannel::checkSoftFuse()
   }
 }
 
-void OutputChannel::setFade(float duty, int max_fade_time_ms)
+void PWMChannel::setFade(float duty, int max_fade_time_ms)
 {
   // is our earlier hardware fade over yet?
   if (!isChannelFading[this->id])
@@ -265,7 +265,7 @@ void OutputChannel::setFade(float duty, int max_fade_time_ms)
   }
 }
 
-void OutputChannel::checkIfFadeOver()
+void PWMChannel::checkIfFadeOver()
 {
   //we're looking to see if the fade is over yet
   if (this->fadeRequested)
@@ -315,7 +315,7 @@ void OutputChannel::checkIfFadeOver()
   }
 }
 
-void OutputChannel::setDuty(float duty)
+void PWMChannel::setDuty(float duty)
 {
   this->dutyCycle = duty;
 
@@ -346,7 +346,7 @@ void OutputChannel::setDuty(float duty)
   this->lastDutyCycleUpdate = millis();
 }
 
-void OutputChannel::calculateAverages(unsigned int delta)
+void PWMChannel::calculateAverages(unsigned int delta)
 {
   this->amperage = this->toAmperage(this->adcHelper->getAverageVoltage());
   this->adcHelper->resetAverage();

@@ -39,8 +39,8 @@ void fans_setup()
 {
     for (byte i=0; i<YB_FAN_COUNT; i++)
     {
-        ledcSetup(YB_OUTPUT_CHANNEL_COUNT+i, 25000, 8);
-        ledcAttachPin(fan_pwm_pins[i], YB_OUTPUT_CHANNEL_COUNT+i);
+        ledcSetup(YB_PWM_CHANNEL_COUNT+i, 25000, 8);
+        ledcAttachPin(fan_pwm_pins[i], YB_PWM_CHANNEL_COUNT+i);
         set_fan_pwm(i, 0);
     }
 
@@ -64,12 +64,12 @@ void fans_loop()
 {
     float amps_avg = 0;
     float amps_max = 0;
-    for (byte id=0; id<YB_OUTPUT_CHANNEL_COUNT; id++)
+    for (byte id=0; id<YB_PWM_CHANNEL_COUNT; id++)
     {
-        amps_avg += output_channels[id].amperage;
-        amps_max = max(amps_max, output_channels[id].amperage);
+        amps_avg += pwm_channels[id].amperage;
+        amps_max = max(amps_max, pwm_channels[id].amperage);
     }
-    amps_avg = amps_avg / YB_OUTPUT_CHANNEL_COUNT;
+    amps_avg = amps_avg / YB_PWM_CHANNEL_COUNT;
 
     for (byte i=0; i<YB_FAN_COUNT; i++)
     {
@@ -127,7 +127,7 @@ void measure_fan_rpm(byte i)
 void set_fan_pwm(byte i, byte pwm)
 {
     fans_last_pwm[i] = pwm;
-    ledcWrite(YB_OUTPUT_CHANNEL_COUNT+i, pwm);
+    ledcWrite(YB_PWM_CHANNEL_COUNT+i, pwm);
 }
 
 #endif

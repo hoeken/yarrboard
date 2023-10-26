@@ -17,9 +17,9 @@
 #include "protocol.h"
 #include "bus_voltage.h"
 
-class OutputChannel
+class PWMChannel
 {
-  byte _pins[YB_OUTPUT_CHANNEL_COUNT] = YB_OUTPUT_CHANNEL_PINS;
+  byte _pins[YB_PWM_CHANNEL_COUNT] = YB_PWM_CHANNEL_PINS;
 
   public:
     byte id = 0;
@@ -65,10 +65,10 @@ class OutputChannel
     void calculateAverages(unsigned int delta);
 };
 
-extern OutputChannel output_channels[YB_OUTPUT_CHANNEL_COUNT];
+extern PWMChannel pwm_channels[YB_PWM_CHANNEL_COUNT];
 
-void output_channels_setup();
-void output_channels_loop();
-bool isValidOutputChannel(byte cid);
+void pwm_channels_setup();
+void pwm_channels_loop();
+bool isValidPWMChannel(byte cid);
 
 #endif /* !YARR_PWM_CHANNEL_H */

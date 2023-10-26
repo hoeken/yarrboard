@@ -74,7 +74,7 @@ void setup()
   #endif
 
   #ifdef YB_HAS_PWM_CHANNELS
-    output_channels_setup();
+    pwm_channels_setup();
     Serial.println("Output channels ok");
   #endif
 
@@ -113,7 +113,7 @@ void loop()
   #endif
 
   #ifdef YB_HAS_PWM_CHANNELS
-    output_channels_loop();
+    pwm_channels_loop();
   #endif
 
   #ifdef YB_HAS_FANS
