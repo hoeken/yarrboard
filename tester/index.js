@@ -54,6 +54,19 @@ function main()
             //cmd = {"cmd":"set_channel","id": 0, "state":true};
             //setTimeout(function (){speedTest(cmd, 10)}, 100);
         }
+        else if (options.host == "8chrb.local")
+        {
+            let foo = 50;
+            let bar = 10;
+            setTimeout(function (){fadePinHardware(0, foo+bar*0)}, 1);                
+            setTimeout(function (){fadePinHardware(1, foo+bar*1)}, 1);
+            setTimeout(function (){fadePinHardware(2, foo+bar*2)}, 1);
+            setTimeout(function (){fadePinHardware(3, foo+bar*3)}, 1);
+            setTimeout(function (){fadePinHardware(4, foo+bar*4)}, 1);
+            setTimeout(function (){fadePinHardware(5, foo+bar*5)}, 1);
+            setTimeout(function (){fadePinHardware(6, foo+bar*6)}, 1);
+            setTimeout(function (){fadePinHardware(7, foo+bar*7)}, 1);
+        }
         else
         {
             setTimeout(function (){togglePin(0, 250)}, 1);
