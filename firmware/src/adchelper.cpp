@@ -102,9 +102,22 @@ MCP3425Helper::MCP3425Helper(float vref, MCP342x *adc) : ADCHelper::ADCHelper(vr
 
 unsigned int MCP3425Helper::getReading()
 {
-  return 0;
-  // unsigned int reading = this->adc->readADC(this->channel);
-  // this->addReading(reading);
+  long value = 0;
+  MCP342x::Config status;
 
-  // return reading;
+  uint8_t err = this->adc->read(value, status);
+
+  if (!err && status.isReady())
+  { 
+    // For debugging purposes print the return value.
+    Serial.print("Value: ");
+    Serial.println(value);
+  }
+  else
+  {
+    Serial.print("ADC error: ");
+    Serial.println(err);
+  }
+
+  return value;
 }
