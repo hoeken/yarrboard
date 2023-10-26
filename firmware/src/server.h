@@ -23,6 +23,7 @@
 #include "ota.h"
 #include "adchelper.h"
 
+//generated at build by running "gulp" in the firmware directory.
 #include "index.html.gz.h"
 
 #ifdef YB_HAS_PWM_CHANNELS
