@@ -1624,8 +1624,8 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid abfd9d39-40e7-4441-a55c-a019dae87901))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44ac4))
-    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44ac4))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44ac5))
+    (pin "2" (uuid d96446ec-460c-4971-9f69-4f16a4f44ac5))
     (pin "3" (uuid bc1d5f51-a708-4946-a607-dc92b3201b6f))
     (instances
       (project "8ch-mosfet"
@@ -2312,7 +2312,7 @@
     (property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF" (at 114.3 81.28 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (property "Mouser" "771-BC817-25-T/R" (at 114.3 81.28 0)
+    (property "Mouser" "?????" (at 114.3 81.28 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 19084907-1f2f-4b93-ad7c-fcd3b7995714))
