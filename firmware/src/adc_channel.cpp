@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-#ifdef YB_HAS_ADC
+#ifdef YB_HAS_ADC_CHANNELS
 
 #include "adc_channel.h"
 

@@ -717,7 +717,7 @@ void generateUpdateJSON(JsonVariant output)
   #endif
 
   //input / analog ADC channesl
-  #ifdef YB_HAS_ADC
+  #ifdef YB_HAS_ADC_CHANNELS
     for (byte i = 0; i < YB_ADC_CHANNEL_COUNT; i++) {
       output["adc"][i]["id"] = i;
       output["adc"][i]["voltage"] = adc_channels[i].getVoltage();
@@ -774,7 +774,7 @@ void generateConfigJSON(JsonVariant output)
   #endif
 
   //input / analog ADC channesl
-  #ifdef YB_HAS_ADC
+  #ifdef YB_HAS_ADC_CHANNELS
     for (byte i = 0; i < YB_ADC_CHANNEL_COUNT; i++) {
       output["adc"][i]["id"] = i;
       output["adc"][i]["name"] = adc_channels[i].name;

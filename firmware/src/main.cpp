@@ -23,7 +23,7 @@
   #include "input_channel.h"
 #endif
 
-#ifdef YB_HAS_ADC
+#ifdef YB_HAS_ADC_CHANNELS
   #include "adc_channel.h"
 #endif
 
@@ -63,7 +63,7 @@ void setup()
     Serial.println("Input channels ok");
   #endif
 
-  #ifdef YB_HAS_ADC
+  #ifdef YB_HAS_ADC_CHANNELS
     adc_channels_setup();
     Serial.println("ADC channels ok");
   #endif
@@ -104,7 +104,7 @@ void loop()
     input_channels_loop();
   #endif
 
-  #ifdef YB_HAS_ADC
+  #ifdef YB_HAS_ADC_CHANNELS
     adc_channels_loop();
   #endif
 
