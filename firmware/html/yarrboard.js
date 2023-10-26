@@ -297,6 +297,7 @@ function start_websocket()
         return;
 
       //update our clock.
+      /*
       let mytime = Date.parse(msg.time);
       if (mytime)
       {
@@ -306,8 +307,18 @@ function start_websocket()
       }
       else
         $('#time').hide();
+      */
+
+      if (msg.uptime)
+      {
+        $("#uptime").html("Uptime: " + secondsToDhms(Math.round(msg.uptime/1000)));
+        $("#uptime").show();
+      }
+      else
+        $("#uptime").hide();
 
       //or maybe voltage
+      /*
       if (msg.bus_voltage)
       {
         $('#bus_voltage_main').html("Bus Voltage: " + msg.bus_voltage.toFixed(2) + "V");
@@ -315,6 +326,7 @@ function start_websocket()
       }
       else
         $('#bus_voltage_main').hide();
+      */
 
       //our pwm info
       for (ch of msg.pwm)
@@ -1042,7 +1054,7 @@ function secondsToDhms(seconds)
   var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
   var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
   var mDisplay = (m > 0 && d == 0) ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-  var sDisplay = (s > 0 && d == 0 && h == 0) ? s + (s == 1 ? " second" : " seconds") : "";
+  var sDisplay = (s > 0 && d == 0 && h == 0 && m == 0) ? s + (s == 1 ? " second" : " seconds") : "";
 
   return (dDisplay + hDisplay + mDisplay + sDisplay).replace(/,\s*$/, "");
 }
