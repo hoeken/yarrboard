@@ -22,16 +22,16 @@ var page_ready = {
   "login":  true
 };
 
-const ChannelControlRow = (id, name) => `
-<tr id="channel${id}" class="channelRow">
-  <td class="text-center"><button id="channelState${id}" type="button" class="btn btn-sm" onclick="toggle_state(${id})" style="width: 60px"></button></td>
-  <td class="channelName">${name}</td>
-  <td class="text-end"><button id="channelDutyCycle${id}" type="button" class="btn btn-sm btn-light" onclick="toggle_duty_cycle(${id})" style="width: 60px">???</button></td>
-  <td id="channelCurrent${id}" class="text-end"></td>
+const PWMControlRow = (id, name) => `
+<tr id="pwm${id}" class="pwmRow">
+  <td class="text-center"><button id="pwmState${id}" type="button" class="btn btn-sm" onclick="toggle_state(${id})" style="width: 60px"></button></td>
+  <td class="pwmName">${name}</td>
+  <td class="text-end"><button id="pwmDutyCycle${id}" type="button" class="btn btn-sm btn-light" onclick="toggle_duty_cycle(${id})" style="width: 60px">???</button></td>
+  <td id="pwmCurrent${id}" class="text-end"></td>
 </tr>
-<tr id="channelDutySliderRow${id}" style="display:none">
+<tr id="pwmDutySliderRow${id}" style="display:none">
   <td colspan="4">
-    <input type="range" class="form-range" min="0" max="100" id="channelDutySlider${id}">
+    <input type="range" class="form-range" min="0" max="100" id="pwmDutySlider${id}">
   </td>
 </tr>
 `;
@@ -226,29 +226,29 @@ function start_websocket()
       //update our footer automatically.
       $('#projectName').html("Yarrboard v" + msg.firmware_version);
   
-      //populate our channel control table
-      $('#channelTableBody').html("");
-      for (ch of msg.channels)
+      //populate our pwm control table
+      $('#pwmTableBody').html("");
+      for (ch of msg.pwm)
       {
         if (ch.enabled)
         {
-          $('#channelTableBody').append(ChannelControlRow(ch.id, ch.name));
-          $('#channelDutySlider' + ch.id).change(set_duty_cycle);
+          $('#pwmTableBody').append(PWMControlRow(ch.id, ch.name));
+          $('#pwmDutySlider' + ch.id).change(set_duty_cycle);
         }
       }
 
-      //populate our channel stats table
-      $('#channelStatsTableBody').html("");
-      for (ch of msg.channels)
+      //populate our pwm stats table
+      $('#pwmStatsTableBody').html("");
+      for (ch of msg.pwm)
       {
         if (ch.enabled)
         {
-          $('#channelStatsTableBody').append(`<tr id="channelStats${ch.id}" class="channelRow"></tr>`);
-          $('#channelStats' + ch.id).append(`<td class="channelName">${ch.name}</td>`);
-          $('#channelStats' + ch.id).append(`<td id="channelAmpHours${ch.id}" class="text-end"></td>`);
-          $('#channelStats' + ch.id).append(`<td id="channelWattHours${ch.id}" class="text-end"></td>`);
-          $('#channelStats' + ch.id).append(`<td id="channelOnCount${ch.id}" class="text-end"></td>`);
-          $('#channelStats' + ch.id).append(`<td id="channelTripCount${ch.id}" class="text-end"></td>`);
+          $('#pwmStatsTableBody').append(`<tr id="pwmStats${ch.id}" class="pwmRow"></tr>`);
+          $('#pwmStats' + ch.id).append(`<td class="pwmName">${ch.name}</td>`);
+          $('#pwmStats' + ch.id).append(`<td id="pwmAmpHours${ch.id}" class="text-end"></td>`);
+          $('#pwmStats' + ch.id).append(`<td id="pwmWattHours${ch.id}" class="text-end"></td>`);
+          $('#pwmStats' + ch.id).append(`<td id="pwmOnCount${ch.id}" class="text-end"></td>`);
+          $('#pwmStats' + ch.id).append(`<td id="pwmTripCount${ch.id}" class="text-end"></td>`);
         }
       }
 
@@ -259,16 +259,16 @@ function start_websocket()
       //only do it as needed
       if (!page_ready.config || current_page != "config")
       {
-        //populate our channel edit table
-        $('#channelConfigForm').html(ChannelNameEdit(msg.name));
+        //populate our pwm edit table
+        $('#pwmConfigForm').html(ChannelNameEdit(msg.name));
 
         //validate + save control
         $("#fBoardName").change(validate_board_name);
 
-        //edit controls for each channel
-        for (ch of msg.channels)
+        //edit controls for each pwm
+        for (ch of msg.pwm)
         {
-          $('#channelConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
+          $('#pwmConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
           $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
           $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
 
@@ -278,10 +278,10 @@ function start_websocket()
           $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
 
           //validate + save
-          $(`#fEnabled${ch.id}`).change(validate_channel_enabled);
-          $(`#fChannelName${ch.id}`).change(validate_channel_name);
-          $(`#fDimmable${ch.id}`).change(validate_channel_dimmable);
-          $(`#fSoftFuse${ch.id}`).change(validate_channel_soft_fuse);
+          $(`#fEnabled${ch.id}`).change(validate_pwm_enabled);
+          $(`#fChannelName${ch.id}`).change(validate_pwm_name);
+          $(`#fDimmable${ch.id}`).change(validate_pwm_dimmable);
+          $(`#fSoftFuse${ch.id}`).change(validate_pwm_soft_fuse);
         }
       }
 
@@ -316,48 +316,48 @@ function start_websocket()
       else
         $('#bus_voltage_main').hide();
 
-      //our channel info
-      for (ch of msg.channels)
+      //our pwm info
+      for (ch of msg.pwm)
       {
-        if (current_config.channels[ch.id].enabled)
+        if (current_config.pwm[ch.id].enabled)
         {
           if (ch.state)
           {
-            $('#channelState' + ch.id).html("ON");
-            $('#channelState' + ch.id).removeClass("btn-danger");
-            $('#channelState' + ch.id).removeClass("btn-secondary");
-            $('#channelState' + ch.id).addClass("btn-success");
+            $('#pwmState' + ch.id).html("ON");
+            $('#pwmState' + ch.id).removeClass("btn-danger");
+            $('#pwmState' + ch.id).removeClass("btn-secondary");
+            $('#pwmState' + ch.id).addClass("btn-success");
           }
           else if(ch.soft_fuse_tripped)
           {
-            $('#channelState' + ch.id).html("TRIP");
-            $('#channelState' + ch.id).removeClass("btn-success");
-            $('#channelState' + ch.id).removeClass("btn-secondary");
-            $('#channelState' + ch.id).addClass("btn-danger");
+            $('#pwmState' + ch.id).html("TRIP");
+            $('#pwmState' + ch.id).removeClass("btn-success");
+            $('#pwmState' + ch.id).removeClass("btn-secondary");
+            $('#pwmState' + ch.id).addClass("btn-danger");
           }
           else
           {
-            $('#channelState' + ch.id).html("OFF");
-            $('#channelState' + ch.id).removeClass("btn-success");
-            $('#channelState' + ch.id).removeClass("btn-danger");
-            $('#channelState' + ch.id).addClass("btn-secondary");
+            $('#pwmState' + ch.id).html("OFF");
+            $('#pwmState' + ch.id).removeClass("btn-success");
+            $('#pwmState' + ch.id).removeClass("btn-danger");
+            $('#pwmState' + ch.id).addClass("btn-secondary");
           }
     
           //duty is a bit of a special case.
           let duty = Math.round(ch.duty * 100);
-          if (current_config.channels[ch.id].isDimmable)
+          if (current_config.pwm[ch.id].isDimmable)
           {
-            $('#channelDutySlider' + ch.id).val(duty); 
-            $('#channelDutyCycle' + ch.id).html(`${duty}%`);
-            $('#channelDutyCycle' + ch.id).show();
+            $('#pwmDutySlider' + ch.id).val(duty); 
+            $('#pwmDutyCycle' + ch.id).html(`${duty}%`);
+            $('#pwmDutyCycle' + ch.id).show();
           }
           else
           {
-            $('#channelDutyCycle' + ch.id).hide();
+            $('#pwmDutyCycle' + ch.id).hide();
           }
     
           let current = ch.current.toFixed(2);
-          $('#channelCurrent' + ch.id).html(`${current}&nbsp;A`);
+          $('#pwmCurrent' + ch.id).html(`${current}&nbsp;A`);
         }
       }
 
@@ -385,14 +385,14 @@ function start_websocket()
       if (msg.fans)
         $("#fan_rpm").html(msg.fans.map((a) => a.rpm).join(", "));
 
-      for (ch of msg.channels)
+      for (ch of msg.pwm)
       {
-        if (current_config.channels[ch.id].enabled)
+        if (current_config.pwm[ch.id].enabled)
         {
-          $('#channelAmpHours' + ch.id).html(formatAmpHours(ch.aH));
-          $('#channelWattHours' + ch.id).html(formatWattHours(ch.wH));
-          $('#channelOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
-          $('#channelTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
+          $('#pwmAmpHours' + ch.id).html(formatAmpHours(ch.aH));
+          $('#pwmWattHours' + ch.id).html(formatWattHours(ch.wH));
+          $('#pwmOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
+          $('#pwmTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
         }
       }
 
@@ -601,11 +601,11 @@ function toggle_state(id)
 {
   //OFF or TRIP both switch it to on.
   let new_state = true;
-  if ($("#channelState" + id).text() == "ON")
+  if ($("#pwmState" + id).text() == "ON")
     new_state = false;
 
   socket.send(JSON.stringify({
-    "cmd": "set_channel",
+    "cmd": "set_pwm_channel",
     "id": id,
     "state": new_state
   }));
@@ -613,7 +613,7 @@ function toggle_state(id)
 
 function toggle_duty_cycle(id)
 {
-  $(`#channelDutySliderRow${id}`).toggle();
+  $(`#pwmDutySliderRow${id}`).toggle();
 }
 
 function open_page(page)
@@ -726,21 +726,21 @@ function set_duty_cycle(e)
   if (value >= 0 && value <= 100)
   {
     //update our button
-    $(`#channelDutyCycle${id}`).html(Math.round(value) + '%');
+    $(`#pwmDutyCycle${id}`).html(Math.round(value) + '%');
 
     //we want a duty value from 0 to 1
     value = value / 100;
   
-    //set our new channel name!
+    //set our new pwm name!
     socket.send(JSON.stringify({
-      "cmd": "set_channel",
+      "cmd": "set_pwm_channel",
       "id": id,
       "duty": value
     }));
   }
 }
 
-function validate_channel_name(e)
+function validate_pwm_name(e)
 {
   let ele = e.target;
   let id = ele.id.match(/\d+/)[0];
@@ -756,16 +756,16 @@ function validate_channel_name(e)
     $(ele).removeClass("is-invalid");
     $(ele).addClass("is-valid");
 
-    //set our new channel name!
+    //set our new pwm name!
     socket.send(JSON.stringify({
-      "cmd": "set_channel",
+      "cmd": "set_pwm_channel",
       "id": id,
       "name": value
     }));
   }
 }
 
-function validate_channel_dimmable(e)
+function validate_pwm_dimmable(e)
 {
   let ele = e.target;
   let id = ele.id.match(/\d+/)[0];
@@ -782,13 +782,13 @@ function validate_channel_dimmable(e)
 
   //save it
   socket.send(JSON.stringify({
-    "cmd": "set_channel",
+    "cmd": "set_pwm_channel",
     "id": id,
     "isDimmable": value
   }));
 }
 
-function validate_channel_enabled(e)
+function validate_pwm_enabled(e)
 {
   let ele = e.target;
   let id = ele.id.match(/\d+/)[0];
@@ -810,13 +810,13 @@ function validate_channel_enabled(e)
 
   //save it
   socket.send(JSON.stringify({
-    "cmd": "set_channel",
+    "cmd": "set_pwm_channel",
     "id": id,
     "enabled": value
   }));
 }
 
-function validate_channel_soft_fuse(e)
+function validate_pwm_soft_fuse(e)
 {
   let ele = e.target;
   let id = ele.id.match(/\d+/)[0];
@@ -837,7 +837,7 @@ function validate_channel_soft_fuse(e)
 
     //save it
     socket.send(JSON.stringify({
-      "cmd": "set_channel",
+      "cmd": "set_pwm_channel",
       "id": id,
       "softFuse": value
     }));
