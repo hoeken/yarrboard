@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-#ifdef YB_HAS_RGB_OUTPUT
+#ifdef YB_HAS_RGB_CHANNELS
 
 #include "rgb_channel.h"
 

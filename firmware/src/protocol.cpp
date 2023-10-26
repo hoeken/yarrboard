@@ -727,7 +727,7 @@ void generateUpdateJSON(JsonVariant output)
   #endif
 
   //input / analog ADC channesl
-  #ifdef YB_HAS_RGB_OUTPUT
+  #ifdef YB_HAS_RGB_CHANNELS
     for (byte i = 0; i < YB_RGB_CHANNEL_COUNT; i++) {
       output["rgb"][i]["id"] = i;
       output["rgb"][i]["state"] = rgb_channels[i].state;
@@ -783,7 +783,7 @@ void generateConfigJSON(JsonVariant output)
   #endif
 
   //input / analog ADC channesl
-  #ifdef YB_HAS_RGB_OUTPUT
+  #ifdef YB_HAS_RGB_CHANNELS
     for (byte i = 0; i < YB_RGB_CHANNEL_COUNT; i++) {
       output["rgb"][i]["id"] = i;
       output["rgb"][i]["name"] = rgb_channels[i].name;

@@ -13,7 +13,6 @@
 #include "server.h"
 #include "utility.h"
 #include "adchelper.h"
-//#include "ntp.h"
 
 #ifdef YB_HAS_PWM_CHANNELS
   #include "pwm_channel.h"
@@ -27,7 +26,7 @@
   #include "adc_channel.h"
 #endif
 
-#ifdef YB_HAS_RGB_OUTPUT
+#ifdef YB_HAS_RGB_CHANNELS
   #include "rgb_channel.h"
 #endif
 
@@ -68,7 +67,7 @@ void setup()
     Serial.println("ADC channels ok");
   #endif
 
-  #ifdef YB_HAS_RGB_OUTPUT
+  #ifdef YB_HAS_RGB_CHANNELS
     rgb_channels_setup();
     Serial.println("RGB channels ok");
   #endif
@@ -108,7 +107,7 @@ void loop()
     adc_channels_loop();
   #endif
 
-  #ifdef YB_HAS_RGB_OUTPUT
+  #ifdef YB_HAS_RGB_CHANNELS
     rgb_channels_loop();
   #endif
 
