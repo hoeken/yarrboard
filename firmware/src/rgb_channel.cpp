@@ -31,6 +31,10 @@ void rgb_channels_setup()
     rgb_channels[i].id = i;
     rgb_channels[i].setup();
   }
+
+  #ifdef YB_RGB_DRIVER_TLC5947
+    tlc.begin();
+  #endif
 }
 
 void rgb_channels_loop()
@@ -38,7 +42,10 @@ void rgb_channels_loop()
   //only update every so often
   if (millis() > lastRGBUpdateMillis + YB_RGB_UPDATE_RATE_MS)
   {
-    tlc.write();
+    #ifdef YB_RGB_DRIVER_TLC5947
+      tlc.write();
+    #endif
+
     lastRGBUpdateMillis = millis();
   }
 }
