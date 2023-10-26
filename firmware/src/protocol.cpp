@@ -656,7 +656,7 @@ void generateStatsJSON(JsonVariant output)
     output["bus_voltage"] = busVoltage;
   #endif
 
-  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+  #ifdef YB_HAS_INPUT_CHANNELS
     for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
       output["switches"][i]["id"] = i;
       output["switches"][i]["state_change_count"] = input_channels[i].stateChangeCount;
@@ -709,7 +709,7 @@ void generateUpdateJSON(JsonVariant output)
     }
   #endif
 
-  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+  #ifdef YB_HAS_INPUT_CHANNELS
     for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
       output["switches"][i]["id"] = i;
       output["switches"][i]["state"] = input_channels[i].state;
@@ -765,7 +765,7 @@ void generateConfigJSON(JsonVariant output)
   #endif
 
   //input / digital IO channels
-  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+  #ifdef YB_HAS_INPUT_CHANNELS
     for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
       output["switches"][i]["id"] = i;
       output["switches"][i]["name"] = input_channels[i].name;

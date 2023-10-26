@@ -19,7 +19,7 @@
   #include "pwm_channel.h"
 #endif
 
-#ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+#ifdef YB_HAS_INPUT_CHANNELS
   #include "input_channel.h"
 #endif
 
@@ -58,7 +58,7 @@ void setup()
   ota_setup();
   Serial.println("OTA ok");
 
-  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+  #ifdef YB_HAS_INPUT_CHANNELS
     input_channels_setup();
     Serial.println("Input channels ok");
   #endif
@@ -100,7 +100,7 @@ void setup()
 
 void loop()
 {
-  #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+  #ifdef YB_HAS_INPUT_CHANNELS
     input_channels_loop();
   #endif
 

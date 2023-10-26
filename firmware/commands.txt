@@ -25,5 +25,8 @@ git grep -lz YB_OUTPUT_CHANNEL_PWM_RESOLUTION | xargs -0 sed -i '' -e 's/YB_OUTP
 git grep -lz YB_OUTPUT_CHANNEL_ADC_DRIVER_MCP3208 | xargs -0 sed -i '' -e 's/YB_OUTPUT_CHANNEL_ADC_DRIVER_MCP3208/YB_PWM_CHANNEL_ADC_DRIVER_MCP3208/g'
 git grep -lz YB_OUTPUT_CHANNEL_ADC_CS | xargs -0 sed -i '' -e 's/YB_OUTPUT_CHANNEL_ADC_CS/YB_PWM_CHANNEL_ADC_CS/g'
 git grep -lz OutputChannel | xargs -0 sed -i '' -e 's/OutputChannel/PWMChannel/g'
+git grep -lz output_channels | xargs -0 sed -i '' -e 's/output_channels/pwm_channels/g'
+git grep -lz YB_HAS_DIGITAL_INPUT_CHANNELS | xargs -0 sed -i '' -e 's/YB_HAS_DIGITAL_INPUT_CHANNELS/YB_HAS_INPUT_CHANNELS/g'
 
+git grep -lz YB_DEBOUNCE_RATE_MS | xargs -0 sed -i '' -e 's/YB_DEBOUNCE_RATE_MS/YB_INPUT_DEBOUNCE_RATE_MS/g'
 git grep -lz output_channels | xargs -0 sed -i '' -e 's/output_channels/pwm_channels/g'

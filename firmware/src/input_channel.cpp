@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-#ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+#ifdef YB_HAS_INPUT_CHANNELS
 
 #include "input_channel.h"
 
@@ -29,7 +29,7 @@ void input_channels_setup()
 
 void input_channels_loop()
 {
-  if (millis() > lastInputCheckMillis + YB_DEBOUNCE_RATE_MS)
+  if (millis() > lastInputCheckMillis + YB_INPUT_DEBOUNCE_RATE_MS)
   {
     //maintenance on our channels.
     for (byte id = 0; id < YB_INPUT_CHANNEL_COUNT; id++)

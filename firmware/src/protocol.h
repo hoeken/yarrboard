@@ -19,7 +19,7 @@
 #include "utility.h"
 #include "wifi.h"
 
-#ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
+#ifdef YB_HAS_INPUT_CHANNELS
   #include "input_channel.h"
 #endif
 
