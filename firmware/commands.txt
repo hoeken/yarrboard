@@ -15,3 +15,6 @@ curl -i -X GET http://firstreef.local/api/config
 curl -i -X GET http://firstreef.local/api/config?user=admin&pass=admin
 curl -i -X GET http://firstreef.local/api/stats?user=admin&pass=admin
 curl -i -X GET http://firstreef.local/api/update?user=admin&pass=admin
+
+
+git grep -lz YB_HAS_OUTPUT_CHANNELS | xargs -0 sed -i '' -e 's/YB_HAS_OUTPUT_CHANNELS/YB_HAS_PWM_CHANNELS/g'

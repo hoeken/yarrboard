@@ -10,7 +10,7 @@
 
 #ifdef YB_HAS_OUTPUT_CHANNELS
 
-#include "output_channel.h"
+#include "pwm_channel.h"
 
 //the main star of the event
 OutputChannel output_channels[YB_OUTPUT_CHANNEL_COUNT];

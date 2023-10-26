@@ -12,7 +12,7 @@
 
 #include <Arduino.h>
 #include "fans.h"
-#include "output_channel.h"
+#include "pwm_channel.h"
 
 //Lots of code borrowed from: https://github.com/KlausMu/esp32-fan-controller
 

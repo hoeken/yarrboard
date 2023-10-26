@@ -15,8 +15,8 @@
 #include "adchelper.h"
 //#include "ntp.h"
 
-#ifdef YB_HAS_OUTPUT_CHANNELS
-  #include "output_channel.h"
+#ifdef YB_HAS_PWM_CHANNELS
+  #include "pwm_channel.h"
 #endif
 
 #ifdef YB_HAS_DIGITAL_INPUT_CHANNELS
@@ -73,7 +73,7 @@ void setup()
     Serial.println("RGB channels ok");
   #endif
 
-  #ifdef YB_HAS_OUTPUT_CHANNELS
+  #ifdef YB_HAS_PWM_CHANNELS
     output_channels_setup();
     Serial.println("Output channels ok");
   #endif
@@ -112,7 +112,7 @@ void loop()
     rgb_channels_loop();
   #endif
 
-  #ifdef YB_HAS_OUTPUT_CHANNELS
+  #ifdef YB_HAS_PWM_CHANNELS
     output_channels_loop();
   #endif
 

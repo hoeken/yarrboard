@@ -6,8 +6,8 @@
   License: GPLv3
 */
 
-#ifndef YARR_OUTPUT_CHANNEL_H
-#define YARR_OUTPUT_CHANNEL_H
+#ifndef YARR_PWM_CHANNEL_H
+#define YARR_PWM_CHANNEL_H
 
 #include <Arduino.h>
 #include "prefs.h"
@@ -71,4 +71,4 @@ void output_channels_setup();
 void output_channels_loop();
 bool isValidOutputChannel(byte cid);
 
-#endif /* !YARR_OUTPUT_CHANNEL_H */
+#endif /* !YARR_PWM_CHANNEL_H */

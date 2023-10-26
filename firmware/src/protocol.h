@@ -31,8 +31,8 @@
   #include "rgb_channel.h"
 #endif
 
-#ifdef YB_HAS_OUTPUT_CHANNELS
-  #include "output_channel.h"
+#ifdef YB_HAS_PWM_CHANNELS
+  #include "pwm_channel.h"
 #endif
 
 #ifdef YB_HAS_FANS
@@ -61,15 +61,15 @@ void handleSerialJson();
 
 void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id);
 void handleSetBoardName(JsonVariantConst input, JsonVariant output);
-void handleSetChannel(JsonVariantConst input, JsonVariant output);
-void handleToggleChannel(JsonVariantConst input, JsonVariant output);
-void handleFadeChannel(JsonVariantConst input, JsonVariant output);
 void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output);
 void handleSetAppConfig(JsonVariantConst input, JsonVariant output);
 void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id);
 void handleRestart(JsonVariantConst input, JsonVariant output);
 void handleFactoryReset(JsonVariantConst input, JsonVariant output);
 void handleOTAStart(JsonVariantConst input, JsonVariant output);
+void handleSetPWMChannel(JsonVariantConst input, JsonVariant output);
+void handleTogglePWMChannel(JsonVariantConst input, JsonVariant output);
+void handleFadePWMChannel(JsonVariantConst input, JsonVariant output);
 
 void generateUpdateJSON(JsonVariant output);
 void generateConfigJSON(JsonVariant output);

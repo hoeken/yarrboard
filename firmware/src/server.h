@@ -25,8 +25,8 @@
 
 #include "index.html.gz.h"
 
-#ifdef YB_HAS_OUTPUT_CHANNELS
-  #include "output_channel.h"
+#ifdef YB_HAS_PWM_CHANNELS
+  #include "pwm_channel.h"
 #endif
 
 #ifdef YB_HAS_FANS

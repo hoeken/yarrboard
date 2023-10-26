@@ -56,7 +56,7 @@ void protocol_loop()
   unsigned int messageDelta = millis() - previousMessageMillis;
   if (messageDelta >= YB_UPDATE_FREQUENCY)
   {
-    #ifdef YB_HAS_OUTPUT_CHANNELS
+    #ifdef YB_HAS_PWM_CHANNELS
       //update our averages, etc.
       for (byte i=0; i<YB_OUTPUT_CHANNEL_COUNT; i++)
         output_channels[i].calculateAverages(messageDelta);
@@ -154,12 +154,6 @@ void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, u
     //what is your command?
     if (!strcmp(cmd, "set_boardname"))
       return handleSetBoardName(input, output);   
-    else if (!strcmp(cmd, "set_channel"))
-      return handleSetChannel(input, output);
-    else if (!strcmp(cmd, "toggle_channel"))
-      return handleToggleChannel(input, output);
-    else if (!strcmp(cmd, "fade_channel"))
-      return handleFadeChannel(input, output);
     else if (!strcmp(cmd, "get_config"))
       return generateConfigJSON(output);
     else if (!strcmp(cmd, "get_network_config"))
@@ -180,6 +174,12 @@ void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, u
       return handleFactoryReset(input, output);
     else if (!strcmp(cmd, "ota_start"))
       return handleOTAStart(input, output);
+    else if (!strcmp(cmd, "set_pwm_channel"))
+      return handleSetPWMChannel(input, output);
+    else if (!strcmp(cmd, "toggle_pwm_channel"))
+      return handleTogglePWMChannel(input, output);
+    else if (!strcmp(cmd, "fade_pwm_channel"))
+      return handleFadePWMChannel(input, output);
     else
       return generateErrorJSON(output, "Invalid command.");
   }
@@ -209,222 +209,6 @@ void handleSetBoardName(JsonVariantConst input, JsonVariant output)
 
     //give them the updated config
     return generateConfigJSON(output);
-}
-
-void handleSetChannel(JsonVariantConst input, JsonVariant output)
-{
-  #ifdef YB_HAS_OUTPUT_CHANNELS
-    char prefIndex[YB_PREF_KEY_LENGTH];
-
-    //id is required
-    if (!input.containsKey("id"))
-      return generateErrorJSON(output, "'id' is a required parameter");
-
-    //is it a valid channel?
-    byte cid = input["id"];
-    if (!isValidOutputChannel(cid))
-      return generateErrorJSON(output, "Invalid channel id");
-
-    //change state
-    if (input.containsKey("state"))
-    {
-      //is it enabled?
-      if (!output_channels[cid].isEnabled)
-        return generateErrorJSON(output, "Channel is not enabled.");
-
-      //what is our new state?
-      bool state = input["state"];
-
-      //this can crash after long fading sessions, reset it with a manual toggle
-      //isChannelFading[this->id] = false;
-
-      //keep track of how many toggles
-      if (state && output_channels[cid].state != state)
-        output_channels[cid].stateChangeCount++;
-
-      //record our new state
-      output_channels[cid].state = state;
-
-      //reset soft fuse when we turn on
-      if (state)
-        output_channels[cid].tripped = false;
-
-      //change our output pin to reflect
-      output_channels[cid].updateOutput();
-    }
-
-    //our duty cycle
-    if (input.containsKey("duty"))
-    {
-      //is it enabled?
-      if (!output_channels[cid].isEnabled)
-        return generateErrorJSON(output, "Channel is not enabled.");
-
-      float duty = input["duty"];
-
-      //what do we hate?  va-li-date!
-      if (duty < 0)
-        return generateErrorJSON(output, "Duty cycle must be >= 0");
-      else if (duty > 1)
-        return generateErrorJSON(output, "Duty cycle must be <= 1");
-
-      //okay, we're good.
-      output_channels[cid].setDuty(duty);
-
-      //change our output pin to reflect
-      output_channels[cid].updateOutput();
-    }
-
-    //channel name
-    if (input.containsKey("name"))
-    {
-      //is it too long?
-      if (strlen(input["name"]) > YB_CHANNEL_NAME_LENGTH-1)
-      {
-        char error[50];
-        sprintf(error, "Maximum channel name length is %s characters.", YB_CHANNEL_NAME_LENGTH-1);
-        return generateErrorJSON(output, error);
-      }
-
-      //save to our storage
-      strlcpy(output_channels[cid].name, input["name"] | "Channel ?", sizeof(output_channels[cid].name));
-      sprintf(prefIndex, "pwmName%d", cid);
-      preferences.putString(prefIndex, output_channels[cid].name);
-
-      //give them the updated config
-      return generateConfigJSON(output);
-    }
-
-    //dimmability
-    if (input.containsKey("isDimmable"))
-    {
-      bool isDimmable = input["isDimmable"];
-      output_channels[cid].isDimmable = isDimmable;
-
-      //save to our storage
-      sprintf(prefIndex, "pwmDimmable%d", cid);
-      preferences.putBool(prefIndex, isDimmable);
-
-      //give them the updated config
-      return generateConfigJSON(output);
-    }
-
-    //enabled
-    if (input.containsKey("enabled"))
-    {
-      //save right nwo.
-      bool enabled = input["enabled"];
-      output_channels[cid].isEnabled = enabled;
-
-      //save to our storage
-      sprintf(prefIndex, "pwmEnabled%d", cid);
-      preferences.putBool(prefIndex, enabled);
-
-      //give them the updated config
-      return generateConfigJSON(output);
-    }
-
-    //soft fuse
-    if (input.containsKey("softFuse"))
-    {
-      //i crave validation!
-      float softFuse = input["softFuse"];
-      softFuse = constrain(softFuse, 0.01, 20.0);
-
-      //save right nwo.
-      output_channels[cid].softFuseAmperage = softFuse;
-
-      //save to our storage
-      sprintf(prefIndex, "pwmSoftFuse%d", cid);
-      preferences.putFloat(prefIndex, softFuse);
-
-      //give them the updated config
-      return generateConfigJSON(output);
-    }
-  #else
-    return generateErrorJSON(output, "Board does not have output channels.");
-  #endif
-}
-
-void handleToggleChannel(JsonVariantConst input, JsonVariant output)
-{
-  #ifdef YB_HAS_OUTPUT_CHANNELS
-    //id is required
-    if (!input.containsKey("id"))
-      return generateErrorJSON(output, "'id' is a required parameter");
-
-    //is it a valid channel?
-    byte cid = input["id"];
-    if (!isValidOutputChannel(cid))
-      return generateErrorJSON(output, "Invalid channel id");
-
-    //keep track of how many toggles
-    output_channels[cid].stateChangeCount++;
-
-    //record our new state
-    output_channels[cid].state = !output_channels[cid].state;
-
-    //reset soft fuse when we turn on
-    if (output_channels[cid].state)
-      output_channels[cid].tripped = false;
-
-    //change our output pin to reflect
-    output_channels[cid].updateOutput();
-  #else
-    return generateErrorJSON(output, "Board does not have output channels.");
-  #endif
-}
-
-void handleFadeChannel(JsonVariantConst input, JsonVariant output)
-{
-  #ifdef YB_HAS_OUTPUT_CHANNELS
-    unsigned long start = micros();
-    unsigned long t1, t2, t3, t4 = 0;
-
-    //id is required
-    if (!input.containsKey("id"))
-      return generateErrorJSON(output, "'id' is a required parameter");
-    if (!input.containsKey("duty"))
-      return generateErrorJSON(output, "'duty' is a required parameter");
-    if (!input.containsKey("millis"))
-      return generateErrorJSON(output, "'millis' is a required parameter");
-
-    //is it a valid channel?
-    byte cid = input["id"];
-    if (!isValidOutputChannel(cid))
-      return generateErrorJSON(output, "Invalid channel id");
-
-    float duty = input["duty"];
-
-    //what do we hate?  va-li-date!
-    if (duty < 0)
-      return generateErrorJSON(output, "Duty cycle must be >= 0");
-    else if (duty > 1)
-      return generateErrorJSON(output, "Duty cycle must be <= 1");
-
-    t1 = micros();
-    t2 = micros();
-
-    int fadeDelay = input["millis"] | 0;
-    
-    output_channels[cid].setFade(duty, fadeDelay);
-
-    t3 = micros();
-
-    unsigned long finish = micros();
-
-    if (finish-start > 10000)
-    {
-      Serial.println("led fade");
-      Serial.printf("params: %dus\n", t1-start); 
-      Serial.printf("channelSetDuty: %dus\n", t2-t1); 
-      Serial.printf("channelFade: %dus\n", t3-t2); 
-      Serial.printf("total: %dus\n", finish-start);
-      Serial.println();
-    }
-  #else
-    return generateErrorJSON(output, "Board does not have output channels.");
-  #endif
 }
 
 void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)
@@ -633,6 +417,222 @@ void handleOTAStart(JsonVariantConst input, JsonVariant output)
     return generateErrorJSON(output, "Firmware already up to date.");
 }
 
+void handleSetPWMChannel(JsonVariantConst input, JsonVariant output)
+{
+  #ifdef YB_HAS_PWM_CHANNELS
+    char prefIndex[YB_PREF_KEY_LENGTH];
+
+    //id is required
+    if (!input.containsKey("id"))
+      return generateErrorJSON(output, "'id' is a required parameter");
+
+    //is it a valid channel?
+    byte cid = input["id"];
+    if (!isValidOutputChannel(cid))
+      return generateErrorJSON(output, "Invalid channel id");
+
+    //change state
+    if (input.containsKey("state"))
+    {
+      //is it enabled?
+      if (!output_channels[cid].isEnabled)
+        return generateErrorJSON(output, "Channel is not enabled.");
+
+      //what is our new state?
+      bool state = input["state"];
+
+      //this can crash after long fading sessions, reset it with a manual toggle
+      //isChannelFading[this->id] = false;
+
+      //keep track of how many toggles
+      if (state && output_channels[cid].state != state)
+        output_channels[cid].stateChangeCount++;
+
+      //record our new state
+      output_channels[cid].state = state;
+
+      //reset soft fuse when we turn on
+      if (state)
+        output_channels[cid].tripped = false;
+
+      //change our output pin to reflect
+      output_channels[cid].updateOutput();
+    }
+
+    //our duty cycle
+    if (input.containsKey("duty"))
+    {
+      //is it enabled?
+      if (!output_channels[cid].isEnabled)
+        return generateErrorJSON(output, "Channel is not enabled.");
+
+      float duty = input["duty"];
+
+      //what do we hate?  va-li-date!
+      if (duty < 0)
+        return generateErrorJSON(output, "Duty cycle must be >= 0");
+      else if (duty > 1)
+        return generateErrorJSON(output, "Duty cycle must be <= 1");
+
+      //okay, we're good.
+      output_channels[cid].setDuty(duty);
+
+      //change our output pin to reflect
+      output_channels[cid].updateOutput();
+    }
+
+    //channel name
+    if (input.containsKey("name"))
+    {
+      //is it too long?
+      if (strlen(input["name"]) > YB_CHANNEL_NAME_LENGTH-1)
+      {
+        char error[50];
+        sprintf(error, "Maximum channel name length is %s characters.", YB_CHANNEL_NAME_LENGTH-1);
+        return generateErrorJSON(output, error);
+      }
+
+      //save to our storage
+      strlcpy(output_channels[cid].name, input["name"] | "Channel ?", sizeof(output_channels[cid].name));
+      sprintf(prefIndex, "pwmName%d", cid);
+      preferences.putString(prefIndex, output_channels[cid].name);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+
+    //dimmability
+    if (input.containsKey("isDimmable"))
+    {
+      bool isDimmable = input["isDimmable"];
+      output_channels[cid].isDimmable = isDimmable;
+
+      //save to our storage
+      sprintf(prefIndex, "pwmDimmable%d", cid);
+      preferences.putBool(prefIndex, isDimmable);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+
+    //enabled
+    if (input.containsKey("enabled"))
+    {
+      //save right nwo.
+      bool enabled = input["enabled"];
+      output_channels[cid].isEnabled = enabled;
+
+      //save to our storage
+      sprintf(prefIndex, "pwmEnabled%d", cid);
+      preferences.putBool(prefIndex, enabled);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+
+    //soft fuse
+    if (input.containsKey("softFuse"))
+    {
+      //i crave validation!
+      float softFuse = input["softFuse"];
+      softFuse = constrain(softFuse, 0.01, 20.0);
+
+      //save right nwo.
+      output_channels[cid].softFuseAmperage = softFuse;
+
+      //save to our storage
+      sprintf(prefIndex, "pwmSoftFuse%d", cid);
+      preferences.putFloat(prefIndex, softFuse);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+  #else
+    return generateErrorJSON(output, "Board does not have output channels.");
+  #endif
+}
+
+void handleTogglePWMChannel(JsonVariantConst input, JsonVariant output)
+{
+  #ifdef YB_HAS_PWM_CHANNELS
+    //id is required
+    if (!input.containsKey("id"))
+      return generateErrorJSON(output, "'id' is a required parameter");
+
+    //is it a valid channel?
+    byte cid = input["id"];
+    if (!isValidOutputChannel(cid))
+      return generateErrorJSON(output, "Invalid channel id");
+
+    //keep track of how many toggles
+    output_channels[cid].stateChangeCount++;
+
+    //record our new state
+    output_channels[cid].state = !output_channels[cid].state;
+
+    //reset soft fuse when we turn on
+    if (output_channels[cid].state)
+      output_channels[cid].tripped = false;
+
+    //change our output pin to reflect
+    output_channels[cid].updateOutput();
+  #else
+    return generateErrorJSON(output, "Board does not have output channels.");
+  #endif
+}
+
+void handleFadePWMChannel(JsonVariantConst input, JsonVariant output)
+{
+  #ifdef YB_HAS_PWM_CHANNELS
+    unsigned long start = micros();
+    unsigned long t1, t2, t3, t4 = 0;
+
+    //id is required
+    if (!input.containsKey("id"))
+      return generateErrorJSON(output, "'id' is a required parameter");
+    if (!input.containsKey("duty"))
+      return generateErrorJSON(output, "'duty' is a required parameter");
+    if (!input.containsKey("millis"))
+      return generateErrorJSON(output, "'millis' is a required parameter");
+
+    //is it a valid channel?
+    byte cid = input["id"];
+    if (!isValidOutputChannel(cid))
+      return generateErrorJSON(output, "Invalid channel id");
+
+    float duty = input["duty"];
+
+    //what do we hate?  va-li-date!
+    if (duty < 0)
+      return generateErrorJSON(output, "Duty cycle must be >= 0");
+    else if (duty > 1)
+      return generateErrorJSON(output, "Duty cycle must be <= 1");
+
+    t1 = micros();
+    t2 = micros();
+
+    int fadeDelay = input["millis"] | 0;
+    
+    output_channels[cid].setFade(duty, fadeDelay);
+
+    t3 = micros();
+
+    unsigned long finish = micros();
+
+    if (finish-start > 10000)
+    {
+      Serial.println("led fade");
+      Serial.printf("params: %dus\n", t1-start); 
+      Serial.printf("channelSetDuty: %dus\n", t2-t1); 
+      Serial.printf("channelFade: %dus\n", t3-t2); 
+      Serial.printf("total: %dus\n", finish-start);
+      Serial.println();
+    }
+  #else
+    return generateErrorJSON(output, "Board does not have output channels.");
+  #endif
+}
+
 void generateStatsJSON(JsonVariant output)
 {
   //some basic statistics and info
@@ -663,15 +663,15 @@ void generateStatsJSON(JsonVariant output)
     }
   #endif
 
-  #ifdef YB_HAS_OUTPUT_CHANNELS
+  #ifdef YB_HAS_PWM_CHANNELS
     //info about each of our channels
     for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
-      output["channels"][i]["id"] = i;
-      output["channels"][i]["name"] = output_channels[i].name;
-      output["channels"][i]["aH"] = output_channels[i].ampHours;
-      output["channels"][i]["wH"] = output_channels[i].wattHours;
-      output["channels"][i]["state_change_count"] = output_channels[i].stateChangeCount;
-      output["channels"][i]["soft_fuse_trip_count"] = output_channels[i].softFuseTripCount;
+      output["pwm"][i]["id"] = i;
+      output["pwm"][i]["name"] = output_channels[i].name;
+      output["pwm"][i]["aH"] = output_channels[i].ampHours;
+      output["pwm"][i]["wH"] = output_channels[i].wattHours;
+      output["pwm"][i]["state_change_count"] = output_channels[i].stateChangeCount;
+      output["pwm"][i]["soft_fuse_trip_count"] = output_channels[i].softFuseTripCount;
     }
   #endif
 
@@ -693,19 +693,19 @@ void generateUpdateJSON(JsonVariant output)
     output["bus_voltage"] = busVoltage;
   #endif
 
-  #ifdef YB_HAS_OUTPUT_CHANNELS
+  #ifdef YB_HAS_PWM_CHANNELS
     for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
-      output["channels"][i]["id"] = i;
-      output["channels"][i]["state"] = output_channels[i].state;
+      output["pwm"][i]["id"] = i;
+      output["pwm"][i]["state"] = output_channels[i].state;
       if (output_channels[i].isDimmable)
-        output["channels"][i]["duty"] = round2(output_channels[i].dutyCycle);
+        output["pwm"][i]["duty"] = round2(output_channels[i].dutyCycle);
 
-      output["channels"][i]["current"] = round2(output_channels[i].amperage);
-      output["channels"][i]["aH"] = round3(output_channels[i].ampHours);
-      output["channels"][i]["wH"] = round3(output_channels[i].wattHours);
+      output["pwm"][i]["current"] = round2(output_channels[i].amperage);
+      output["pwm"][i]["aH"] = round3(output_channels[i].ampHours);
+      output["pwm"][i]["wH"] = round3(output_channels[i].wattHours);
 
       if (output_channels[i].tripped)
-        output["channels"][i]["soft_fuse_tripped"] = true;
+        output["pwm"][i]["soft_fuse_tripped"] = true;
     }
   #endif
 
@@ -753,16 +753,14 @@ void generateConfigJSON(JsonVariant output)
     output["first_boot"] = true;
 
   //output / pwm channels
-  #ifdef YB_HAS_OUTPUT_CHANNELS
+  #ifdef YB_HAS_PWM_CHANNELS
     for (byte i = 0; i < YB_OUTPUT_CHANNEL_COUNT; i++) {
-      output["channels"][i]["id"] = i;
-      output["channels"][i]["name"] = output_channels[i].name;
-      output["channels"][i]["type"] = "mosfet";
-      output["channels"][i]["enabled"] = output_channels[i].isEnabled;
-      output["channels"][i]["hasPWM"] = true;
-      output["channels"][i]["hasCurrent"] = true;
-      output["channels"][i]["softFuse"] = round2(output_channels[i].softFuseAmperage);
-      output["channels"][i]["isDimmable"] = output_channels[i].isDimmable;
+      output["pwm"][i]["id"] = i;
+      output["pwm"][i]["name"] = output_channels[i].name;
+      output["pwm"][i]["enabled"] = output_channels[i].isEnabled;
+      output["pwm"][i]["hasCurrent"] = true;
+      output["pwm"][i]["softFuse"] = round2(output_channels[i].softFuseAmperage);
+      output["pwm"][i]["isDimmable"] = output_channels[i].isDimmable;
     }
   #endif
 
