@@ -12,8 +12,14 @@
 
 #include "rgb_channel.h"
 
+#ifdef YB_RGB_DRIVER_TLC5947
+  Adafruit_TLC5947 tlc = Adafruit_TLC5947(YB_RGB_TLC5947_NUM, YB_RGB_TLC5947_CLK, YB_RGB_TLC5947_DATA, YB_RGB_TLC5947_LATCH);
+#endif
+
 //the main star of the event
 RGBChannel rgb_channels[YB_RGB_CHANNEL_COUNT];
+
+const int MAX_RGB_RESOLUTION = (int)(pow(2, YB_RGB_CHANNEL_RESOLUTION) - 1);
 
 unsigned long lastRGBUpdateMillis = 0;
 
@@ -29,12 +35,10 @@ void rgb_channels_setup()
 
 void rgb_channels_loop()
 {
+  //only update every so often
   if (millis() > lastRGBUpdateMillis + YB_RGB_UPDATE_RATE_MS)
   {
-    //maintenance on our channels.
-    for (byte id = 0; id < YB_INPUT_CHANNEL_COUNT; id++)
-        rgb_channels[id].update();
-
+    tlc.write();
     lastRGBUpdateMillis = millis();
   }
 }
@@ -83,14 +87,18 @@ void RGBChannel::setup()
   else
     this->blue = 0.0;
 
-  this->state = false;
-  this->red = 0;
-  this->blue = 0;
-  this->green = 0;
+  this->setRGB(this->red, this->green, this->blue);
 }
 
-void RGBChannel::update()
+void RGBChannel::setRGB(float red, float green, float blue)
 {
+  this->red = red;
+  this->green = green;
+  this->blue = blue;
+
+  #ifdef YB_RGB_DRIVER_TLC5947
+    tlc.setLED(this->id, this->red*MAX_RGB_RESOLUTION, this->green*MAX_RGB_RESOLUTION, this->blue*MAX_RGB_RESOLUTION);
+  #endif
 }
 
 #endif

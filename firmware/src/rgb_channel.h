@@ -13,6 +13,10 @@
 #include "config.h"
 #include "prefs.h"
 
+#ifdef YB_RGB_DRIVER_TLC5947
+  #include <Adafruit_TLC5947.h>
+#endif
+
 class RGBChannel
 {
   public:
@@ -27,7 +31,7 @@ class RGBChannel
     char name[YB_CHANNEL_NAME_LENGTH];
 
     void setup();
-    void update();
+    void setRGB(float red, float green, float blue);
 };
 
 extern RGBChannel rgb_channels[YB_RGB_CHANNEL_COUNT];
