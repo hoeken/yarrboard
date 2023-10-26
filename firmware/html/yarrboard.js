@@ -368,7 +368,7 @@ function start_websocket()
             $('#pwmDutyCycle' + ch.id).hide();
           }
     
-          let current = ch.current.toFixed(2);
+          let current = ch.current.toFixed(1);
           $('#pwmCurrent' + ch.id).html(`${current}&nbsp;A`);
         }
       }
