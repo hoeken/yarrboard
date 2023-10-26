@@ -95,28 +95,64 @@ unsigned int MCP3208Helper::getReading()
 }
 
 MCP3425Helper::MCP3425Helper() : ADCHelper::ADCHelper() {}
-MCP3425Helper::MCP3425Helper(float vref, MCP342x *adc) : ADCHelper::ADCHelper(vref, 12)
+MCP3425Helper::MCP3425Helper(float vref, MCP342x *adc) : ADCHelper::ADCHelper(vref, 15)
 {
   this->adc = adc;
+}
+
+MCP342x::Config MCP3425_config(MCP342x::channel1, MCP342x::oneShot, MCP342x::resolution16, MCP342x::gain1);
+
+void MCP3425Helper::setup()
+{
+    Wire.begin();
+    MCP342x::generalCallReset();
+    delay(1); // MC342x needs 300us to settle, wait 1ms
+
+    //check if its there...
+    Wire.requestFrom(YB_BUS_VOLTAGE_ADDRESS, 1);
+    if (!Wire.available())
+      Serial.println("ERROR: MCP3425 Not found.");
+
+    this->adc->configure(MCP3425_config);
+
+    this->start_conversion = true;
 }
 
 unsigned int MCP3425Helper::getReading()
 {
   long value = 0;
   MCP342x::Config status;
+  uint8_t err;
 
-  uint8_t err = this->adc->read(value, status);
+  //do we need to trigger a conversion?
+  if (this->start_conversion)
+  {
+    err = this->adc->convert(MCP3425_config);
+    if (err) {
+      Serial.print("MCP3425 convert error: ");
+      Serial.println(err);
+    }
+    this->start_conversion = false;
+  }
 
+  //okay, is it ready?
+  err = this->adc->read(value, status);
   if (!err && status.isReady())
   { 
     // For debugging purposes print the return value.
-    Serial.print("Value: ");
-    Serial.println(value);
+    //Serial.print("Value: ");
+    //Serial.println(value);
+
+    this->addReading(value);
+
+    this->start_conversion = true;
   }
   else
   {
-    Serial.print("ADC error: ");
-    Serial.println(err);
+    //Serial.print("ADC error: ");
+    //Serial.println(err);
+
+    value = 0;
   }
 
   return value;

@@ -311,11 +311,11 @@ function start_websocket()
 
       if (msg.uptime)
       {
-        $("#uptime").html("Uptime: " + secondsToDhms(Math.round(msg.uptime/1000)));
-        $("#uptime").show();
+        $("#uptime_footer").html("Uptime: " + secondsToDhms(Math.round(msg.uptime/1000)));
+        $("#uptime_footer").show();
       }
       else
-        $("#uptime").hide();
+        $("#uptime_footer").hide();
 
       //or maybe voltage
       /*

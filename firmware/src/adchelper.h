@@ -68,9 +68,11 @@ class MCP3425Helper : public ADCHelper
     MCP3425Helper();
     MCP3425Helper(float vref, MCP342x *adc);
     unsigned int getReading();
-
+    void setup();
+  
   private:
     MCP342x *adc;
+    bool start_conversion = false;
 };
 
 #endif /* !YARR_ADC_H */

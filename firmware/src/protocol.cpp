@@ -64,6 +64,8 @@ void protocol_loop()
     
     #ifdef YB_HAS_BUS_VOLTAGE
       busVoltage = getBusVoltage();
+      Serial.print("Bus Voltage: ");
+      Serial.println(busVoltage);
     #endif
 
     //read and send out our json update

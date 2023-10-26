@@ -15,15 +15,15 @@
 //for watching our power supply
 float busVoltage = 0;
 
+unsigned long lastBusVoltageCheckMillis = 0;
+
 #ifdef YB_BUS_VOLTAGE_ESP32
   esp32Helper busADC = esp32Helper(3.3, YB_BUS_VOLTAGE_PIN);
 #endif
 
 #ifdef YB_BUS_VOLTAGE_MCP3425
   MCP342x _adcMCP3425 = MCP342x(YB_BUS_VOLTAGE_ADDRESS);
-  MCP342x::Config config(MCP342x::channel1, MCP342x::oneShot, MCP342x::resolution18, MCP342x::gain1);
-
-  MCP3425Helper busADC = MCP3425Helper((float)3.3, &_adcMCP3425);
+  MCP3425Helper busADC = MCP3425Helper((float)2.048, &_adcMCP3425);
 #endif
 
 void bus_voltage_setup()
@@ -34,29 +34,29 @@ void bus_voltage_setup()
   #endif
 
   #ifdef YB_BUS_VOLTAGE_MCP3425
-    Wire.begin();
-    MCP342x::generalCallReset();
-    delay(1); // MC342x needs 300us to settle, wait 1ms
-
-    //check if its there...
-    Wire.requestFrom(YB_BUS_VOLTAGE_ADDRESS, 1);
-    if (!Wire.available())
-      Serial.println("ERROR: MCP3425 Not found.");
-
-    _adcMCP3425.configure(config);
-    MCP342x::generalCallConversion();
+    busADC.setup();
   #endif
 }
 
 void bus_voltage_loop()
 {
+  unsigned long foo;
+  if (millis() > lastBusVoltageCheckMillis + 10)
+  {
     //check what our power is.
-    busADC.getReading();
+    foo = busADC.getReading();
+    //Serial.println(foo);
+
+    lastBusVoltageCheckMillis = millis();
+  }
 }
 
 float getBusVoltage()
 {
     float voltage = busADC.getAverageVoltage();
+
+    //Serial.print("Bus ADC Voltage: ");
+    //Serial.println(voltage);
 
     busADC.resetAverage();
 
