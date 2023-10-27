@@ -1,9 +1,8 @@
 Firmware:
 
-* login page image is broken
 * update for 8ch mosfet Rev B
     * 2 fans now
-    * bus voltage from MCP3425
+
 * update for input board
     * board config
         * adc inputs
@@ -16,19 +15,19 @@ Firmware:
     * write code for LED driver
     * digital input debounce
 
+* add color picker: https://bgrins.github.io/spectrum/
+
 * protocol documentation
 * add uptime to signalk integration?
 
 Electronics:
 
 * 8ch Mosfet
-    * L2 wrong footprint
     * 2N7002 missing p/n
     * noise on current measurement?
     * MCP3425 doesnt need precision vref?
 
 * RGB board
-    * L2 wrong footprint
     * add in bus voltage measurement?
     * pin GPIO12 - output only, swap with other pin. (GPIO17?)
     * pin GPIO2 - needs low @ boot, swap with other pin (GPIO15?)

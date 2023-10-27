@@ -86,7 +86,7 @@ const SwitchControlRow = (id, name) => `
 </tr>
 `;
 
-const SwitchEditRow = (id, name, soft_fuse) => `
+const SwitchEditRow = (id, name) => `
 <div class="row mt-2">
   <div class="col-md-3">
     <label for="fSwitchEnabled${id}" class="form-label">Switch ${id}</label>
@@ -99,6 +99,32 @@ const SwitchEditRow = (id, name, soft_fuse) => `
   <div class="col-md-3">
     <label for="fSwitchName${id}" class="form-label">Name</label>
     <input type="text" class="form-control" id="fSwitchName${id}" value="${name}">
+    <div class="valid-feedback">Saved!</div>
+    <div class="invalid-feedback">Must be 30 characters or less.</div>
+  </div>
+</div>
+`;
+
+const RGBControlRow = (id, name) => `
+<tr id="rgb${id}" class="rgbRow">
+  <td class="rgbName">${name}</td>
+  <td class="text-center"><span id="rgbDot${id}class="rgbDot"></span></td>
+</tr>
+`;
+
+const RGBEditRow = (id, name) => `
+<div class="row mt-2">
+  <div class="col-md-3">
+    <label for="fRGBEnabled${id}" class="form-label">RGB ${id}</label>
+    <select id="fRGBEnabled${id}" class="form-select">
+      <option value="0">Disabled</option>
+      <option value="1">Enabled</option>
+    </select>
+    <div class="valid-feedback">Saved!</div>
+  </div>
+  <div class="col-md-3">
+    <label for="fRGBName${id}" class="form-label">Name</label>
+    <input type="text" class="form-control" id="fRGBName${id}" value="${name}">
     <div class="valid-feedback">Saved!</div>
     <div class="invalid-feedback">Must be 30 characters or less.</div>
   </div>
@@ -239,6 +265,8 @@ function start_websocket()
     {
       console.log("config");
       console.log(msg);
+      console.log(event.data);
+      console.log(event.data.length);
 
       current_config = msg;
 
@@ -252,6 +280,10 @@ function start_websocket()
   
       //update our footer automatically.
       $('#projectName').html("Yarrboard v" + msg.firmware_version);
+
+      //stats info
+      $("#firmware_version").html(msg.firmware_version);
+      $("#hardware_version").html(msg.hardware_version);
   
       //populate our pwm control table
       if (msg.pwm)
@@ -286,7 +318,7 @@ function start_websocket()
         $('#pwmStatsDiv').hide();
       }
 
-      //populate our pwm control table
+      //populate our switch control table
       if (msg.switches)
       {
         $('#switchTableBody').html("");
@@ -313,9 +345,20 @@ function start_websocket()
         $('#switchStatsDiv').hide();
       }
 
-      //stats info
-      $("#firmware_version").html(msg.firmware_version);
-      $("#hardware_version").html(msg.hardware_version);
+      //populate our rgb control table
+      if (msg.rgb)
+      {
+        $('#rgbTableBody').html("");
+        for (ch of msg.rgb)
+        {
+          if (ch.enabled)
+            $('#rgbTableBody').append(RGBControlRow(ch.id, ch.name));
+        }
+      }
+      else
+      {
+        $('#rgbTable').hide();
+      }
 
       //only do it as needed
       if (!page_ready.config || current_page != "config")
@@ -348,7 +391,7 @@ function start_websocket()
           }  
         }
 
-        //edit controls for each pwm
+        //edit controls for each switch
         if (msg.switches)
         {
           for (ch of msg.switches)
@@ -365,6 +408,22 @@ function start_websocket()
           }  
         }
 
+        //edit controls for each rgb
+        if (msg.rgb)
+        {
+          for (ch of msg.rgb)
+          {
+            $('#boardConfigForm').append(RGBEditRow(ch.id, ch.name));
+            $(`#fRGBEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+  
+            //enable/disable other stuff.
+            $(`#fRGBName${ch.id}`).prop('disabled', !ch.enabled);
+  
+            //validate + save
+            $(`#fRGBEnabled${ch.id}`).change(validate_rgb_enabled);
+            $(`#fRGBName${ch.id}`).change(validate_rgb_name);
+          }  
+        }
       }
 
       //ready!
@@ -372,8 +431,10 @@ function start_websocket()
     }
     else if (msg.msg == 'update')
     {
-      //console.log("update");
+      console.log("update");
       console.log(msg);
+      console.log(event.data);
+      console.log(event.data.length);
 
       //we need a config loaded.
       if (!current_config)
@@ -474,6 +535,17 @@ function start_websocket()
               $('#switchState' + ch.id).removeClass("btn-secondary");
               $('#switchState' + ch.id).addClass("btn-success");
             }
+          }
+        }
+      }
+
+      //our pwm info
+      if (msg.rgb)
+      {
+        for (ch of msg.rgb)
+        {
+          if (current_config.rgb[ch.id].enabled)
+          {
           }
         }
       }
@@ -1015,6 +1087,57 @@ function validate_switch_enabled(e)
 
   //enable/disable other stuff.
   $(`#fSwitchName${id}`).prop('disabled', !value);
+
+  //nothing really to validate here.
+  $(ele).addClass("is-valid");
+
+  //save it
+  // socket.send(JSON.stringify({
+  //   "cmd": "set_pwm_channel",
+  //   "id": id,
+  //   "enabled": value
+  // }));
+}
+
+function validate_rgb_name(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  if (value.length <= 0 || value.length > 30)
+  {
+    $(ele).removeClass("is-valid");
+    $(ele).addClass("is-invalid");
+  }
+  else
+  {
+    $(ele).removeClass("is-invalid");
+    $(ele).addClass("is-valid");
+
+    // //set our new pwm name!
+    // socket.send(JSON.stringify({
+    //   "cmd": "set_pwm_channel",
+    //   "id": id,
+    //   "name": value
+    // }));
+  }
+}
+
+function validate_rgb_enabled(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  //convert it
+  if (value == "1")
+    value = true;
+  else
+    value = false;
+
+  //enable/disable other stuff.
+  $(`#fRGBName${id}`).prop('disabled', !value);
 
   //nothing really to validate here.
   $(ele).addClass("is-valid");

@@ -93,7 +93,8 @@ void server_loop()
 
 void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request)
 {
-  StaticJsonDocument<3000> output;
+  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+  DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
 
   if (request->hasParam("user"))
     input["user"] = request->getParam("user")->value();
@@ -215,7 +216,8 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
   unsigned long t1, t2, t3, t4 = 0;
 
   char jsonBuffer[YB_MAX_JSON_LENGTH];
-  StaticJsonDocument<2048> output;
+  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+  DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
 
   StaticJsonDocument<1024> input;
   DeserializationError err = deserializeJson(input, request->buffer);

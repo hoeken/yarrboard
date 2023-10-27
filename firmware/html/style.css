@@ -26,3 +26,12 @@ body {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
+
+.rgbDot {
+    height: 25px;
+    width: 25px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid #666;
+  }

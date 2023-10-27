@@ -43,7 +43,8 @@ void protocol_setup()
     
   if (app_enable_serial)
   {
-    StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+    //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+    DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
 
     generateConfigJSON(output);
     serializeJson(output, Serial);
@@ -95,7 +96,8 @@ void handleSerialJson()
   StaticJsonDocument<1024> input;
   DeserializationError err = deserializeJson(input, Serial);
 
-  StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+  DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
 
   //ignore newlines with serial.
   if (err)
@@ -875,7 +877,9 @@ void generatePongJSON(JsonVariant output)
 
 void sendUpdate()
 {
-  StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+  DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
+
   char jsonBuffer[YB_MAX_JSON_LENGTH];
 
   generateUpdateJSON(output);
