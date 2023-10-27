@@ -1388,7 +1388,7 @@
     (property "Value" "SMMS0650-680M" (at 201.93 77.47 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "Inductor_SMD:L_Chilisin_BMRA00040420" (at 201.93 80.01 0)
+    (property "Footprint" "Inductor_SMD:L_Chilisin_BMRB00060650" (at 201.93 80.01 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 201.93 80.01 0)
