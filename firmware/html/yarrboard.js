@@ -107,7 +107,7 @@ const SwitchEditRow = (id, name) => `
 
 const RGBControlRow = (id, name) => `
 <tr id="rgb${id}" class="rgbRow">
-  <td class="text-center"><span id="rgbDot${id}" class="rgbDot"></span></td>
+  <td class="text-center"><input id="rgbPicker${id}" type="text"></td>
   <td class="rgbName">${name}</td>
 </tr>
 `;
@@ -166,6 +166,8 @@ const AlertBox = (message, type) => `
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 </div>`;
+
+let currentRGBPickerID = -1;
 
 //our heartbeat timer.
 function send_heartbeat()
@@ -291,10 +293,10 @@ function start_websocket()
 
     if (msg.msg == 'config')
     {
-      console.log("config");
-      console.log(msg);
-      console.log(event.data);
-      console.log(event.data.length);
+      // console.log("config");
+      // console.log(msg);
+      // console.log(event.data);
+      // console.log(event.data.length);
 
       current_config = msg;
 
@@ -381,7 +383,32 @@ function start_websocket()
         for (ch of msg.rgb)
         {
           if (ch.enabled)
+          {
             $('#rgbTableBody').append(RGBControlRow(ch.id, ch.name));
+
+            //init our color picker
+            $('#rgbPicker' + ch.id).spectrum({
+              color: "#000"
+            });
+
+            //update our color on change
+            $('#rgbPicker' + ch.id).change(set_rgb_color);
+
+            //update our color when we move
+            $('#rgbPicker' + ch.id).on("move.spectrum", set_rgb_color);
+
+            //stop updating the UI when we are choosing a color
+            $('#rgbPicker' + ch.id).on('show.spectrum', function(e) {
+              let ele = e.target;
+              let id = ele.id.match(/\d+/)[0];
+              currentRGBPickerID = id;
+            });
+
+            //restart the UI updates when picker is closed
+            $('#rgbPicker' + ch.id).on("hide.spectrum", function (e) {
+              currentRGBPickerID = -1;
+            });
+          }
         }
 
         $('#rgbControlDiv').show();
@@ -489,10 +516,10 @@ function start_websocket()
     }
     else if (msg.msg == 'update')
     {
-      console.log("update");
-      console.log(msg);
-      console.log(event.data);
-      console.log(event.data.length);
+      // console.log("update");
+      // console.log(msg);
+      // console.log(event.data);
+      // console.log(event.data.length);
 
       //we need a config loaded.
       if (!current_config)
@@ -574,7 +601,7 @@ function start_websocket()
         }
       }
 
-      //our pwm info
+      //our switch info
       if (msg.switches)
       {
         for (ch of msg.switches)
@@ -597,18 +624,23 @@ function start_websocket()
         }
       }
 
-      //our pwm info
+      //our rgb info
       if (msg.rgb)
       {
         for (ch of msg.rgb)
         {
-          if (current_config.rgb[ch.id].enabled)
+          if (current_config.rgb[ch.id].enabled && currentRGBPickerID != ch.id)
           {
+            let _red = Math.round(255 * msg.rgb.red);
+            let _green = Math.round(255 * msg.rgb.green);
+            let _blue = Math.round(255 * msg.rgb.blue);
+
+            $("#rgbPicker" + ch.id).spectrum("set", `rgb(${_red}, ${_green}, ${_blue}`);
           }
         }
       }
 
-      //our pwm info
+      //our adc info
       if (msg.adc)
       {
         for (ch of msg.adc)
@@ -1173,6 +1205,33 @@ function validate_switch_enabled(e)
   //   "id": id,
   //   "enabled": value
   // }));
+}
+
+function set_rgb_color(e, color)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  console.log(value);
+  console.log(color.toRgb());
+
+  //must be realistic.
+  // if (value >= 0 && value <= 100)
+  // {
+  //   //update our button
+  //   $(`#pwmDutyCycle${id}`).html(Math.round(value) + '%');
+
+  //   //we want a duty value from 0 to 1
+  //   value = value / 100;
+  
+  //   //set our new pwm name!
+  //   socket.send(JSON.stringify({
+  //     "cmd": "set_pwm_channel",
+  //     "id": id,
+  //     "duty": value
+  //   }));
+  // }
 }
 
 function validate_rgb_name(e)
