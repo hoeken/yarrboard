@@ -73,7 +73,8 @@
                 </div>
             </div>
             <div id="controlPage" style="display:none" class="pageContainer row mt-3 mx-2">
-                <div class="col-md-12">
+                <div id="pwmControlDiv" style="display:none" class="col-md-12">
+                    <h4 class="text-center">MOSFET Outputs</h4>
                     <table id="pwmTable" class="table table-hover">
                         <thead>
                             <tr>
@@ -86,7 +87,8 @@
                         <tbody id="pwmTableBody" class="table-group-divider"></tbody>
                     </table>
                 </div>
-                <div class="col-md-4">
+                <div id="switchControlDiv" style="display:none" class="col-md-4">
+                    <h4 class="text-center">I/O Switches</h4>
                     <table id="switchTable" class="table table-hover">
                         <thead>
                             <tr>
@@ -97,7 +99,8 @@
                         <tbody id="switchTableBody" class="table-group-divider"></tbody>
                     </table>
                 </div>
-                <div class="col-md-4">
+                <div id="rgbControlDiv" style="display:none" class="col-md-4">
+                    <h4 class="text-center">RGB LEDs</h4>
                     <table id="rgbTable" class="table table-hover">
                         <thead>
                             <tr>
@@ -108,13 +111,15 @@
                         <tbody id="rgbTableBody" class="table-group-divider"></tbody>
                     </table>
                 </div>
-                <div class="col-md-4">
+                <div id="adcControlDiv" style="display:none" class="col-md-4">
+                    <h4 class="text-center">Analog Inputs</h4>
                     <table id="adcTable" class="table table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">Name</th>
                                 <th class="text-center" scope="col">Reading</th>
                                 <th class="text-center" scope="col">Voltage</th>
+                                <th class="text-center" scope="col">%</th>
                             </tr>
                         </thead>
                         <tbody id="adcTableBody" class="table-group-divider"></tbody>

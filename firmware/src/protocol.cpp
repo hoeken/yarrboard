@@ -726,6 +726,7 @@ void generateUpdateJSON(JsonVariant output)
       output["adc"][i]["id"] = i;
       output["adc"][i]["voltage"] = adc_channels[i].getVoltage();
       output["adc"][i]["reading"] = adc_channels[i].getReading();
+      output["adc"][i]["percentage"] = 100.0 * (float)adc_channels[i].getReading() / (pow(2, YB_ADC_RESOLUTION)-1);
       adc_channels[i].resetAverage();
     }
   #endif

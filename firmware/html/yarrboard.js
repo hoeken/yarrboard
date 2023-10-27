@@ -136,6 +136,7 @@ const ADCControlRow = (id, name) => `
   <td class="adcName">${name}</td>
   <td class="text-center" id="adcReading${id}"></td>
   <td class="text-center" id="adcVoltage${id}"></td>
+  <td class="text-center" id="adcPercentage${id}"></td>
 </tr>
 `;
 
@@ -313,6 +314,8 @@ function start_websocket()
       $("#hardware_version").html(msg.hardware_version);
   
       //populate our pwm control table
+      $('#pwmControlDiv').hide();
+      $('#pwmStatsDiv').hide();
       if (msg.pwm)
       {
         $('#pwmTableBody').html("");
@@ -338,14 +341,14 @@ function start_websocket()
             $('#pwmStats' + ch.id).append(`<td id="pwmTripCount${ch.id}" class="text-end"></td>`);
           }
         }
-      }
-      else
-      {
-        $('#pwmTable').hide();
-        $('#pwmStatsDiv').hide();
+
+        $('#pwmControlDiv').show();
+        $('#pwmStatsDiv').show();  
       }
 
       //populate our switch control table
+      $('#switchControlDiv').hide();
+      $('#switchStatsDiv').hide();
       if (msg.switches)
       {
         $('#switchTableBody').html("");
@@ -365,14 +368,13 @@ function start_websocket()
             $('#switchStats' + ch.id).append(`<td id="switchOnCount${ch.id}" class="text-end"></td>`);
           }
         }
-      }
-      else
-      {
-        $('#switchTable').hide();
-        $('#switchStatsDiv').hide();
+  
+        $('#switchControlDiv').show();
+        $('#switchStatsDiv').show();
       }
 
       //populate our rgb control table
+      $('#rgbControlDiv').hide();
       if (msg.rgb)
       {
         $('#rgbTableBody').html("");
@@ -381,13 +383,12 @@ function start_websocket()
           if (ch.enabled)
             $('#rgbTableBody').append(RGBControlRow(ch.id, ch.name));
         }
-      }
-      else
-      {
-        $('#rgbTable').hide();
+
+        $('#rgbControlDiv').show();
       }
 
       //populate our adc control table
+      $('#adcControlDiv').hide();
       if (msg.adc)
       {
         $('#adcTableBody').html("");
@@ -396,10 +397,8 @@ function start_websocket()
           if (ch.enabled)
             $('#adcTableBody').append(ADCControlRow(ch.id, ch.name));
         }
-      }
-      else
-      {
-        $('#adcTable').hide();
+
+        $('#adcControlDiv').show();
       }
       
       //only do it as needed
@@ -618,9 +617,11 @@ function start_websocket()
           {
             let reading = Math.round(ch.reading);
             let voltage = ch.voltage.toFixed(2);
+            let percentage = ch.percentage.toFixed(1);
 
             $("#adcReading" + ch.id).html(reading);
             $("#adcVoltage" + ch.id).html(voltage + "V")
+            $("#adcPercentage" + ch.id).html(percentage + "%")
           }
         }
       }
