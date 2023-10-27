@@ -1,25 +1,10 @@
 Firmware:
 
+* convert Adafruit library to hardware SPI to not conflict with MCP3208
 * update for 8ch mosfet Rev B
     * 2 fans now
-
-* update for input board
-    * board config
-        * adc inputs
-        * digital inputs
-        * rgb outputs
-    * update web app to handle new board
-        * adc inputs
-        * digital inputs
-        * rgb outputs
-    * write code for LED driver
-    * digital input debounce
-
-* add color picker: https://bgrins.github.io/spectrum/
-* convert Adafruit library to hardware SPI to not conflict with MCP3208
-
 * protocol documentation
-* add uptime to signalk integration?
+* add uptime to signalk integration
 
 Electronics:
 
@@ -27,12 +12,17 @@ Electronics:
     * 2N7002 missing p/n
     * noise on current measurement?
     * MCP3425 doesnt need precision vref?
+    * consolidate 10nF / 50v cap
 
 * RGB board
     * add in bus voltage measurement?
     * pin GPIO12 - output only, swap with other pin. (GPIO17?)
     * pin GPIO2 - needs low @ boot, swap with other pin (GPIO15?)
     * precision 5v ref needs to be powered from ESP32_5V
+    * consolidate 10nF / 50v cap
+    * add in BLANK line
+    * switch to external I/O expander
+    * move led drivers to secondary SPI bus
 
 * finish design of button board
 * order button board + parts
