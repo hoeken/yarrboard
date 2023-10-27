@@ -184,6 +184,12 @@ void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, u
       return handleTogglePWMChannel(input, output);
     else if (!strcmp(cmd, "fade_pwm_channel"))
       return handleFadePWMChannel(input, output);
+    else if (!strcmp(cmd, "set_switch"))
+      return handleSetSwitch(input, output);
+    else if (!strcmp(cmd, "set_rgb"))
+      return handleSetRGB(input, output);
+    else if (!strcmp(cmd, "set_adc"))
+      return handleSetADC(input, output);
     else
       return generateErrorJSON(output, "Invalid command.");
   }
@@ -637,6 +643,205 @@ void handleFadePWMChannel(JsonVariantConst input, JsonVariant output)
   #endif
 }
 
+void handleSetSwitch(JsonVariantConst input, JsonVariant output)
+{
+  #ifdef YB_HAS_INPUT_CHANNELS
+    char prefIndex[YB_PREF_KEY_LENGTH];
+
+    //id is required
+    if (!input.containsKey("id"))
+      return generateErrorJSON(output, "'id' is a required parameter");
+
+    //is it a valid channel?
+    byte cid = input["id"];
+    if (!isValidInputChannel(cid))
+      return generateErrorJSON(output, "Invalid channel id");
+
+    //channel name
+    if (input.containsKey("name"))
+    {
+      //is it too long?
+      if (strlen(input["name"]) > YB_CHANNEL_NAME_LENGTH-1)
+      {
+        char error[50];
+        sprintf(error, "Maximum channel name length is %s characters.", YB_CHANNEL_NAME_LENGTH-1);
+        return generateErrorJSON(output, error);
+      }
+
+      //save to our storage
+      strlcpy(input_channels[cid].name, input["name"] | "Input ?", sizeof(input_channels[cid].name));
+      sprintf(prefIndex, "iptName%d", cid);
+      preferences.putString(prefIndex, input_channels[cid].name);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+
+    //enabled
+    if (input.containsKey("enabled"))
+    {
+      //save right nwo.
+      bool enabled = input["enabled"];
+      input_channels[cid].isEnabled = enabled;
+
+      //save to our storage
+      sprintf(prefIndex, "iptEnabled%d", cid);
+      preferences.putBool(prefIndex, enabled);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+  #else
+    return generateErrorJSON(output, "Board does not have input channels.");
+  #endif
+}
+
+void handleSetRGB(JsonVariantConst input, JsonVariant output)
+{
+  #ifdef YB_HAS_RGB_CHANNELS
+    char prefIndex[YB_PREF_KEY_LENGTH];
+
+    //id is required
+    if (!input.containsKey("id"))
+      return generateErrorJSON(output, "'id' is a required parameter");
+
+    //is it a valid channel?
+    byte cid = input["id"];
+    if (!isValidRGBChannel(cid))
+      return generateErrorJSON(output, "Invalid channel id");
+
+    //channel name
+    if (input.containsKey("name"))
+    {
+      //is it too long?
+      if (strlen(input["name"]) > YB_CHANNEL_NAME_LENGTH-1)
+      {
+        char error[50];
+        sprintf(error, "Maximum channel name length is %s characters.", YB_CHANNEL_NAME_LENGTH-1);
+        return generateErrorJSON(output, error);
+      }
+
+      //save to our storage
+      strlcpy(rgb_channels[cid].name, input["name"] | "RGB ?", sizeof(rgb_channels[cid].name));
+      sprintf(prefIndex, "rgbName%d", cid);
+      preferences.putString(prefIndex, rgb_channels[cid].name);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+
+    //enabled
+    if (input.containsKey("enabled"))
+    {
+      //save right nwo.
+      bool enabled = input["enabled"];
+      rgb_channels[cid].isEnabled = enabled;
+
+      //save to our storage
+      sprintf(prefIndex, "rgbEnabled%d", cid);
+      preferences.putBool(prefIndex, enabled);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+
+    //new color?
+    if (input.containsKey("red") || input.containsKey("green") || input.containsKey("blue"))
+    {
+      float red = rgb_channels[cid].red;
+      float green = rgb_channels[cid].green;
+      float blue = rgb_channels[cid].blue;
+
+      //what do we hate?  va-li-date!
+      if (input.containsKey("red"))
+      {
+        red = input["red"];
+        if (red < 0)
+          return generateErrorJSON(output, "Red must be >= 0");
+        else if (red > 1)
+          return generateErrorJSON(output, "Red must be <= 1");
+      }
+
+      //what do we hate?  va-li-date!
+      if (input.containsKey("green"))
+      {
+        green = input["green"];
+        if (green < 0)
+          return generateErrorJSON(output, "Green must be >= 0");
+        else if (green > 1)
+          return generateErrorJSON(output, "Green must be <= 1");
+      }
+
+      //what do we hate?  va-li-date!
+      if (input.containsKey("blue"))
+      {
+        blue = input["blue"];
+        if (blue < 0)
+          return generateErrorJSON(output, "Blue must be >= 0");
+        else if (blue > 1)
+          return generateErrorJSON(output, "Blue must be <= 1");
+      }
+
+      rgb_channels[cid].setRGB(red, green, blue);
+    }
+  #else
+    return generateErrorJSON(output, "Board does not have RGB channels.");
+  #endif
+}
+
+void handleSetADC(JsonVariantConst input, JsonVariant output)
+{
+  #ifdef YB_HAS_ADC_CHANNELS
+    char prefIndex[YB_PREF_KEY_LENGTH];
+
+    //id is required
+    if (!input.containsKey("id"))
+      return generateErrorJSON(output, "'id' is a required parameter");
+
+    //is it a valid channel?
+    byte cid = input["id"];
+    if (!isValidADCChannel(cid))
+      return generateErrorJSON(output, "Invalid channel id");
+
+    //channel name
+    if (input.containsKey("name"))
+    {
+      //is it too long?
+      if (strlen(input["name"]) > YB_CHANNEL_NAME_LENGTH-1)
+      {
+        char error[50];
+        sprintf(error, "Maximum channel name length is %s characters.", YB_CHANNEL_NAME_LENGTH-1);
+        return generateErrorJSON(output, error);
+      }
+
+      //save to our storage
+      strlcpy(adc_channels[cid].name, input["name"] | "ADC ?", sizeof(adc_channels[cid].name));
+      sprintf(prefIndex, "adcName%d", cid);
+      preferences.putString(prefIndex, adc_channels[cid].name);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+
+    //enabled
+    if (input.containsKey("enabled"))
+    {
+      //save right nwo.
+      bool enabled = input["enabled"];
+      adc_channels[cid].isEnabled = enabled;
+
+      //save to our storage
+      sprintf(prefIndex, "adcEnabled%d", cid);
+      preferences.putBool(prefIndex, enabled);
+
+      //give them the updated config
+      return generateConfigJSON(output);
+    }
+  #else
+    return generateErrorJSON(output, "Board does not have ADC channels.");
+  #endif
+}
+
 void generateStatsJSON(JsonVariant output)
 {
   //some basic statistics and info
@@ -735,7 +940,6 @@ void generateUpdateJSON(JsonVariant output)
   #ifdef YB_HAS_RGB_CHANNELS
     for (byte i = 0; i < YB_RGB_CHANNEL_COUNT; i++) {
       output["rgb"][i]["id"] = i;
-      output["rgb"][i]["state"] = rgb_channels[i].state;
       output["rgb"][i]["red"] = rgb_channels[i].red;
       output["rgb"][i]["green"] = rgb_channels[i].green;
       output["rgb"][i]["blue"] = rgb_channels[i].blue;

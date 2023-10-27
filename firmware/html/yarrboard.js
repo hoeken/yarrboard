@@ -88,7 +88,7 @@ const SwitchControlRow = (id, name) => `
 
 const SwitchEditRow = (id, name) => `
 <div class="row mt-2">
-  <div class="col-md-3">
+  <div class="col-md-6">
     <label for="fSwitchEnabled${id}" class="form-label">Switch ${id}</label>
     <select id="fSwitchEnabled${id}" class="form-select">
       <option value="0">Disabled</option>
@@ -96,7 +96,7 @@ const SwitchEditRow = (id, name) => `
     </select>
     <div class="valid-feedback">Saved!</div>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-6">
     <label for="fSwitchName${id}" class="form-label">Name</label>
     <input type="text" class="form-control" id="fSwitchName${id}" value="${name}">
     <div class="valid-feedback">Saved!</div>
@@ -114,7 +114,7 @@ const RGBControlRow = (id, name) => `
 
 const RGBEditRow = (id, name) => `
 <div class="row mt-2">
-  <div class="col-md-3">
+  <div class="col-md-6">
     <label for="fRGBEnabled${id}" class="form-label">RGB ${id}</label>
     <select id="fRGBEnabled${id}" class="form-select">
       <option value="0">Disabled</option>
@@ -122,7 +122,7 @@ const RGBEditRow = (id, name) => `
     </select>
     <div class="valid-feedback">Saved!</div>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-6">
     <label for="fRGBName${id}" class="form-label">Name</label>
     <input type="text" class="form-control" id="fRGBName${id}" value="${name}">
     <div class="valid-feedback">Saved!</div>
@@ -142,7 +142,7 @@ const ADCControlRow = (id, name) => `
 
 const ADCEditRow = (id, name) => `
 <div class="row mt-2">
-  <div class="col-md-3">
+  <div class="col-md-6">
     <label for="fADCEnabled${id}" class="form-label">ADC ${id}</label>
     <select id="fADCEnabled${id}" class="form-select">
       <option value="0">Disabled</option>
@@ -150,7 +150,7 @@ const ADCEditRow = (id, name) => `
     </select>
     <div class="valid-feedback">Saved!</div>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-6">
     <label for="fADCName${id}" class="form-label">Name</label>
     <input type="text" class="form-control" id="fADCName${id}" value="${name}">
     <div class="valid-feedback">Saved!</div>
@@ -438,11 +438,13 @@ function start_websocket()
         $("#fBoardName").change(validate_board_name);
 
         //edit controls for each pwm
+        $('#pwmConfig').hide();
         if (msg.pwm)
         {
+          $('#pwmConfigForm').html("");
           for (ch of msg.pwm)
           {
-            $('#boardConfigForm').append(PWMEditRow(ch.id, ch.name, ch.softFuse));
+            $('#pwmConfigForm').append(PWMEditRow(ch.id, ch.name, ch.softFuse));
             $(`#fPWMDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
             $(`#fPWMEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
   
@@ -457,14 +459,17 @@ function start_websocket()
             $(`#fPWMDimmable${ch.id}`).change(validate_pwm_dimmable);
             $(`#fPWMSoftFuse${ch.id}`).change(validate_pwm_soft_fuse);
           }  
+          $('#pwmConfig').show();
         }
 
         //edit controls for each switch
+        $('#switchConfig').hide();
         if (msg.switches)
         {
+          $('#switchConfigForm').html("");
           for (ch of msg.switches)
           {
-            $('#boardConfigForm').append(SwitchEditRow(ch.id, ch.name));
+            $('#switchConfigForm').append(SwitchEditRow(ch.id, ch.name));
             $(`#fSwitchEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
   
             //enable/disable other stuff.
@@ -474,14 +479,17 @@ function start_websocket()
             $(`#fSwitchEnabled${ch.id}`).change(validate_switch_enabled);
             $(`#fSwitchName${ch.id}`).change(validate_switch_name);
           }  
+          $('#switchConfig').show();
         }
 
         //edit controls for each rgb
+        $('#rgbConfig').hide();
         if (msg.rgb)
         {
+          $('#rgbConfigForm').html("");
           for (ch of msg.rgb)
           {
-            $('#boardConfigForm').append(RGBEditRow(ch.id, ch.name));
+            $('#rgbConfigForm').append(RGBEditRow(ch.id, ch.name));
             $(`#fRGBEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
   
             //enable/disable other stuff.
@@ -491,14 +499,17 @@ function start_websocket()
             $(`#fRGBEnabled${ch.id}`).change(validate_rgb_enabled);
             $(`#fRGBName${ch.id}`).change(validate_rgb_name);
           }
+          $('#rgbConfig').show();
         }
 
         //edit controls for each rgb
+        $('#adcConfig').hide();
         if (msg.adc)
         {
+          $('#adcConfigForm').html("");
           for (ch of msg.adc)
           {
-            $('#boardConfigForm').append(ADCEditRow(ch.id, ch.name));
+            $('#adcConfigForm').append(ADCEditRow(ch.id, ch.name));
             $(`#fADCEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
   
             //enable/disable other stuff.
@@ -508,6 +519,8 @@ function start_websocket()
             $(`#fADCEnabled${ch.id}`).change(validate_adc_enabled);
             $(`#fADCName${ch.id}`).change(validate_adc_name);
           }
+
+          $('#adcConfig').show();
         }
       }
 
@@ -631,9 +644,9 @@ function start_websocket()
         {
           if (current_config.rgb[ch.id].enabled && currentRGBPickerID != ch.id)
           {
-            let _red = Math.round(255 * msg.rgb.red);
-            let _green = Math.round(255 * msg.rgb.green);
-            let _blue = Math.round(255 * msg.rgb.blue);
+            let _red = Math.round(255 * ch.red);
+            let _green = Math.round(255 * ch.green);
+            let _blue = Math.round(255 * ch.blue);
 
             $("#rgbPicker" + ch.id).spectrum("set", `rgb(${_red}, ${_green}, ${_blue}`);
           }
@@ -1172,12 +1185,12 @@ function validate_switch_name(e)
     $(ele).removeClass("is-invalid");
     $(ele).addClass("is-valid");
 
-    // //set our new pwm name!
-    // socket.send(JSON.stringify({
-    //   "cmd": "set_pwm_channel",
-    //   "id": id,
-    //   "name": value
-    // }));
+    //set our new pwm name!
+    socket.send(JSON.stringify({
+      "cmd": "set_switch",
+      "id": id,
+      "name": value
+    }));
   }
 }
 
@@ -1200,38 +1213,31 @@ function validate_switch_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  // socket.send(JSON.stringify({
-  //   "cmd": "set_pwm_channel",
-  //   "id": id,
-  //   "enabled": value
-  // }));
+  socket.send(JSON.stringify({
+    "cmd": "set_switch",
+    "id": id,
+    "enabled": value
+  }));
 }
 
 function set_rgb_color(e, color)
 {
   let ele = e.target;
   let id = ele.id.match(/\d+/)[0];
-  let value = ele.value;
 
-  console.log(value);
-  console.log(color.toRgb());
+  let rgb = color.toRgb();
 
-  //must be realistic.
-  // if (value >= 0 && value <= 100)
-  // {
-  //   //update our button
-  //   $(`#pwmDutyCycle${id}`).html(Math.round(value) + '%');
+  let red = rgb.r / 255;
+  let green = rgb.g / 255;
+  let blue = rgb.b / 255;
 
-  //   //we want a duty value from 0 to 1
-  //   value = value / 100;
-  
-  //   //set our new pwm name!
-  //   socket.send(JSON.stringify({
-  //     "cmd": "set_pwm_channel",
-  //     "id": id,
-  //     "duty": value
-  //   }));
-  // }
+  socket.send(JSON.stringify({
+    "cmd": "set_rgb",
+    "id": id,
+    "red": red.toFixed(4),
+    "green": green.toFixed(4),
+    "blue": blue.toFixed(4)
+  }));
 }
 
 function validate_rgb_name(e)
@@ -1250,12 +1256,12 @@ function validate_rgb_name(e)
     $(ele).removeClass("is-invalid");
     $(ele).addClass("is-valid");
 
-    // //set our new pwm name!
-    // socket.send(JSON.stringify({
-    //   "cmd": "set_pwm_channel",
-    //   "id": id,
-    //   "name": value
-    // }));
+    //set our new pwm name!
+    socket.send(JSON.stringify({
+      "cmd": "set_rgb",
+      "id": id,
+      "name": value
+    }));
   }
 }
 
@@ -1278,11 +1284,11 @@ function validate_rgb_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  // socket.send(JSON.stringify({
-  //   "cmd": "set_pwm_channel",
-  //   "id": id,
-  //   "enabled": value
-  // }));
+  socket.send(JSON.stringify({
+    "cmd": "set_rgb",
+    "id": id,
+    "enabled": value
+  }));
 }
 
 function validate_adc_name(e)
@@ -1301,12 +1307,12 @@ function validate_adc_name(e)
     $(ele).removeClass("is-invalid");
     $(ele).addClass("is-valid");
 
-    // //set our new pwm name!
-    // socket.send(JSON.stringify({
-    //   "cmd": "set_pwm_channel",
-    //   "id": id,
-    //   "name": value
-    // }));
+    //set our new pwm name!
+    socket.send(JSON.stringify({
+      "cmd": "set_adc",
+      "id": id,
+      "name": value
+    }));
   }
 }
 
@@ -1329,11 +1335,11 @@ function validate_adc_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  // socket.send(JSON.stringify({
-  //   "cmd": "set_pwm_channel",
-  //   "id": id,
-  //   "enabled": value
-  // }));
+  socket.send(JSON.stringify({
+    "cmd": "set_adc",
+    "id": id,
+    "enabled": value
+  }));
 }
 
 function do_login(e)

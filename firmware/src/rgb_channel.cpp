@@ -82,37 +82,20 @@ void RGBChannel::setup()
   else
     this->isEnabled = true;
 
-  sprintf(prefIndex, "rgbRed%d", this->id);
-  if (preferences.isKey(prefIndex))
-    this->red = preferences.getFloat(prefIndex);
-  else
-    this->red = 0.0;
-
-  sprintf(prefIndex, "rgbGrn%d", this->id);
-  if (preferences.isKey(prefIndex))
-    this->green = preferences.getFloat(prefIndex);
-  else
-    this->green = 0.0;
-
-  sprintf(prefIndex, "rgbBlu%d", this->id);
-  if (preferences.isKey(prefIndex))
-    this->blue = preferences.getFloat(prefIndex);
-  else
-    this->blue = 0.0;
-
-  if (this->red > 0.0 || this->green > 0.0 || this->blue > 0.0)
-    this->setRGB(this->red, this->green, this->blue);
+  this->red = 0.0;
+  this->green = 0.0;
+  this->blue = 0.0;
 }
 
-void RGBChannel::setRGB(float red, float green, float blue)
+void RGBChannel::setRGB(float r, float g, float b)
 {
-  this->red = red;
-  this->green = green;
-  this->blue = blue;
+  this->red = r;
+  this->green = g;
+  this->blue = b;
 
-  #ifdef YB_RGB_DRIVER_TLC5947
-    tlc.setLED(this->id, this->red*MAX_RGB_RESOLUTION, this->green*MAX_RGB_RESOLUTION, this->blue*MAX_RGB_RESOLUTION);
-  #endif
+  // #ifdef YB_RGB_DRIVER_TLC5947
+  //   tlc.setLED(this->id, this->red*MAX_RGB_RESOLUTION, this->green*MAX_RGB_RESOLUTION, this->blue*MAX_RGB_RESOLUTION);
+  // #endif
 
   rgb_is_dirty = true;
 }

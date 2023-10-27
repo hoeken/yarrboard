@@ -129,7 +129,25 @@
                 </div>
             </div>
             <div id="configPage" style="display:none" class="pageContainer mt-2 mx-2">
-                <form class="row g-3" id="boardConfigForm"></form>
+                <form class="row g-3" id="ConfigForm">
+                    <div id="boardConfigForm"></div>
+                    <div id="pwmConfig" style="display:none" class="col-md-12">
+                        <h4 class="text-center">MOSFET Outputs</h4>
+                        <div id="pwmConfigForm"></div>
+                    </div>
+                    <div id="switchConfig" style="display:none" class="col-md-6">
+                        <h4 class="text-center">I/O Switches</h4>
+                        <div id="switchConfigForm"></div>
+                    </div>
+                    <div id="rgbConfig" style="display:none" class="col-md-6">
+                        <h4 class="text-center">RGB LEDs</h4>
+                        <div id="rgbConfigForm"></div>
+                    </div>
+                    <div id="adcConfig" style="display:none" class="col-md-6">
+                        <h4 class="text-center">Analog Inputs</h4>
+                        <div id="adcConfigForm"></div>
+                    </div>
+                </form>
             </div>
             <div id="statsPage" style="display:none" class="pageContainer row mt-3 mx-2">
                 <div class="col-sm">

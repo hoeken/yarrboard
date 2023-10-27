@@ -22,7 +22,6 @@ class RGBChannel
   public:
     byte id = 0;
 
-    bool state = false;
     float red = 0.0;
     float green = 0.0;
     float blue = 0.0;

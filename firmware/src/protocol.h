@@ -70,6 +70,9 @@ void handleOTAStart(JsonVariantConst input, JsonVariant output);
 void handleSetPWMChannel(JsonVariantConst input, JsonVariant output);
 void handleTogglePWMChannel(JsonVariantConst input, JsonVariant output);
 void handleFadePWMChannel(JsonVariantConst input, JsonVariant output);
+void handleSetSwitch(JsonVariantConst input, JsonVariant output);
+void handleSetRGB(JsonVariantConst input, JsonVariant output);
+void handleSetADC(JsonVariantConst input, JsonVariant output);
 
 void generateUpdateJSON(JsonVariant output);
 void generateConfigJSON(JsonVariant output);
