@@ -26,16 +26,16 @@ bool rgb_is_dirty = false;
 
 void rgb_channels_setup()
 {
+  #ifdef YB_RGB_DRIVER_TLC5947
+    //tlc.begin();
+  #endif
+
   //intitialize our channel
   for (short i = 0; i < YB_RGB_CHANNEL_COUNT; i++)
   {
     rgb_channels[i].id = i;
     rgb_channels[i].setup();
   }
-
-  #ifdef YB_RGB_DRIVER_TLC5947
-    tlc.begin();
-  #endif
 }
 
 void rgb_channels_loop()
@@ -46,7 +46,7 @@ void rgb_channels_loop()
     if (rgb_is_dirty)
     {
       #ifdef YB_RGB_DRIVER_TLC5947
-        tlc.write();
+        //tlc.write();
       #endif
 
       rgb_is_dirty = false;

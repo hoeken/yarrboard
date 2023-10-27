@@ -14,6 +14,7 @@
 
 //the main star of the event
 ADCChannel adc_channels[YB_ADC_CHANNEL_COUNT];
+unsigned long lastADCCheckMillis = 0;
 
 #ifdef YB_ADC_DRIVER_MCP3208
     MCP3208 _adcAnalogMCP3208;
@@ -23,6 +24,7 @@ void adc_channels_setup()
 {
   #ifdef YB_ADC_DRIVER_MCP3208
     _adcAnalogMCP3208.begin(YB_ADC_CS);
+    //_adcAnalogMCP3208.begin(YB_ADC_CS, 23, 19, 18);
   #endif
 
   //intitialize our channel
@@ -35,9 +37,9 @@ void adc_channels_setup()
 
 void adc_channels_loop()
 {
-    //maintenance on our channels.
-    for (byte id = 0; id < YB_ADC_CHANNEL_COUNT; id++)
-        adc_channels[id].update();
+  //maintenance on our channels.
+  for (byte id = 0; id < YB_ADC_CHANNEL_COUNT; id++)
+    adc_channels[id].update();
 }
 
 bool isValidADCChannel(byte cid)

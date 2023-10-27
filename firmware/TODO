@@ -16,6 +16,7 @@ Firmware:
     * digital input debounce
 
 * add color picker: https://bgrins.github.io/spectrum/
+* convert Adafruit library to hardware SPI to not conflict with MCP3208
 
 * protocol documentation
 * add uptime to signalk integration?
@@ -31,6 +32,7 @@ Electronics:
     * add in bus voltage measurement?
     * pin GPIO12 - output only, swap with other pin. (GPIO17?)
     * pin GPIO2 - needs low @ boot, swap with other pin (GPIO15?)
+    * precision 5v ref needs to be powered from ESP32_5V
 
 * finish design of button board
 * order button board + parts

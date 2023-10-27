@@ -609,6 +609,22 @@ function start_websocket()
         }
       }
 
+      //our pwm info
+      if (msg.adc)
+      {
+        for (ch of msg.adc)
+        {
+          if (current_config.adc[ch.id].enabled)
+          {
+            let reading = Math.round(ch.reading);
+            let voltage = ch.voltage.toFixed(2);
+
+            $("#adcReading" + ch.id).html(reading);
+            $("#adcVoltage" + ch.id).html(voltage + "V")
+          }
+        }
+      }
+      
       page_ready.control = true;
     }
     else if (msg.msg == "stats")
