@@ -22,6 +22,15 @@ var page_ready = {
   "login":  true
 };
 
+const BoardNameEdit = (name) => `
+<div class="col-12">
+  <label for="fBoardName" class="form-label">Board Name</label>
+  <input type="text" class="form-control" id="fBoardName" value="${name}">
+  <div class="valid-feedback">Saved!</div>
+  <div class="invalid-feedback">Must be 30 characters or less.</div>
+</div>
+`;
+
 const PWMControlRow = (id, name) => `
 <tr id="pwm${id}" class="pwmRow">
   <td class="text-center"><button id="pwmState${id}" type="button" class="btn btn-sm" onclick="toggle_state(${id})" style="width: 60px"></button></td>
@@ -36,42 +45,33 @@ const PWMControlRow = (id, name) => `
 </tr>
 `;
 
-const ChannelNameEdit = (name) => `
-<div class="col-12">
-  <label for="fBoardName" class="form-label">Board Name</label>
-  <input type="text" class="form-control" id="fBoardName" value="${name}">
-  <div class="valid-feedback">Saved!</div>
-  <div class="invalid-feedback">Must be 30 characters or less.</div>
-</div>
-`;
-
-const ChannelEditRow = (id, name, soft_fuse) => `
+const PWMEditRow = (id, name, soft_fuse) => `
 <div class="col-md-3">
-  <label for="fEnabled${id}" class="form-label">Channel ${id}</label>
-  <select id="fEnabled${id}" class="form-select">
+  <label for="fPWMEnabled${id}" class="form-label">Channel ${id}</label>
+  <select id="fPWMEnabled${id}" class="form-select">
     <option value="0">Disabled</option>
     <option value="1">Enabled</option>
   </select>
   <div class="valid-feedback">Saved!</div>
 </div>
 <div class="col-md-5">
-  <label for="fChannelName${id}" class="form-label">Name</label>
-  <input type="text" class="form-control" id="fChannelName${id}" value="${name}">
+  <label for="fPWMName${id}" class="form-label">Name</label>
+  <input type="text" class="form-control" id="fPWMName${id}" value="${name}">
   <div class="valid-feedback">Saved!</div>
   <div class="invalid-feedback">Must be 30 characters or less.</div>
 </div>
 <div class="col-md-2">
-  <label for="fDimmable${id}" class="form-label">Dimmable?</label>
-  <select id="fDimmable${id}" class="form-select">
+  <label for="fPWMDimmable${id}" class="form-label">Dimmable?</label>
+  <select id="fPWMDimmable${id}" class="form-select">
     <option value="0">No</option>
     <option value="1">Yes</option>
   </select>
   <div class="valid-feedback">Saved!</div>
 </div>
 <div class="col-md-2">
-  <label for="fSoftFuse${id}" class="form-label">Soft Fuse</label>
+  <label for="fPWMSoftFuse${id}" class="form-label">Soft Fuse</label>
   <div class="input-group mb-3">
-    <input type="text" class="form-control" id="fSoftFuse${id}" value="${soft_fuse}">
+    <input type="text" class="form-control" id="fPWMSoftFuse${id}" value="${soft_fuse}">
     <span class="input-group-text">A</span>
     <div class="valid-feedback">Saved!</div>
     <div class="invalid-feedback">Must be a number between 0 and 20</div>
@@ -84,6 +84,25 @@ const SwitchControlRow = (id, name) => `
   <td class="text-center"><button id="switchState${id}" type="button" class="btn btn-sm" style="width: 80px"></button></td>
   <td class="switchName">${name}</td>
 </tr>
+`;
+
+const SwitchEditRow = (id, name, soft_fuse) => `
+<div class="row mt-2">
+  <div class="col-md-3">
+    <label for="fSwitchEnabled${id}" class="form-label">Switch ${id}</label>
+    <select id="fSwitchEnabled${id}" class="form-select">
+      <option value="0">Disabled</option>
+      <option value="1">Enabled</option>
+    </select>
+    <div class="valid-feedback">Saved!</div>
+  </div>
+  <div class="col-md-3">
+    <label for="fSwitchName${id}" class="form-label">Name</label>
+    <input type="text" class="form-control" id="fSwitchName${id}" value="${name}">
+    <div class="valid-feedback">Saved!</div>
+    <div class="invalid-feedback">Must be 30 characters or less.</div>
+  </div>
+</div>
 `;
 
 const AlertBox = (message, type) => `
@@ -302,7 +321,7 @@ function start_websocket()
       if (!page_ready.config || current_page != "config")
       {
         //populate our pwm edit table
-        $('#pwmConfigForm').html(ChannelNameEdit(msg.name));
+        $('#boardConfigForm').html(BoardNameEdit(msg.name));
 
         //validate + save control
         $("#fBoardName").change(validate_board_name);
@@ -312,22 +331,40 @@ function start_websocket()
         {
           for (ch of msg.pwm)
           {
-            $('#pwmConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
-            $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
-            $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+            $('#boardConfigForm').append(PWMEditRow(ch.id, ch.name, ch.softFuse));
+            $(`#fPWMDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
+            $(`#fPWMEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
   
             //enable/disable other stuff.
-            $(`#fChannelName${ch.id}`).prop('disabled', !ch.enabled);
-            $(`#fDimmable${ch.id}`).prop('disabled', !ch.enabled);
-            $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
+            $(`#fPWMName${ch.id}`).prop('disabled', !ch.enabled);
+            $(`#fPWMDimmable${ch.id}`).prop('disabled', !ch.enabled);
+            $(`#fPWMSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
   
             //validate + save
-            $(`#fEnabled${ch.id}`).change(validate_pwm_enabled);
-            $(`#fChannelName${ch.id}`).change(validate_pwm_name);
-            $(`#fDimmable${ch.id}`).change(validate_pwm_dimmable);
-            $(`#fSoftFuse${ch.id}`).change(validate_pwm_soft_fuse);
+            $(`#fPWMEnabled${ch.id}`).change(validate_pwm_enabled);
+            $(`#fPWMName${ch.id}`).change(validate_pwm_name);
+            $(`#fPWMDimmable${ch.id}`).change(validate_pwm_dimmable);
+            $(`#fPWMSoftFuse${ch.id}`).change(validate_pwm_soft_fuse);
           }  
         }
+
+        //edit controls for each pwm
+        if (msg.switches)
+        {
+          for (ch of msg.switches)
+          {
+            $('#boardConfigForm').append(SwitchEditRow(ch.id, ch.name));
+            $(`#fSwitchEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+  
+            //enable/disable other stuff.
+            $(`#fSwitchName${ch.id}`).prop('disabled', !ch.enabled);
+  
+            //validate + save
+            $(`#fSwitchEnabled${ch.id}`).change(validate_switch_enabled);
+            $(`#fSwitchName${ch.id}`).change(validate_switch_name);
+          }  
+        }
+
       }
 
       //ready!
@@ -896,9 +933,9 @@ function validate_pwm_enabled(e)
     value = false;
 
   //enable/disable other stuff.
-  $(`#fChannelName${id}`).prop('disabled', !value);
-  $(`#fDimmable${id}`).prop('disabled', !value);
-  $(`#fSoftFuse${id}`).prop('disabled', !value);
+  $(`#fPWMName${id}`).prop('disabled', !value);
+  $(`#fPWMDimmable${id}`).prop('disabled', !value);
+  $(`#fPWMSoftFuse${id}`).prop('disabled', !value);
 
   //nothing really to validate here.
   $(ele).addClass("is-valid");
@@ -937,6 +974,57 @@ function validate_pwm_soft_fuse(e)
       "softFuse": value
     }));
   }
+}
+
+function validate_switch_name(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  if (value.length <= 0 || value.length > 30)
+  {
+    $(ele).removeClass("is-valid");
+    $(ele).addClass("is-invalid");
+  }
+  else
+  {
+    $(ele).removeClass("is-invalid");
+    $(ele).addClass("is-valid");
+
+    // //set our new pwm name!
+    // socket.send(JSON.stringify({
+    //   "cmd": "set_pwm_channel",
+    //   "id": id,
+    //   "name": value
+    // }));
+  }
+}
+
+function validate_switch_enabled(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  //convert it
+  if (value == "1")
+    value = true;
+  else
+    value = false;
+
+  //enable/disable other stuff.
+  $(`#fSwitchName${id}`).prop('disabled', !value);
+
+  //nothing really to validate here.
+  $(ele).addClass("is-valid");
+
+  //save it
+  // socket.send(JSON.stringify({
+  //   "cmd": "set_pwm_channel",
+  //   "id": id,
+  //   "enabled": value
+  // }));
 }
 
 function do_login(e)
