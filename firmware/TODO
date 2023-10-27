@@ -20,13 +20,10 @@ Electronics:
 
 * RGB board
     * add in bus voltage measurement?
-    * pin GPIO12 - output only, swap with other pin. (GPIO17?)
-    * pin GPIO2 - needs low @ boot, swap with other pin (GPIO15?)
     * precision 5v ref needs to be powered from ESP32_5V
     * consolidate 10nF / 50v cap
     * add in BLANK line
-    * switch to external I/O expander
-    * move led drivers to secondary SPI bus
+    * move led driver to secondary SPI bus
     * consider a swap to FPC cables instead of IDC
     * change ADC input pinout
     * remove all the extra silkscreen around connectors
