@@ -14,5 +14,13 @@
         "version":"0.0.4",
         "url":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.4.bin",
         "changelog": "<ul><li>Testing one more time v4.</li></ul>"
+    },
+    {
+        "type":"RGB-INPUT-REV-A",
+        "host": "raw.githubusercontent.com",
+        "port": 443,
+        "version":"0.0.4",
+        "url":"/hoeken/yarrboard/main/firmware/releases/yarrboard-0.0.4.bin",
+        "changelog": "<ul><li>Testing one more time v4.</li></ul>"
     }
 ]
