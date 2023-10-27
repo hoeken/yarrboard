@@ -32,6 +32,7 @@
 #define YB_DUTY_SAVE_TIMEOUT 5000
 
 //bytes for sending json
+#define YB_LARGE_JSON_SIZE 5000
 #define YB_MAX_JSON_LENGTH 1500
 
 #define YBP_MODE_WEBSOCKET 0

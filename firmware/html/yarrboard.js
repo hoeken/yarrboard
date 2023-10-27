@@ -79,6 +79,13 @@ const ChannelEditRow = (id, name, soft_fuse) => `
 </div>
 `;
 
+const SwitchControlRow = (id, name) => `
+<tr id="switch${id}" class="switchRow">
+  <td class="text-center"><button id="switchState${id}" type="button" class="btn btn-sm" style="width: 80px"></button></td>
+  <td class="switchName">${name}</td>
+</tr>
+`;
+
 const AlertBox = (message, type) => `
 <div>
   <div class="mt-3 alert alert-${type} alert-dismissible" role="alert">
@@ -212,9 +219,10 @@ function start_websocket()
     if (msg.msg == 'config')
     {
       console.log("config");
+      console.log(msg);
 
       current_config = msg;
-  
+
       //is it our first boot?
       if (msg.first_boot && current_page != "network")
         show_alert(`Welcome to Yarrboard, head over to <a href="#network" onclick="open_page('network')">Network</a> to setup your WiFi.`, "primary");
@@ -227,29 +235,63 @@ function start_websocket()
       $('#projectName').html("Yarrboard v" + msg.firmware_version);
   
       //populate our pwm control table
-      $('#pwmTableBody').html("");
-      for (ch of msg.pwm)
+      if (msg.pwm)
       {
-        if (ch.enabled)
+        $('#pwmTableBody').html("");
+        for (ch of msg.pwm)
         {
-          $('#pwmTableBody').append(PWMControlRow(ch.id, ch.name));
-          $('#pwmDutySlider' + ch.id).change(set_duty_cycle);
+          if (ch.enabled)
+          {
+            $('#pwmTableBody').append(PWMControlRow(ch.id, ch.name));
+            $('#pwmDutySlider' + ch.id).change(set_duty_cycle);
+          }
+        }
+
+        $('#pwmStatsTableBody').html("");
+        for (ch of msg.pwm)
+        {
+          if (ch.enabled)
+          {
+            $('#pwmStatsTableBody').append(`<tr id="pwmStats${ch.id}" class="pwmRow"></tr>`);
+            $('#pwmStats' + ch.id).append(`<td class="pwmName">${ch.name}</td>`);
+            $('#pwmStats' + ch.id).append(`<td id="pwmAmpHours${ch.id}" class="text-end"></td>`);
+            $('#pwmStats' + ch.id).append(`<td id="pwmWattHours${ch.id}" class="text-end"></td>`);
+            $('#pwmStats' + ch.id).append(`<td id="pwmOnCount${ch.id}" class="text-end"></td>`);
+            $('#pwmStats' + ch.id).append(`<td id="pwmTripCount${ch.id}" class="text-end"></td>`);
+          }
         }
       }
-
-      //populate our pwm stats table
-      $('#pwmStatsTableBody').html("");
-      for (ch of msg.pwm)
+      else
       {
-        if (ch.enabled)
+        $('#pwmTable').hide();
+        $('#pwmStatsDiv').hide();
+      }
+
+      //populate our pwm control table
+      if (msg.switches)
+      {
+        $('#switchTableBody').html("");
+        for (ch of msg.switches)
         {
-          $('#pwmStatsTableBody').append(`<tr id="pwmStats${ch.id}" class="pwmRow"></tr>`);
-          $('#pwmStats' + ch.id).append(`<td class="pwmName">${ch.name}</td>`);
-          $('#pwmStats' + ch.id).append(`<td id="pwmAmpHours${ch.id}" class="text-end"></td>`);
-          $('#pwmStats' + ch.id).append(`<td id="pwmWattHours${ch.id}" class="text-end"></td>`);
-          $('#pwmStats' + ch.id).append(`<td id="pwmOnCount${ch.id}" class="text-end"></td>`);
-          $('#pwmStats' + ch.id).append(`<td id="pwmTripCount${ch.id}" class="text-end"></td>`);
+          if (ch.enabled)
+            $('#switchTableBody').append(SwitchControlRow(ch.id, ch.name));
         }
+
+        $('#switchStatsTableBody').html("");
+        for (ch of msg.switches)
+        {
+          if (ch.enabled)
+          {
+            $('#switchStatsTableBody').append(`<tr id="switchStats${ch.id}" class="switchRow"></tr>`);
+            $('#switchStats' + ch.id).append(`<td class="switchName">${ch.name}</td>`);
+            $('#switchStats' + ch.id).append(`<td id="switchOnCount${ch.id}" class="text-end"></td>`);
+          }
+        }
+      }
+      else
+      {
+        $('#switchTable').hide();
+        $('#switchStatsDiv').hide();
       }
 
       //stats info
@@ -266,22 +308,25 @@ function start_websocket()
         $("#fBoardName").change(validate_board_name);
 
         //edit controls for each pwm
-        for (ch of msg.pwm)
+        if (msg.pwm)
         {
-          $('#pwmConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
-          $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
-          $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
-
-          //enable/disable other stuff.
-          $(`#fChannelName${ch.id}`).prop('disabled', !ch.enabled);
-          $(`#fDimmable${ch.id}`).prop('disabled', !ch.enabled);
-          $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
-
-          //validate + save
-          $(`#fEnabled${ch.id}`).change(validate_pwm_enabled);
-          $(`#fChannelName${ch.id}`).change(validate_pwm_name);
-          $(`#fDimmable${ch.id}`).change(validate_pwm_dimmable);
-          $(`#fSoftFuse${ch.id}`).change(validate_pwm_soft_fuse);
+          for (ch of msg.pwm)
+          {
+            $('#pwmConfigForm').append(ChannelEditRow(ch.id, ch.name, ch.softFuse));
+            $(`#fDimmable${ch.id}`).val(ch.isDimmable ? "1" : "0");
+            $(`#fEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+  
+            //enable/disable other stuff.
+            $(`#fChannelName${ch.id}`).prop('disabled', !ch.enabled);
+            $(`#fDimmable${ch.id}`).prop('disabled', !ch.enabled);
+            $(`#fSoftFuse${ch.id}`).prop('disabled', !ch.enabled);
+  
+            //validate + save
+            $(`#fEnabled${ch.id}`).change(validate_pwm_enabled);
+            $(`#fChannelName${ch.id}`).change(validate_pwm_name);
+            $(`#fDimmable${ch.id}`).change(validate_pwm_dimmable);
+            $(`#fSoftFuse${ch.id}`).change(validate_pwm_soft_fuse);
+          }  
         }
       }
 
@@ -291,23 +336,22 @@ function start_websocket()
     else if (msg.msg == 'update')
     {
       //console.log("update");
+      console.log(msg);
 
       //we need a config loaded.
       if (!current_config)
         return;
 
       //update our clock.
-      /*
-      let mytime = Date.parse(msg.time);
-      if (mytime)
-      {
-        let mydate = new Date(mytime);
-        $('#time').html(mydate.toLocaleString());
-        $('#time').show();
-      }
-      else
-        $('#time').hide();
-      */
+      // let mytime = Date.parse(msg.time);
+      // if (mytime)
+      // {
+      //   let mydate = new Date(mytime);
+      //   $('#time').html(mydate.toLocaleString());
+      //   $('#time').show();
+      // }
+      // else
+      //   $('#time').hide();
 
       if (msg.uptime)
       {
@@ -318,58 +362,82 @@ function start_websocket()
         $("#uptime_footer").hide();
 
       //or maybe voltage
-      /*
-      if (msg.bus_voltage)
-      {
-        $('#bus_voltage_main').html("Bus Voltage: " + msg.bus_voltage.toFixed(2) + "V");
-        $('#bus_voltage_main').show();
-      }
-      else
-        $('#bus_voltage_main').hide();
-      */
+      // if (msg.bus_voltage)
+      // {
+      //   $('#bus_voltage_main').html("Bus Voltage: " + msg.bus_voltage.toFixed(2) + "V");
+      //   $('#bus_voltage_main').show();
+      // }
+      // else
+      //   $('#bus_voltage_main').hide();
 
       //our pwm info
-      for (ch of msg.pwm)
+      if (msg.pwm)
       {
-        if (current_config.pwm[ch.id].enabled)
+        for (ch of msg.pwm)
         {
-          if (ch.state)
+          if (current_config.pwm[ch.id].enabled)
           {
-            $('#pwmState' + ch.id).html("ON");
-            $('#pwmState' + ch.id).removeClass("btn-danger");
-            $('#pwmState' + ch.id).removeClass("btn-secondary");
-            $('#pwmState' + ch.id).addClass("btn-success");
+            if (ch.state)
+            {
+              $('#pwmState' + ch.id).html("ON");
+              $('#pwmState' + ch.id).removeClass("btn-danger");
+              $('#pwmState' + ch.id).removeClass("btn-secondary");
+              $('#pwmState' + ch.id).addClass("btn-success");
+            }
+            else if(ch.soft_fuse_tripped)
+            {
+              $('#pwmState' + ch.id).html("TRIP");
+              $('#pwmState' + ch.id).removeClass("btn-success");
+              $('#pwmState' + ch.id).removeClass("btn-secondary");
+              $('#pwmState' + ch.id).addClass("btn-danger");
+            }
+            else
+            {
+              $('#pwmState' + ch.id).html("OFF");
+              $('#pwmState' + ch.id).removeClass("btn-success");
+              $('#pwmState' + ch.id).removeClass("btn-danger");
+              $('#pwmState' + ch.id).addClass("btn-secondary");
+            }
+      
+            //duty is a bit of a special case.
+            let duty = Math.round(ch.duty * 100);
+            if (current_config.pwm[ch.id].isDimmable)
+            {
+              $('#pwmDutySlider' + ch.id).val(duty); 
+              $('#pwmDutyCycle' + ch.id).html(`${duty}%`);
+              $('#pwmDutyCycle' + ch.id).show();
+            }
+            else
+            {
+              $('#pwmDutyCycle' + ch.id).hide();
+            }
+      
+            let current = ch.current.toFixed(1);
+            $('#pwmCurrent' + ch.id).html(`${current}&nbsp;A`);
           }
-          else if(ch.soft_fuse_tripped)
+        }
+      }
+
+      //our pwm info
+      if (msg.switches)
+      {
+        for (ch of msg.switches)
+        {
+          if (current_config.switches[ch.id].enabled)
           {
-            $('#pwmState' + ch.id).html("TRIP");
-            $('#pwmState' + ch.id).removeClass("btn-success");
-            $('#pwmState' + ch.id).removeClass("btn-secondary");
-            $('#pwmState' + ch.id).addClass("btn-danger");
+            if (ch.isOpen)
+            {
+              $('#switchState' + ch.id).html("OPEN");
+              $('#switchState' + ch.id).removeClass("btn-success");
+              $('#switchState' + ch.id).addClass("btn-secondary");
+            }
+            else
+            {
+              $('#switchState' + ch.id).html("CLOSED");
+              $('#switchState' + ch.id).removeClass("btn-secondary");
+              $('#switchState' + ch.id).addClass("btn-success");
+            }
           }
-          else
-          {
-            $('#pwmState' + ch.id).html("OFF");
-            $('#pwmState' + ch.id).removeClass("btn-success");
-            $('#pwmState' + ch.id).removeClass("btn-danger");
-            $('#pwmState' + ch.id).addClass("btn-secondary");
-          }
-    
-          //duty is a bit of a special case.
-          let duty = Math.round(ch.duty * 100);
-          if (current_config.pwm[ch.id].isDimmable)
-          {
-            $('#pwmDutySlider' + ch.id).val(duty); 
-            $('#pwmDutyCycle' + ch.id).html(`${duty}%`);
-            $('#pwmDutyCycle' + ch.id).show();
-          }
-          else
-          {
-            $('#pwmDutyCycle' + ch.id).hide();
-          }
-    
-          let current = ch.current.toFixed(1);
-          $('#pwmCurrent' + ch.id).html(`${current}&nbsp;A`);
         }
       }
 
@@ -391,21 +459,36 @@ function start_websocket()
       $("#max_alloc_heap").html(formatBytes(msg.max_alloc_heap));
       $("#rssi").html(msg.rssi + "dBm");
       $("#uuid").html(msg.uuid);
-      $("#bus_voltage").html(msg.bus_voltage.toFixed(1) + "V");
+      if (msg.bus_voltage)
+        $("#bus_voltage").html(msg.bus_voltage.toFixed(1) + "V");
       $("#ip_address").html(msg.ip_address);
   
       if (msg.fans)
         $("#fan_rpm").html(msg.fans.map((a) => a.rpm).join(", "));
 
-      for (ch of msg.pwm)
+      if (msg.pwm)
       {
-        if (current_config.pwm[ch.id].enabled)
+        for (ch of msg.pwm)
         {
-          $('#pwmAmpHours' + ch.id).html(formatAmpHours(ch.aH));
-          $('#pwmWattHours' + ch.id).html(formatWattHours(ch.wH));
-          $('#pwmOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
-          $('#pwmTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
+          if (current_config.pwm[ch.id].enabled)
+          {
+            $('#pwmAmpHours' + ch.id).html(formatAmpHours(ch.aH));
+            $('#pwmWattHours' + ch.id).html(formatWattHours(ch.wH));
+            $('#pwmOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
+            $('#pwmTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
+          }
         }
+
+        if (msg.switches)
+        {
+          for (ch of msg.switches)
+          {
+            if (current_config.switches[ch.id].enabled)
+            {
+              $('#switchOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
+            }
+          }
+        }    
       }
 
       page_ready.stats = true;

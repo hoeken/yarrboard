@@ -1,5 +1,6 @@
 Firmware:
 
+* login page image is broken
 * update for 8ch mosfet Rev B
     * 2 fans now
     * bus voltage from MCP3425
