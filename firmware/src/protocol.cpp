@@ -43,7 +43,7 @@ void protocol_setup()
     
   if (app_enable_serial)
   {
-    StaticJsonDocument<3000> output;
+    StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
 
     generateConfigJSON(output);
     serializeJson(output, Serial);
@@ -95,7 +95,7 @@ void handleSerialJson()
   StaticJsonDocument<1024> input;
   DeserializationError err = deserializeJson(input, Serial);
 
-  StaticJsonDocument<3000> output;
+  StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
 
   //ignore newlines with serial.
   if (err)
@@ -714,7 +714,7 @@ void generateUpdateJSON(JsonVariant output)
   #ifdef YB_HAS_INPUT_CHANNELS
     for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
       output["switches"][i]["id"] = i;
-      output["switches"][i]["state"] = input_channels[i].state;
+      output["switches"][i]["isOpen"] = input_channels[i].state;
     }
   #endif
 
@@ -875,7 +875,7 @@ void generatePongJSON(JsonVariant output)
 
 void sendUpdate()
 {
-  StaticJsonDocument<3000> output;
+  StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
   char jsonBuffer[YB_MAX_JSON_LENGTH];
 
   generateUpdateJSON(output);
