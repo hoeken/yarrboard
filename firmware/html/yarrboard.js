@@ -107,8 +107,8 @@ const SwitchEditRow = (id, name) => `
 
 const RGBControlRow = (id, name) => `
 <tr id="rgb${id}" class="rgbRow">
+  <td class="text-center"><span id="rgbDot${id}" class="rgbDot"></span></td>
   <td class="rgbName">${name}</td>
-  <td class="text-center"><span id="rgbDot${id}class="rgbDot"></span></td>
 </tr>
 `;
 
@@ -125,6 +125,33 @@ const RGBEditRow = (id, name) => `
   <div class="col-md-3">
     <label for="fRGBName${id}" class="form-label">Name</label>
     <input type="text" class="form-control" id="fRGBName${id}" value="${name}">
+    <div class="valid-feedback">Saved!</div>
+    <div class="invalid-feedback">Must be 30 characters or less.</div>
+  </div>
+</div>
+`;
+
+const ADCControlRow = (id, name) => `
+<tr id="adc${id}" class="adcRow">
+  <td class="adcName">${name}</td>
+  <td class="text-center" id="adcReading${id}"></td>
+  <td class="text-center" id="adcVoltage${id}"></td>
+</tr>
+`;
+
+const ADCEditRow = (id, name) => `
+<div class="row mt-2">
+  <div class="col-md-3">
+    <label for="fADCEnabled${id}" class="form-label">ADC ${id}</label>
+    <select id="fADCEnabled${id}" class="form-select">
+      <option value="0">Disabled</option>
+      <option value="1">Enabled</option>
+    </select>
+    <div class="valid-feedback">Saved!</div>
+  </div>
+  <div class="col-md-3">
+    <label for="fADCName${id}" class="form-label">Name</label>
+    <input type="text" class="form-control" id="fADCName${id}" value="${name}">
     <div class="valid-feedback">Saved!</div>
     <div class="invalid-feedback">Must be 30 characters or less.</div>
   </div>
@@ -360,6 +387,21 @@ function start_websocket()
         $('#rgbTable').hide();
       }
 
+      //populate our adc control table
+      if (msg.adc)
+      {
+        $('#adcTableBody').html("");
+        for (ch of msg.adc)
+        {
+          if (ch.enabled)
+            $('#adcTableBody').append(ADCControlRow(ch.id, ch.name));
+        }
+      }
+      else
+      {
+        $('#adcTable').hide();
+      }
+      
       //only do it as needed
       if (!page_ready.config || current_page != "config")
       {
@@ -422,7 +464,24 @@ function start_websocket()
             //validate + save
             $(`#fRGBEnabled${ch.id}`).change(validate_rgb_enabled);
             $(`#fRGBName${ch.id}`).change(validate_rgb_name);
-          }  
+          }
+        }
+
+        //edit controls for each rgb
+        if (msg.adc)
+        {
+          for (ch of msg.adc)
+          {
+            $('#boardConfigForm').append(ADCEditRow(ch.id, ch.name));
+            $(`#fADCEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+  
+            //enable/disable other stuff.
+            $(`#fADCName${ch.id}`).prop('disabled', !ch.enabled);
+  
+            //validate + save
+            $(`#fADCEnabled${ch.id}`).change(validate_adc_enabled);
+            $(`#fADCName${ch.id}`).change(validate_adc_name);
+          }
         }
       }
 
@@ -1138,6 +1197,57 @@ function validate_rgb_enabled(e)
 
   //enable/disable other stuff.
   $(`#fRGBName${id}`).prop('disabled', !value);
+
+  //nothing really to validate here.
+  $(ele).addClass("is-valid");
+
+  //save it
+  // socket.send(JSON.stringify({
+  //   "cmd": "set_pwm_channel",
+  //   "id": id,
+  //   "enabled": value
+  // }));
+}
+
+function validate_adc_name(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  if (value.length <= 0 || value.length > 30)
+  {
+    $(ele).removeClass("is-valid");
+    $(ele).addClass("is-invalid");
+  }
+  else
+  {
+    $(ele).removeClass("is-invalid");
+    $(ele).addClass("is-valid");
+
+    // //set our new pwm name!
+    // socket.send(JSON.stringify({
+    //   "cmd": "set_pwm_channel",
+    //   "id": id,
+    //   "name": value
+    // }));
+  }
+}
+
+function validate_adc_enabled(e)
+{
+  let ele = e.target;
+  let id = ele.id.match(/\d+/)[0];
+  let value = ele.value;
+
+  //convert it
+  if (value == "1")
+    value = true;
+  else
+    value = false;
+
+  //enable/disable other stuff.
+  $(`#fADCName${id}`).prop('disabled', !value);
 
   //nothing really to validate here.
   $(ele).addClass("is-valid");

@@ -73,26 +73,53 @@
                 </div>
             </div>
             <div id="controlPage" style="display:none" class="pageContainer row mt-3 mx-2">
-                <table id="pwmTable" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th class="text-center" scope="col">State</th>
-                            <th scope="col">Name</th>
-                            <th class="text-end" scope="col">PWM</th>
-                            <th class="text-end" scope="col">Current</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pwmTableBody" class="table-group-divider"></tbody>
-                </table>
-                <table id="switchTable" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th class="text-center" scope="col">State</th>
-                            <th scope="col">Name</th>
-                        </tr>
-                    </thead>
-                    <tbody id="switchTableBody" class="table-group-divider"></tbody>
-                </table>
+                <div class="col-md-12">
+                    <table id="pwmTable" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th class="text-center" scope="col">State</th>
+                                <th scope="col">Name</th>
+                                <th class="text-end" scope="col">PWM</th>
+                                <th class="text-end" scope="col">Current</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pwmTableBody" class="table-group-divider"></tbody>
+                    </table>
+                </div>
+                <div class="col-md-4">
+                    <table id="switchTable" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th class="text-center" scope="col">State</th>
+                                <th scope="col">Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="switchTableBody" class="table-group-divider"></tbody>
+                    </table>
+                </div>
+                <div class="col-md-4">
+                    <table id="rgbTable" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th class="text-center" scope="col">LED</th>
+                                <th scope="col">Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rgbTableBody" class="table-group-divider"></tbody>
+                    </table>
+                </div>
+                <div class="col-md-4">
+                    <table id="adcTable" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th class="text-center" scope="col">Reading</th>
+                                <th class="text-center" scope="col">Voltage</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adcTableBody" class="table-group-divider"></tbody>
+                    </table>
+                </div>
             </div>
             <div id="configPage" style="display:none" class="pageContainer mt-2 mx-2">
                 <form class="row g-3" id="boardConfigForm"></form>
