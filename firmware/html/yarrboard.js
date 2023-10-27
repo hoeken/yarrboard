@@ -689,12 +689,17 @@ function start_websocket()
       $("#max_alloc_heap").html(formatBytes(msg.max_alloc_heap));
       $("#rssi").html(msg.rssi + "dBm");
       $("#uuid").html(msg.uuid);
+      $("#ip_address").html(msg.ip_address);
+
       if (msg.bus_voltage)
         $("#bus_voltage").html(msg.bus_voltage.toFixed(1) + "V");
-      $("#ip_address").html(msg.ip_address);
-  
+      else
+        $("#bus_voltage_row").remove();
+
       if (msg.fans)
         $("#fan_rpm").html(msg.fans.map((a) => a.rpm).join(", "));
+      else
+        $("#fan_rpm_row").remove();
 
       if (msg.pwm)
       {
@@ -708,18 +713,18 @@ function start_websocket()
             $('#pwmTripCount' + ch.id).html(ch.soft_fuse_trip_count.toLocaleString("en-US"));
           }
         }
-
-        if (msg.switches)
-        {
-          for (ch of msg.switches)
-          {
-            if (current_config.switches[ch.id].enabled)
-            {
-              $('#switchOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
-            }
-          }
-        }    
       }
+
+      if (msg.switches)
+      {
+        for (ch of msg.switches)
+        {
+          if (current_config.switches[ch.id].enabled)
+          {
+            $('#switchOnCount' + ch.id).html(ch.state_change_count.toLocaleString("en-US"));
+          }
+        }
+      }    
 
       page_ready.stats = true;
     }

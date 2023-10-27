@@ -3,8 +3,12 @@ Firmware:
 * convert Adafruit library to hardware SPI to not conflict with MCP3208
 * update for 8ch mosfet Rev B
     * 2 fans now
+* investigate why adc is noisy on new 8ch board
+* update node.js client
+* update signalk plugin
+    * add uptime to signalk integration
+
 * protocol documentation
-* add uptime to signalk integration
 
 Electronics:
 
@@ -23,6 +27,9 @@ Electronics:
     * add in BLANK line
     * switch to external I/O expander
     * move led drivers to secondary SPI bus
+    * consider a swap to FPC cables instead of IDC
+    * change ADC input pinout
+    * remove all the extra silkscreen around connectors
 
 * finish design of button board
 * order button board + parts

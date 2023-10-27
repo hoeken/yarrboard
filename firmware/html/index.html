@@ -172,7 +172,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Name</th>
-                                    <th class="text-end" scope="col">Switches</th>
+                                    <th class="text-end" scope="col">On/Off Cycles</th>
                                 </tr>
                             </thead>
                             <tbody id="switchStatsTableBody" class="table-group-divider"></tbody>
@@ -183,7 +183,7 @@
                     <h5>Board Statistics</h5>
                     <table id="statsTable" class="table table-striped table-hover">
                         <tbody>
-                            <tr>
+                            <tr id="bus_voltage_row">
                                 <th scope="row">Bus Voltage:</th>
                                 <td id="bus_voltage" class="text-end"></td>
                             </tr>
@@ -195,7 +195,7 @@
                                 <th scope="row">Hardware Version:</th>
                                 <td id="hardware_version" class="text-end"></td>
                             </tr>
-                            <tr>
+                            <tr id="fan_rpm_row">
                                 <th scope="row">Fan RPMs:</th>
                                 <td id="fan_rpm" class="text-end"></td>
                             </tr>
