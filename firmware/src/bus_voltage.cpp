@@ -34,6 +34,11 @@ void bus_voltage_setup()
   #endif
 
   #ifdef YB_BUS_VOLTAGE_MCP3425
+    //check if its there...
+    Wire.requestFrom(YB_BUS_VOLTAGE_ADDRESS, 1);
+    if (!Wire.available())
+      Serial.println("ERROR: MCP3425 Not found.");
+
     busADC.setup();
   #endif
 }

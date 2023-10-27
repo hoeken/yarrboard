@@ -108,11 +108,6 @@ void MCP3425Helper::setup()
     MCP342x::generalCallReset();
     delay(1); // MC342x needs 300us to settle, wait 1ms
 
-    //check if its there...
-    Wire.requestFrom(YB_BUS_VOLTAGE_ADDRESS, 1);
-    if (!Wire.available())
-      Serial.println("ERROR: MCP3425 Not found.");
-
     this->adc->configure(MCP3425_config);
 
     this->start_conversion = true;

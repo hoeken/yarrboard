@@ -20,6 +20,18 @@ Firmware:
 
 Electronics:
 
+* 8ch Mosfet
+    * L2 wrong footprint
+    * 2N7002 missing p/n
+    * noise on current measurement?
+    * MCP3425 doesnt need precision vref?
+
+* RGB board
+    * L2 wrong footprint
+    * add in bus voltage measurement?
+    * pin GPIO12 - output only, swap with other pin. (GPIO17?)
+    * pin GPIO2 - needs low @ boot, swap with other pin (GPIO15?)
+
 * finish design of button board
 * order button board + parts
 * update 3dp case for 8ch mosfet
