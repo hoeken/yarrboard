@@ -27,7 +27,7 @@ bool rgb_is_dirty = false;
 void rgb_channels_setup()
 {
   #ifdef YB_RGB_DRIVER_TLC5947
-    //tlc.begin();
+    tlc.begin();
   #endif
 
   //intitialize our channel
@@ -46,7 +46,7 @@ void rgb_channels_loop()
     if (rgb_is_dirty)
     {
       #ifdef YB_RGB_DRIVER_TLC5947
-        //tlc.write();
+        tlc.write();
       #endif
 
       rgb_is_dirty = false;
@@ -82,9 +82,7 @@ void RGBChannel::setup()
   else
     this->isEnabled = true;
 
-  this->red = 0.0;
-  this->green = 0.0;
-  this->blue = 0.0;
+  this->setRGB(0.0, 0.0, 0.0);
 }
 
 void RGBChannel::setRGB(float r, float g, float b)
@@ -93,9 +91,9 @@ void RGBChannel::setRGB(float r, float g, float b)
   this->green = g;
   this->blue = b;
 
-  // #ifdef YB_RGB_DRIVER_TLC5947
-  //   tlc.setLED(this->id, this->red*MAX_RGB_RESOLUTION, this->green*MAX_RGB_RESOLUTION, this->blue*MAX_RGB_RESOLUTION);
-  // #endif
+  #ifdef YB_RGB_DRIVER_TLC5947
+    tlc.setLED(this->id, this->red*MAX_RGB_RESOLUTION, this->green*MAX_RGB_RESOLUTION, this->blue*MAX_RGB_RESOLUTION);
+  #endif
 
   rgb_is_dirty = true;
 }
