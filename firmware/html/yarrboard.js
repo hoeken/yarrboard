@@ -87,17 +87,17 @@ const SwitchControlRow = (id, name) => `
 `;
 
 const SwitchEditRow = (id, name) => `
-<div class="row mt-2">
-  <div class="col-md-6">
-    <label for="fSwitchEnabled${id}" class="form-label">Switch ${id}</label>
-    <select id="fSwitchEnabled${id}" class="form-select">
-      <option value="0">Disabled</option>
-      <option value="1">Enabled</option>
-    </select>
+<div class="row mt-2 align-items-center">
+  <div class="col-auto">
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="fSwitchEnabled${id}">
+      <label class="form-check-label" for="fSwitchEnabled${id}">
+        Enabled
+      </label>
+    </div>
     <div class="valid-feedback">Saved!</div>
   </div>
-  <div class="col-md-6">
-    <label for="fSwitchName${id}" class="form-label">Name</label>
+  <div class="col-auto">
     <input type="text" class="form-control" id="fSwitchName${id}" value="${name}">
     <div class="valid-feedback">Saved!</div>
     <div class="invalid-feedback">Must be 30 characters or less.</div>
@@ -113,17 +113,17 @@ const RGBControlRow = (id, name) => `
 `;
 
 const RGBEditRow = (id, name) => `
-<div class="row mt-2">
-  <div class="col-md-6">
-    <label for="fRGBEnabled${id}" class="form-label">RGB ${id}</label>
-    <select id="fRGBEnabled${id}" class="form-select">
-      <option value="0">Disabled</option>
-      <option value="1">Enabled</option>
-    </select>
+<div class="row mt-2 align-items-center">
+  <div class="col-auto">
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="fRGBEnabled${id}">
+      <label class="form-check-label" for="fRGBEnabled${id}">
+        Enabled
+      </label>
+    </div>
     <div class="valid-feedback">Saved!</div>
   </div>
-  <div class="col-md-6">
-    <label for="fRGBName${id}" class="form-label">Name</label>
+  <div class="col-auto">
     <input type="text" class="form-control" id="fRGBName${id}" value="${name}">
     <div class="valid-feedback">Saved!</div>
     <div class="invalid-feedback">Must be 30 characters or less.</div>
@@ -141,17 +141,17 @@ const ADCControlRow = (id, name) => `
 `;
 
 const ADCEditRow = (id, name) => `
-<div class="row mt-2">
-  <div class="col-md-6">
-    <label for="fADCEnabled${id}" class="form-label">ADC ${id}</label>
-    <select id="fADCEnabled${id}" class="form-select">
-      <option value="0">Disabled</option>
-      <option value="1">Enabled</option>
-    </select>
+<div class="row mt-2 align-items-center">
+  <div class="col-auto">
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="fADCEnabled${id}">
+      <label class="form-check-label" for="fADCEnabled${id}">
+        Enabled
+      </label>
+    </div>
     <div class="valid-feedback">Saved!</div>
   </div>
-  <div class="col-md-6">
-    <label for="fADCName${id}" class="form-label">Name</label>
+  <div class="col-auto">
     <input type="text" class="form-control" id="fADCName${id}" value="${name}">
     <div class="valid-feedback">Saved!</div>
     <div class="invalid-feedback">Must be 30 characters or less.</div>
@@ -481,7 +481,7 @@ function start_websocket()
           for (ch of msg.switches)
           {
             $('#switchConfigForm').append(SwitchEditRow(ch.id, ch.name));
-            $(`#fSwitchEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+            $(`#fSwitchEnabled${ch.id}`).prop("checked", ch.enabled);
   
             //enable/disable other stuff.
             $(`#fSwitchName${ch.id}`).prop('disabled', !ch.enabled);
@@ -501,7 +501,7 @@ function start_websocket()
           for (ch of msg.rgb)
           {
             $('#rgbConfigForm').append(RGBEditRow(ch.id, ch.name));
-            $(`#fRGBEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+            $(`#fRGBEnabled${ch.id}`).prop("checked", ch.enabled);
   
             //enable/disable other stuff.
             $(`#fRGBName${ch.id}`).prop('disabled', !ch.enabled);
@@ -521,7 +521,7 @@ function start_websocket()
           for (ch of msg.adc)
           {
             $('#adcConfigForm').append(ADCEditRow(ch.id, ch.name));
-            $(`#fADCEnabled${ch.id}`).val(ch.enabled ? "1" : "0");
+            $(`#fADCEnabled${ch.id}`).prop("checked", ch.enabled);
   
             //enable/disable other stuff.
             $(`#fADCName${ch.id}`).prop('disabled', !ch.enabled);
@@ -1214,13 +1214,7 @@ function validate_switch_enabled(e)
 {
   let ele = e.target;
   let id = ele.id.match(/\d+/)[0];
-  let value = ele.value;
-
-  //convert it
-  if (value == "1")
-    value = true;
-  else
-    value = false;
+  let value = ele.checked;
 
   //enable/disable other stuff.
   $(`#fSwitchName${id}`).prop('disabled', !value);
@@ -1285,13 +1279,7 @@ function validate_rgb_enabled(e)
 {
   let ele = e.target;
   let id = ele.id.match(/\d+/)[0];
-  let value = ele.value;
-
-  //convert it
-  if (value == "1")
-    value = true;
-  else
-    value = false;
+  let value = ele.checked;
 
   //enable/disable other stuff.
   $(`#fRGBName${id}`).prop('disabled', !value);
@@ -1336,13 +1324,7 @@ function validate_adc_enabled(e)
 {
   let ele = e.target;
   let id = ele.id.match(/\d+/)[0];
-  let value = ele.value;
-
-  //convert it
-  if (value == "1")
-    value = true;
-  else
-    value = false;
+  let value = ele.checked;
 
   //enable/disable other stuff.
   $(`#fADCName${id}`).prop('disabled', !value);

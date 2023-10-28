@@ -1,13 +1,13 @@
 Firmware:
 
-* convert Adafruit library to hardware SPI to not conflict with MCP3208
 * update for 8ch mosfet Rev B
     * 2 fans now
 * investigate why adc is noisy on new 8ch board
 * update node.js client
 * update signalk plugin
     * add uptime to signalk integration
-
+* convert Adafruit library to hardware SPI
+* update pwm channel edit UI to new style
 * protocol documentation
 
 Electronics:
