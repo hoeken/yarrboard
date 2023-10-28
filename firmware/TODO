@@ -1,6 +1,5 @@
 Firmware:
 
-* update pwm channel edit UI to new style
 * test support for 2 fans
 
 * update node.js client
