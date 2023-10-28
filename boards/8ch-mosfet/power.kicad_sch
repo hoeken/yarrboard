@@ -2247,7 +2247,7 @@
     (property "Reference" "C2" (at 72.39 86.3663 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "10nF/50v" (at 72.39 88.9063 0)
+    (property "Value" "10nF" (at 72.39 88.9063 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (at 69.85 87.63 0)
@@ -2739,8 +2739,8 @@
     (property "Vendor" "" (at 104.14 87.63 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid c1bdcde6-c0a2-4cd2-9022-21fc4930854c))
-    (pin "2" (uuid 8318957d-0be2-433c-abc0-d18e385b17a0))
+    (pin "1" (uuid 102d84e0-9e1a-4893-8931-5811341c22f2))
+    (pin "2" (uuid 3afadb23-de42-481c-bc88-b23e7ecf387d))
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"

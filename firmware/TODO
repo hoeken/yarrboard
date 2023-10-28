@@ -1,6 +1,5 @@
 Firmware:
 
-* post about MOSFET circuit on electronics exchange
 * reconnecting / reloading on status page should trigger status poller
 * update node.js client
 * update signalk plugin
@@ -11,19 +10,17 @@ Firmware:
 Electronics:
 
 * 8ch Mosfet
-    * 2N7002 missing p/n
-    * MCP3425 should be powered from 3.3v and not vref
-    * consolidate 10nF / 50v cap
-    * change fan 2 tach to GPIO15 (GPIO35)
+    * test and implement mosfet changes
+    * re-layout board
 
 * RGB board
-    * add in bus voltage measurement?
+    * change to 8 I/O and 8 RGB leds
+    * move led driver to secondary SPI bus
+    * add in BLANK line
+    * change ADC input pinout
     * precision 5v ref needs to be powered from ESP32_5V
     * consolidate 10nF / 50v cap
-    * add in BLANK line
-    * move led driver to secondary SPI bus
     * consider a swap to FPC cables instead of IDC
-    * change ADC input pinout
     * remove all the extra silkscreen around connectors
 
 * finish design of button board
