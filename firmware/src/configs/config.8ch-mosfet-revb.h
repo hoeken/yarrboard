@@ -20,7 +20,8 @@
 #define YB_HAS_FANS
 #define YB_FAN_COUNT 2
 #define YB_FAN_PWM_PINS {16, 2}
-#define YB_FAN_TACH_PINS {39, 34}
+//NOTE: ESP32 Errata 3.14. Within the same group of GPIO pins, edge interrupts cannot be used together with other interrupts.
+#define YB_FAN_TACH_PINS {39, 15}
 #define YB_FAN_SINGLE_CHANNEL_AMPS 5.0
 #define YB_FAN_AVERAGE_CHANNEL_AMPS 5.0
 #define YB_FAN_MAX_CHANNEL_AMPS 20.0

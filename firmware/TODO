@@ -2,6 +2,7 @@ Firmware:
 
 * test support for 2 fans
 
+* reconnecting / reloading on status page should trigger status poller
 * update node.js client
 * update signalk plugin
     * add uptime to signalk integration
@@ -14,6 +15,7 @@ Electronics:
     * 2N7002 missing p/n
     * MCP3425 should be powered from 3.3v and not vref
     * consolidate 10nF / 50v cap
+    * change fan 2 tach to GPIO15 (GPIO35)
 
 * RGB board
     * add in bus voltage measurement?

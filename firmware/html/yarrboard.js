@@ -713,7 +713,7 @@ function start_websocket()
         $("#bus_voltage_row").remove();
 
       if (msg.fans)
-        $("#fan_rpm").html(msg.fans.map((a) => a.rpm).join(", "));
+        $("#fan_rpm").html(msg.fans.map((a) => a.rpm + "RPM").join(", "));
       else
         $("#fan_rpm_row").remove();
 

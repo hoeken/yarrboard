@@ -60,6 +60,8 @@ void fans_setup()
     }
 }
 
+//unsigned long lastFanCheckMillis = 0;
+
 void fans_loop()
 {
     float amps_avg = 0;
@@ -108,8 +110,6 @@ void measure_fan_rpm(byte i)
 
     // calculate rpm
     fans_last_rpm[i] = counter_rpm[i] * 30;
-    //Serial.print("fan rpm = ");
-    //Serial.println(last_rpm[i]);
 
     // reset counter
     counter_rpm[i] = 0;
