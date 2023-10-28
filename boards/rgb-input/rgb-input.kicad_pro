@@ -55,21 +55,7 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        "copper_edge_clearance|211000000|140000000|42ae809a-6a82-4b9b-8b5a-6ae7474d9023|45832828-b831-4811-98e0-2ad1f78880ef",
-        "copper_edge_clearance|214000000|53000000|4b4d36e9-8d27-4489-adbe-4d69ca0cbb16|2b514f8f-dfe5-48fe-9185-98f242891996",
-        "copper_edge_clearance|75000000|53000000|608570fd-562c-4485-bd25-8dc2fc50645c|879337aa-17e4-43c7-9f9d-7c42a2587a27",
-        "copper_edge_clearance|92500000|140000000|42ae809a-6a82-4b9b-8b5a-6ae7474d9023|09e923ad-fbc1-4a48-9069-5b49d82bdf50",
-        "courtyards_overlap|108340001|119362001|9a0a1cb8-984b-4961-829c-f728b988c84e|14219bd2-133d-401f-ae23-174a7e9e7401",
-        "courtyards_overlap|115960001|119378001|9a0a1cb8-984b-4961-829c-f728b988c84e|c8c2263a-f799-477f-b099-d3da88d293c7",
-        "courtyards_overlap|75500001|108295001|9a0a1cb8-984b-4961-829c-f728b988c84e|d800cd08-9c6b-456f-8c2f-dcdf73b9b282",
-        "courtyards_overlap|84176001|109340001|9a0a1cb8-984b-4961-829c-f728b988c84e|5d7a6718-4445-4be3-a7e8-991b9c897f51",
-        "courtyards_overlap|84176001|111610001|9a0a1cb8-984b-4961-829c-f728b988c84e|bd90ae6d-6e4f-469e-9a52-91364243a21a",
-        "courtyards_overlap|84176001|113785001|9a0a1cb8-984b-4961-829c-f728b988c84e|d6701b3e-074f-4375-a84c-6db91fef2d65",
-        "silk_edge_clearance|214000000|112353000|4b4d36e9-8d27-4489-adbe-4d69ca0cbb16|8465cafb-8cea-4ff5-9bc8-50b962db87ab",
-        "silk_edge_clearance|214000000|113307000|4b4d36e9-8d27-4489-adbe-4d69ca0cbb16|456c18eb-c47f-4f84-8ff9-80b690d9b5fc",
-        "silk_edge_clearance|214046000|113330000|4b4d36e9-8d27-4489-adbe-4d69ca0cbb16|5ff62be6-1d68-407b-88db-eda6d84129d9"
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -578,10 +564,6 @@
       "Input Switch7"
     ],
     [
-      "a581b924-afd8-4b56-b69e-790286072066",
-      "Input Switch8"
-    ],
-    [
       "120468c6-3bec-414c-9049-57af589f397a",
       "ADC Input1"
     ],
@@ -622,68 +604,16 @@
       "ADC Input7"
     ],
     [
-      "d9202946-506a-48d9-939c-5d39e3218bd0",
-      "Input Switch12"
-    ],
-    [
-      "73a643e0-fbf3-4727-9372-cdfb98644f2b",
-      "RGB Output10"
-    ],
-    [
-      "cf1aab08-94c1-4bc0-914e-a74bb7fd137f",
-      "Input Switch11"
-    ],
-    [
-      "2c275ed9-e58a-403d-982f-79a49e483b85",
-      "Input Switch10"
-    ],
-    [
-      "9e6cdf4f-246e-427e-8315-a488968192f4",
-      "Input Switch9"
-    ],
-    [
-      "9f4c4100-f7ad-41c6-bb30-0282b2fbed77",
-      "Input Switch13"
-    ],
-    [
-      "4933e1bb-c091-434e-9b53-9e49635c754a",
-      "RGB Output14"
-    ],
-    [
-      "6a4af211-a0de-4f53-9c70-b04933a803ee",
-      "RGB Output9"
-    ],
-    [
-      "add74a42-7713-46b0-aac6-4fd9ca032b1b",
-      "Input Switch15"
-    ],
-    [
-      "b28a4abb-d7c6-4d37-897c-3a1605d30be6",
-      "Input Switch14"
-    ],
-    [
       "4cf71e04-4cc2-49e9-a207-2c420ddbac39",
       "RGB Output2"
-    ],
-    [
-      "1a23e144-e8e8-4225-b5a6-d9d839ced076",
-      "LED Driver1"
     ],
     [
       "dd1109e7-db19-436a-9857-04fe64d33c8d",
       "RGB Output5"
     ],
     [
-      "89e0f9e3-f416-4d27-a460-fdbdf406a535",
-      "RGB Output13"
-    ],
-    [
       "95d97fc6-1e8e-4e27-8189-59e9d8a863b5",
       "RGB Output1"
-    ],
-    [
-      "8cbd9f30-0d72-47cc-a0ef-6616a3441a30",
-      "RGB Output11"
     ],
     [
       "720a8c4a-525c-4eec-8216-6ac4d044fce4",
@@ -702,20 +632,8 @@
       "RGB Output3"
     ],
     [
-      "47947154-7d9b-40f5-8ef1-0b77217b064b",
-      "RGB Output12"
-    ],
-    [
       "4b5b6d65-3d7e-4304-bbd6-cc6cba1fbb7c",
       "RGB Output7"
-    ],
-    [
-      "5e86179b-eaf5-4509-b1a2-8ceb96530038",
-      "RGB Output15"
-    ],
-    [
-      "6c8610e7-d6b1-47b3-9305-cbf0e3fd8f06",
-      "RGB Output8"
     ],
     [
       "b5668cae-f4d9-403a-8522-3df05fb06658",

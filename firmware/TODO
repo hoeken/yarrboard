@@ -14,13 +14,8 @@ Electronics:
     * re-layout board
 
 * RGB board
-    * change to 8 I/O and 8 RGB leds
-    * move led driver to secondary SPI bus
-    * add in BLANK line
-    * change ADC input pinout
-    * precision 5v ref needs to be powered from ESP32_5V
-    * consolidate 10nF / 50v cap
     * consider a swap to FPC cables instead of IDC
+    * re-layout board
     * remove all the extra silkscreen around connectors
 
 * finish design of button board
