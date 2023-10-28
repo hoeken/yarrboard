@@ -1,21 +1,19 @@
 Firmware:
 
-* update for 8ch mosfet Rev B
-    * 2 fans now
-* investigate why adc is noisy on new 8ch board
+* update pwm channel edit UI to new style
+* test support for 2 fans
+
 * update node.js client
 * update signalk plugin
     * add uptime to signalk integration
 * convert Adafruit library to hardware SPI
-* update pwm channel edit UI to new style
 * protocol documentation
 
 Electronics:
 
 * 8ch Mosfet
     * 2N7002 missing p/n
-    * noise on current measurement?
-    * MCP3425 doesnt need precision vref?
+    * MCP3425 should be powered from 3.3v and not vref
     * consolidate 10nF / 50v cap
 
 * RGB board

@@ -58,6 +58,8 @@ void protocol_loop()
   if (messageDelta >= YB_UPDATE_FREQUENCY)
   {
     #ifdef YB_HAS_PWM_CHANNELS
+      Serial.print("ADC Count: ");
+      Serial.println(pwm_channels[0].adcHelper->readingCount);
       //update our averages, etc.
       for (byte i=0; i<YB_PWM_CHANNEL_COUNT; i++)
         pwm_channels[i].calculateAverages(messageDelta);
@@ -65,8 +67,6 @@ void protocol_loop()
     
     #ifdef YB_HAS_BUS_VOLTAGE
       busVoltage = getBusVoltage();
-      Serial.print("Bus Voltage: ");
-      Serial.println(busVoltage);
     #endif
 
     //read and send out our json update
