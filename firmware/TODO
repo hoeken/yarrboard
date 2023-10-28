@@ -1,7 +1,6 @@
 Firmware:
 
-* test support for 2 fans
-
+* post about MOSFET circuit on electronics exchange
 * reconnecting / reloading on status page should trigger status poller
 * update node.js client
 * update signalk plugin
