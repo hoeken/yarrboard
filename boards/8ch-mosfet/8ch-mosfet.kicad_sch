@@ -1615,6 +1615,40 @@
     )
   )
 
+  (sheet (at 77.47 160.02) (size 40.64 5.08) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 5ab502c0-64e9-4605-8f73-8a6483614f24)
+    (property "Sheetname" "Untitled Sheet2" (at 77.47 159.3084 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "untitled2.kicad_sch" (at 77.47 165.6846 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "8ch-mosfet"
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966" (page "16"))
+      )
+    )
+  )
+
+  (sheet (at 74.93 144.78) (size 43.18 8.89) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 5c6e6a2d-3c03-4c06-a7b9-808b6e437487)
+    (property "Sheetname" "Untitled Sheet" (at 74.93 144.0684 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "untitled.kicad_sch" (at 74.93 154.2546 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "8ch-mosfet"
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966" (page "15"))
+      )
+    )
+  )
+
   (sheet (at 130.81 96.52) (size 12.7 4.064) (fields_autoplaced)
     (stroke (width 0.1524) (type solid))
     (fill (color 0 0 0 0.0000))
