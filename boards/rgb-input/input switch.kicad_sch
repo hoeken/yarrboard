@@ -675,7 +675,7 @@
   (symbol (lib_id "Device:D_TVS") (at 142.24 92.075 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e4ec23cd-f790-4268-a335-562dfdad7e27)
-    (property "Reference" "D10" (at 144.78 90.805 90)
+    (property "Reference" "D2" (at 144.78 90.805 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 144.78 93.345 90)

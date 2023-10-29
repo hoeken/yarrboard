@@ -933,7 +933,7 @@
     (property "Value" "RGB" (at 215.9 91.44 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_FFC-FPC:Molex_200528-0300_1x30-1MP_P1.00mm_Horizontal" (at 213.36 88.9 0)
+    (property "Footprint" "Connector_FFC-FPC:TE_3-84952-0_1x30-1MP_P1.0mm_Horizontal" (at 213.36 88.9 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 213.36 88.9 0)

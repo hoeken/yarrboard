@@ -19,12 +19,13 @@ Electronics:
         * MIC5021 - $3 / ea - high speed, might be too extra w/ current sense?
         * TC4432 - $2.5 / ea - looks decent
     * n-channel mosfet: IPD220N06L3GATMA1
-    * possibly merge pwrgnd and gndd?
 
 * RGB board
-    * consider a swap to FPC cables instead of IDC
-    * re-layout board
-    * remove all the extra silkscreen around connectors
+    * run ERC / DRC and fix all errors
+    * double check schematic
+    * update silkscreen and make board pretty
+    * release for prototyping
+    * tag in github
 
 * finish design of button board
 * order button board + parts

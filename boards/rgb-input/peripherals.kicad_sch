@@ -322,8 +322,6 @@
     (uuid a70ea526-c100-427e-b563-7594512f8c76)
   )
 
-  (no_connect (at 165.1 71.12) (uuid 98dce30c-e7c0-4039-8aea-ab4667e87737))
-
   (wire (pts (xy 191.77 100.33) (xy 191.77 97.79))
     (stroke (width 0) (type default))
     (uuid 179bbd46-c091-4eb4-bbd9-2c64725c4117)
@@ -481,6 +479,34 @@
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
           (reference "D28") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "power:GNDD") (at 165.1 71.12 0) (mirror x) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid 31fc25c0-ec64-4fa5-87b9-408ada84854a)
+    (property "Reference" "#PWR054" (at 165.1 64.77 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "GNDD" (at 165.1 67.31 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 165.1 71.12 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 165.1 71.12 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid f760a351-b784-4da3-bcea-b2aa08f51b33))
+    (instances
+      (project "rgb-input"
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
+          (reference "#PWR054") (unit 1)
+        )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
+          (reference "#PWR035") (unit 1)
         )
       )
     )
