@@ -1,6 +1,5 @@
 Firmware:
 
-* test the qwiic connector
 * reconnecting / reloading on status page should trigger status poller
 * update node.js client
 * update signalk plugin
