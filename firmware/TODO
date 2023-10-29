@@ -21,16 +21,6 @@ Electronics:
     * n-channel mosfet: IPD220N06L3GATMA1
     * this looks great too: IRFS7537
 
-* RGB Input Board
-    * release for prototyping
-    * tag in github
-
-* Button Board
-    * change to FPC connectors
-    * change to 2x4 layout
-    * do all routing
-    * order prototypes
-
 * update 3dp case for 8ch mosfet
 * design case for input board
 * design case for button board
