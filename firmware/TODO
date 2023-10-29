@@ -19,6 +19,7 @@ Electronics:
         * MIC5021 - $3 / ea - high speed, might be too extra w/ current sense?
         * TC4432 - $2.5 / ea - looks decent
     * n-channel mosfet: IPD220N06L3GATMA1
+    * this looks great too: IRFS7537
 
 * RGB Input Board
     * release for prototyping

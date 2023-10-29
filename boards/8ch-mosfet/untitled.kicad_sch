@@ -2209,7 +2209,7 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 2a529edb-cb72-4d27-97b7-9d81e759991e))
-    (pin "2" (uuid d4620644-9766-40b6-a1d9-3f43e353c9cf))
+    (pin "2" (uuid 99f9cae8-1213-4e9c-93b1-8551b0f0dd9b))
     (pin "2" (uuid 99f9cae8-1213-4e9c-93b1-8551b0f0dd9b))
     (pin "3" (uuid 0b6a470f-dda0-4e02-84eb-748ee1c07e2b))
     (instances

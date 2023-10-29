@@ -1284,7 +1284,7 @@
   (symbol (lib_id "gnarboard:ESP32_DevKit_C") (at 204.47 76.2 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid c715a579-c1f5-43a5-a354-7203cfc57c1d)
-    (property "Reference" "U1" (at 204.47 48.26 0)
+    (property "Reference" "U1" (at 204.47 46.99 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "ESP32-DEVKITC" (at 204.47 52.07 0)
@@ -1611,40 +1611,6 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966" (page "5"))
-      )
-    )
-  )
-
-  (sheet (at 77.47 160.02) (size 40.64 5.08) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid))
-    (fill (color 0 0 0 0.0000))
-    (uuid 5ab502c0-64e9-4605-8f73-8a6483614f24)
-    (property "Sheetname" "Untitled Sheet2" (at 77.47 159.3084 0)
-      (effects (font (size 1.27 1.27)) (justify left bottom))
-    )
-    (property "Sheetfile" "untitled2.kicad_sch" (at 77.47 165.6846 0)
-      (effects (font (size 1.27 1.27)) (justify left top))
-    )
-    (instances
-      (project "8ch-mosfet"
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966" (page "16"))
-      )
-    )
-  )
-
-  (sheet (at 74.93 144.78) (size 43.18 8.89) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid))
-    (fill (color 0 0 0 0.0000))
-    (uuid 5c6e6a2d-3c03-4c06-a7b9-808b6e437487)
-    (property "Sheetname" "Untitled Sheet" (at 74.93 144.0684 0)
-      (effects (font (size 1.27 1.27)) (justify left bottom))
-    )
-    (property "Sheetfile" "untitled.kicad_sch" (at 74.93 154.2546 0)
-      (effects (font (size 1.27 1.27)) (justify left top))
-    )
-    (instances
-      (project "8ch-mosfet"
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966" (page "15"))
       )
     )
   )
