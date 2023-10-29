@@ -634,7 +634,7 @@
   (symbol (lib_id "Device:R_US") (at 95.25 80.01 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4789613a-67fa-43c4-b84c-759fa71d831f)
-    (property "Reference" "R13" (at 92.71 78.74 0)
+    (property "Reference" "R20" (at 92.71 78.74 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "3.3k" (at 92.71 81.28 0)
@@ -650,8 +650,8 @@
     (pin "2" (uuid 4ff7a71d-9a8d-4d87-9e7d-69cff3df37fe))
     (instances
       (project "rgb-input"
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/802175d5-fb4b-4457-a117-b0f397189ff7"
-          (reference "R13") (unit 1)
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/120468c6-3bec-414c-9049-57af589f397a"
+          (reference "R20") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/4f50afed-9381-4977-8e27-209f0f88ad4e"
           (reference "R3") (unit 1)
@@ -674,11 +674,11 @@
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/803edf1a-5825-4947-a8b9-85d3a29697e5"
           (reference "R15") (unit 1)
         )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/802175d5-fb4b-4457-a117-b0f397189ff7"
+          (reference "R13") (unit 1)
+        )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/ef548cdc-9d5d-4f8e-8f54-0c2e96dbe3f0"
           (reference "R1") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/120468c6-3bec-414c-9049-57af589f397a"
-          (reference "R20") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/c9e1b2da-9064-45a5-a0a2-ee072f7e1acf"
           (reference "R21") (unit 1)
