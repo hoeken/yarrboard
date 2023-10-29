@@ -4,6 +4,13 @@
 
   (paper "A4")
 
+  (title_block
+    (title "RGB Input Board")
+    (rev "B")
+    (company "github.com/hoeken/yarrboard")
+    (comment 1 "Open Source Hardware")
+  )
+
   (lib_symbols
     (symbol "Analog_ADC:MCP3208" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
       (property "Reference" "U" (at -5.08 13.335 0)
@@ -525,7 +532,7 @@
           (reference "#PWR07") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/b87f80e1-ecbd-4ee0-be26-4b252158928b"
-          (reference "#PWR07") (unit 1)
+          (reference "#PWR030") (unit 1)
         )
       )
     )
@@ -553,7 +560,7 @@
           (reference "#PWR02") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/b87f80e1-ecbd-4ee0-be26-4b252158928b"
-          (reference "#PWR057") (unit 1)
+          (reference "#PWR028") (unit 1)
         )
       )
     )
@@ -581,7 +588,7 @@
           (reference "#PWR06") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/b87f80e1-ecbd-4ee0-be26-4b252158928b"
-          (reference "#PWR06") (unit 1)
+          (reference "#PWR029") (unit 1)
         )
       )
     )

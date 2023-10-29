@@ -4,6 +4,13 @@
 
   (paper "A4")
 
+  (title_block
+    (title "RGB Input Board")
+    (rev "B")
+    (company "github.com/hoeken/yarrboard")
+    (comment 1 "Open Source Hardware")
+  )
+
   (lib_symbols
     (symbol "Connector_Generic:Conn_01x04" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 5.08 0)
@@ -158,7 +165,7 @@
   (symbol (lib_id "power:+5V") (at 144.78 97.79 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 9a11cc4c-5bf2-4b89-8561-5ea49d39ac38)
-    (property "Reference" "#PWR090" (at 144.78 101.6 0)
+    (property "Reference" "#PWR059" (at 144.78 101.6 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+5V" (at 144.78 92.71 0)
@@ -174,28 +181,28 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/b5668cae-f4d9-403a-8522-3df05fb06658"
-          (reference "#PWR090") (unit 1)
+          (reference "#PWR059") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/95d97fc6-1e8e-4e27-8189-59e9d8a863b5"
-          (reference "#PWR072") (unit 1)
+          (reference "#PWR051") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/4cf71e04-4cc2-49e9-a207-2c420ddbac39"
-          (reference "#PWR062") (unit 1)
+          (reference "#PWR049") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/cbe6ca1d-7699-465e-a361-e4ccfff3fbb9"
-          (reference "#PWR085") (unit 1)
+          (reference "#PWR057") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/fc18fc4e-d186-44c5-9f35-18819eb3ec12"
-          (reference "#PWR084") (unit 1)
+          (reference "#PWR056") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/dd1109e7-db19-436a-9857-04fe64d33c8d"
-          (reference "#PWR064") (unit 1)
+          (reference "#PWR050") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/57eacfa1-bd1b-4f81-a975-13c11131c995"
-          (reference "#PWR083") (unit 1)
+          (reference "#PWR055") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/4b5b6d65-3d7e-4304-bbd6-cc6cba1fbb7c"
-          (reference "#PWR087") (unit 1)
+          (reference "#PWR058") (unit 1)
         )
       )
     )

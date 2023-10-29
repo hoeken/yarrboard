@@ -4,6 +4,13 @@
 
   (paper "A4")
 
+  (title_block
+    (title "RGB Input Board")
+    (rev "B")
+    (company "github.com/hoeken/yarrboard")
+    (comment 1 "Open Source Hardware")
+  )
+
   (lib_symbols
     (symbol "Connector_Generic_MountingPin:Conn_01x04_MountingPin" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 5.08 0)
@@ -458,7 +465,7 @@
   (symbol (lib_id "Device:D_TVS") (at 200.66 93.98 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2a2a9d38-eba2-449c-97d0-6d8b37e085a1)
-    (property "Reference" "D28" (at 203.2 92.71 90)
+    (property "Reference" "D3" (at 203.2 92.71 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 182.88 107.95 90)
@@ -478,7 +485,7 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D28") (unit 1)
+          (reference "D3") (unit 1)
         )
       )
     )
@@ -506,7 +513,7 @@
           (reference "#PWR054") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "#PWR035") (unit 1)
+          (reference "#PWR08") (unit 1)
         )
       )
     )
@@ -570,7 +577,7 @@
           (reference "J2") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "J13") (unit 1)
+          (reference "J2") (unit 1)
         )
       )
     )
@@ -598,7 +605,7 @@
           (reference "#PWR060") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "#PWR076") (unit 1)
+          (reference "#PWR07") (unit 1)
         )
       )
     )
@@ -630,7 +637,7 @@
           (reference "R4") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "R42") (unit 1)
+          (reference "R3") (unit 1)
         )
       )
     )
@@ -658,7 +665,7 @@
           (reference "#PWR054") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "#PWR061") (unit 1)
+          (reference "#PWR09") (unit 1)
         )
       )
     )
@@ -690,7 +697,7 @@
           (reference "R4") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "R40") (unit 1)
+          (reference "R2") (unit 1)
         )
       )
     )
@@ -699,7 +706,7 @@
   (symbol (lib_id "Device:D_TVS") (at 191.77 93.98 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid c777046f-3887-4c36-9842-2bc8ce4be21e)
-    (property "Reference" "D27" (at 194.31 92.71 90)
+    (property "Reference" "D2" (at 194.31 92.71 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 182.88 105.41 90)
@@ -719,7 +726,7 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D27") (unit 1)
+          (reference "D2") (unit 1)
         )
       )
     )

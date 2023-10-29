@@ -4,6 +4,13 @@
 
   (paper "A4")
 
+  (title_block
+    (title "RGB Input Board")
+    (rev "B")
+    (company "github.com/hoeken/yarrboard")
+    (comment 1 "Open Source Hardware")
+  )
+
   (lib_symbols
     (symbol "Device:C_Small" (pin_numbers hide) (pin_names (offset 0.254) hide) (in_bom yes) (on_board yes)
       (property "Reference" "C" (at 0.254 1.778 0)
@@ -602,7 +609,7 @@
   (symbol (lib_id "power:GNDD") (at 72.39 78.74 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 182c8b58-2a59-4afc-af8c-ca920d09547e)
-    (property "Reference" "#PWR073" (at 72.39 85.09 0)
+    (property "Reference" "#PWR053" (at 72.39 85.09 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 72.39 82.55 0)
@@ -618,7 +625,7 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/720a8c4a-525c-4eec-8216-6ac4d044fce4"
-          (reference "#PWR073") (unit 1)
+          (reference "#PWR053") (unit 1)
         )
       )
     )
@@ -627,7 +634,7 @@
   (symbol (lib_id "Device:R_US") (at 95.25 80.01 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4789613a-67fa-43c4-b84c-759fa71d831f)
-    (property "Reference" "R1" (at 92.71 78.74 0)
+    (property "Reference" "R13" (at 92.71 78.74 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "3.3k" (at 92.71 81.28 0)
@@ -643,8 +650,8 @@
     (pin "2" (uuid 4ff7a71d-9a8d-4d87-9e7d-69cff3df37fe))
     (instances
       (project "rgb-input"
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/ef548cdc-9d5d-4f8e-8f54-0c2e96dbe3f0"
-          (reference "R1") (unit 1)
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/802175d5-fb4b-4457-a117-b0f397189ff7"
+          (reference "R13") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/4f50afed-9381-4977-8e27-209f0f88ad4e"
           (reference "R3") (unit 1)
@@ -667,11 +674,11 @@
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/803edf1a-5825-4947-a8b9-85d3a29697e5"
           (reference "R15") (unit 1)
         )
+        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/ef548cdc-9d5d-4f8e-8f54-0c2e96dbe3f0"
+          (reference "R1") (unit 1)
+        )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/120468c6-3bec-414c-9049-57af589f397a"
           (reference "R20") (unit 1)
-        )
-        (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/802175d5-fb4b-4457-a117-b0f397189ff7"
-          (reference "R13") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/c9e1b2da-9064-45a5-a0a2-ee072f7e1acf"
           (reference "R21") (unit 1)
@@ -692,7 +699,7 @@
           (reference "R26") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/720a8c4a-525c-4eec-8216-6ac4d044fce4"
-          (reference "R48") (unit 1)
+          (reference "R30") (unit 1)
         )
       )
     )
@@ -701,7 +708,7 @@
   (symbol (lib_id "power:+3.3V") (at 121.92 50.8 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 652801c5-7b06-4ecb-b216-dbac2c831616)
-    (property "Reference" "#PWR082" (at 121.92 54.61 0)
+    (property "Reference" "#PWR052" (at 121.92 54.61 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 121.92 45.72 0)
@@ -717,7 +724,7 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/720a8c4a-525c-4eec-8216-6ac4d044fce4"
-          (reference "#PWR082") (unit 1)
+          (reference "#PWR052") (unit 1)
         )
       )
     )
@@ -767,7 +774,7 @@
           (reference "C10") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/720a8c4a-525c-4eec-8216-6ac4d044fce4"
-          (reference "C26") (unit 1)
+          (reference "C23") (unit 1)
         )
       )
     )
@@ -776,7 +783,7 @@
   (symbol (lib_id "power:GNDD") (at 116.84 132.08 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid a6199766-41c5-4bf9-9611-f87cba29cb59)
-    (property "Reference" "#PWR071" (at 116.84 138.43 0)
+    (property "Reference" "#PWR054" (at 116.84 138.43 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 116.84 135.89 0)
@@ -792,7 +799,7 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/720a8c4a-525c-4eec-8216-6ac4d044fce4"
-          (reference "#PWR071") (unit 1)
+          (reference "#PWR054") (unit 1)
         )
       )
     )
@@ -801,7 +808,7 @@
   (symbol (lib_id "Driver_LED:TLC5947DAP") (at 116.84 91.44 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ab921dbe-fc62-46fb-ac36-3ec0d959a520)
-    (property "Reference" "U6" (at 102.87 53.34 0)
+    (property "Reference" "U4" (at 102.87 53.34 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "TLC5947DAP" (at 102.87 55.88 0)
@@ -852,7 +859,7 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c/720a8c4a-525c-4eec-8216-6ac4d044fce4"
-          (reference "U6") (unit 1)
+          (reference "U4") (unit 1)
         )
       )
     )

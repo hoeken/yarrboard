@@ -4,6 +4,13 @@
 
   (paper "A4")
 
+  (title_block
+    (title "RGB Input Board")
+    (rev "B")
+    (company "github.com/hoeken/yarrboard")
+    (comment 1 "Open Source Hardware")
+  )
+
   (lib_symbols
     (symbol "Connector_Generic_MountingPin:Conn_01x30_MountingPin" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 38.1 0)
@@ -889,7 +896,7 @@
   (symbol (lib_id "power:+5V") (at 195.58 50.8 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 2e74b455-c9d2-46d0-9b31-2ba9ab961eca)
-    (property "Reference" "#PWR098" (at 195.58 54.61 0)
+    (property "Reference" "#PWR060" (at 195.58 54.61 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+5V" (at 195.58 46.355 0)
@@ -905,7 +912,7 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c"
-          (reference "#PWR098") (unit 1)
+          (reference "#PWR060") (unit 1)
         )
       )
     )
@@ -933,7 +940,7 @@
           (reference "#PWR091") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c"
-          (reference "#PWR039") (unit 1)
+          (reference "#PWR062") (unit 1)
         )
       )
     )
@@ -961,7 +968,7 @@
           (reference "#PWR091") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c"
-          (reference "#PWR099") (unit 1)
+          (reference "#PWR061") (unit 1)
         )
       )
     )
@@ -970,7 +977,7 @@
   (symbol (lib_id "Connector_Generic_MountingPin:Conn_01x30_MountingPin") (at 213.36 88.9 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid d2dc4b57-6731-4f54-bf45-4b06bac6e314)
-    (property "Reference" "J46" (at 215.9 89.2556 0)
+    (property "Reference" "J4" (at 215.9 89.2556 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "RGB" (at 215.9 91.7956 0)
@@ -1019,7 +1026,7 @@
     (instances
       (project "rgb-input"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/846833bc-7ec6-4ec6-86e7-310fef01b65c"
-          (reference "J46") (unit 1)
+          (reference "J4") (unit 1)
         )
       )
     )

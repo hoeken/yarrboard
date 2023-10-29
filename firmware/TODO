@@ -1,5 +1,6 @@
 Firmware:
 
+* test the qwiic connector
 * reconnecting / reloading on status page should trigger status poller
 * update node.js client
 * update signalk plugin
@@ -21,9 +22,6 @@ Electronics:
     * n-channel mosfet: IPD220N06L3GATMA1
 
 * RGB Input Board
-    * run ERC / DRC and fix all errors
-    * double check schematic
-    * update silkscreen and make board pretty
     * release for prototyping
     * tag in github
 
