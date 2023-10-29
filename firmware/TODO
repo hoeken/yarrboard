@@ -9,7 +9,7 @@ Firmware:
 
 Electronics:
 
-* 8ch Mosfet
+* 8ch Mosfet Board
     * test and implement mosfet changes
     * re-layout board
     * mosfet driver potentials:
@@ -20,15 +20,19 @@ Electronics:
         * TC4432 - $2.5 / ea - looks decent
     * n-channel mosfet: IPD220N06L3GATMA1
 
-* RGB board
+* RGB Input Board
     * run ERC / DRC and fix all errors
     * double check schematic
     * update silkscreen and make board pretty
     * release for prototyping
     * tag in github
 
-* finish design of button board
-* order button board + parts
+* Button Board
+    * change to FPC connectors
+    * change to 2x4 layout
+    * do all routing
+    * order prototypes
+
 * update 3dp case for 8ch mosfet
 * design case for input board
 * design case for button board
@@ -37,3 +41,4 @@ Long term:
 
 * reinvestigate firmware signing
 * N2K support
+* design a relay board
