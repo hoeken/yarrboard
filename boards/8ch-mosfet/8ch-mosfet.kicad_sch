@@ -1106,7 +1106,7 @@
   (symbol (lib_id "power:GNDD") (at 241.3 72.39 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0f0c9c74-65b2-4cdd-a921-df2b09353f00)
-    (property "Reference" "#PWR05" (at 241.3 78.74 0)
+    (property "Reference" "#PWR02" (at 241.3 78.74 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 243.84 76.2 0)
@@ -1122,7 +1122,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
-          (reference "#PWR05") (unit 1)
+          (reference "#PWR02") (unit 1)
         )
       )
     )
@@ -1131,7 +1131,7 @@
   (symbol (lib_id "Device:R_Small_US") (at 243.84 92.71 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1661c9d5-6a30-43f1-a140-0edc18a0c742)
-    (property "Reference" "R43" (at 243.84 90.17 90)
+    (property "Reference" "R1" (at 243.84 90.17 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "0R" (at 243.84 95.25 90)
@@ -1148,7 +1148,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
-          (reference "R43") (unit 1)
+          (reference "R1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0eec6767-666b-42c0-ba36-2a83c9caeade"
           (reference "R1") (unit 1)
@@ -1209,7 +1209,7 @@
   (symbol (lib_id "power:+3.3V") (at 181.61 49.53 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 8ebe47b8-9c3e-461f-9705-43bfb2156c9c)
-    (property "Reference" "#PWR02" (at 181.61 53.34 0)
+    (property "Reference" "#PWR01" (at 181.61 53.34 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 181.61 44.45 0)
@@ -1225,7 +1225,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
-          (reference "#PWR02") (unit 1)
+          (reference "#PWR01") (unit 1)
         )
       )
     )
@@ -1399,7 +1399,7 @@
   (symbol (lib_id "power:GNDD") (at 176.53 92.71 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e8b5d592-6e87-4614-aaa5-2de667a6c927)
-    (property "Reference" "#PWR04" (at 176.53 99.06 0)
+    (property "Reference" "#PWR03" (at 176.53 99.06 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GNDD" (at 179.07 96.52 0)
@@ -1415,7 +1415,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966"
-          (reference "#PWR04") (unit 1)
+          (reference "#PWR03") (unit 1)
         )
       )
     )

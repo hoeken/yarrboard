@@ -1626,7 +1626,7 @@
           (reference "C1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "C45") (unit 1)
+          (reference "C42") (unit 1)
         )
       )
     )
@@ -1685,7 +1685,7 @@
           (reference "D26") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "D33") (unit 1)
+          (reference "D31") (unit 1)
         )
       )
     )
@@ -1694,7 +1694,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 147.32 78.74 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 27698837-6723-42dd-89fd-9d70fb14e548)
-    (property "Reference" "#FLG01" (at 147.32 76.835 0)
+    (property "Reference" "#FLG03" (at 147.32 76.835 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 147.32 73.66 0)
@@ -1710,7 +1710,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#FLG01") (unit 1)
+          (reference "#FLG03") (unit 1)
         )
       )
     )
@@ -1745,7 +1745,7 @@
           (reference "J3") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "J3") (unit 1)
+          (reference "J11") (unit 1)
         )
       )
     )
@@ -1798,7 +1798,7 @@
           (reference "R29") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "R37") (unit 1)
+          (reference "R34") (unit 1)
         )
       )
     )
@@ -1854,7 +1854,7 @@
           (reference "D26") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "D26") (unit 1)
+          (reference "D29") (unit 1)
         )
       )
     )
@@ -1863,7 +1863,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 257.81 80.01 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4007fd20-0081-4c61-876f-569d3976b8bb)
-    (property "Reference" "#FLG08" (at 257.81 78.105 0)
+    (property "Reference" "#FLG06" (at 257.81 78.105 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 257.81 74.93 0)
@@ -1879,7 +1879,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#FLG08") (unit 1)
+          (reference "#FLG06") (unit 1)
         )
       )
     )
@@ -1914,7 +1914,7 @@
           (reference "J4") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "J4") (unit 1)
+          (reference "J12") (unit 1)
         )
       )
     )
@@ -1923,7 +1923,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 214.63 80.01 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4acc5b24-b9de-4df8-a9cc-9b445d58df5b)
-    (property "Reference" "#FLG07" (at 214.63 78.105 0)
+    (property "Reference" "#FLG04" (at 214.63 78.105 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 214.63 81.28 0)
@@ -1939,7 +1939,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#FLG07") (unit 1)
+          (reference "#FLG04") (unit 1)
         )
       )
     )
@@ -1977,7 +1977,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 31.75 78.74 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4c0fcea9-e8df-49e7-b15b-80f6baecc92e)
-    (property "Reference" "#FLG06" (at 31.75 76.835 0)
+    (property "Reference" "#FLG01" (at 31.75 76.835 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 31.75 81.28 0)
@@ -1993,7 +1993,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#FLG06") (unit 1)
+          (reference "#FLG01") (unit 1)
         )
       )
     )
@@ -2025,7 +2025,7 @@
           (reference "C1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "C43") (unit 1)
+          (reference "C41") (unit 1)
         )
       )
     )
@@ -2063,7 +2063,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 198.12 111.76 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 577be9bf-0816-4033-b216-5baa04d222e7)
-    (property "Reference" "#FLG05" (at 198.12 109.855 0)
+    (property "Reference" "#FLG09" (at 198.12 109.855 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 198.12 106.68 0)
@@ -2079,7 +2079,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#FLG05") (unit 1)
+          (reference "#FLG09") (unit 1)
         )
       )
     )
@@ -2111,7 +2111,7 @@
           (reference "C1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "C47") (unit 1)
+          (reference "C43") (unit 1)
         )
       )
     )
@@ -2120,7 +2120,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 156.21 111.76 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 64a14a17-47c9-453c-9e47-a743654025c6)
-    (property "Reference" "#FLG03" (at 156.21 109.855 0)
+    (property "Reference" "#FLG07" (at 156.21 109.855 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 156.21 106.68 0)
@@ -2136,7 +2136,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#FLG03") (unit 1)
+          (reference "#FLG07") (unit 1)
         )
       )
     )
@@ -2168,7 +2168,7 @@
           (reference "D31") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "D32") (unit 1)
+          (reference "D30") (unit 1)
         )
       )
     )
@@ -2200,7 +2200,7 @@
           (reference "FB4") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "FB7") (unit 1)
+          (reference "FB1") (unit 1)
         )
       )
     )
@@ -2209,7 +2209,7 @@
   (symbol (lib_id "Regulator_Switching:XL1509-5.0") (at 177.8 82.55 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 8027bf84-dc96-4491-a01c-0f73902b669e)
-    (property "Reference" "U4" (at 177.8 72.39 0)
+    (property "Reference" "U21" (at 177.8 72.39 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "XL1509-5.0" (at 177.8 74.93 0)
@@ -2235,7 +2235,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "U4") (unit 1)
+          (reference "U21") (unit 1)
         )
       )
     )
@@ -2267,7 +2267,7 @@
           (reference "C2") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "C2") (unit 1)
+          (reference "C39") (unit 1)
         )
       )
     )
@@ -2299,7 +2299,7 @@
           (reference "C1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "C44") (unit 1)
+          (reference "C38") (unit 1)
         )
       )
     )
@@ -2381,7 +2381,7 @@
           (reference "R29") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "R39") (unit 1)
+          (reference "R33") (unit 1)
         )
       )
     )
@@ -2409,7 +2409,7 @@
           (reference "#PWR016") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#PWR017") (unit 1)
+          (reference "#PWR067") (unit 1)
         )
       )
     )
@@ -2437,7 +2437,7 @@
           (reference "#PWR017") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#PWR016") (unit 1)
+          (reference "#PWR066") (unit 1)
         )
       )
     )
@@ -2465,7 +2465,7 @@
           (reference "#PWR056") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#PWR09") (unit 1)
+          (reference "#PWR063") (unit 1)
         )
       )
     )
@@ -2522,7 +2522,7 @@
           (reference "#PWR09") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#PWR055") (unit 1)
+          (reference "#PWR064") (unit 1)
         )
       )
     )
@@ -2575,7 +2575,7 @@
           (reference "R29") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "R38") (unit 1)
+          (reference "R35") (unit 1)
         )
       )
     )
@@ -2603,7 +2603,7 @@
           (reference "#PWR059") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#PWR056") (unit 1)
+          (reference "#PWR062") (unit 1)
         )
       )
     )
@@ -2631,7 +2631,7 @@
           (reference "#PWR055") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#PWR059") (unit 1)
+          (reference "#PWR065") (unit 1)
         )
       )
     )
@@ -2687,7 +2687,7 @@
           (reference "D26") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "D38") (unit 1)
+          (reference "D28") (unit 1)
         )
       )
     )
@@ -2715,7 +2715,7 @@
           (reference "#PWR011") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#PWR011") (unit 1)
+          (reference "#PWR061") (unit 1)
         )
       )
     )
@@ -2747,7 +2747,7 @@
           (reference "C1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "C1") (unit 1)
+          (reference "C40") (unit 1)
         )
       )
     )
@@ -2756,7 +2756,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 236.22 80.01 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e1a827ae-d29e-40fb-9db8-8846e820b1ca)
-    (property "Reference" "#FLG09" (at 236.22 78.105 0)
+    (property "Reference" "#FLG05" (at 236.22 78.105 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 236.22 81.28 0)
@@ -2772,7 +2772,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#FLG09") (unit 1)
+          (reference "#FLG05") (unit 1)
         )
       )
     )
@@ -2806,7 +2806,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 177.8 111.76 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid fdfb5b6d-84b8-40cd-bcec-6539675407b5)
-    (property "Reference" "#FLG04" (at 177.8 109.855 0)
+    (property "Reference" "#FLG08" (at 177.8 109.855 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (at 177.8 106.68 0)
@@ -2822,7 +2822,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/e112a34f-fd2f-43cb-bf5d-a7f5e57b6bef"
-          (reference "#FLG04") (unit 1)
+          (reference "#FLG08") (unit 1)
         )
       )
     )
