@@ -9,18 +9,6 @@ Firmware:
 
 Electronics:
 
-* 8ch Mosfet Board
-    * test and implement mosfet changes
-    * re-layout board
-    * mosfet driver potentials:
-        * VOM1271 (might be too slow?)
-        * MIC5011 - $5/ea
-        * MIC5013 - $4/ea
-        * MIC5021 - $3 / ea - high speed, might be too extra w/ current sense?
-        * TC4432 - $2.5 / ea - looks decent
-    * n-channel mosfet: IPD220N06L3GATMA1
-    * this looks great too: IRFS7537
-
 * update 3dp case for 8ch mosfet
 * design case for input board
 * design case for button board
