@@ -1,5 +1,6 @@
 Firmware:
 
+* investigate PWM at 0 and 1 duty should be full on / full off.
 * reconnecting / reloading on status page should trigger status poller
 * dragging the pwm bar should do 2 things:
     * temporarily stop pwm UI update
