@@ -1,6 +1,5 @@
 Firmware:
 
-* reconnecting / reloading on status page should trigger status poller
 * dragging the pwm bar should do 2 things:
     * temporarily stop pwm UI update
     * send updates to the board on move

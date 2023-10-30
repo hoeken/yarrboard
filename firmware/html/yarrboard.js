@@ -1032,11 +1032,11 @@ function get_stats_data()
     socket.send(JSON.stringify({
       "cmd": "get_stats",
     }));
-
-    //keep loading it while we are here.
-    if (current_page == "stats")
-      setTimeout(get_stats_data, 1000);
   }
+
+  //keep loading it while we are here.
+  if (current_page == "stats")
+    setTimeout(get_stats_data, 1000);
 }
 
 function validate_board_name(e)
