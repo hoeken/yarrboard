@@ -172,6 +172,7 @@ const AlertBox = (message, type) => `
   </div>
 </div>`;
 
+let currentPWMSliderID = -1;
 let currentRGBPickerID = -1;
 
 //our heartbeat timer.
@@ -332,6 +333,33 @@ function start_websocket()
           {
             $('#pwmTableBody').append(PWMControlRow(ch.id, ch.name));
             $('#pwmDutySlider' + ch.id).change(set_duty_cycle);
+
+            //update our duty when we move
+            $('#pwmDutySlider' + ch.id).on("input", set_duty_cycle);
+
+            //stop updating the UI when we are choosing a duty
+            $('#pwmDutySlider' + ch.id).on('focus', function(e) {
+              let ele = e.target;
+              let id = ele.id.match(/\d+/)[0];
+              currentPWMSliderID = id;
+            });
+
+            //stop updating the UI when we are choosing a duty
+            $('#pwmDutySlider' + ch.id).on('touchstart', function(e) {
+              let ele = e.target;
+              let id = ele.id.match(/\d+/)[0];
+              currentPWMSliderID = id;
+            });
+            
+            //restart the UI updates when slider is closed
+            $('#pwmDutySlider' + ch.id).on("blur", function (e) {
+              currentPWMSliderID = -1;
+            });
+
+            //restart the UI updates when slider is closed
+            $('#pwmDutySlider' + ch.id).on("touchend", function (e) {
+              currentPWMSliderID = -1;
+            });
           }
         }
 
@@ -615,9 +643,12 @@ function start_websocket()
             let duty = Math.round(ch.duty * 100);
             if (current_config.pwm[ch.id].isDimmable)
             {
-              $('#pwmDutySlider' + ch.id).val(duty); 
-              $('#pwmDutyCycle' + ch.id).html(`${duty}%`);
-              $('#pwmDutyCycle' + ch.id).show();
+              if (currentPWMSliderID != ch.id)
+              {
+                $('#pwmDutySlider' + ch.id).val(duty); 
+                $('#pwmDutyCycle' + ch.id).html(`${duty}%`);
+                $('#pwmDutyCycle' + ch.id).show();
+              }
             }
             else
             {
@@ -950,11 +981,11 @@ function toggle_state(id)
   if ($("#pwmState" + id).text() == "ON")
     new_state = false;
 
-  socket.send(JSON.stringify({
+  throttledSend({
     "cmd": "set_pwm_channel",
     "id": id,
     "state": new_state
-  }));
+  });
 }
 
 function toggle_duty_cycle(id)
@@ -1039,6 +1070,19 @@ function get_stats_data()
     setTimeout(get_stats_data, 1000);
 }
 
+//drops messages if sent too fast.
+var lastSentTime = Date.now();
+function throttledSend(jdata)
+{
+  if (Date.now() > lastSentTime + 50)
+  {
+    socket.send(JSON.stringify(jdata));
+    lastSentTime = Date.now();
+  }
+  else
+    console.log("message dropped, too fast");
+}
+
 function validate_board_name(e)
 {
   let ele = e.target;
@@ -1078,11 +1122,11 @@ function set_duty_cycle(e)
     value = value / 100;
   
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    throttledSend({
       "cmd": "set_pwm_channel",
       "id": id,
       "duty": value
-    }));
+    });
   }
 }
 
@@ -1234,13 +1278,13 @@ function set_rgb_color(e, color)
   let green = rgb.g / 255;
   let blue = rgb.b / 255;
 
-  socket.send(JSON.stringify({
+  throttledSend({
     "cmd": "set_rgb",
     "id": id,
     "red": red.toFixed(4),
     "green": green.toFixed(4),
     "blue": blue.toFixed(4)
-  }));
+  });
 }
 
 function validate_rgb_name(e)

@@ -65,10 +65,10 @@ function main()
             // setTimeout(function (){fadePinHardware(4, foo+bar*4)}, 1);
             // setTimeout(function (){fadePinHardware(5, foo+bar*5)}, 1);
             // setTimeout(function (){fadePinHardware(6, foo+bar*6)}, 1);
-            //setTimeout(function (){fadePinHardware(7, foo+bar*7)}, 1);
+            setTimeout(function (){fadePinHardware(7, foo+bar*7)}, 1);
 
             //setTimeout(function (){togglePin(7, 1000)}, 1);
-            setTimeout(function (){fadePinManual(7, 25)}, 1);
+            //setTimeout(function (){fadePinManual(7, 25)}, 1);
         }
         else if (options.host == "rgbinput.local")
         {
