@@ -19,7 +19,9 @@ PWMChannel pwm_channels[YB_PWM_CHANNEL_COUNT];
 static volatile bool isChannelFading[YB_FAN_COUNT];
 
 /* Setting PWM Properties */
-const int MAX_DUTY_CYCLE = (int)(pow(2, YB_PWM_CHANNEL_RESOLUTION) - 1);
+// ledc library range is a little bit quirky: https://github.com/espressif/arduino-esp32/issues/5089
+//const unsigned int MAX_DUTY_CYCLE = (int)(pow(2, YB_PWM_CHANNEL_RESOLUTION) - 1);
+const unsigned int MAX_DUTY_CYCLE = (int)(pow(2, YB_PWM_CHANNEL_RESOLUTION));
 
 #ifdef YB_PWM_CHANNEL_ADC_DRIVER_MCP3208
   MCP3208 _adcCurrentMCP3208;

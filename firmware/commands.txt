@@ -11,6 +11,18 @@
 
 curl -i -d '{"cmd":"ping"}'  -H "Content-Type: application/json"  -X POST http://firstreef.local/api/endpoint
 curl -i -d '{"cmd":"set_pwm_channel","user":"admin","pass":"admin","id":0,"state":true}'  -H "Content-Type: application/json"  -X POST http://firstreef.local/api/endpoint
+
+curl -i -d '{"cmd":"set_pwm_channel","user":"admin","pass":"admin","id":0,"state":true}'  -H "Content-Type: application/json"  -X POST http://firstreef.local/api/endpoint
+
+curl -i -d '{"cmd": "set_pwm_channel","user":"admin","pass":"admin","id":7, "state": true}'  -H "Content-Type: application/json"  -X POST http://8chrb.local/api/endpoint
+curl -i -d '{"cmd": "set_pwm_channel","user":"admin","pass":"admin","id":7, "state": false}'  -H "Content-Type: application/json"  -X POST http://8chrb.local/api/endpoint
+curl -i -d '{"cmd": "set_pwm_channel","user":"admin","pass":"admin","id":7,"duty":1}'  -H "Content-Type: application/json"  -X POST http://8chrb.local/api/endpoint
+curl -i -d '{"cmd": "set_pwm_channel","user":"admin","pass":"admin","id":7,"duty":0.5}'  -H "Content-Type: application/json"  -X POST http://8chrb.local/api/endpoint
+curl -i -d '{"cmd": "set_pwm_channel","user":"admin","pass":"admin","id":7,"duty":0}'  -H "Content-Type: application/json"  -X POST http://8chrb.local/api/endpoint
+curl -i -d '{"cmd": "fade_pwm_channel","user":"admin","pass":"admin","id":7,"duty":1, "millis": 3000}'  -H "Content-Type: application/json"  -X POST http://8chrb.local/api/endpoint
+curl -i -d '{"cmd": "fade_pwm_channel","user":"admin","pass":"admin","id":7,"duty":0.5, "millis": 3000}'  -H "Content-Type: application/json"  -X POST http://8chrb.local/api/endpoint
+curl -i -d '{"cmd": "fade_pwm_channel","user":"admin","pass":"admin","id":7,"duty":0, "millis": 3000}'  -H "Content-Type: application/json"  -X POST http://8chrb.local/api/endpoint
+
 curl -i -X GET http://firstreef.local/api/config
 curl -i -X GET http://firstreef.local/api/config?user=admin&pass=admin
 curl -i -X GET http://firstreef.local/api/stats?user=admin&pass=admin
