@@ -56,16 +56,23 @@ function main()
         }
         else if (options.host == "8chrb.local")
         {
-            let foo = 50;
+            let foo = 300;
             let bar = 10;
-            setTimeout(function (){fadePinHardware(0, foo+bar*0)}, 1);                
-            setTimeout(function (){fadePinHardware(1, foo+bar*1)}, 1);
-            setTimeout(function (){fadePinHardware(2, foo+bar*2)}, 1);
-            setTimeout(function (){fadePinHardware(3, foo+bar*3)}, 1);
-            setTimeout(function (){fadePinHardware(4, foo+bar*4)}, 1);
-            setTimeout(function (){fadePinHardware(5, foo+bar*5)}, 1);
-            setTimeout(function (){fadePinHardware(6, foo+bar*6)}, 1);
-            setTimeout(function (){fadePinHardware(7, foo+bar*7)}, 1);
+            // setTimeout(function (){fadePinHardware(0, foo+bar*0)}, 1);                
+            // setTimeout(function (){fadePinHardware(1, foo+bar*1)}, 1);
+            // setTimeout(function (){fadePinHardware(2, foo+bar*2)}, 1);
+            // setTimeout(function (){fadePinHardware(3, foo+bar*3)}, 1);
+            // setTimeout(function (){fadePinHardware(4, foo+bar*4)}, 1);
+            // setTimeout(function (){fadePinHardware(5, foo+bar*5)}, 1);
+            // setTimeout(function (){fadePinHardware(6, foo+bar*6)}, 1);
+            //setTimeout(function (){fadePinHardware(7, foo+bar*7)}, 1);
+
+            //setTimeout(function (){togglePin(7, 1000)}, 1);
+            setTimeout(function (){fadePinManual(7, 25)}, 1);
+        }
+        else if (options.host == "rgbinput.local")
+        {
+            setTimeout(function (){rgbFadeManual(0, 25)}, 1);
         }
         else
         {
@@ -90,10 +97,10 @@ async function testFadeInterrupt()
 {
     while (true)
     {
-        yb.fadeChannel(2, 1, 1000);
+        yb.fadePWMChannel(2, 1, 1000);
         await delay(500);
 
-        yb.fadeChannel(2, 0, 1000);
+        yb.fadePWMChannel(2, 0, 1000);
         await delay(500);
     }
 }
@@ -103,12 +110,12 @@ async function testAllFade(d = 1000)
     while (true)
     {
         for (let i=0; i<8; i++)
-            yb.fadeChannel(i, 1, d);
+            yb.fadePWMChannel(i, 1, d);
 
         await delay(d*2);
 
         for (let i=0; i<8; i++)
-            yb.fadeChannel(i, 0, d);
+            yb.fadePWMChannel(i, 0, d);
         await delay(d*2);
     }
 }
@@ -126,15 +133,15 @@ async function exercisePins()
     while (true) {
         for (i=0; i<8; i++)
         {
-            yb.setChannelDuty(i, Math.random());
-            yb.setChannelState(i, true);
+            yb.setPWMChannelDuty(i, Math.random());
+            yb.setPWMChannelState(i, true);
 
             await delay(200)
         }
 
         for (i=0; i<8; i++)
         {
-            yb.setChannelState(i, false);
+            yb.setPWMChannelState(i, false);
            	await delay(200)
         }
     }
@@ -142,10 +149,10 @@ async function exercisePins()
 
 async function togglePin(channel = 0, d = 10)
 {
-    yb.setChannelDuty(channel, 1);
+    yb.setPWMChannelDuty(channel, 1);
     while (true)
     {
-        yb.toggleChannel(channel);
+        yb.togglePWMChannel(channel);
         await delay(d)
     }
 }
@@ -157,24 +164,78 @@ async function fadePinManual(channel = 0, d = 10)
 
     while (true)
     {
-        yb.setChannelState(channel, true);
+        yb.setPWMChannelState(channel, true);
         await delay(d)
 
         for (i=0; i<=steps; i++)
         {
-            yb.setChannelDuty(channel, (i / steps) * max_duty)
+            yb.setPWMChannelDuty(channel, (i / steps) * max_duty)
             await delay(d)
         }
 
         for (i=steps; i>=0; i--)
         {
-            yb.setChannelDuty(channel, (i / steps) * max_duty)
+            yb.setPWMChannelDuty(channel, (i / steps) * max_duty)
             await delay(d)
         }
 
         await delay(d)
     }
 }
+
+async function rgbFadeManual(channel = 0, d = 25)
+{
+    let steps = 25;
+    let max_duty = 1;
+
+    while (true)
+    {
+        for (i=0; i<=steps; i++)
+        {
+            let duty = (i / steps) * max_duty;
+            yb.setRGB(channel, duty, 0, 0);
+            await delay(d)
+        }
+
+        for (i=steps; i>=0; i--)
+        {
+            let duty = (i / steps) * max_duty;
+            yb.setRGB(channel, duty, 0, 0);
+            await delay(d)
+        }
+
+        for (i=0; i<=steps; i++)
+        {
+            let duty = (i / steps) * max_duty;
+            yb.setRGB(channel, 0, duty, 0);
+            await delay(d)
+        }
+
+        for (i=steps; i>=0; i--)
+        {
+            let duty = (i / steps) * max_duty;
+            yb.setRGB(channel, 0, duty, 0);
+            await delay(d)
+        }
+
+        for (i=0; i<=steps; i++)
+        {
+            let duty = (i / steps) * max_duty;
+            yb.setRGB(channel, 0, 0, duty);
+            await delay(d)
+        }
+
+        for (i=steps; i>=0; i--)
+        {
+            let duty = (i / steps) * max_duty;
+            yb.setRGB(channel, 0, 0, duty);
+            await delay(d)
+        }
+
+        await delay(d)
+    }
+}
+
 
 async function fadePinHardware(channel = 0, d = 250, knee = 50)
 {
@@ -184,11 +245,11 @@ async function fadePinHardware(channel = 0, d = 250, knee = 50)
         while (true)
     {
         //yb.log(`fading to 1 in ${d}ms`);
-        yb.fadeChannel(channel, 1, d);
+        yb.fadePWMChannel(channel, 1, d);
         await delay(d+knee);
 
         //yb.log(`fading to 0 in ${d}ms`);
-        yb.fadeChannel(channel, 0, d);
+        yb.fadePWMChannel(channel, 0, d);
         await delay(d+knee);
     }
 }
