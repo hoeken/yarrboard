@@ -4,7 +4,6 @@ Firmware:
 * dragging the pwm bar should do 2 things:
     * temporarily stop pwm UI update
     * send updates to the board on move
-* update node.js client
 * update signalk plugin
     * add uptime to signalk integration
 * convert Adafruit LED library to hardware SPI

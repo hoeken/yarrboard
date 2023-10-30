@@ -13,7 +13,8 @@
     "commander": "^11.0.0",
     "sockette": "^2.0.6",
     "websocket": "^1.0.34",
-    "ws": "^8.13.0"
+    "ws": "^8.13.0",
+    "yarrboard-client": "^1.0.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
