@@ -6,7 +6,6 @@
 
   (title_block
     (title "Yarrboard 8ch Mosfet Driver")
-    (rev "C")
     (company "https://github.com/hoeken/yarrboard")
   )
 
@@ -642,7 +641,7 @@
   (symbol (lib_id "Device:D_TVS") (at 60.96 93.98 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 13c71275-b598-425a-a118-73faf799044a)
-    (property "Reference" "D23" (at 63.5 92.71 90)
+    (property "Reference" "D30" (at 63.5 92.71 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 52.07 105.41 90)
@@ -662,7 +661,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D23") (unit 1)
+          (reference "D30") (unit 1)
         )
       )
     )
@@ -671,7 +670,7 @@
   (symbol (lib_id "Device:D_TVS") (at 52.07 93.98 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1c9d365c-2cef-4cfa-a430-8d861ab25678)
-    (property "Reference" "D22" (at 54.61 92.71 90)
+    (property "Reference" "D29" (at 54.61 92.71 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 54.61 102.87 90)
@@ -691,7 +690,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D22") (unit 1)
+          (reference "D29") (unit 1)
         )
       )
     )
@@ -722,7 +721,7 @@
           (reference "J1") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "J9") (unit 1)
+          (reference "J14") (unit 1)
         )
       )
     )
@@ -731,7 +730,7 @@
   (symbol (lib_id "Device:D_TVS") (at 200.66 93.98 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2a2a9d38-eba2-449c-97d0-6d8b37e085a1)
-    (property "Reference" "D27" (at 203.2 92.71 90)
+    (property "Reference" "D28" (at 203.2 92.71 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 182.88 107.95 90)
@@ -751,7 +750,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D27") (unit 1)
+          (reference "D28") (unit 1)
         )
       )
     )
@@ -760,7 +759,7 @@
   (symbol (lib_id "Device:D_TVS") (at 182.88 93.98 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 3bac0424-d38f-4248-bc65-0a73b586ca24)
-    (property "Reference" "D25" (at 185.42 92.71 90)
+    (property "Reference" "D1" (at 185.42 92.71 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 182.88 102.87 90)
@@ -780,7 +779,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D25") (unit 1)
+          (reference "D1") (unit 1)
         )
       )
     )
@@ -808,7 +807,7 @@
           (reference "#PWR060") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "#PWR057") (unit 1)
+          (reference "#PWR054") (unit 1)
         )
       )
     )
@@ -836,7 +835,7 @@
           (reference "#PWR054") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "#PWR059") (unit 1)
+          (reference "#PWR062") (unit 1)
         )
       )
     )
@@ -871,7 +870,7 @@
           (reference "J2") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "J10") (unit 1)
+          (reference "J13") (unit 1)
         )
       )
     )
@@ -924,7 +923,7 @@
           (reference "R31") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "R32") (unit 1)
+          (reference "R42") (unit 1)
         )
       )
     )
@@ -952,7 +951,7 @@
           (reference "#PWR054") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "#PWR060") (unit 1)
+          (reference "#PWR061") (unit 1)
         )
       )
     )
@@ -1005,7 +1004,7 @@
           (reference "R31") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "R31") (unit 1)
+          (reference "R40") (unit 1)
         )
       )
     )
@@ -1014,7 +1013,7 @@
   (symbol (lib_id "Device:D_TVS") (at 191.77 93.98 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid c777046f-3887-4c36-9842-2bc8ce4be21e)
-    (property "Reference" "D26" (at 194.31 92.71 90)
+    (property "Reference" "D27" (at 194.31 92.71 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 182.88 105.41 90)
@@ -1034,7 +1033,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D26") (unit 1)
+          (reference "D27") (unit 1)
         )
       )
     )
@@ -1062,7 +1061,7 @@
           (reference "#PWR060") (unit 1)
         )
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "#PWR058") (unit 1)
+          (reference "#PWR081") (unit 1)
         )
       )
     )
@@ -1071,7 +1070,7 @@
   (symbol (lib_id "Device:D_TVS") (at 69.85 93.98 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e90ac572-b0f1-4904-b421-743b7f8068fa)
-    (property "Reference" "D24" (at 72.39 92.71 90)
+    (property "Reference" "D31" (at 72.39 92.71 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "PESD3V3L1BA" (at 52.07 107.95 90)
@@ -1091,7 +1090,7 @@
     (instances
       (project "8ch-mosfet"
         (path "/c83c6236-96e9-46ad-9d7a-9e2efa4a7966/0036d08f-39b5-4a29-8e4d-ea832b2cc879"
-          (reference "D24") (unit 1)
+          (reference "D31") (unit 1)
         )
       )
     )
