@@ -6,6 +6,7 @@
 
   (title_block
     (title "Yarrboard 8ch Mosfet Driver")
+    (rev "C1")
     (company "https://github.com/hoeken/yarrboard")
   )
 
@@ -1954,7 +1955,7 @@
     (property "Value" "SMMS0650-680M" (at 200.66 77.47 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "Inductor_SMD:L_Chilisin_BMRA00040420" (at 200.66 80.01 0)
+    (property "Footprint" "Inductor_SMD:L_Chilisin_BMRB00060650" (at 200.66 80.01 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 200.66 80.01 0)
@@ -2247,7 +2248,7 @@
     (property "Reference" "C2" (at 72.39 86.3663 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "10nF/50v" (at 72.39 88.9063 0)
+    (property "Value" "10nF" (at 72.39 88.9063 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (at 69.85 87.63 0)

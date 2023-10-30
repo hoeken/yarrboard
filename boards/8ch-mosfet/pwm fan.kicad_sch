@@ -6,6 +6,7 @@
 
   (title_block
     (title "Yarrboard 8ch Mosfet Driver")
+    (rev "C1")
     (company "https://github.com/hoeken/yarrboard")
   )
 
