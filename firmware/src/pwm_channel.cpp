@@ -126,7 +126,7 @@ void PWMChannel::setup()
   if (preferences.isKey(prefIndex))
     this->softFuseAmperage = preferences.getFloat(prefIndex);
   else
-    this->softFuseAmperage = YB_FAN_MAX_CHANNEL_AMPS;
+    this->softFuseAmperage = YB_PWM_CHANNEL_MAX_AMPS;
 
   //soft fuse trip count
   sprintf(prefIndex, "pwmTripCount%d", this->id);
@@ -219,7 +219,7 @@ void PWMChannel::checkSoftFuse()
   if (!this->tripped)
   {
     //Check our soft fuse, and our max limit for the board.
-    if (abs(this->amperage) >= this->softFuseAmperage || abs(this->amperage) >= YB_FAN_MAX_CHANNEL_AMPS)
+    if (abs(this->amperage) >= this->softFuseAmperage || abs(this->amperage) >= YB_PWM_CHANNEL_MAX_AMPS)
     {
       //TODO: maybe double check the amperage again here?
 

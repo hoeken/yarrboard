@@ -884,10 +884,8 @@ void generateStatsJSON(JsonVariant output)
 
   #ifdef YB_HAS_FANS
     //info about each of our fans
-    for (byte i = 0; i < YB_FAN_COUNT; i++) {
+    for (byte i = 0; i < YB_FAN_COUNT; i++)
       output["fans"][i]["rpm"] = fans_last_rpm[i];
-      output["fans"][i]["pwm"] = fans_last_pwm[i];
-    }
   #endif
 }
 

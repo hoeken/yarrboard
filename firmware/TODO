@@ -12,6 +12,12 @@ Electronics:
 * design case for input board
 * design case for button board
 
+8ch MOSFET:
+
+* remove CAN port - never going to use it.
+* change fan2 tach to pin 4
+* combine fan 1 pwm and fan 2 pwm to pin 16
+
 Long term:
 
 * reinvestigate firmware signing
