@@ -12,7 +12,7 @@
 #include <ArduinoTrace.h>
 
 #ifndef YB_FIRMWARE_VERSION
-  #define YB_FIRMWARE_VERSION "0.0.6"
+  #define YB_FIRMWARE_VERSION "0.0.9"
 #endif
 
 //#define CORE_DEBUG_LEVEL 5
@@ -60,5 +60,6 @@
 #define YB_WIFI_SSID_LENGTH 33
 #define YB_WIFI_PASSWORD_LENGTH 64
 #define YB_HOSTNAME_LENGTH 64
+#define YB_VALIDATE_FIRMWARE_SIGNATURE true
 
 #endif // YARR_CONFIG_H

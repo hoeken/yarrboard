@@ -8,10 +8,9 @@
 
 #include "ota.h"
 
-bool validate_signature = false;
-esp32FOTA FOTA(YB_HARDWARE_VERSION, YB_FIRMWARE_VERSION, validate_signature);
+esp32FOTA FOTA(YB_HARDWARE_VERSION, YB_FIRMWARE_VERSION, YB_VALIDATE_FIRMWARE_SIGNATURE);
 
-//for github
+//for github https
 const char* root_ca = R"ROOT_CA(
 -----BEGIN CERTIFICATE-----
 MIIEvjCCA6agAwIBAgIQBtjZBNVYQ0b2ii+nVCJ+xDANBgkqhkiG9w0BAQsFADBh
@@ -45,19 +44,19 @@ A7sKPPcw7+uvTPyLNhBzPvOk
 
 //my key for future firmware signing
 const char* public_key = R"PUBLIC_KEY(
-  -----BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAqYEgW6K3LVu7v+uaJJRL
-gC7z8xQmy4CPBSX2W9Qe5NlpO0XQ4RnuIX0X9nfKEhITeB0EZ5R59rVPIIWnbHRk
-qBE5lXnf7YSbFDh9ZT7am080TCF45REPnCnDeOiYbY1q9+/nONpTHCkC1bffHeIn
-D0S9r/BjL+0I4fXyhm9GL9Q2BEEsWT7ufzsIP3ADllCvB/XoKKNIXsvFECCkJrPH
-OdtMKR+6K6eNAKDT1IOlFlbdyGE5t+kGRguIh0LhuBp0trNEdEaGUxYE2UN/V5YX
-mw0czPWcdyCCtbwx0xv8NiImZ3ZhE8O17sdWjqPtBYx9yKDNdH/IXNGY05fohXbk
-ZrYsn5f4oIuiAObw+Xl+9bSgaRqJ0ezoegF8uIFpOUtNhZ3hygAuiPwbCCXn94Dk
-y2d1LPGvaHae5t8OOMZ7dT7GCV6cJ3RhyKaZfoNklLKly9ab0oTbwmthLspX3wGj
-MvTWw5vSCXHWh8xLE2LH15rpcBkh7SYmdoLu9xMEAcD+GYU9DmTcDSUEgfHnSMff
-66u0lAJzUwJBZ1sV8Ec1j08cuIEUuV7AtHvV9CsSQtyXVxmGF1UVk8SCUuOYTma6
-L1G9vkoVljfd+/VWbSJR67T0BMcapzJD3Vc/rY6iBT4lB1J7wum6oyH9K6frl/zP
-1Owwdkc0YGEFCiDjUPSvuuECAwEAAQ==
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAjsPaBVvAoSlNEdxLnKl5
+71m+8nEbI6jTenIau884++X+tzjRM/4vctpkfM+b6yPEER6hLKLU5Sr/sVbNAu3s
+Ih9UHsgbyzQ4r+NMzM8ohvPov1j5+NgzoIRPn9IQR40p/Mr3T31MXoeSh/WXw7yJ
+BjVH2KhTD14e8Yc9CiEUvzYhFVjs8Doy1q2+jffiutcR8z+zGBSGHI3klTK8mNau
+r9weglTUCObkUfbgrUWXOkDN50Q97OOv99+p8NPkcThZYbaqjbrOCO9vnMFB9Mxj
+5yDruS9QF/qhJ5mC7AuHLhAGdkPu+3OXRDlIJN1j7y8SorvQj9F17B8wnhNBfDPN
+QbJc4isLIIBGECfmamCONi5tt6fcZC/xZTxCiEURG+JVgUKjw+mIBrv+iVn9NKYK
+UF8shPfl0CGKzOvsXBf91pqF5rHs6TpVw985u1VFbRrUL6nmsCELFxBz/+y83uhj
+jsROITwP34vi7qMuHm8UzTnfxH0dSuI6PfWESIM8aq6bidBgUWlnoN/zQ/pwLVsz
+0Gh5tAoFCyJ+FZiKS+2spkJ5mJBMY0Ti3dHinp6E2YNxY7IMV/4E9oK+MzvX1m5s
+rgu4zp1Wfh2Q5QMX6bTrDCTn52KdyJ6z2WTnafaA08zeKOP+uVAPT0HLShF/ITEX
++Cd7GvvuZMs80QvqoXi+k8UCAwEAAQ==
 -----END PUBLIC KEY-----
 )PUBLIC_KEY";
 
@@ -67,15 +66,11 @@ CryptoMemAsset *MyPubKey = new CryptoMemAsset("RSA Key", public_key, strlen(publ
 bool doOTAUpdate = false;
 unsigned long ota_last_message = 0;
 
-char manifest_url[] = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
-// char hardware_version[] = YB_HARDWARE_VERSION;
-// char firmware_version[] = YB_FIRMWARE_VERSION;
-
 void ota_setup()
 {
-  FOTA.setManifestURL(manifest_url);
+  FOTA.setManifestURL("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json");
   FOTA.setRootCA(MyRootCA);
-  //FOTA.setPubKey(MyPubKey);
+  FOTA.setPubKey(MyPubKey);
 
   FOTA.setUpdateBeginFailCb( [](int partition) {
     Serial.printf("[ota] Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );

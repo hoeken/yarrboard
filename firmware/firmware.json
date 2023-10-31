@@ -1,14 +1,14 @@
 [
     {
         "type": "8CH_MOSFET_REV_B",
-        "version": "0.0.8",
-        "url": "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/releases/8CH_MOSFET_REV_B-0.0.8.bin",
-        "changelog": "<ul><li>Test 4</li></ul>"
+        "version": "0.0.9",
+        "url": "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/releases/8CH_MOSFET_REV_B-0.0.9.bin",
+        "changelog": "<ul><li>Signature test</li></ul>"
     },
     {
         "type": "RGB_INPUT_REV_A",
-        "version": "0.0.8",
-        "url": "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/releases/RGB_INPUT_REV_A-0.0.8.bin",
-        "changelog": "<ul><li>Test 4</li></ul>"
+        "version": "0.0.9",
+        "url": "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/releases/RGB_INPUT_REV_A-0.0.9.bin",
+        "changelog": "<ul><li>Signature test</li></ul>"
     }
 ]
