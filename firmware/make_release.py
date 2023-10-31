@@ -34,6 +34,10 @@ if __name__ == '__main__':
 			#print (cmd)
 			#os.system(cmd)
 
+			#openssl dgst -sign ~/Dropbox/misc/yarrboard.pem -keyform PEM -sha256 -out .pio/build/esp32dev/firmware.sign -binary .pio/build/esp32dev/firmware.bin
+			#cat .pio/build/esp32dev/firmware.sign .pio/build/esp32dev/firmware.bin > .pio/build/esp32dev/signed.bin
+			#cp ".pio/build/esp32dev/signed.bin" "releases/yarrboard-${1}.bin"
+
 			cmd = f'cp .pio/build/{board}/firmware.bin releases/{board}-{v}.bin'
 			#print (cmd)
 			#os.system(cmd)
