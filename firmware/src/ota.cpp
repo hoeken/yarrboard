@@ -65,7 +65,6 @@ CryptoMemAsset *MyRootCA = new CryptoMemAsset("Root CA", root_ca, strlen(root_ca
 CryptoMemAsset *MyPubKey = new CryptoMemAsset("RSA Key", public_key, strlen(public_key)+1);
 
 bool doOTAUpdate = false;
-int ota_current_partition = U_SPIFFS;
 unsigned long ota_last_message = 0;
 
 char manifest_url[] = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
@@ -93,19 +92,13 @@ void ota_setup()
       if (millis() - ota_last_message > 1000 || progress == size)
       {
         float percent = (float)progress / (float)size * 100.0;
-        sendOTAProgressUpdate(percent, ota_current_partition);
+        sendOTAProgressUpdate(percent);
         ota_last_message = millis();
       }
   });
 
   FOTA.setUpdateEndCb( [](int partition) {
     Serial.printf("[ota] Update ended with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
-
-    //no begin callback???
-    if (partition == U_SPIFFS)
-      ota_current_partition = U_FLASH;
-    //i guess we're done?
-    else
       sendOTAProgressFinished();
   });
 
@@ -116,7 +109,6 @@ void ota_setup()
     //  -2 : validation (signature check) failed
   });
 
-  TRACE();
   FOTA.printConfig();
 }
 
@@ -125,6 +117,6 @@ void ota_loop()
   if (doOTAUpdate)
   {
     FOTA.handle();
-    return;
+	doOTAUpdate = false;
   }
 }

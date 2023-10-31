@@ -17,7 +17,6 @@
 
 extern esp32FOTA FOTA;
 extern bool doOTAUpdate;
-extern int ota_current_partition;
 extern unsigned long ota_last_message;
 
 void ota_setup();

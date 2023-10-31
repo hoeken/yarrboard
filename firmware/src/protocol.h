@@ -79,7 +79,7 @@ void generateConfigJSON(JsonVariant output);
 void generateStatsJSON(JsonVariant output);
 void generateNetworkConfigJSON(JsonVariant output);
 void generateAppConfigJSON(JsonVariant output);
-void generateOTAProgressUpdateJSON(JsonVariant output, float progress, int partition);
+void generateOTAProgressUpdateJSON(JsonVariant output, float progress);
 void generateOTAProgressFinishedJSON(JsonVariant output);
 void generateErrorJSON(JsonVariant output, const char * error);
 void generateSuccessJSON(JsonVariant output, const char * success);
@@ -88,7 +88,7 @@ void generateInvalidChannelJSON(JsonVariant output, byte cid);
 void generatePongJSON(JsonVariant output);
 
 void sendUpdate();
-void sendOTAProgressUpdate(float progress, int partition);
+void sendOTAProgressUpdate(float progress);
 void sendOTAProgressFinished();
 void sendToAll(const char * jsonString);
 

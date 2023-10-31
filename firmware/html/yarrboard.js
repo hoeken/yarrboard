@@ -839,7 +839,7 @@ function start_websocket()
 
       let progress = Math.round(msg.progress);
 
-      let prog_id = `#${msg.partition}_progress`;
+      let prog_id = `#firmware_progress`;
       $(prog_id).css("width", progress + "%").text(progress + "%");
       if (progress == 100)
       {
@@ -848,7 +848,7 @@ function start_websocket()
       }
 
       //was that the last?
-      if (msg.partition == "firmware" && progress == 100)
+      if (progress == 100)
       {
         show_alert("Firmware update successful.", "success");
 

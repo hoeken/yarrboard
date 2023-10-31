@@ -1022,15 +1022,9 @@ void generateAppConfigJSON(JsonVariant output)
   output["app_enable_serial"] = app_enable_serial;
 }
 
-void generateOTAProgressUpdateJSON(JsonVariant output, float progress, int partition)
+void generateOTAProgressUpdateJSON(JsonVariant output, float progress)
 {
   output["msg"] = "ota_progress";
-
-  if (partition == U_SPIFFS)
-    output["partition"] = "spiffs";
-  else
-    output["partition"] = "firmware";
-
   output["progress"] = round2(progress);
 }
 
@@ -1093,12 +1087,12 @@ void sendUpdate()
   sendToAll(jsonBuffer);
 }
 
-void sendOTAProgressUpdate(float progress, int partition)
+void sendOTAProgressUpdate(float progress)
 {
   StaticJsonDocument<256> output;
   char jsonBuffer[256];
 
-  generateOTAProgressUpdateJSON(output, progress, partition);
+  generateOTAProgressUpdateJSON(output, progress);
 
   serializeJson(output, jsonBuffer);
   sendToAll(jsonBuffer);
