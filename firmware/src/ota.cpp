@@ -8,7 +8,8 @@
 
 #include "ota.h"
 
-esp32FOTA FOTA;
+bool validate_signature = false;
+esp32FOTA FOTA(YB_HARDWARE_VERSION, YB_FIRMWARE_VERSION, validate_signature);
 
 //for github
 const char* root_ca = R"ROOT_CA(
@@ -67,22 +68,15 @@ bool doOTAUpdate = false;
 int ota_current_partition = U_SPIFFS;
 unsigned long ota_last_message = 0;
 
-char hardware_version[] = YB_HARDWARE_VERSION;
 char manifest_url[] = "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json";
-char firmware_version[] = YB_FIRMWARE_VERSION;
+// char hardware_version[] = YB_HARDWARE_VERSION;
+// char firmware_version[] = YB_FIRMWARE_VERSION;
 
 void ota_setup()
 {
-  auto cfg = FOTA.getConfig();
-  cfg.name          = hardware_version;
-  cfg.manifest_url  = manifest_url;
-  cfg.sem           = firmware_version;
-  cfg.check_sig     = false; // verify signed firmware with rsa public key
-  cfg.unsafe        = true; // disable certificate check when using TLS
-  cfg.root_ca       = MyRootCA;
-  //cfg.pub_key       = MyRSAKey;
-  //cfg.use_device_id = false;
-  FOTA.setConfig( cfg );
+  FOTA.setManifestURL(manifest_url);
+  FOTA.setRootCA(MyRootCA);
+  //FOTA.setPubKey(MyPubKey);
 
   FOTA.setUpdateBeginFailCb( [](int partition) {
     Serial.printf("[ota] Update could not begin with %s partition\n", partition==U_SPIFFS ? "spiffs" : "firmware" );
@@ -122,7 +116,8 @@ void ota_setup()
     //  -2 : validation (signature check) failed
   });
 
-  //FOTA.printConfig();
+  TRACE();
+  FOTA.printConfig();
 }
 
 void ota_loop()

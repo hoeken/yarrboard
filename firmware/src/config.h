@@ -12,8 +12,10 @@
 #include <ArduinoTrace.h>
 
 #ifndef YB_FIRMWARE_VERSION
-  #define YB_FIRMWARE_VERSION "0.0.8"
+  #define YB_FIRMWARE_VERSION "0.0.7"
 #endif
+
+//#define CORE_DEBUG_LEVEL 5
 
 // enable one of these
 //#define YB_CONFIG_8CH_MOSFET_REV_A
