@@ -1,7 +1,6 @@
 Firmware:
-    * npm and signalk plugin release + document the process
     * reinvestigate firmware signing
-    * investigate how to build multiple firmwares...  commandline pio?
+    * make a python script to do the release
     * protocol documentation
     * learn about building components for node-red, maybe make a yarrboard toolkit
 

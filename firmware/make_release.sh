@@ -26,3 +26,5 @@ echo "Bump the version # in firmware.json"
 echo "Build fresh firmware"
 echo "Build fresh filesystem image"
 echo "Add your changelist to firmware.json"
+
+# publish updated client + signalk plugin using npm publish in each repository
