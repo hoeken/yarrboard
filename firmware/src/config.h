@@ -12,19 +12,19 @@
 #include <ArduinoTrace.h>
 
 #ifndef YB_FIRMWARE_VERSION
-  #define YB_FIRMWARE_VERSION "0.0.7"
+  #define YB_FIRMWARE_VERSION "0.0.8"
 #endif
 
 // enable one of these
-//#define YB_CONFIG_8CH_MOSFET_REVA
-//#define YB_CONFIG_8CH_MOSFET_REVB
-//#define YB_CONFIG_RGB_INPUT_REVA
+//#define YB_CONFIG_8CH_MOSFET_REV_A
+//#define YB_CONFIG_8CH_MOSFET_REV_B
+//#define YB_CONFIG_RGB_INPUT_REV_A
 
-#if defined YB_CONFIG_8CH_MOSFET_REVA
+#if defined YB_CONFIG_8CH_MOSFET_REV_A
   #include "./configs/config.8ch-mosfet-reva.h"
-#elif defined YB_CONFIG_8CH_MOSFET_REVB
+#elif defined YB_CONFIG_8CH_MOSFET_REV_B
   #include "./configs/config.8ch-mosfet-revb.h"
-#elif defined YB_CONFIG_RGB_INPUT_REVA
+#elif defined YB_CONFIG_RGB_INPUT_REV_A
   #include "./configs/config.rgb-input-reva.h"
 #else
   #error "No board config has been defined"

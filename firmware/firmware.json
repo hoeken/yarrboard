@@ -1,18 +1,18 @@
 [
     {
-        "type": "8CH_MOSFET_REVB",
+        "type": "8CH_MOSFET_REV_B",
         "version": "0.0.8",
         "host": "raw.githubusercontent.com",
         "port": 443,
-        "url": "/hoeken/yarrboard/main/firmware/releases/8CH_MOSFET_REVB-0.0.8.bin",
+        "url": "/hoeken/yarrboard/main/firmware/releases/8CH_MOSFET_REV_B-0.0.8.bin",
         "changelog": "<ul><li>New firmware for latest revision of boards</li></ul>"
     },
     {
-        "type": "RGB_INPUT_REVA",
+        "type": "RGB_INPUT_REV_A",
         "version": "0.0.8",
         "host": "raw.githubusercontent.com",
         "port": 443,
-        "url": "/hoeken/yarrboard/main/firmware/releases/RGB_INPUT_REVA-0.0.8.bin",
+        "url": "/hoeken/yarrboard/main/firmware/releases/RGB_INPUT_REV_A-0.0.8.bin",
         "changelog": "<ul><li>New firmware for latest revision of boards</li></ul>"
     }
 ]

@@ -2,7 +2,7 @@
 
 import argparse, os, json
 
-boards = ["8CH_MOSFET_REVB", "RGB_INPUT_REVA"]
+boards = ["8CH_MOSFET_REV_B", "RGB_INPUT_REV_A"]
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Make a new Yarrboard firmware release')
@@ -32,7 +32,7 @@ if __name__ == '__main__':
 			
 			cmd = f'pio run -e "{board}" -s'
 			#print (cmd)
-			#os.system(cmd)
+			os.system(cmd)
 
 			#openssl dgst -sign ~/Dropbox/misc/yarrboard.pem -keyform PEM -sha256 -out .pio/build/esp32dev/firmware.sign -binary .pio/build/esp32dev/firmware.bin
 			#cat .pio/build/esp32dev/firmware.sign .pio/build/esp32dev/firmware.bin > .pio/build/esp32dev/signed.bin
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
 			cmd = f'cp .pio/build/{board}/firmware.bin releases/{board}-{v}.bin'
 			#print (cmd)
-			#os.system(cmd)
+			os.system(cmd)
 
 		#update our config json file
 		config_str = json.dumps(config, indent=4)
