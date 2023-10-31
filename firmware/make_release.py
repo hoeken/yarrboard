@@ -33,16 +33,16 @@ if __name__ == '__main__':
 			os.system(cmd)
 
 			cmd = f'openssl dgst -sign ~/Dropbox/misc/yarrboard/priv_key.pem -keyform PEM -sha256 -out .pio/build/{board}/firmware.sign -binary .pio/build/{board}/firmware.bin'
-			print (cmd)
+			#print (cmd)
 			os.system(cmd)
 
 			cmd = f'cat .pio/build/{board}/firmware.sign .pio/build/{board}/firmware.bin > .pio/build/{board}/signed.bin'
-			print (cmd)
+			#print (cmd)
 			os.system(cmd)
 
-			#cmd = f'cp .pio/build/{board}/firmware.bin releases/{board}-{v}.bin'
-			cmd = f'cp .pio/build/{board}/signed.bin releases/{board}-{v}.bin'
-			print (cmd)
+			cmd = f'cp .pio/build/{board}/firmware.bin releases/{board}-{v}.bin'
+			#cmd = f'cp .pio/build/{board}/signed.bin releases/{board}-{v}.bin'
+			#print (cmd)
 			os.system(cmd)
 
 		#update our config json file
