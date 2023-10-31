@@ -1,7 +1,5 @@
 Firmware:
 
-* update signalk plugin
-    * add uptime to signalk integration
 * convert Adafruit LED library to hardware SPI
 * protocol documentation
 * learn about building components for node-red, maybe make a yarrboard toolkit

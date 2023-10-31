@@ -840,52 +840,61 @@ void handleSetADC(JsonVariantConst input, JsonVariant output)
   #endif
 }
 
-void generateStatsJSON(JsonVariant output)
+void generateConfigJSON(JsonVariant output)
 {
-  //some basic statistics and info
-  output["msg"] = "stats";
+  //our identifying info
+  output["msg"] = "config";
+  output["firmware_version"] = YB_FIRMWARE_VERSION;
+  output["hardware_version"] = YB_HARDWARE_VERSION;
+  output["name"] = board_name;
+  output["hostname"] = local_hostname;
   output["uuid"] = uuid;
-  output["messages"] = totalHandledMessages;
-  output["uptime"] = millis();
-  output["heap_size"] = ESP.getHeapSize();
-  output["free_heap"] = ESP.getFreeHeap();
-  output["min_free_heap"] = ESP.getMinFreeHeap();
-  output["max_alloc_heap"] = ESP.getMaxAllocHeap();
-  output["rssi"] = WiFi.RSSI();
-
-  //what is our IP address?
-  if (!strcmp(wifi_mode, "ap"))
-    output["ip_address"] = apIP;
-  else
-    output["ip_address"] = WiFi.localIP();
 
   #ifdef YB_HAS_BUS_VOLTAGE
-    output["bus_voltage"] = busVoltage;
+    output["bus_voltage"] = true;
   #endif
 
-  #ifdef YB_HAS_INPUT_CHANNELS
-    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
-      output["switches"][i]["id"] = i;
-      output["switches"][i]["state_change_count"] = input_channels[i].stateChangeCount;
-    }
-  #endif
+  //do we want to flag it for config?
+  if (is_first_boot)
+    output["first_boot"] = true;
 
+  //output / pwm channels
   #ifdef YB_HAS_PWM_CHANNELS
-    //info about each of our channels
     for (byte i = 0; i < YB_PWM_CHANNEL_COUNT; i++) {
       output["pwm"][i]["id"] = i;
       output["pwm"][i]["name"] = pwm_channels[i].name;
-      output["pwm"][i]["aH"] = pwm_channels[i].ampHours;
-      output["pwm"][i]["wH"] = pwm_channels[i].wattHours;
-      output["pwm"][i]["state_change_count"] = pwm_channels[i].stateChangeCount;
-      output["pwm"][i]["soft_fuse_trip_count"] = pwm_channels[i].softFuseTripCount;
+      output["pwm"][i]["enabled"] = pwm_channels[i].isEnabled;
+      output["pwm"][i]["hasCurrent"] = true;
+      output["pwm"][i]["softFuse"] = round2(pwm_channels[i].softFuseAmperage);
+      output["pwm"][i]["isDimmable"] = pwm_channels[i].isDimmable;
     }
   #endif
 
-  #ifdef YB_HAS_FANS
-    //info about each of our fans
-    for (byte i = 0; i < YB_FAN_COUNT; i++)
-      output["fans"][i]["rpm"] = fans_last_rpm[i];
+  //input / digital IO channels
+  #ifdef YB_HAS_INPUT_CHANNELS
+    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
+      output["switches"][i]["id"] = i;
+      output["switches"][i]["name"] = input_channels[i].name;
+      output["switches"][i]["enabled"] = input_channels[i].isEnabled;
+    }
+  #endif
+
+  //input / analog ADC channesl
+  #ifdef YB_HAS_ADC_CHANNELS
+    for (byte i = 0; i < YB_ADC_CHANNEL_COUNT; i++) {
+      output["adc"][i]["id"] = i;
+      output["adc"][i]["name"] = adc_channels[i].name;
+      output["adc"][i]["enabled"] = adc_channels[i].isEnabled;
+    }
+  #endif
+
+  //input / analog ADC channesl
+  #ifdef YB_HAS_RGB_CHANNELS
+    for (byte i = 0; i < YB_RGB_CHANNEL_COUNT; i++) {
+      output["rgb"][i]["id"] = i;
+      output["rgb"][i]["name"] = rgb_channels[i].name;
+      output["rgb"][i]["enabled"] = rgb_channels[i].isEnabled;
+    }
   #endif
 }
 
@@ -943,57 +952,52 @@ void generateUpdateJSON(JsonVariant output)
   #endif
 }
 
-void generateConfigJSON(JsonVariant output)
+void generateStatsJSON(JsonVariant output)
 {
-  //our identifying info
-  output["msg"] = "config";
-  output["firmware_version"] = YB_FIRMWARE_VERSION;
-  output["hardware_version"] = YB_HARDWARE_VERSION;
-  output["name"] = board_name;
-  output["hostname"] = local_hostname;
+  //some basic statistics and info
+  output["msg"] = "stats";
   output["uuid"] = uuid;
+  output["messages"] = totalHandledMessages;
+  output["uptime"] = millis();
+  output["heap_size"] = ESP.getHeapSize();
+  output["free_heap"] = ESP.getFreeHeap();
+  output["min_free_heap"] = ESP.getMinFreeHeap();
+  output["max_alloc_heap"] = ESP.getMaxAllocHeap();
+  output["rssi"] = WiFi.RSSI();
 
-  //do we want to flag it for config?
-  if (is_first_boot)
-    output["first_boot"] = true;
+  //what is our IP address?
+  if (!strcmp(wifi_mode, "ap"))
+    output["ip_address"] = apIP;
+  else
+    output["ip_address"] = WiFi.localIP();
 
-  //output / pwm channels
-  #ifdef YB_HAS_PWM_CHANNELS
-    for (byte i = 0; i < YB_PWM_CHANNEL_COUNT; i++) {
-      output["pwm"][i]["id"] = i;
-      output["pwm"][i]["name"] = pwm_channels[i].name;
-      output["pwm"][i]["enabled"] = pwm_channels[i].isEnabled;
-      output["pwm"][i]["hasCurrent"] = true;
-      output["pwm"][i]["softFuse"] = round2(pwm_channels[i].softFuseAmperage);
-      output["pwm"][i]["isDimmable"] = pwm_channels[i].isDimmable;
-    }
+  #ifdef YB_HAS_BUS_VOLTAGE
+    output["bus_voltage"] = busVoltage;
   #endif
 
-  //input / digital IO channels
   #ifdef YB_HAS_INPUT_CHANNELS
     for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
       output["switches"][i]["id"] = i;
-      output["switches"][i]["name"] = input_channels[i].name;
-      output["switches"][i]["enabled"] = input_channels[i].isEnabled;
+      output["switches"][i]["state_change_count"] = input_channels[i].stateChangeCount;
     }
   #endif
 
-  //input / analog ADC channesl
-  #ifdef YB_HAS_ADC_CHANNELS
-    for (byte i = 0; i < YB_ADC_CHANNEL_COUNT; i++) {
-      output["adc"][i]["id"] = i;
-      output["adc"][i]["name"] = adc_channels[i].name;
-      output["adc"][i]["enabled"] = adc_channels[i].isEnabled;
+  #ifdef YB_HAS_PWM_CHANNELS
+    //info about each of our channels
+    for (byte i = 0; i < YB_PWM_CHANNEL_COUNT; i++) {
+      output["pwm"][i]["id"] = i;
+      output["pwm"][i]["name"] = pwm_channels[i].name;
+      output["pwm"][i]["aH"] = pwm_channels[i].ampHours;
+      output["pwm"][i]["wH"] = pwm_channels[i].wattHours;
+      output["pwm"][i]["state_change_count"] = pwm_channels[i].stateChangeCount;
+      output["pwm"][i]["soft_fuse_trip_count"] = pwm_channels[i].softFuseTripCount;
     }
   #endif
 
-  //input / analog ADC channesl
-  #ifdef YB_HAS_RGB_CHANNELS
-    for (byte i = 0; i < YB_RGB_CHANNEL_COUNT; i++) {
-      output["rgb"][i]["id"] = i;
-      output["rgb"][i]["name"] = rgb_channels[i].name;
-      output["rgb"][i]["enabled"] = rgb_channels[i].isEnabled;
-    }
+  #ifdef YB_HAS_FANS
+    //info about each of our fans
+    for (byte i = 0; i < YB_FAN_COUNT; i++)
+      output["fans"][i]["rpm"] = fans_last_rpm[i];
   #endif
 }
 
