@@ -1,7 +1,9 @@
 Firmware:
+    * npm and signalk plugin release + document the process
+    * reinvestigate firmware signing
+    * investigate how to build multiple firmwares...  commandline pio?
     * protocol documentation
     * learn about building components for node-red, maybe make a yarrboard toolkit
-    * reinvestigate firmware signing
 
 8ch MOSFET:
     * remove CAN port - never going to use it.

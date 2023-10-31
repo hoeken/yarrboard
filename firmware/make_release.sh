@@ -2,6 +2,9 @@
 
 echo "Making release $1"
 
+pio run -e "RGB_INPUT_REVA"
+pio run -e "8CH_MOSFET_REVB"
+
 #openssl dgst -sign ~/Dropbox/misc/yarrboard.pem -keyform PEM -sha256 -out .pio/build/esp32dev/firmware.sign -binary .pio/build/esp32dev/firmware.bin
 #cat .pio/build/esp32dev/firmware.sign .pio/build/esp32dev/firmware.bin > .pio/build/esp32dev/signed.bin
 #cp ".pio/build/esp32dev/signed.bin" "releases/yarrboard-${1}.bin"
