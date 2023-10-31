@@ -1,6 +1,5 @@
 Firmware:
 
-* switch back to staticjson object
 * update signalk plugin
     * add uptime to signalk integration
 * convert Adafruit LED library to hardware SPI
