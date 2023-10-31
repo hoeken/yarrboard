@@ -13,7 +13,7 @@
 #include "rgb_channel.h"
 
 #ifdef YB_RGB_DRIVER_TLC5947
-  Adafruit_TLC5947 tlc = Adafruit_TLC5947(YB_RGB_TLC5947_NUM, YB_RGB_TLC5947_CLK, YB_RGB_TLC5947_DATA, YB_RGB_TLC5947_LATCH);
+  TLC5947_SPI tlc = TLC5947_SPI(YB_RGB_TLC5947_NUM, YB_RGB_TLC5947_LATCH);
 #endif
 
 //the main star of the event

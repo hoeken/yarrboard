@@ -14,7 +14,7 @@
 #include "prefs.h"
 
 #ifdef YB_RGB_DRIVER_TLC5947
-  #include <Adafruit_TLC5947.h>
+  #include <TLC5947_SPI.h>
 #endif
 
 class RGBChannel
