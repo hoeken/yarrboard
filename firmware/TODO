@@ -1,25 +1,34 @@
 Firmware:
 
+* add wattage display to PWM channel
+* switch back to staticjson object
 * update signalk plugin
     * add uptime to signalk integration
 * convert Adafruit LED library to hardware SPI
 * protocol documentation
 * learn about building components for node-red, maybe make a yarrboard toolkit
 
-Electronics:
-
-* update 3dp case for 8ch mosfet
-* design case for input board
-* design case for button board
-
 8ch MOSFET:
 
 * remove CAN port - never going to use it.
 * change fan2 tach to pin 4
 * combine fan 1 pwm and fan 2 pwm to pin 16
+* add voltage detector to each channel for run detection - another mcp3208 + bus voltage divider circuit
+* maybe switch to "pcb welding terminal" connection like 74650073R or C5370858 or C3029538
+    * or at least a 9.5mm pitch barrier terminal like C496131 or C430699 or C430687 or C707586
+
+Electronics:
+
+* update 3dp case for 8ch mosfet
+* design case for input board
+* design case for button board
+* move boards to 4 layer design signal / gnd / gnd / signal
 
 Long term:
 
 * reinvestigate firmware signing
-* N2K support
-* design a relay board
+
+Other Useful Boards:
+
+* Relay board - DC or AC?
+* Motor driver / H bridge?
