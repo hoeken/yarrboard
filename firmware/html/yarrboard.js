@@ -656,7 +656,17 @@ function start_websocket()
             }
       
             let current = ch.current.toFixed(1);
-            $('#pwmCurrent' + ch.id).html(`${current}&nbsp;A`);
+            let currentHTML = `${current}&nbsp;A`;
+
+            if (msg.bus_voltage)
+            {
+              let wattage = ch.current * msg.bus_voltage;
+              wattage = wattage.toFixed(0);
+              
+              currentHTML += `&nbsp;/&nbsp${wattage}&nbsp;W`;
+            }
+
+            $('#pwmCurrent' + ch.id).html(currentHTML);
           }
         }
       }
