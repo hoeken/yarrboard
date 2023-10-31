@@ -12,7 +12,7 @@
 #include <ArduinoTrace.h>
 
 #ifndef YB_FIRMWARE_VERSION
-  #define YB_FIRMWARE_VERSION "0.0.7"
+  #define YB_FIRMWARE_VERSION "0.0.8"
 #endif
 
 //#define CORE_DEBUG_LEVEL 5

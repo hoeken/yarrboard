@@ -21,8 +21,6 @@ if __name__ == '__main__':
 			bdata = {}
 			bdata['type'] = board
 			bdata['version'] = v
-			bdata['host'] = "raw.githubusercontent.com"
-			bdata['port'] = 443
 			bdata['url'] = f'https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/releases/{board}-{v}.bin'
 			if args.changelog:
 				bdata['changelog'] = args.changelog
