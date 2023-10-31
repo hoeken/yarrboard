@@ -1505,13 +1505,13 @@ function is_version_current(current_version, check_version)
   //parse versions
   current_match = regex.exec(current_version);
   check_match = regex.exec(check_version);
-  
+
   //check major, minor, rev
-  if (current_match[1] < check_match[1])
+  if (parseInt(current_match[1]) < parseInt(check_match[1]))
     return false;
-  if (current_match[2] < check_match[2])
+  if (parseInt(current_match[2]) < parseInt(check_match[2]))
     return false;
-  if (current_match[3] < check_match[3])
+  if (parseInt(current_match[3]) < parseInt(check_match[3]))
     return false;
 
   return true;
@@ -1519,44 +1519,50 @@ function is_version_current(current_version, check_version)
 
 function check_for_updates()
 {
-
   //did we get a config yet?
   if (current_config)
   {
-    $.getJSON("https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json", function(jdata)
-    {
-      //did we get anyting?
-      let data;
-      for (firmware of jdata)
-        if (firmware.type == current_config.hardware_version)
-          data = firmware;
+    $.ajax({
+      url: "https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/firmware.json",
+      cache: false,
+      dataType: "json",
+      success: function(jdata) {
+        console.log(jdata);
+        //did we get anything?
+        let data;
+        for (firmware of jdata)
+          if (firmware.type == current_config.hardware_version)
+            data = firmware;
 
-      if (!data)
-      {
-        show_alert(`Could not find a firmware for this hardware.`, "danger");
-        return;
-      }
+        console.log(data);
 
-      $("#firmware_checking").hide();
-
-      if (is_version_current(current_config.firmware_version, data.version))
-        $("#firmware_up_to_date").show();
-      else
-      {
-        if (data.changelog)
+        if (!data)
         {
-          $("#firmware_changelog").append(data.changelog);
-          $("#firmware_changelog").show();
+          show_alert(`Could not find a firmware for this hardware.`, "danger");
+          return;
         }
 
-        $("#firmware_version").html(data.version);
-        $("#firmware_bin").attr("href", `https://${data.host}${data.bin}`);
-        $("#firmware_spiffs").attr("href", `https://${data.host}${data.spiffs}`);
-        $("#firmware_update_available").show();
+        $("#firmware_checking").hide();
 
-        show_alert(`There is a <a  onclick="open_page('system')" href="/#system">firmware update</a> available (${data.version}).`, "primary");
+        if (is_version_current(current_config.firmware_version, data.version))
+          $("#firmware_up_to_date").show();
+        else
+        {
+          if (data.changelog)
+          {
+            $("#firmware_changelog").append(data.changelog);
+            $("#firmware_changelog").show();
+          }
+
+          console.log(data.version);
+          $("#new_firmware_version").html(data.version);
+          $("#firmware_bin").attr("href", `${data.url}`);
+          $("#firmware_update_available").show();
+
+          show_alert(`There is a <a  onclick="open_page('system')" href="/#system">firmware update</a> available (${data.version}).`, "primary");
+        }
       }
-    });  
+    });
   }
   //wait for it.
   else
