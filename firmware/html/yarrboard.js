@@ -1527,14 +1527,11 @@ function check_for_updates()
       cache: false,
       dataType: "json",
       success: function(jdata) {
-        console.log(jdata);
         //did we get anything?
         let data;
         for (firmware of jdata)
           if (firmware.type == current_config.hardware_version)
             data = firmware;
-
-        console.log(data);
 
         if (!data)
         {
@@ -1554,7 +1551,6 @@ function check_for_updates()
             $("#firmware_changelog").show();
           }
 
-          console.log(data.version);
           $("#new_firmware_version").html(data.version);
           $("#firmware_bin").attr("href", `${data.url}`);
           $("#firmware_update_available").show();
