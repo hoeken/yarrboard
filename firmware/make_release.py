@@ -40,8 +40,7 @@ if __name__ == '__main__':
 			#print (cmd)
 			os.system(cmd)
 
-			cmd = f'cp .pio/build/{board}/firmware.bin releases/{board}-{v}.bin'
-			#cmd = f'cp .pio/build/{board}/signed.bin releases/{board}-{v}.bin'
+			cmd = f'cp .pio/build/{board}/signed.bin releases/{board}-{v}.bin'
 			#print (cmd)
 			os.system(cmd)
 
