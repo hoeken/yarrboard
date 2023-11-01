@@ -1547,7 +1547,7 @@ function check_for_updates()
         {
           if (data.changelog)
           {
-            $("#firmware_changelog").append(data.changelog);
+            $("#firmware_changelog").append(marked.parse(data.changelog));
             $("#firmware_changelog").show();
           }
 

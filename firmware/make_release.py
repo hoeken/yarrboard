@@ -1,29 +1,36 @@
 #/usr/bin/python3
 
-import argparse, os, json
+import argparse, os, json, re
 
 boards = ["8CH_MOSFET_REV_B", "RGB_INPUT_REV_A"]
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser(description='Make a new Yarrboard firmware release')
-	parser.add_argument('-v', '--version', help='Firmware Version', default=None)
-	parser.add_argument('-c', '--changelog', help='Changelog', default=None)
 
-	args = parser.parse_args()
+	#look up our version #
+	version = False
+	file = open("src/config.h", "r")
+	for line in file:
+		result = re.search(r'YB_FIRMWARE_VERSION "(.*)"', line)
+		if result:
+			version = result.group(1)
+			break
 
-	if (args.version):
-		v = args.version
+	#get our changelog
+	with open("CHANGELOG") as f:
+		changelog = f.read()
+
+	#only proceed if we found the version
+	if (version):
 		config = []
 
-		print (f'Making firmware release for version {v}')
+		print (f'Making firmware release for version {version}')
 
 		for board in boards:
 			bdata = {}
 			bdata['type'] = board
-			bdata['version'] = v
-			bdata['url'] = f'https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/releases/{board}-{v}.bin'
-			if args.changelog:
-				bdata['changelog'] = args.changelog
+			bdata['version'] = version
+			bdata['url'] = f'https://raw.githubusercontent.com/hoeken/yarrboard/main/firmware/releases/{board}-{version}.bin'
+			bdata['changelog'] = changelog
 			config.append(bdata)
 
 			print (f'Building {board} firmware')
@@ -40,7 +47,7 @@ if __name__ == '__main__':
 			#print (cmd)
 			os.system(cmd)
 
-			cmd = f'cp .pio/build/{board}/signed.bin releases/{board}-{v}.bin'
+			cmd = f'cp .pio/build/{board}/signed.bin releases/{board}-{version}.bin'
 			#print (cmd)
 			os.system(cmd)
 
@@ -51,4 +58,4 @@ if __name__ == '__main__':
 		    text_file.write(config_str)
 
 	else:
-		print("You must supply a version number in x.y.z format")
+		print("YB_FIRMWARE_VERSION not #defined in src/config.h")

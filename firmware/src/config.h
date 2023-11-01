@@ -11,16 +11,9 @@
 
 #include <ArduinoTrace.h>
 
-#ifndef YB_FIRMWARE_VERSION
-  #define YB_FIRMWARE_VERSION "1.0.0"
-#endif
+#define YB_FIRMWARE_VERSION "1.0.0"
 
 //#define CORE_DEBUG_LEVEL 5
-
-// enable one of these
-//#define YB_CONFIG_8CH_MOSFET_REV_A
-//#define YB_CONFIG_8CH_MOSFET_REV_B
-//#define YB_CONFIG_RGB_INPUT_REV_A
 
 #if defined YB_CONFIG_8CH_MOSFET_REV_A
   #include "./configs/config.8ch-mosfet-reva.h"
