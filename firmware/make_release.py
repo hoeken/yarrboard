@@ -2,7 +2,12 @@
 
 import argparse, os, json, re
 
-boards = ["8CH_MOSFET_REV_B", "RGB_INPUT_REV_A"]
+boards = [
+	"8CH_MOSFET_REV_B",
+	"8CH_MOSFET_REV_B",
+	"RGB_INPUT_REV_A",
+	"RGB_INPUT_REV_B"
+]
 
 if __name__ == '__main__':
 

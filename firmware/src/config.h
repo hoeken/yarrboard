@@ -19,8 +19,12 @@
   #include "./configs/config.8ch-mosfet-reva.h"
 #elif defined YB_CONFIG_8CH_MOSFET_REV_B
   #include "./configs/config.8ch-mosfet-revb.h"
+#elif defined YB_CONFIG_8CH_MOSFET_REV_C
+  #include "./configs/config.8ch-mosfet-revC.h"
 #elif defined YB_CONFIG_RGB_INPUT_REV_A
   #include "./configs/config.rgb-input-reva.h"
+#elif defined YB_CONFIG_RGB_INPUT_REV_B
+  #include "./configs/config.rgb-input-revb.h"
 #else
   #error "No board config has been defined"
 #endif
