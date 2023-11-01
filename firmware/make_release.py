@@ -1,4 +1,4 @@
-#/usr/bin/python3
+#!/usr/bin/env python
 
 import argparse, os, json, re
 
@@ -57,5 +57,12 @@ if __name__ == '__main__':
 		with open("firmware.json", "w") as text_file:
 		    text_file.write(config_str)
 
+		print("Build complete.\n")
+		print("Next steps:")
+		print(f'1. Add the new firmware files: git add releases')
+		print(f'2. Commit the new version: git commit -am "Firmware release v{version}"')
+		print(f'3. Push changes to github: git push')
+		print(f'4. Create a new tag: git tag -a v{version} -m "Firmware release v{version}"')
+		print(f'5. Push your tags: git push origin v{version}')
 	else:
 		print("YB_FIRMWARE_VERSION not #defined in src/config.h")
