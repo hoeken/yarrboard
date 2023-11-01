@@ -7,13 +7,20 @@
 */
 
 #include "config.h"
+#include <SPI.h>
 
 #ifdef YB_HAS_RGB_CHANNELS
 
 #include "rgb_channel.h"
 
+#ifdef YB_CONFIG_RGB_INPUT_REV_A
+  SPIClass mySPI(VSPI);
+#else
+  SPIClass mySPI(HSPI);
+#endif
+
 #ifdef YB_RGB_DRIVER_TLC5947
-  TLC5947_SPI tlc = TLC5947_SPI(YB_RGB_TLC5947_NUM, YB_RGB_TLC5947_LATCH);
+  TLC5947_SPI tlc = TLC5947_SPI(YB_RGB_TLC5947_NUM, YB_RGB_TLC5947_LATCH, &mySPI);
 #endif
 
 //the main star of the event
