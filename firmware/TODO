@@ -1,4 +1,6 @@
 Firmware:
+    * create signalk app with links to each of the servers, possibly iframe loading?
+    * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
     * protocol documentation
     * learn about building components for node-red, maybe make a yarrboard toolkit
 
