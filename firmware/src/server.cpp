@@ -90,7 +90,7 @@ void server_setup()
   });
 
   //a 404 is nice
-  server.onNotFound([](AsyncWebServerRequest *request){ request->send(404); });
+  server.onNotFound([](AsyncWebServerRequest *request){ request->send(404, "text/plain", "Not found"); });
 
   server.begin();
 }
