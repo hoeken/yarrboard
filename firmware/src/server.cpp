@@ -76,7 +76,18 @@ void server_setup()
     }
   });
 
-  //server.onNotFound([](AsyncWebServerRequest *request){ request->send(404); });
+  //downloadable coredump file
+  server.on("/coredump.txt", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
+    //delete the coredump here, but not from littlefs
+		deleteCoreDump();
+
+    //send the file
+    request->send(LittleFS, "/coredump.txt", "text/plain");
+  });
+
+  //a 404 is nice
+  server.onNotFound([](AsyncWebServerRequest *request){ request->send(404); });
 
   server.begin();
 }

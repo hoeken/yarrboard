@@ -16,7 +16,6 @@ bool app_enable_api = true;
 bool app_enable_serial = false;
 bool is_serial_authenticated = false;
 
-
 //for tracking our message loop
 unsigned long previousMessageMillis = 0;
 unsigned int lastHandledMessages = 0;
@@ -402,6 +401,7 @@ void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t
 void handleRestart(JsonVariantConst input, JsonVariant output)
 {
   Serial.println("Restarting board.");
+
   ESP.restart();
 }
 
@@ -849,6 +849,11 @@ void generateConfigJSON(JsonVariant output)
   output["name"] = board_name;
   output["hostname"] = local_hostname;
   output["uuid"] = uuid;
+
+  //some debug info
+  output["last_restart_reason"] = getResetReason();
+  if (has_coredump)
+    output["has_coredump"] = has_coredump;
 
   #ifdef YB_HAS_BUS_VOLTAGE
     output["bus_voltage"] = true;

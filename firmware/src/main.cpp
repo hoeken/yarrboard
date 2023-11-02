@@ -13,6 +13,8 @@
 #include "server.h"
 #include "utility.h"
 #include "adchelper.h"
+#include "debug.h"
+#include <LittleFS.h>
 
 #ifdef YB_HAS_PWM_CHANNELS
   #include "pwm_channel.h"
@@ -44,11 +46,18 @@ void setup()
   Serial.begin(115200);
   Serial.setTimeout(50);
 
+  if(!LittleFS.begin(true)) {
+    Serial.println("ERROR: Unable to mount LittleFS");
+  }
+
   Serial.println("Yarrboard");
   Serial.print("Hardware Version: ");
   Serial.println(YB_HARDWARE_VERSION);
   Serial.print("Firmware Version: ");
   Serial.println(YB_FIRMWARE_VERSION);
+
+  debug_setup();
+  Serial.println("Debug ok");
 
   //ntp_setup();
   prefs_setup();

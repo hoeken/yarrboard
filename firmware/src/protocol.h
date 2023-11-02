@@ -18,6 +18,7 @@
 #include "server.h"
 #include "utility.h"
 #include "wifi.h"
+#include "debug.h"
 
 #ifdef YB_HAS_INPUT_CHANNELS
   #include "input_channel.h"

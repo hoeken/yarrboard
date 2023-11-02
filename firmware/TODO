@@ -1,6 +1,10 @@
 Firmware:
     * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
         * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
+    * we still need a good way to store crashes and send them remotely
+        https://github.com/maxgerhardt/pio-espidf-4.4-test/blob/main/src/main.c
+        https://community.platformio.org/t/platformio-support-for-esp32-coredump/25141/9
+        https://github.com/MathieuDeprez/ESP32_CoreDump_Arduino_2.0.2
     * protocol documentation
     * learn about building components for node-red, maybe make a yarrboard toolkit
 
