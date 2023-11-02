@@ -22,4 +22,5 @@ if __name__ == '__main__':
 		#keep our ELF file for debugging later on....
 		print("Analyzing coredump")
 		cmd = f'. /home/hoeken/esp/esp-idf/export.sh && espcoredump.py info_corefile -c coredump.bin -t raw releases/{args.board}-{args.version}.elf'
-		os.system(cmd)
+		#os.system(cmd)
+		print(cmd)
