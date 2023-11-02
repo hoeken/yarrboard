@@ -1,4 +1,5 @@
 Firmware:
+    * add a last reboot reason to statistics page
     * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
         * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
     * protocol documentation
