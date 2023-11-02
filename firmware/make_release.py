@@ -3,10 +3,10 @@
 import argparse, os, json, re
 
 boards = [
-	"8CH_MOSFET_REV_C",
 	"8CH_MOSFET_REV_B",
+#	"8CH_MOSFET_REV_C",
 	"RGB_INPUT_REV_A",
-	"RGB_INPUT_REV_B"
+#	"RGB_INPUT_REV_B"
 ]
 
 if __name__ == '__main__':
@@ -53,6 +53,11 @@ if __name__ == '__main__':
 			os.system(cmd)
 
 			cmd = f'cp .pio/build/{board}/signed.bin releases/{board}-{version}.bin'
+			#print (cmd)
+			os.system(cmd)
+
+			#keep our ELF file for debugging later on....
+			cmd = f'cp .pio/build/{board}/firmware.elf releases/{board}-{version}.elf'
 			#print (cmd)
 			os.system(cmd)
 

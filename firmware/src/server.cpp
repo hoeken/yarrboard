@@ -82,6 +82,9 @@ void server_setup()
     //delete the coredump here, but not from littlefs
 		deleteCoreDump();
 
+    //dont bug the client anymore
+    has_coredump = false;
+
     //send the file
     request->send(LittleFS, "/coredump.txt", "text/plain");
   });

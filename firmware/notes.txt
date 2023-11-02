@@ -2,3 +2,7 @@ https://maximeborges.github.io/esp-stacktrace-decoder/
 
 tio -e --timestamp-format iso8601 -l --log-file fullmain.log --map INLCRNL /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_9a5da85f4224ed1199318ae8f9a97352-if00-port0
 tio -e --timestamp-format iso8601 -l --log-file firstreef.log --map INLCRNL /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_b292b27ee023ed1193bc8ce8f9a97352-if00-port0
+
+. /home/hoeken/esp/esp-idf/export.sh 
+xxd -r -p coredump.txt coredump.bin
+espcoredump.py info_corefile -c ~/github/yarrboard/firmware/coredump.bin -t raw ~/github/yarrboard/firmware/.pio/build/RGB_INPUT_REV_A/firmware.elf

@@ -309,7 +309,15 @@ function start_websocket()
       //is it our first boot?
       if (msg.first_boot && current_page != "network")
         show_alert(`Welcome to Yarrboard, head over to <a href="#network" onclick="open_page('network')">Network</a> to setup your WiFi.`, "primary");
-  
+
+      //did we get a crash?
+      if (msg.has_coredump)
+        show_alert(`
+          <p>Oops, looks like Yarrboard crashed.</p>
+          <p>Please download the <a href="/coredump.txt">coredump</a> and report it to our <a href="https://github.com/hoeken/yarrboard/issues">Github Issue Tracker</a> along with the following information:</p>
+          <ul><li>Firmware: ${msg.firmware_version}</li><li>Hardware: ${msg.hardware_version}</li></ul>
+        `, "danger");
+
       //let the people choose their own names!
       $('#boardName').html(msg.name);
       document.title = msg.name;
