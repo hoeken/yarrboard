@@ -5,18 +5,12 @@ char last_modified[50];
 
 CircularBuffer<WebsocketRequest*, YB_RECEIVE_BUFFER_COUNT> wsRequests;
 
-AsyncWebSocket ws("/ws");
-AsyncWebServer server(80);
-
 void server_setup()
 {
   // Populate the last modification date based on build datetime
   sprintf(last_modified, "%s %s GMT", __DATE__, __TIME__);
 
-  //config for our websocket server
-  ws.onEvent(onEvent);
-  server.addHandler(&ws);
-
+  /*
   //main API endpoint
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json)
   {
@@ -89,18 +83,19 @@ void server_setup()
   server.onNotFound([](AsyncWebServerRequest *request){ request->send(404, "text/plain", "Not found"); });
 
   server.begin();
+  */
 }
 
 void server_loop()
 {
-  //sometimes websocket clients die badly.
-  ws.cleanupClients();
-
+  /*
+  */
   //process our websockets outside the callback.
   if (!wsRequests.isEmpty())
     handleWebsocketMessageLoop(wsRequests.shift());
 }
 
+/*
 void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request)
 {
   //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
@@ -331,3 +326,4 @@ bool logClientIn(uint32_t client_id)
 
   return true;
 }
+*/
