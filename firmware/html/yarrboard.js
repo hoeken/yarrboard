@@ -256,10 +256,17 @@ function load_configs()
 
 function start_websocket()
 {
+  //close any old connections
   if (socket)
     socket.close();
   
-  socket = new WebSocket("ws://" + window.location.host + "/ws");
+  //do we want ssl?
+  let protocol = "ws://";
+  if (document.location.protocol == 'https:')
+    protocol = "wss://";
+
+  //open it.
+  socket = new WebSocket(protocol + window.location.host + "/ws");
   
   console.log("Opening new websocket");
 
