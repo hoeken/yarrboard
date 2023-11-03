@@ -78,6 +78,6 @@ if __name__ == '__main__':
 		print(f'4. Create a new tag: git tag -a v{version} -m "Firmware release v{version}"')
 		print(f'5. Push your tags: git push origin v{version}')
 		print(f'\nOr just run this:\n')
-		print(f'git add releases && git commit -am "Firmware release v{version} && git push && git tag -a v{version} -m "Firmware release v{version}" && git push origin v{version}')
+		print(f'git add releases && git commit -am "Firmware release v{version}" && git push && git tag -a v{version} -m "Firmware release v{version}" && git push origin v{version}')
 	else:
 		print("YB_FIRMWARE_VERSION not #defined in src/config.h")

@@ -1,3 +1,7 @@
+## Version 1.1.1
+
+* Minor ui improvements for debugging
+
 ## Version 1.1.0
 
 * New crash handler and coredump recording.
