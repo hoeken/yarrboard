@@ -261,51 +261,24 @@ void handleWebServerRequest(JsonVariant input, MongooseHttpServerRequest *reques
 
 void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t *data, size_t len)
 {
-  // Special case for messages during OTA as the update is blocking and will cause
-  // all of our sockets to time out and won't let us have a nice little display bar.
-  // on second thought... Mongoose is not async, so this won't even work!
-  // if (doOTAUpdate)
-  // {
-  //   char jsonBuffer[YB_MAX_JSON_LENGTH];
-  //   DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
-  //   DynamicJsonDocument input(1024);
-  //   DeserializationError err = deserializeJson(input, data);
+  if (!wsRequests.isFull())
+  {
+    WebsocketRequest* wr = new WebsocketRequest;
+    wr->client = connection;
+    strlcpy(wr->buffer, (char*)data, YB_RECEIVE_BUFFER_LENGTH); 
+    wsRequests.push(wr);
+  }
 
-  //   //was there a problem, officer?
-  //   if (err)
-  //   {
-  //     char error[64];
-  //     sprintf(error, "deserializeJson() failed with code %s", err.c_str());
-  //     generateErrorJSON(output, error);
-  //   }
-  //   else
-  //     handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, connection);
+  //start throttling a little bit early so we don't miss anything
+  if (wsRequests.capacity <= YB_RECEIVE_BUFFER_COUNT/2)
+  {
+    StaticJsonDocument<128> output;
+    String jsonBuffer;
+    generateErrorJSON(output, "Websocket busy, throttle connection.");
+    serializeJson(output, jsonBuffer);
 
-  //   //empty messages are valid, so don't send a response
-  //   if (output.size())
-  //     serializeJson(output, jsonBuffer);
-  // }
-  // else
-  // {
-    if (!wsRequests.isFull())
-    {
-      WebsocketRequest* wr = new WebsocketRequest;
-      wr->client = connection;
-      strlcpy(wr->buffer, (char*)data, YB_RECEIVE_BUFFER_LENGTH); 
-      wsRequests.push(wr);
-    }
-
-    //start throttling a little bit early so we don't miss anything
-    if (wsRequests.capacity <= YB_RECEIVE_BUFFER_COUNT/2)
-    {
-      StaticJsonDocument<128> output;
-      String jsonBuffer;
-      generateErrorJSON(output, "Websocket busy, throttle connection.");
-      serializeJson(output, jsonBuffer);
-
-      connection->send(jsonBuffer);
-    }
-  // }
+    connection->send(jsonBuffer);
+  }
 }
 
 void handleWebsocketMessageLoop(WebsocketRequest* request)
