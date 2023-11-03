@@ -318,6 +318,26 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="app_enable_https" checked>
+                                <label class="form-check-label" for="app_enable_https">
+                                    Enable SSL / HTTPS Encryption? (<a href="https://github.com/hoeken/yarrboard#enable-https">documentation</a>)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3" style="display: none" id="server_pem_container">
+                            <label for="server_pem" class="col-form-label">Server PEM Certificate</label>
+                            <div class="">
+                                <textarea class="form-control" id="server_pem" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3" style="display: none" id="server_key_container">
+                            <label for="server_key" class="col-form-label">Server Private Key</label>
+                            <div class="">
+                                <textarea class="form-control" id="server_key" rows="4"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="mb-3 text-center">

@@ -844,6 +844,32 @@ function start_websocket()
       $("#app_enable_api").prop("checked", msg.app_enable_api);
       $("#app_enable_serial").prop("checked", msg.app_enable_serial);
 
+      //for our ssl stuff
+      $("#app_enable_https").prop("checked", msg.app_enable_https);
+      $("#server_pem").value(msg.server_pem);
+      $("#server_key").value(msg.server_key);
+
+      //hide/show these guys
+      if (msg.app_enable_https)
+      {
+        $("#server_pem_container").show();
+        $("#server_key_container").show();
+      }
+
+      //make it dynamic too
+      $("#app_enable_https").change(function (){
+        if ($("#app_enable_https").prop("checked"))
+        {
+          $("#server_pem_container").show();
+          $("#server_key_container").show();  
+        }
+        else
+        {
+          $("#server_pem_container").hide();
+          $("#server_key_container").hide();  
+        }
+      });
+
       page_ready.settings = true;    
     }
     //load up our network config.
@@ -1449,6 +1475,9 @@ function save_app_settings()
   let require_login = $("#require_login").prop("checked");
   let app_enable_api = $("#app_enable_api").prop("checked");
   let app_enable_serial = $("#app_enable_serial").prop("checked");
+  let app_enable_https = $("#app_enable_https").prop("checked");
+  let server_pem = $("#server_pem").val();
+  let server_key = $("#server_key").val();
 
   //we should probably do a bit of verification here
 
@@ -1473,7 +1502,10 @@ function save_app_settings()
     "app_pass": app_pass,
     "require_login": require_login,
     "app_enable_api": app_enable_api,
-    "app_enable_serial": app_enable_serial
+    "app_enable_serial": app_enable_serial,
+    "app_enable_https": app_enable_https,
+    "server_pem": server_pem,
+    "server_key": server_key
   }));
 
   //if they are changing from client to client, we can't show a success.

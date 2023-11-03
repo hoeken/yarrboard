@@ -32,6 +32,9 @@
   #include "fans.h"
 #endif
 
+extern String server_pem;
+extern String server_key;
+
 typedef struct {
   MongooseHttpWebSocketConnection *client;
   char buffer[YB_RECEIVE_BUFFER_LENGTH];

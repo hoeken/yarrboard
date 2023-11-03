@@ -14,6 +14,7 @@ char app_pass[YB_PASSWORD_LENGTH] = "admin";
 bool require_login = true;
 bool app_enable_api = true;
 bool app_enable_serial = false;
+bool app_enable_https = false;
 bool is_serial_authenticated = false;
 
 //for tracking our message loop
@@ -39,10 +40,10 @@ void protocol_setup()
     app_enable_api = preferences.getBool("appEnableApi");
   if (preferences.isKey("appEnableSerial"))
     app_enable_serial = preferences.getBool("appEnableSerial");
-    
+
+  //send serial a config off the bat    
   if (app_enable_serial)
   {
-    //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
     DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
 
     generateConfigJSON(output);
@@ -353,13 +354,25 @@ void handleSetAppConfig(JsonVariantConst input, JsonVariant output)
     require_login = input["require_login"];
     app_enable_api = input["app_enable_api"];
     app_enable_serial = input["app_enable_serial"];
+    app_enable_https = input["app_enable_https"];
 
     //no special cases here.
     preferences.putString("app_user", app_user);
     preferences.putString("app_pass", app_pass);
     preferences.putBool("require_login", require_login);  
-    preferences.putBool("appEnableApi", app_enable_api);  
-    preferences.putBool("appEnableSerial", app_enable_serial);  
+    preferences.putBool("appEnableApi", app_enable_api);
+    preferences.putBool("appEnableSerial", app_enable_serial);
+    preferences.putBool("appEnableHttps", app_enable_https);
+
+    //write our pem to local storage
+    File fp = LittleFS.open("server.pem", "w");
+    fp.print(input["server_pem"] | "");
+    fp.close();
+
+    //write our key to local storage
+    File fp2 = LittleFS.open("server.key", "w");
+    fp2.print(input["server_key"] | "");
+    fp2.close();
 }
 
 void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, MongooseHttpWebSocketConnection *connection)
@@ -848,6 +861,7 @@ void generateConfigJSON(JsonVariant output)
   output["hardware_version"] = YB_HARDWARE_VERSION;
   output["name"] = board_name;
   output["hostname"] = local_hostname;
+  output["app_enable_https"] = app_enable_https;
   output["uuid"] = uuid;
 
   //some debug info
@@ -1025,6 +1039,9 @@ void generateAppConfigJSON(JsonVariant output)
   output["app_pass"] = app_pass;
   output["app_enable_api"] = app_enable_api;
   output["app_enable_serial"] = app_enable_serial;
+  output["app_enable_https"] = app_enable_https;
+  output["server_pem"] = server_pem;
+  output["server_key"] = server_key;
 }
 
 void generateOTAProgressUpdateJSON(JsonVariant output, float progress)

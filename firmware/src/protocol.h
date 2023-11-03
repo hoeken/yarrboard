@@ -51,6 +51,7 @@ extern char app_pass[YB_PASSWORD_LENGTH];
 extern bool require_login;
 extern bool app_enable_api;
 extern bool app_enable_serial;
+extern bool app_enable_https;
 extern bool is_serial_authenticated;
 
 void protocol_setup();
