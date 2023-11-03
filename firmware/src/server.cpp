@@ -77,10 +77,10 @@ void server_setup()
   #endif
 
   server.on("/$", HTTP_GET, [](MongooseHttpServerRequest *request) {
-    // Check if the client already has the same version and respond with a 304 (Not modified)
-    // if (request->header("If-Modified-Since").equals(last_modified)) {
-    //     request->send(304);
-    // } else {
+    //Check if the client already has the same version and respond with a 304 (Not modified)
+    if (request->headers("If-Modified-Since").equals(last_modified)) {
+        request->send(304);
+    } else {
         MongooseHttpServerResponseBasic *response = request->beginResponse();
         response->setCode(200);
         response->setContentType("text/html");
@@ -95,7 +95,7 @@ void server_setup()
         response->setContent(index_html_gz, index_html_gz_len);
 
         request->send(response);
-//    }
+   }
   });
 
   // Test the stream response class

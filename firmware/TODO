@@ -1,9 +1,9 @@
 Firmware:
+    * hacky semver implementation on client side js not working well.
     * mongoose conversion
+        * add UI code to set encryption keys + enable/disable SSL
         * make client side code http / https aware
         * pull the encryption keys from LittleFS
-        * add UI code to set encryption keys + enable/disable SSL
-        * fix the If-Modified-Since code
         * update ota message parsing code + refactor that too.
     * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
         * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
