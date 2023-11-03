@@ -12,6 +12,8 @@ Firmware:
             * mongoose is a large commercial project
             * supports https and websockets
             * looks to be actively developed
+            * issues:
+                * no equivalent of sending a spiffs/littlefs file
         * espressif http server
             * should be pretty reliable... lot of time investment to find out
             * supports https and sockets

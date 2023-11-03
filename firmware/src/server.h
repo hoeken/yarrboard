@@ -12,7 +12,8 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <CircularBuffer.h>
-#include 
+#include <MongooseCore.h>
+#include <MongooseHttpServer.h>
 
 #include "protocol.h"
 #include "prefs.h"
@@ -32,24 +33,26 @@
 #endif
 
 typedef struct {
-  unsigned int client_id;
+  MongooseHttpWebSocketConnection *client;
   char buffer[YB_RECEIVE_BUFFER_LENGTH];
 } WebsocketRequest;
 
 void server_setup();
 void server_loop();
 
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client);
-void handleWebsocketMessageLoop(WebsocketRequest* request);
-void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request);
-void sendToAllWebsockets(const char * jsonString);
-
-
 bool logClientIn(uint32_t client_id);
-int getWebsocketRequestSlot();
-void closeClientConnection(AsyncWebSocketClient *client);
-
 int getFreeSlots();
+int getWebsocketRequestSlot();
+void sendToAllWebsockets(const char * jsonString);
+void handleWebsocketMessageLoop(WebsocketRequest* request);
+
+void handleWebServerRequest(JsonVariant input, MongooseHttpServerRequest *request);
+void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t *data, size_t len);
+
+/*
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
+void closeClientConnection(AsyncWebSocketClient *client);
+*/
+
 
 #endif /* !YARR_SERVER_H */

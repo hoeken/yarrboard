@@ -42,3 +42,5 @@ git grep -lz YB_HAS_DIGITAL_INPUT_CHANNELS | xargs -0 sed -i '' -e 's/YB_HAS_DIG
 git grep -lz YB_DEBOUNCE_RATE_MS | xargs -0 sed -i '' -e 's/YB_DEBOUNCE_RATE_MS/YB_INPUT_DEBOUNCE_RATE_MS/g'
 git grep -lz YB_HAS_ADC | xargs -0 sed -i '' -e 's/YB_HAS_ADC/YB_HAS_ADC_CHANNELS/g'
 git grep -lz YB_HAS_RGB_OUTPUT | xargs -0 sed -i '' -e 's/YB_HAS_RGB_OUTPUT/YB_HAS_RGB_CHANNELS/g'
+
+curl -i -d '{"cmd":"ping"}'  -H "Content-Type: application/json"  -X POST https://rgbinput.local/api/endpoint
