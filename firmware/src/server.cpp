@@ -261,18 +261,15 @@ void handleWebServerRequest(JsonVariant input, MongooseHttpServerRequest *reques
 
 void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t *data, size_t len)
 {
-  //Special case for messages during OTA as the update is blocking and will cause
-  //all of our sockets to time out and won't let us have a nice little display bar.
+  // Special case for messages during OTA as the update is blocking and will cause
+  // all of our sockets to time out and won't let us have a nice little display bar.
+  // on second thought... Mongoose is not async, so this won't even work!
   // if (doOTAUpdate)
   // {
   //   char jsonBuffer[YB_MAX_JSON_LENGTH];
-  //   //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
   //   DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
-
-  //   StaticJsonDocument<1024> input;
+  //   DynamicJsonDocument input(1024);
   //   DeserializationError err = deserializeJson(input, data);
-
-  //   String mycmd = input["cmd"] | "???";
 
   //   //was there a problem, officer?
   //   if (err)
@@ -282,20 +279,11 @@ void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t
   //     generateErrorJSON(output, error);
   //   }
   //   else
-  //     handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, 0);
-  //     //handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, client->id());
+  //     handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, connection);
 
   //   //empty messages are valid, so don't send a response
   //   if (output.size())
-  //   {
   //     serializeJson(output, jsonBuffer);
-
-  //     // //only send if we're empty.  Ignore it otherwise.
-  //     // if (ws.availableForWrite(client->id()))
-  //     //   ws.text(client->id(), jsonBuffer);
-  //     // else
-  //     //   Serial.println("[socket] client full");
-  //   }
   // }
   // else
   // {
@@ -324,11 +312,10 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
 {
   char jsonBuffer[YB_MAX_JSON_LENGTH];
   DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
-
-  StaticJsonDocument<1024> input;
-  DeserializationError err = deserializeJson(input, request->buffer);
+  DynamicJsonDocument input(1024);
 
   //was there a problem, officer?
+  DeserializationError err = deserializeJson(input, request->buffer);
   if (err)
   {
     char error[64];

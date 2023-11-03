@@ -1,10 +1,13 @@
 Firmware:
-    * hacky semver implementation on client side js not working well.
     * mongoose conversion
         * add UI code to set encryption keys + enable/disable SSL
         * make client side code http / https aware
         * pull the encryption keys from LittleFS
-        * update ota message parsing code + refactor that too.
+    * figure out if there's a way to get progress while doing OTA or if its a no-go.
+        * client should update heartbeat when ota progress message received
+        * client should have guards around sending messages during ota
+        * client should reconnect after ota complete        
+    * hacky semver implementation on client side js not working well.
     * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
         * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
     * protocol documentation
