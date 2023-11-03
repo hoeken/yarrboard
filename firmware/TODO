@@ -1,8 +1,6 @@
 Firmware:
     * mongoose conversion
-        * add UI code to set encryption keys + enable/disable SSL
         * make client side code http / https aware
-        * pull the encryption keys from LittleFS
     * figure out if there's a way to get progress while doing OTA or if its a no-go.
         * client should update heartbeat when ota progress message received
         * client should have guards around sending messages during ota

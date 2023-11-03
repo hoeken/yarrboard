@@ -53,6 +53,7 @@ void server_setup()
     if(false == server.begin(443, server_pem.c_str(), server_key.c_str())) {
       Serial.print("Failed to start HTTPS server");
       return;
+    }
   }
   else
   {
