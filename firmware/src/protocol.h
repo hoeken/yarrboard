@@ -52,6 +52,8 @@ extern bool require_login;
 extern bool app_enable_api;
 extern bool app_enable_serial;
 extern bool is_serial_authenticated;
+extern uint32_t authenticatedClientIDs[YB_CLIENT_LIMIT];
+
 
 void protocol_setup();
 void protocol_loop();
@@ -92,5 +94,10 @@ void sendUpdate();
 void sendOTAProgressUpdate(float progress);
 void sendOTAProgressFinished();
 void sendToAll(const char * jsonString);
+
+bool isWebsocketClientLoggedIn(JsonVariantConst input, uint32_t client_id);
+bool isApiClientLoggedIn(JsonVariantConst input);
+bool isSerialClientLoggedIn(JsonVariantConst input);
+bool addClientToAuthList(uint32_t client_id);
 
 #endif /* !YARR_PROTOCOL_H */

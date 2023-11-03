@@ -5,10 +5,6 @@ char last_modified[50];
 
 CircularBuffer<WebsocketRequest*, YB_RECEIVE_BUFFER_COUNT> wsRequests;
 
-//keep track of our authenticated clients
-const byte clientLimit = 8;
-uint32_t authenticatedClientIDs[clientLimit];
-
 AsyncWebSocket ws("/ws");
 AsyncWebServer server(80);
 
@@ -137,7 +133,7 @@ void sendToAllWebsockets(const char * jsonString)
   //send the message to all authenticated clients.
   if (require_login)
   {
-    for (byte i=0; i<clientLimit; i++)
+    for (byte i=0; i<YB_CLIENT_LIMIT; i++)
       if (authenticatedClientIDs[i])
         if (ws.availableForWrite(authenticatedClientIDs[i]))
           ws.text(authenticatedClientIDs[i], jsonString);
@@ -165,7 +161,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
       //clear this guy from our authenticated list.
       if (require_login)
-        for (byte i=0; i<clientLimit; i++)
+        for (byte i=0; i<YB_CLIENT_LIMIT; i++)
           if (authenticatedClientIDs[i] == client->id())
             authenticatedClientIDs[i] = 0;
 
@@ -254,7 +250,7 @@ void closeClientConnection(AsyncWebSocketClient *client)
   //    websocketRequestReady[i] = false;
 
   //no more auth for you
-  for (byte i=0; i<clientLimit; i++)
+  for (byte i=0; i<YB_CLIENT_LIMIT; i++)
     if (authenticatedClientIDs[i] == client->id())
       authenticatedClientIDs[i] = 0;
 
@@ -324,23 +320,8 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
 
 bool logClientIn(uint32_t client_id)
 {
-  byte i;
-  for (i=0; i<clientLimit; i++)
-  {
-    //did we find an empty slot?
-    if (authenticatedClientIDs[i] == 0)
-    {
-      authenticatedClientIDs[i] = client_id;
-      break;
-    }
-
-    //are we already authenticated?
-    if (authenticatedClientIDs[i] == client_id)
-      break;
-  }
-
   //did we not find a spot?
-  if (i == clientLimit)
+  if (!addClientToAuthList(client_id))
   {
     AsyncWebSocketClient* client = ws.client(client_id);
     client->close();
@@ -349,44 +330,4 @@ bool logClientIn(uint32_t client_id)
   }
 
   return true;
-}
-
-bool isWebsocketClientLoggedIn(JsonVariantConst doc, uint32_t client_id)
-{
-  //are they in our auth array?
-  for (byte i=0; i<clientLimit; i++)
-    if (authenticatedClientIDs[i] == client_id)
-      return true;
-
-  //okay check for passed-in credentials
-  return isApiClientLoggedIn(doc);
-}
-
-bool isApiClientLoggedIn(JsonVariantConst doc)
-{
-  if (!doc.containsKey("user"))
-    return false;
-  if (!doc.containsKey("pass"))
-    return false;
-
-  //init
-  char myuser[YB_USERNAME_LENGTH];
-  char mypass[YB_PASSWORD_LENGTH];
-  strlcpy(myuser, doc["user"] | "", sizeof(myuser));
-  strlcpy(mypass, doc["pass"] | "", sizeof(myuser));
-
-  //morpheus... i'm in.
-  if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
-    return true;
-
-  //default to fail then.
-  return false;  
-}
-
-bool isSerialClientLoggedIn(JsonVariantConst doc)
-{
-  if (is_serial_authenticated)
-    return true;
-  else
-    return isApiClientLoggedIn(doc);
 }

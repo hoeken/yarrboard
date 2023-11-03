@@ -35,6 +35,7 @@
 //bytes for sending json
 #define YB_LARGE_JSON_SIZE 4096
 #define YB_MAX_JSON_LENGTH 2500
+#define YB_CLIENT_LIMIT 8
 
 #define YBP_MODE_WEBSOCKET 0
 #define YBP_MODE_HTTP      1

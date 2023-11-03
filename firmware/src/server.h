@@ -48,14 +48,10 @@ void handleWebsocketMessageLoop(WebsocketRequest* request);
 void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request);
 void sendToAllWebsockets(const char * jsonString);
 
-bool isWebsocketClientLoggedIn(JsonVariantConst input, uint32_t client_id);
-bool isApiClientLoggedIn(JsonVariantConst input);
-bool isSerialClientLoggedIn(JsonVariantConst input);
 
 bool logClientIn(uint32_t client_id);
 int getWebsocketRequestSlot();
 void closeClientConnection(AsyncWebSocketClient *client);
-
 
 int getFreeSlots();
 

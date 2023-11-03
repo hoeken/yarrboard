@@ -15,6 +15,7 @@ bool require_login = true;
 bool app_enable_api = true;
 bool app_enable_serial = false;
 bool is_serial_authenticated = false;
+uint32_t authenticatedClientIDs[YB_CLIENT_LIMIT];
 
 //for tracking our message loop
 unsigned long previousMessageMillis = 0;
@@ -1120,4 +1121,68 @@ void sendToAll(const char * jsonString)
 
   if (app_enable_serial)
     Serial.println(jsonString);
+}
+
+bool isWebsocketClientLoggedIn(JsonVariantConst doc, uint32_t client_id)
+{
+  //are they in our auth array?
+  for (byte i=0; i<YB_CLIENT_LIMIT; i++)
+    if (authenticatedClientIDs[i] == client_id)
+      return true;
+
+  //okay check for passed-in credentials
+  return isApiClientLoggedIn(doc);
+}
+
+bool isApiClientLoggedIn(JsonVariantConst doc)
+{
+  if (!doc.containsKey("user"))
+    return false;
+  if (!doc.containsKey("pass"))
+    return false;
+
+  //init
+  char myuser[YB_USERNAME_LENGTH];
+  char mypass[YB_PASSWORD_LENGTH];
+  strlcpy(myuser, doc["user"] | "", sizeof(myuser));
+  strlcpy(mypass, doc["pass"] | "", sizeof(myuser));
+
+  //morpheus... i'm in.
+  if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
+    return true;
+
+  //default to fail then.
+  return false;  
+}
+
+bool isSerialClientLoggedIn(JsonVariantConst doc)
+{
+  if (is_serial_authenticated)
+    return true;
+  else
+    return isApiClientLoggedIn(doc);
+}
+
+bool addClientToAuthList(uint32_t client_id)
+{
+  byte i;
+  for (i=0; i<YB_CLIENT_LIMIT; i++)
+  {
+    //did we find an empty slot?
+    if (authenticatedClientIDs[i] == 0)
+    {
+      authenticatedClientIDs[i] = client_id;
+      break;
+    }
+
+    //are we already authenticated?
+    if (authenticatedClientIDs[i] == client_id)
+      break;
+  }
+
+  //did we not find a spot?
+  if (i == YB_CLIENT_LIMIT)
+    return false;
+  else
+   return true;
 }
