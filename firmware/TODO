@@ -1,29 +1,44 @@
 Firmware:
-    * try to get https working again
-        * espasyncwebserver
-            * NO SSL support
-            * tends to crash over time
-            * currently using
-            * https://github.com/me-no-dev/ESPAsyncWebServer/issues/1183
-            * https://github.com/Bmooij/AsyncTCP-https-server-example
-            * https://github.com/yubox-node-org/AsyncTCPSock
-        * arduinomongoose: https://github.com/jeremypoulter/ArduinoMongoose
-            * simple programmatic interface
-            * mongoose is a large commercial project
-            * supports https and websockets
-            * looks to be actively developed
-            * issues:
-                * no equivalent of sending a spiffs/littlefs file
-        * espressif http server
-            * should be pretty reliable... lot of time investment to find out
-            * supports https and sockets
-            * really cryptic programming style
-            * look again at the espressif server: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/esp_https_server.html
-                * https://github.com/espressif/esp-idf/tree/master/examples/protocols/https_server/wss_server
+    * mongoose conversion
+        * figure out how to store connection / get client ids for auth
+        * update auth code to use connection objects
+        * make client side code http / https aware
+        * pull the encryption keys from LittleFS
+        * add UI code to set encryption keys + enable/disable SSL
+        * fix the If-Modified-Since code
+        * update ota message parsing code + refactor that too.
     * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
         * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
     * protocol documentation
     * learn about building components for node-red, maybe make a yarrboard toolkit
+
+Webserver Comparison:
+    * arduinomongoose: https://github.com/jeremypoulter/ArduinoMongoose
+        * simple programmatic interface
+        * mongoose is a large commercial project
+        * supports https and websockets
+        * looks to be actively developed
+        * issues:
+            * no equivalent of sending a spiffs/littlefs file
+        * Not ASYNC, but close with fast polling
+    * espasyncwebserver
+        * NO SSL SUPPORT
+        * tends to crash over time
+        * easy to understand API
+        * Async, so very responsive
+            * https://github.com/me-no-dev/ESPAsyncWebServer/issues/1183
+            * https://github.com/Bmooij/AsyncTCP-https-server-example
+            * https://github.com/yubox-node-org/AsyncTCPSock
+    * espressif http server
+        * should be pretty reliable... lot of time investment to find out though
+        * supports https and sockets
+        * really cryptic programming style - basically have to roll your own server
+        * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/esp_https_server.html
+        * https://github.com/espressif/esp-idf/tree/master/examples/protocols/https_server/wss_server
+    * mongoose
+        * should be pretty reliable... lot of time investment to find out though
+        * supports https and sockets
+        * somewhat cryptic and low level interface
 
 8ch MOSFET:
     * remove CAN port - never going to use it.
