@@ -17,7 +17,7 @@
 #include "prefs.h"
 #include "server.h"
 #include "utility.h"
-#include "wifi.h"
+#include "network.h"
 #include "debug.h"
 
 #ifdef YB_HAS_INPUT_CHANNELS

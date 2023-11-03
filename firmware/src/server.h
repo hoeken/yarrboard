@@ -17,7 +17,7 @@
 
 #include "protocol.h"
 #include "prefs.h"
-#include "wifi.h"
+#include "network.h"
 #include "ota.h"
 #include "adchelper.h"
 

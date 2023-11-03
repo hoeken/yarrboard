@@ -8,7 +8,7 @@
 
 #include "config.h"
 #include "ota.h"
-#include "wifi.h"
+#include "network.h"
 #include "prefs.h"
 #include "server.h"
 #include "utility.h"
@@ -96,8 +96,8 @@ void setup()
     Serial.println("Bus voltage ok");
   #endif
 
-  wifi_setup();
-  Serial.println("WiFi ok");
+  network_setup();
+  Serial.println("Network ok");
   
   server_setup();
   Serial.println("Server ok");
@@ -132,7 +132,7 @@ void loop()
     bus_voltage_loop();
   #endif
 
-  wifi_loop();
+  network_loop();
   server_loop();
   protocol_loop();
   ota_loop();
