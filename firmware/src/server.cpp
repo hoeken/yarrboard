@@ -215,6 +215,8 @@ void sendToAllWebsockets(const char * jsonString)
   //   // else
   //   //   Serial.println("[socket] outbound queue full");
   // }
+
+  server.sendAll(jsonString);
 }
 
 bool logClientIn(uint32_t client_id)
@@ -345,7 +347,6 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
   if (output.size())
   {
     serializeJson(output, jsonBuffer);
-    DUMP(jsonBuffer);
     request->client->send(jsonBuffer);
   }
 
