@@ -15,7 +15,6 @@ bool require_login = true;
 bool app_enable_api = true;
 bool app_enable_serial = false;
 bool is_serial_authenticated = false;
-uint32_t authenticatedClientIDs[YB_CLIENT_LIMIT];
 
 //for tracking our message loop
 unsigned long previousMessageMillis = 0;
@@ -110,7 +109,7 @@ void handleSerialJson()
   }
   else
   {
-    handleReceivedJSON(input, output, YBP_MODE_SERIAL, 0);
+    handleReceivedJSON(input, output, YBP_MODE_SERIAL);
 
     //we can have empty responses
     if (output.size())
@@ -118,7 +117,7 @@ void handleSerialJson()
   }
 }
 
-void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id)
+void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, MongooseHttpWebSocketConnection *connection)
 {
   //make sure its correct
   if (!input.containsKey("cmd"))
@@ -143,14 +142,14 @@ void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, u
   if (!strcmp(cmd, "login") || !strcmp(cmd, "ping"))
   {
     if (!strcmp(cmd, "login"))
-      return handleLogin(input, output, mode, client_id);
+      return handleLogin(input, output, mode, connection);
     else if (!strcmp(cmd, "ping"))
       return generatePongJSON(output);
   }
   else
   {
     //need to be logged in here.
-    if (!isLoggedIn(input, mode, client_id))
+    if (!isLoggedIn(input, mode, connection))
         return generateLoginRequiredJSON(output);
 
     //what is your command?
@@ -363,7 +362,7 @@ void handleSetAppConfig(JsonVariantConst input, JsonVariant output)
     preferences.putBool("appEnableSerial", app_enable_serial);  
 }
 
-void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id)
+void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, MongooseHttpWebSocketConnection *connection)
 {
     if (!require_login)
       return generateErrorJSON(output, "Login not required.");
@@ -386,7 +385,7 @@ void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t
         //check to see if there's room for us.
         if (mode == YBP_MODE_WEBSOCKET)
         {
-          if (!logClientIn(client_id))
+          if (!logClientIn(connection))
             return generateErrorJSON(output, "Too many connections.");
         }
         else if (mode == YBP_MODE_SERIAL)
@@ -1053,23 +1052,6 @@ void generateSuccessJSON(JsonVariant output, const char* success)
   output["message"] = success;
 }
 
-bool isLoggedIn(JsonVariantConst input, byte mode, uint32_t client_id = 0)
-{
-  //also only if enabled
-  if (!require_login)
-    return true;
-
-  //login only required for websockets.
-  if (mode == YBP_MODE_WEBSOCKET)
-    return isWebsocketClientLoggedIn(input, client_id);
-  else if (mode == YBP_MODE_HTTP)
-    return isApiClientLoggedIn(input);
-  else if (mode == YBP_MODE_SERIAL)
-    return isSerialClientLoggedIn(input);
-  else
-    return false;
-}
-
 void generateLoginRequiredJSON(JsonVariant output)
 {
   generateErrorJSON(output, "You must be logged in.");
@@ -1123,66 +1105,3 @@ void sendToAll(const char * jsonString)
     Serial.println(jsonString);
 }
 
-bool isWebsocketClientLoggedIn(JsonVariantConst doc, uint32_t client_id)
-{
-  //are they in our auth array?
-  for (byte i=0; i<YB_CLIENT_LIMIT; i++)
-    if (authenticatedClientIDs[i] == client_id)
-      return true;
-
-  //okay check for passed-in credentials
-  return isApiClientLoggedIn(doc);
-}
-
-bool isApiClientLoggedIn(JsonVariantConst doc)
-{
-  if (!doc.containsKey("user"))
-    return false;
-  if (!doc.containsKey("pass"))
-    return false;
-
-  //init
-  char myuser[YB_USERNAME_LENGTH];
-  char mypass[YB_PASSWORD_LENGTH];
-  strlcpy(myuser, doc["user"] | "", sizeof(myuser));
-  strlcpy(mypass, doc["pass"] | "", sizeof(myuser));
-
-  //morpheus... i'm in.
-  if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
-    return true;
-
-  //default to fail then.
-  return false;  
-}
-
-bool isSerialClientLoggedIn(JsonVariantConst doc)
-{
-  if (is_serial_authenticated)
-    return true;
-  else
-    return isApiClientLoggedIn(doc);
-}
-
-bool addClientToAuthList(uint32_t client_id)
-{
-  byte i;
-  for (i=0; i<YB_CLIENT_LIMIT; i++)
-  {
-    //did we find an empty slot?
-    if (authenticatedClientIDs[i] == 0)
-    {
-      authenticatedClientIDs[i] = client_id;
-      break;
-    }
-
-    //are we already authenticated?
-    if (authenticatedClientIDs[i] == client_id)
-      break;
-  }
-
-  //did we not find a spot?
-  if (i == YB_CLIENT_LIMIT)
-    return false;
-  else
-   return true;
-}

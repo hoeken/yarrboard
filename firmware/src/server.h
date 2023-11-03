@@ -40,9 +40,18 @@ typedef struct {
 void server_setup();
 void server_loop();
 
-bool logClientIn(uint32_t client_id);
+bool isLoggedIn(JsonVariantConst input, byte mode, MongooseHttpWebSocketConnection *connection);
+bool logClientIn(MongooseHttpWebSocketConnection *connection);
+void closeClientConnection(MongooseHttpWebSocketConnection *connection);
+bool addClientToAuthList(MongooseHttpWebSocketConnection *connection);
+bool isWebsocketClientLoggedIn(JsonVariantConst input, MongooseHttpWebSocketConnection *connection);
+bool isApiClientLoggedIn(JsonVariantConst input);
+bool isSerialClientLoggedIn(JsonVariantConst input);
+
+
 int getFreeSlots();
 int getWebsocketRequestSlot();
+
 void sendToAllWebsockets(const char * jsonString);
 void handleWebsocketMessageLoop(WebsocketRequest* request);
 
@@ -51,7 +60,6 @@ void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t
 
 /*
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
-void closeClientConnection(AsyncWebSocketClient *client);
 */
 
 

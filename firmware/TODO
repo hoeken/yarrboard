@@ -1,7 +1,5 @@
 Firmware:
     * mongoose conversion
-        * figure out how to store connection / get client ids for auth
-        * update auth code to use connection objects
         * make client side code http / https aware
         * pull the encryption keys from LittleFS
         * add UI code to set encryption keys + enable/disable SSL

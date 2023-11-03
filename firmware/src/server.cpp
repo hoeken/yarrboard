@@ -7,6 +7,8 @@ char last_modified[50];
 
 CircularBuffer<WebsocketRequest*, YB_RECEIVE_BUFFER_COUNT> wsRequests;
 
+MongooseHttpWebSocketConnection * authenticatedConnections[YB_CLIENT_LIMIT];
+
 const char *server_pem = 
 "-----BEGIN CERTIFICATE-----\r\n"
 "MIIDDjCCAfagAwIBAgIBBDANBgkqhkiG9w0BAQsFADA/MRkwFwYDVQQDDBB0ZXN0\r\n"
@@ -100,15 +102,18 @@ void server_setup()
   server.on("/ws$")->
     onConnect([](MongooseHttpWebSocketConnection *connection) {
       Serial.println("[socket] new connection");
-      //Serial.println(connection->getRemoteAddress());
     })->
     onClose([](MongooseHttpServerRequest *c) {
       MongooseHttpWebSocketConnection *connection = static_cast<MongooseHttpWebSocketConnection *>(c);
       Serial.println("[socket] connection closed");
-      //broadcast(connection, MongooseString("++ left"));
+
+      //stop tracking the connection
+      if (require_login)
+        for (byte i=0; i<YB_CLIENT_LIMIT; i++)
+          if (authenticatedConnections[i] == connection)
+            authenticatedConnections[i] = NULL;
     })->
     onFrame([](MongooseHttpWebSocketConnection *connection, int flags, uint8_t *data, size_t len) {
-      //broadcast(connection, MongooseString((const char *)data, len));
       handleWebSocketMessage(connection, data, len);
     });
 
@@ -197,45 +202,38 @@ void server_loop()
 
 void sendToAllWebsockets(const char * jsonString)
 {
-  // //send the message to all authenticated clients.
-  // if (require_login)
-  // {
-  //   for (byte i=0; i<YB_CLIENT_LIMIT; i++)
-  //     if (authenticatedClientIDs[i])
-  //       if (ws.availableForWrite(authenticatedClientIDs[i]))
-  //         ws.text(authenticatedClientIDs[i], jsonString);
-  //       else
-  //         Serial.println("[socket] client queue full");
-  // }
-  // //nope, just sent it to all.
-  // else {
-  //   ws.textAll(jsonString);
-  //   // if (ws.availableForWriteAll())
-  //   //   ws.textAll(jsonString);
-  //   // else
-  //   //   Serial.println("[socket] outbound queue full");
-  // }
-
-  server.sendAll(jsonString);
+  //send the message to all authenticated clients.
+  if (require_login)
+  {
+    for (byte i=0; i<YB_CLIENT_LIMIT; i++)
+      if (authenticatedConnections[i] != NULL)
+          authenticatedConnections[i]->send(jsonString);
+        else
+          Serial.println("[socket] client queue full");
+  }
+  //nope, just sent it to all.
+  else
+    server.sendAll(jsonString);
 }
 
-bool logClientIn(uint32_t client_id)
+bool logClientIn(MongooseHttpWebSocketConnection *connection)
 {
-  // //did we not find a spot?
-  // if (!addClientToAuthList(client_id))
-  // {
-  //   AsyncWebSocketClient* client = ws.client(client_id);
-  //   client->close();
+  //did we not find a spot?
+  if (!addClientToAuthList(connection))
+  {
+    //TODO: is there a way to close a connection?
+    //TODO: we need to test the max connections, mongoose may just handle it for us.
+    // AsyncWebSocketClient* client = ws.client(client_id);
+    // client->close();
 
-  //   return false;
-  // }
+    return false;
+  }
 
   return true;
 }
 
 void handleWebServerRequest(JsonVariant input, MongooseHttpServerRequest *request)
 {
-  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
   DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
 
   if (request->hasParam("user"))
@@ -244,7 +242,7 @@ void handleWebServerRequest(JsonVariant input, MongooseHttpServerRequest *reques
     input["pass"] = request->getParam("pass");
 
   if (app_enable_api)
-    handleReceivedJSON(input, output, YBP_MODE_HTTP, 0);
+    handleReceivedJSON(input, output, YBP_MODE_HTTP);
   else
     generateErrorJSON(output, "Web API is disabled.");      
 
@@ -304,7 +302,6 @@ void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t
     if (!wsRequests.isFull())
     {
       WebsocketRequest* wr = new WebsocketRequest;
-      //wr->client_id = client->id();
       wr->client = connection;
       strlcpy(wr->buffer, (char*)data, YB_RECEIVE_BUFFER_LENGTH); 
       wsRequests.push(wr);
@@ -318,7 +315,6 @@ void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t
       generateErrorJSON(output, "Websocket busy, throttle connection.");
       serializeJson(output, jsonBuffer);
 
-      //client->text(jsonBuffer);
       connection->send(jsonBuffer);
     }
   // }
@@ -340,8 +336,7 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
     generateErrorJSON(output, error);
   }
   else
-    handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, 0);
-    // handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, request->client_id);
+    handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, request->client);
 
   //empty messages are valid, so don't send a response
   if (output.size())
@@ -353,48 +348,83 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
   delete request;
 }
 
-/*
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+bool isLoggedIn(JsonVariantConst input, byte mode, MongooseHttpWebSocketConnection *connection)
 {
-  switch (type) {
-    case WS_EVT_CONNECT:
-      Serial.printf("[socket] #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("[socket] #%u disconnected\n", client->id());
+  //also only if enabled
+  if (!require_login)
+    return true;
 
-      //clear this guy from our authenticated list.
-      if (require_login)
-        for (byte i=0; i<YB_CLIENT_LIMIT; i++)
-          if (authenticatedClientIDs[i] == client->id())
-            authenticatedClientIDs[i] = 0;
+  //login only required for websockets.
+  if (mode == YBP_MODE_WEBSOCKET)
+    return isWebsocketClientLoggedIn(input, connection);
+  else if (mode == YBP_MODE_HTTP)
+    return isApiClientLoggedIn(input);
+  else if (mode == YBP_MODE_SERIAL)
+    return isSerialClientLoggedIn(input);
+  else
+    return false;
+}
 
+bool isWebsocketClientLoggedIn(JsonVariantConst doc, MongooseHttpWebSocketConnection *connection)
+{
+  //are they in our auth array?
+  for (byte i=0; i<YB_CLIENT_LIMIT; i++)
+    if (authenticatedConnections[i] == connection)
+      return true;
+
+  //okay check for passed-in credentials
+  return isApiClientLoggedIn(doc);
+}
+
+bool isApiClientLoggedIn(JsonVariantConst doc)
+{
+  if (!doc.containsKey("user"))
+    return false;
+  if (!doc.containsKey("pass"))
+    return false;
+
+  //init
+  char myuser[YB_USERNAME_LENGTH];
+  char mypass[YB_PASSWORD_LENGTH];
+  strlcpy(myuser, doc["user"] | "", sizeof(myuser));
+  strlcpy(mypass, doc["pass"] | "", sizeof(myuser));
+
+  //morpheus... i'm in.
+  if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
+    return true;
+
+  //default to fail then.
+  return false;  
+}
+
+bool isSerialClientLoggedIn(JsonVariantConst doc)
+{
+  if (is_serial_authenticated)
+    return true;
+  else
+    return isApiClientLoggedIn(doc);
+}
+
+bool addClientToAuthList(MongooseHttpWebSocketConnection *connection)
+{
+  byte i;
+  for (i=0; i<YB_CLIENT_LIMIT; i++)
+  {
+    //did we find an empty slot?
+    if (authenticatedConnections[i] == NULL)
+    {
+      authenticatedConnections[i] = connection;
       break;
-    case WS_EVT_DATA:
-      handleWebSocketMessage(arg, data, len, client);
-      break;
-    case WS_EVT_PONG:
-      Serial.printf("[socket] #%u pong", client->id());
-      break;
-    case WS_EVT_ERROR:
-      Serial.printf("[socket] #%u error", client->id());
+    }
+
+    //are we already authenticated?
+    if (authenticatedConnections[i] == connection)
       break;
   }
+
+  //did we not find a spot?
+  if (i == YB_CLIENT_LIMIT)
+    return false;
+  else
+   return true;
 }
-
-void closeClientConnection(AsyncWebSocketClient *client)
-{
-  //you lose your slots
-  //for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
-  //  if (receiveClientId[i] == client->id())
-  //    websocketRequestReady[i] = false;
-
-  //no more auth for you
-  for (byte i=0; i<YB_CLIENT_LIMIT; i++)
-    if (authenticatedClientIDs[i] == client->id())
-      authenticatedClientIDs[i] = 0;
-
-  //goodbye
-  client->close();
-}
-*/
