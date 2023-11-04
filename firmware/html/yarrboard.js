@@ -10,6 +10,7 @@ var socket_retries = 0;
 var retry_time = 0;
 var last_heartbeat = 0;
 const heartbeat_rate = 1000;
+var ota_started = false;
 
 var page_list = ["control", "config", "stats", "network", "settings", "system"];
 var page_ready = {
@@ -189,7 +190,7 @@ function send_heartbeat()
   //only send it if we're already open.
   if (socket.readyState == WebSocket.OPEN)
   {
-    socket.send(JSON.stringify({"cmd": "ping"}));
+    immediateSend({"cmd": "ping"});
     setTimeout(send_heartbeat, heartbeat_rate);
   }
   else if (socket.readyState == WebSocket.CLOSING)
@@ -228,30 +229,30 @@ function start_yarrboard()
 function load_configs()
 {
   //load our config... will also trigger login
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "get_config"
-  }), 50);
+  });
 
   //load our network config
   setTimeout(function (){
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "get_network_config"
-    }));  
-  }, 100);
+    });  
+  }, 50);
 
   //load our network config
   setTimeout(function (){
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "get_app_config"
-    }));  
-  }, 150);
+    });  
+  }, 100);
 
   //load our stats config
   setTimeout(function (){
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "get_stats"
-    }));  
-  }, 200);
+    });  
+  }, 150);
 }
 
 function start_websocket()
@@ -289,11 +290,11 @@ function start_websocket()
     //auto login?
     if (Cookies.get("username") && Cookies.get("password")){
       console.log("auto login");
-      socket.send(JSON.stringify({
+      immediateSend({
         "cmd": "login",
         "user": Cookies.get("username"),
         "pass": Cookies.get("password")
-      }));
+      });
     }
   
     //get our basic info
@@ -884,6 +885,9 @@ function start_websocket()
     {
       //console.log("ota progress");
 
+      //OTA is blocking... so update our heartbeat
+      last_heartbeat = Date.now();
+
       let progress = Math.round(msg.progress);
 
       let prog_id = `#firmware_progress`;
@@ -1117,9 +1121,9 @@ function get_stats_data()
 {
   if (socket.readyState == WebSocket.OPEN)
   {
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "get_stats",
-    }));
+    });
   }
 
   //keep loading it while we are here.
@@ -1131,13 +1135,27 @@ function get_stats_data()
 var lastSentTime = Date.now();
 function throttledSend(jdata)
 {
+  //ota is blocking... stop sending
+  if (ota_started)
+    return;
+
+  //rate limit
   if (Date.now() > lastSentTime + 50)
   {
-    socket.send(JSON.stringify(jdata));
+    immediateSend(jdata);
     lastSentTime = Date.now();
   }
   else
     console.log("message dropped, too fast");
+}
+
+function immediateSend(jdata)
+{
+  //ota is blocking... stop sending
+  if (ota_started)
+    return;
+
+  socket.send(JSON.stringify(jdata));
 }
 
 function validate_board_name(e)
@@ -1156,10 +1174,10 @@ function validate_board_name(e)
     $(ele).addClass("is-valid");
 
     //set our new board name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_boardname",
       "value": value
-    }));
+    });
   }
 }
 
@@ -1204,11 +1222,11 @@ function validate_pwm_name(e)
     $(ele).addClass("is-valid");
 
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_pwm_channel",
       "id": id,
       "name": value
-    }));
+    });
   }
 }
 
@@ -1222,11 +1240,11 @@ function validate_pwm_dimmable(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_pwm_channel",
     "id": id,
     "isDimmable": value
-  }));
+  });
 }
 
 function validate_pwm_enabled(e)
@@ -1244,11 +1262,11 @@ function validate_pwm_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_pwm_channel",
     "id": id,
     "enabled": value
-  }));
+  });
 }
 
 function validate_pwm_soft_fuse(e)
@@ -1271,11 +1289,11 @@ function validate_pwm_soft_fuse(e)
     console.log(value);
 
     //save it
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_pwm_channel",
       "id": id,
       "softFuse": value
-    }));
+    });
   }
 }
 
@@ -1296,11 +1314,11 @@ function validate_switch_name(e)
     $(ele).addClass("is-valid");
 
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_switch",
       "id": id,
       "name": value
-    }));
+    });
   }
 }
 
@@ -1317,11 +1335,11 @@ function validate_switch_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_switch",
     "id": id,
     "enabled": value
-  }));
+  });
 }
 
 function set_rgb_color(e, color)
@@ -1361,11 +1379,11 @@ function validate_rgb_name(e)
     $(ele).addClass("is-valid");
 
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_rgb",
       "id": id,
       "name": value
-    }));
+    });
   }
 }
 
@@ -1382,11 +1400,11 @@ function validate_rgb_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_rgb",
     "id": id,
     "enabled": value
-  }));
+  });
 }
 
 function validate_adc_name(e)
@@ -1406,11 +1424,11 @@ function validate_adc_name(e)
     $(ele).addClass("is-valid");
 
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_adc",
       "id": id,
       "name": value
-    }));
+    });
   }
 }
 
@@ -1427,11 +1445,11 @@ function validate_adc_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_adc",
     "id": id,
     "enabled": value
-  }));
+  });
 }
 
 function do_login(e)
@@ -1439,11 +1457,11 @@ function do_login(e)
   app_username = $('#username').val();
   app_password = $('#password').val();
 
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "login",
     "user": app_username,
     "pass": app_password
-  }));
+  });
 }
 
 function save_network_settings()
@@ -1460,13 +1478,13 @@ function save_network_settings()
   show_alert("Yarrboard may be unresponsive while changing WiFi settings. Make sure you connect to the right network after updating.", "primary");
 
   //okay, send it off.
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_network_config",
     "wifi_mode": wifi_mode,
     "wifi_ssid": wifi_ssid,
     "wifi_pass": wifi_pass,
     "local_hostname": local_hostname
-  }));
+  });
 
   //reload our page
   setTimeout(function (){
@@ -1503,7 +1521,7 @@ function save_app_settings()
   }
 
   //okay, send it off.
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_app_config",
     "app_user": app_user,
     "app_pass": app_pass,
@@ -1513,7 +1531,7 @@ function save_app_settings()
     "app_enable_https": app_enable_https,
     "server_pem": server_pem,
     "server_key": server_key
-  }));
+  });
 
   //if they are changing from client to client, we can't show a success.
   show_alert("App settings have been updated.", "success");
@@ -1524,9 +1542,9 @@ function restart_board()
   if (confirm("Are you sure you want to restart your Yarrboard?"))
   {
     //okay, send it off.
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "restart",
-    }));
+    });
 
     show_alert("Yarrboard is now restarting, please be patient.", "primary");
     
@@ -1541,9 +1559,9 @@ function reset_to_factory()
   if (confirm("WARNING! Are you sure you want to reset your Yarrboard to factory defaults?  This cannot be undone."))
   {
     //okay, send it off.
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "factory_reset",
-    }));
+    });
 
     show_alert("Yarrboard is now resetting to factory defaults, please be patient.", "primary");
   }
@@ -1624,9 +1642,11 @@ function update_firmware()
   $("#progress_wrapper").show();
 
   //okay, send it off.
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "ota_start",
-  }));  
+  });  
+
+  ota_started = true;
 }
 
 function secondsToDhms(seconds)
