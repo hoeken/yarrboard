@@ -1578,11 +1578,11 @@ function is_version_current(current_version, check_version)
   check_match = regex.exec(check_version);
 
   //check major, minor, rev
-  if (parseInt(current_match[1]) < parseInt(check_match[1]))
+  if (parseInt(check_match[1]) > parseInt(current_match[1]))
     return false;
-  if (parseInt(current_match[2]) < parseInt(check_match[2]))
+  if (parseInt(check_match[2]) > parseInt(current_match[2]))
     return false;
-  if (parseInt(current_match[3]) < parseInt(check_match[3]))
+  if (parseInt(check_match[3]) > parseInt(current_match[3]))
     return false;
 
   return true;
