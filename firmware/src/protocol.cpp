@@ -861,7 +861,7 @@ void generateConfigJSON(JsonVariant output)
   output["hardware_version"] = YB_HARDWARE_VERSION;
   output["name"] = board_name;
   output["hostname"] = local_hostname;
-  output["app_enable_https"] = app_enable_https;
+  output["use_ssl"] = app_enable_https;
   output["uuid"] = uuid;
 
   //some debug info

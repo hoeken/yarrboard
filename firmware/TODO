@@ -1,13 +1,11 @@
 Firmware:
     * mongoose conversion
-        * test https
         * make sure we arent crashing
+        * test new https
+        * test new login auth system
         * update to latest version of mongoose 6.x
         * long term: update to mongoose 7.x
-    * figure out if there's a way to get progress while doing OTA or if its a no-go.
-        * node client should update heartbeat when ota progress message received
-        * node client should have guards around sending messages during ota
-        * node client should reconnect after ota complete
+    * change app_enable_https to app_enable_ssl
     * hacky semver implementation on client side js not working well.
     * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
         * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
