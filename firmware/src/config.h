@@ -20,7 +20,7 @@
 #elif defined YB_CONFIG_8CH_MOSFET_REV_B
   #include "./configs/config.8ch-mosfet-revb.h"
 #elif defined YB_CONFIG_8CH_MOSFET_REV_C
-  #include "./configs/config.8ch-mosfet-revC.h"
+  #include "./configs/config.8ch-mosfet-revc.h"
 #elif defined YB_CONFIG_RGB_INPUT_REV_A
   #include "./configs/config.rgb-input-reva.h"
 #elif defined YB_CONFIG_RGB_INPUT_REV_B

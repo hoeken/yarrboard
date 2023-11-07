@@ -70,9 +70,22 @@ function main()
             //setTimeout(function (){togglePin(7, 1000)}, 1);
             //setTimeout(function (){fadePinManual(7, 25)}, 1);
         }
-        else if (options.host == "rgbinput.local")
+        else if (options.host == "rgb1.local")
         {
-            setTimeout(function (){rgbFadeManual(0, 25)}, 1);
+            //setTimeout(function (){rgbFadeManual(1, 25)}, 1);
+            //setTimeout(function (){rgbFade(1, 25)}, 1);
+
+            setTimeout(async function (){
+                while (true)
+                {
+                    var i;
+                    for (i=0; i<8; i++)
+                    {
+                        console.log(`fading ${i}`);
+                        await rgbFade(i, 25);                      
+                    }
+                }    
+            }, 1);
         }
         else
         {
@@ -181,6 +194,57 @@ async function fadePinManual(channel = 0, d = 10)
 
         await delay(d)
     }
+}
+
+async function rgbFade(channel = 0, d = 25)
+{
+    let steps = 25;
+    let max_duty = 1;
+
+    for (i=0; i<=steps; i++)
+    {
+        let duty = (i / steps) * max_duty;
+        yb.setRGB(channel, duty, 0, 0);
+        await delay(d)
+    }
+
+    for (i=steps; i>=0; i--)
+    {
+        let duty = (i / steps) * max_duty;
+        yb.setRGB(channel, duty, 0, 0);
+        await delay(d)
+    }
+
+    for (i=0; i<=steps; i++)
+    {
+        let duty = (i / steps) * max_duty;
+        yb.setRGB(channel, 0, duty, 0);
+        await delay(d)
+    }
+
+    for (i=steps; i>=0; i--)
+    {
+        let duty = (i / steps) * max_duty;
+        yb.setRGB(channel, 0, duty, 0);
+        await delay(d)
+    }
+
+    for (i=0; i<=steps; i++)
+    {
+        let duty = (i / steps) * max_duty;
+        yb.setRGB(channel, 0, 0, duty);
+        await delay(d)
+    }
+
+    for (i=steps; i>=0; i--)
+    {
+        let duty = (i / steps) * max_duty;
+        yb.setRGB(channel, 0, 0, duty);
+        await delay(d)
+    }
+
+    yb.setRGB(channel, 0, 0, 0);
+    await delay(d);
 }
 
 async function rgbFadeManual(channel = 0, d = 25)
