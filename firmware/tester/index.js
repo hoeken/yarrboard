@@ -70,7 +70,7 @@ function main()
             //setTimeout(function (){togglePin(7, 1000)}, 1);
             //setTimeout(function (){fadePinManual(7, 25)}, 1);
         }
-        else if (options.host == "rgb1.local")
+        else if (options.host == "rgb1.local" || options.host == "rgb2.local")
         {
             //setTimeout(function (){rgbFadeManual(1, 25)}, 1);
             //setTimeout(function (){rgbFade(1, 25)}, 1);
