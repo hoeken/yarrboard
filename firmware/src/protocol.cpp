@@ -977,6 +977,45 @@ void generateUpdateJSON(JsonVariant output)
   #endif
 }
 
+void generateFastUpdateJSON(JsonVariant output)
+{
+  output["msg"] = "update";
+  output["uptime"] = millis();
+
+  #ifdef YB_HAS_BUS_VOLTAGE
+    output["bus_voltage"] = busVoltage;
+  #endif
+
+  #ifdef YB_HAS_PWM_CHANNELS
+    for (byte i = 0; i < YB_PWM_CHANNEL_COUNT; i++) {
+      output["pwm"][i]["id"] = i;
+      output["pwm"][i]["state"] = pwm_channels[i].state;
+      if (pwm_channels[i].isDimmable)
+        output["pwm"][i]["duty"] = round2(pwm_channels[i].dutyCycle);
+
+      output["pwm"][i]["current"] = round2(pwm_channels[i].amperage);
+      output["pwm"][i]["aH"] = round3(pwm_channels[i].ampHours);
+      output["pwm"][i]["wH"] = round3(pwm_channels[i].wattHours);
+
+      if (pwm_channels[i].tripped)
+        output["pwm"][i]["soft_fuse_tripped"] = true;
+    }
+  #endif
+
+  #ifdef YB_HAS_INPUT_CHANNELS
+    byte j = 0;
+    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
+      if (input_channels[i].sendFastUpdate)
+      {
+        output["switches"][j]["id"] = i;
+        output["switches"][j]["isOpen"] = input_channels[i].state;
+        input_channels[i].sendFastUpdate = false;
+        j++;
+      }
+    }
+  #endif
+}
+
 void generateStatsJSON(JsonVariant output)
 {
   //some basic statistics and info
@@ -1084,6 +1123,23 @@ void generatePongJSON(JsonVariant output)
 {
   output["pong"] = millis();
 }
+
+void sendFastUpdate()
+{
+  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+  DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
+
+  char jsonBuffer[YB_MAX_JSON_LENGTH];
+
+  generateFastUpdateJSON(output);
+
+  serializeJson(output, jsonBuffer);
+  sendToAll(jsonBuffer);
+
+  Serial.println("Fast Update: ");
+  Serial.println(jsonBuffer);
+}
+
 
 void sendUpdate()
 {

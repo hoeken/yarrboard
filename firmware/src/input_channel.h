@@ -12,6 +12,7 @@
 #include <Arduino.h>
 #include "config.h"
 #include "prefs.h"
+#include "protocol.h"
 
 class InputChannel
 {
@@ -21,6 +22,8 @@ class InputChannel
     byte id = 0;
     bool state = false;
     bool isEnabled = true;
+    bool sendFastUpdate = false;
+
     char name[YB_CHANNEL_NAME_LENGTH];
 
     unsigned int stateChangeCount = 0;

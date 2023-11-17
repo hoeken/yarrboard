@@ -76,6 +76,7 @@ void handleSetRGB(JsonVariantConst input, JsonVariant output);
 void handleSetADC(JsonVariantConst input, JsonVariant output);
 
 void generateUpdateJSON(JsonVariant output);
+void generateFastUpdateJSON(JsonVariant output);
 void generateConfigJSON(JsonVariant output);
 void generateStatsJSON(JsonVariant output);
 void generateNetworkConfigJSON(JsonVariant output);
@@ -89,6 +90,7 @@ void generateInvalidChannelJSON(JsonVariant output, byte cid);
 void generatePongJSON(JsonVariant output);
 
 void sendUpdate();
+void sendFastUpdate();
 void sendOTAProgressUpdate(float progress);
 void sendOTAProgressFinished();
 void sendToAll(const char * jsonString);
