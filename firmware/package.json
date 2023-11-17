@@ -2,7 +2,7 @@
   "name": "html",
   "version": "1.0.0",
   "description": "",
-  "main": "bootstrap.min.js",
+  "main": "gulpfile.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,6 +12,7 @@
     "gulp": "^4.0.2"
   },
   "dependencies": {
+    "del": "^7.1.0",
     "gulp-base64-favicon": "^1.0.3",
     "gulp-clean-css": "^4.3.0",
     "gulp-css-base64": "^2.0.0",

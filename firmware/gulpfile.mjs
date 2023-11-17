@@ -23,19 +23,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // File system builder
 // -----------------------------------------------------------------------------
 
-const { series, src, dest } = require('gulp');
-const htmlmin = require('gulp-htmlmin');
-const cleancss = require('gulp-clean-css');
-const uglify = require('gulp-uglify-es').default;
-const gzip = require('gulp-gzip');
-const del = require('del');
-const inline = require('gulp-inline');
-const inlineImages = require('gulp-css-base64');
-const favicon = require('gulp-base64-favicon');
-const fs = require('fs');
+// const { series, src, dest } = require('gulp');
+// const htmlmin = require('gulp-htmlmin');
+// const cleancss = require('gulp-clean-css');
+// const uglify = require('gulp-uglify-es').default;
+// const gzip = require('gulp-gzip');
+// const del = require('del');
+// const inline = require('gulp-inline');
+// const inlineImages = require('gulp-css-base64');
+// const favicon = require('gulp-base64-favicon');
+// const fs = require('fs');
+
+import gulp from 'gulp';
+const {series, src, dest} = gulp;
+import htmlmin from 'gulp-htmlmin';
+import cleancss from 'gulp-clean-css';
+import uglify from 'gulp-uglify-es';
+import gzip from 'gulp-gzip';
+import { deleteAsync } from 'del';
+import inline from 'gulp-inline';
+import inlineImages from 'gulp-css-base64';
+import favicon from 'gulp-base64-favicon';
+import fs from 'fs';
 
 function clean(cb) {
-    del([ "dist/*" ]);
+     deleteAsync([ "dist/*" ]);
     cb();
 }
   
@@ -76,7 +88,7 @@ function buildfs_embeded(cb) {
     wstream.write('#define index_html_gz_len ' + data.length + '\n');
     wstream.write('const uint8_t index_html_gz[] PROGMEM = {')
 
-    for (i=0; i<data.length; i++) {
+    for (var i=0; i<data.length; i++) {
         if (i % 1000 == 0) wstream.write("\n");
         wstream.write('0x' + ('00' + data[i].toString(16)).slice(-2));
         if (i<data.length-1) wstream.write(',');
@@ -85,10 +97,12 @@ function buildfs_embeded(cb) {
     wstream.write('\n};')
     wstream.end();
 
-    del([source]);
+     deleteAsync([source]);
 
     cb();
 }
   
-exports.build = build;
-exports.default = series(clean, buildfs_inline, buildfs_embeded);
+const all = series(clean, buildfs_inline, buildfs_embeded);
+
+export default all;
+//export build;

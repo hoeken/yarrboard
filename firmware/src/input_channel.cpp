@@ -29,11 +29,22 @@ void input_channels_setup()
 
 void input_channels_loop()
 {
+  bool doSendFastUpdate = false;
+
   if (millis() > lastInputCheckMillis + YB_INPUT_DEBOUNCE_RATE_MS)
   {
     //maintenance on our channels.
     for (byte id = 0; id < YB_INPUT_CHANNEL_COUNT; id++)
-        input_channels[id].update();
+    {
+      input_channels[id].update();
+
+      if (input_channels[id].sendFastUpdate)
+        doSendFastUpdate = true;
+    }
+
+    //let the client know immediately.
+    if (doSendFastUpdate)
+      sendFastUpdate();
 
     lastInputCheckMillis = millis();
   }
@@ -72,6 +83,7 @@ void InputChannel::setup()
   this->state = digitalRead(this->_pins[this->id]);
   this->lastState = this->state;
   this->stateChangeCount = 0;
+  this->sendFastUpdate = false;
 }
 
 void InputChannel::update()
@@ -82,6 +94,7 @@ void InputChannel::update()
     {
         this->state = this->lastState;
         this->stateChangeCount++;
+        this->sendFastUpdate = true;
     }
 
     this->lastState = currentState;

@@ -10,6 +10,7 @@ var socket_retries = 0;
 var retry_time = 0;
 var last_heartbeat = 0;
 const heartbeat_rate = 1000;
+var ota_started = false;
 
 var page_list = ["control", "config", "stats", "network", "settings", "system"];
 var page_ready = {
@@ -189,7 +190,7 @@ function send_heartbeat()
   //only send it if we're already open.
   if (socket.readyState == WebSocket.OPEN)
   {
-    socket.send(JSON.stringify({"cmd": "ping"}));
+    immediateSend({"cmd": "ping"});
     setTimeout(send_heartbeat, heartbeat_rate);
   }
   else if (socket.readyState == WebSocket.CLOSING)
@@ -228,38 +229,45 @@ function start_yarrboard()
 function load_configs()
 {
   //load our config... will also trigger login
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "get_config"
-  }), 50);
+  });
 
   //load our network config
   setTimeout(function (){
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "get_network_config"
-    }));  
-  }, 100);
+    });  
+  }, 50);
 
   //load our network config
   setTimeout(function (){
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "get_app_config"
-    }));  
-  }, 150);
+    });  
+  }, 100);
 
   //load our stats config
   setTimeout(function (){
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "get_stats"
-    }));  
-  }, 200);
+    });  
+  }, 150);
 }
 
 function start_websocket()
 {
+  //close any old connections
   if (socket)
     socket.close();
   
-  socket = new WebSocket("ws://" + window.location.host + "/ws");
+  //do we want ssl?
+  let protocol = "ws://";
+  if (document.location.protocol == 'https:')
+    protocol = "wss://";
+
+  //open it.
+  socket = new WebSocket(protocol + window.location.host + "/ws");
   
   console.log("Opening new websocket");
 
@@ -282,11 +290,11 @@ function start_websocket()
     //auto login?
     if (Cookies.get("username") && Cookies.get("password")){
       console.log("auto login");
-      socket.send(JSON.stringify({
+      immediateSend({
         "cmd": "login",
         "user": Cookies.get("username"),
         "pass": Cookies.get("password")
-      }));
+      });
     }
   
     //get our basic info
@@ -844,12 +852,41 @@ function start_websocket()
       $("#app_enable_api").prop("checked", msg.app_enable_api);
       $("#app_enable_serial").prop("checked", msg.app_enable_serial);
 
+      //for our ssl stuff
+      $("#app_enable_https").prop("checked", msg.app_enable_https);
+      $("#server_pem").val(msg.server_pem);
+      $("#server_key").val(msg.server_key);
+
+      //hide/show these guys
+      if (msg.app_enable_https)
+      {
+        $("#server_pem_container").show();
+        $("#server_key_container").show();
+      }
+
+      //make it dynamic too
+      $("#app_enable_https").change(function (){
+        if ($("#app_enable_https").prop("checked"))
+        {
+          $("#server_pem_container").show();
+          $("#server_key_container").show();  
+        }
+        else
+        {
+          $("#server_pem_container").hide();
+          $("#server_key_container").hide();  
+        }
+      });
+
       page_ready.settings = true;    
     }
     //load up our network config.
     else if (msg.msg == "ota_progress")
     {
       //console.log("ota progress");
+
+      //OTA is blocking... so update our heartbeat
+      last_heartbeat = Date.now();
 
       let progress = Math.round(msg.progress);
 
@@ -996,6 +1033,13 @@ function show_alert(message, type = 'danger')
 {
   //we only need one alert at a time.
   $('#liveAlertPlaceholder').html(AlertBox(message, type))
+
+  //make sure we can see it.
+  $('html').animate({
+      scrollTop: 0
+    },
+    750 //speed
+  );
 }
 
 function toggle_state(id)
@@ -1084,9 +1128,9 @@ function get_stats_data()
 {
   if (socket.readyState == WebSocket.OPEN)
   {
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "get_stats",
-    }));
+    });
   }
 
   //keep loading it while we are here.
@@ -1098,13 +1142,27 @@ function get_stats_data()
 var lastSentTime = Date.now();
 function throttledSend(jdata)
 {
+  //ota is blocking... stop sending
+  if (ota_started)
+    return;
+
+  //rate limit
   if (Date.now() > lastSentTime + 50)
   {
-    socket.send(JSON.stringify(jdata));
+    immediateSend(jdata);
     lastSentTime = Date.now();
   }
   else
     console.log("message dropped, too fast");
+}
+
+function immediateSend(jdata)
+{
+  //ota is blocking... stop sending
+  if (ota_started)
+    return;
+
+  socket.send(JSON.stringify(jdata));
 }
 
 function validate_board_name(e)
@@ -1123,10 +1181,10 @@ function validate_board_name(e)
     $(ele).addClass("is-valid");
 
     //set our new board name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_boardname",
       "value": value
-    }));
+    });
   }
 }
 
@@ -1171,11 +1229,11 @@ function validate_pwm_name(e)
     $(ele).addClass("is-valid");
 
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_pwm_channel",
       "id": id,
       "name": value
-    }));
+    });
   }
 }
 
@@ -1189,11 +1247,11 @@ function validate_pwm_dimmable(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_pwm_channel",
     "id": id,
     "isDimmable": value
-  }));
+  });
 }
 
 function validate_pwm_enabled(e)
@@ -1211,11 +1269,11 @@ function validate_pwm_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_pwm_channel",
     "id": id,
     "enabled": value
-  }));
+  });
 }
 
 function validate_pwm_soft_fuse(e)
@@ -1238,11 +1296,11 @@ function validate_pwm_soft_fuse(e)
     console.log(value);
 
     //save it
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_pwm_channel",
       "id": id,
       "softFuse": value
-    }));
+    });
   }
 }
 
@@ -1263,11 +1321,11 @@ function validate_switch_name(e)
     $(ele).addClass("is-valid");
 
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_switch",
       "id": id,
       "name": value
-    }));
+    });
   }
 }
 
@@ -1284,11 +1342,11 @@ function validate_switch_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_switch",
     "id": id,
     "enabled": value
-  }));
+  });
 }
 
 function set_rgb_color(e, color)
@@ -1328,11 +1386,11 @@ function validate_rgb_name(e)
     $(ele).addClass("is-valid");
 
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_rgb",
       "id": id,
       "name": value
-    }));
+    });
   }
 }
 
@@ -1349,11 +1407,11 @@ function validate_rgb_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_rgb",
     "id": id,
     "enabled": value
-  }));
+  });
 }
 
 function validate_adc_name(e)
@@ -1373,11 +1431,11 @@ function validate_adc_name(e)
     $(ele).addClass("is-valid");
 
     //set our new pwm name!
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "set_adc",
       "id": id,
       "name": value
-    }));
+    });
   }
 }
 
@@ -1394,11 +1452,11 @@ function validate_adc_enabled(e)
   $(ele).addClass("is-valid");
 
   //save it
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_adc",
     "id": id,
     "enabled": value
-  }));
+  });
 }
 
 function do_login(e)
@@ -1406,11 +1464,11 @@ function do_login(e)
   app_username = $('#username').val();
   app_password = $('#password').val();
 
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "login",
     "user": app_username,
     "pass": app_password
-  }));
+  });
 }
 
 function save_network_settings()
@@ -1427,13 +1485,13 @@ function save_network_settings()
   show_alert("Yarrboard may be unresponsive while changing WiFi settings. Make sure you connect to the right network after updating.", "primary");
 
   //okay, send it off.
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_network_config",
     "wifi_mode": wifi_mode,
     "wifi_ssid": wifi_ssid,
     "wifi_pass": wifi_pass,
     "local_hostname": local_hostname
-  }));
+  });
 
   //reload our page
   setTimeout(function (){
@@ -1449,6 +1507,9 @@ function save_app_settings()
   let require_login = $("#require_login").prop("checked");
   let app_enable_api = $("#app_enable_api").prop("checked");
   let app_enable_serial = $("#app_enable_serial").prop("checked");
+  let app_enable_https = $("#app_enable_https").prop("checked");
+  let server_pem = $("#server_pem").val();
+  let server_key = $("#server_key").val();
 
   //we should probably do a bit of verification here
 
@@ -1467,14 +1528,17 @@ function save_app_settings()
   }
 
   //okay, send it off.
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "set_app_config",
     "app_user": app_user,
     "app_pass": app_pass,
     "require_login": require_login,
     "app_enable_api": app_enable_api,
-    "app_enable_serial": app_enable_serial
-  }));
+    "app_enable_serial": app_enable_serial,
+    "app_enable_https": app_enable_https,
+    "server_pem": server_pem,
+    "server_key": server_key
+  });
 
   //if they are changing from client to client, we can't show a success.
   show_alert("App settings have been updated.", "success");
@@ -1485,9 +1549,9 @@ function restart_board()
   if (confirm("Are you sure you want to restart your Yarrboard?"))
   {
     //okay, send it off.
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "restart",
-    }));
+    });
 
     show_alert("Yarrboard is now restarting, please be patient.", "primary");
     
@@ -1502,33 +1566,12 @@ function reset_to_factory()
   if (confirm("WARNING! Are you sure you want to reset your Yarrboard to factory defaults?  This cannot be undone."))
   {
     //okay, send it off.
-    socket.send(JSON.stringify({
+    immediateSend({
       "cmd": "factory_reset",
-    }));
+    });
 
     show_alert("Yarrboard is now resetting to factory defaults, please be patient.", "primary");
   }
-}
-
-function is_version_current(current_version, check_version)
-{
-  const regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/m;
-  let current_match;
-  let check_match;
-
-  //parse versions
-  current_match = regex.exec(current_version);
-  check_match = regex.exec(check_version);
-
-  //check major, minor, rev
-  if (parseInt(current_match[1]) < parseInt(check_match[1]))
-    return false;
-  if (parseInt(current_match[2]) < parseInt(check_match[2]))
-    return false;
-  if (parseInt(current_match[3]) < parseInt(check_match[3]))
-    return false;
-
-  return true;
 }
 
 function check_for_updates()
@@ -1555,9 +1598,8 @@ function check_for_updates()
 
         $("#firmware_checking").hide();
 
-        if (is_version_current(current_config.firmware_version, data.version))
-          $("#firmware_up_to_date").show();
-        else
+        //do we have a new version?
+        if (compareVersions(data.version, current_config.firmware_version))
         {
           if (data.changelog)
           {
@@ -1571,6 +1613,8 @@ function check_for_updates()
 
           show_alert(`There is a <a  onclick="open_page('system')" href="/#system">firmware update</a> available (${data.version}).`, "primary");
         }
+        else
+          $("#firmware_up_to_date").show();
       }
     });
   }
@@ -1585,9 +1629,11 @@ function update_firmware()
   $("#progress_wrapper").show();
 
   //okay, send it off.
-  socket.send(JSON.stringify({
+  immediateSend({
     "cmd": "ota_start",
-  }));  
+  });  
+
+  ota_started = true;
 }
 
 function secondsToDhms(seconds)
@@ -1678,4 +1724,33 @@ function formatBytes(bytes, decimals = 2) {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+}
+
+// return true if 'first' is greater than or equal to 'second'
+function compareVersions(first, second)
+{
+
+    var a = first.split('.');
+    var b = second.split('.');
+
+    for (var i = 0; i < a.length; ++i) {
+        a[i] = Number(a[i]);
+    }
+    for (var i = 0; i < b.length; ++i) {
+        b[i] = Number(b[i]);
+    }
+    if (a.length == 2) {
+        a[2] = 0;
+    }
+
+    if (a[0] > b[0]) return true;
+    if (a[0] < b[0]) return false;
+
+    if (a[1] > b[1]) return true;
+    if (a[1] < b[1]) return false;
+
+    if (a[2] > b[2]) return true;
+    if (a[2] < b[2]) return false;
+
+    return true;
 }

@@ -6,7 +6,7 @@
   License: GPLv3
 */
 
-#include "wifi.h"
+#include "network.h"
 #include "prefs.h"
 #include "server.h"
 
@@ -26,7 +26,7 @@ char local_hostname[YB_HOSTNAME_LENGTH] = "yarrboard";
 char uuid[13];
 bool is_first_boot = true;
 
-void wifi_setup()
+void network_setup()
 {
   if (preferences.isKey("local_hostname"))
     strlcpy(local_hostname, preferences.getString("local_hostname").c_str(), sizeof(local_hostname));
@@ -53,7 +53,7 @@ void wifi_setup()
   setupWifi();
 }
 
-void wifi_loop()
+void network_loop()
 {
   //run our dns... for AP mode
   if (!strcmp(wifi_mode, "ap"))

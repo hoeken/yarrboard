@@ -14,8 +14,8 @@ char app_pass[YB_PASSWORD_LENGTH] = "admin";
 bool require_login = true;
 bool app_enable_api = true;
 bool app_enable_serial = false;
+bool app_enable_https = false;
 bool is_serial_authenticated = false;
-uint32_t authenticatedClientIDs[YB_CLIENT_LIMIT];
 
 //for tracking our message loop
 unsigned long previousMessageMillis = 0;
@@ -40,10 +40,10 @@ void protocol_setup()
     app_enable_api = preferences.getBool("appEnableApi");
   if (preferences.isKey("appEnableSerial"))
     app_enable_serial = preferences.getBool("appEnableSerial");
-    
+
+  //send serial a config off the bat    
   if (app_enable_serial)
   {
-    //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
     DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
 
     generateConfigJSON(output);
@@ -110,7 +110,7 @@ void handleSerialJson()
   }
   else
   {
-    handleReceivedJSON(input, output, YBP_MODE_SERIAL, 0);
+    handleReceivedJSON(input, output, YBP_MODE_SERIAL);
 
     //we can have empty responses
     if (output.size())
@@ -118,7 +118,7 @@ void handleSerialJson()
   }
 }
 
-void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id)
+void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, MongooseHttpWebSocketConnection *connection)
 {
   //make sure its correct
   if (!input.containsKey("cmd"))
@@ -143,14 +143,14 @@ void handleReceivedJSON(JsonVariantConst input, JsonVariant output, byte mode, u
   if (!strcmp(cmd, "login") || !strcmp(cmd, "ping"))
   {
     if (!strcmp(cmd, "login"))
-      return handleLogin(input, output, mode, client_id);
+      return handleLogin(input, output, mode, connection);
     else if (!strcmp(cmd, "ping"))
       return generatePongJSON(output);
   }
   else
   {
     //need to be logged in here.
-    if (!isLoggedIn(input, mode, client_id))
+    if (!isLoggedIn(input, mode, connection))
         return generateLoginRequiredJSON(output);
 
     //what is your command?
@@ -354,16 +354,34 @@ void handleSetAppConfig(JsonVariantConst input, JsonVariant output)
     require_login = input["require_login"];
     app_enable_api = input["app_enable_api"];
     app_enable_serial = input["app_enable_serial"];
+    app_enable_https = input["app_enable_https"];
 
     //no special cases here.
     preferences.putString("app_user", app_user);
     preferences.putString("app_pass", app_pass);
     preferences.putBool("require_login", require_login);  
-    preferences.putBool("appEnableApi", app_enable_api);  
-    preferences.putBool("appEnableSerial", app_enable_serial);  
+    preferences.putBool("appEnableApi", app_enable_api);
+    preferences.putBool("appEnableSerial", app_enable_serial);
+    preferences.putBool("appEnableHttps", app_enable_https);
+
+    //write our pem to local storage
+    File fp = LittleFS.open("/server.pem", "w");
+    fp.print(input["server_pem"] | "");
+    fp.close();
+
+    Serial.println("ssl cert:");
+    Serial.println(input["server_pem"] | "");
+
+    //write our key to local storage
+    File fp2 = LittleFS.open("/server.key", "w");
+    fp2.print(input["server_key"] | "");
+    fp2.close();
+
+    Serial.println("ssl key:");
+    Serial.println(input["server_key"] | "");
 }
 
-void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t client_id)
+void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, MongooseHttpWebSocketConnection *connection)
 {
     if (!require_login)
       return generateErrorJSON(output, "Login not required.");
@@ -386,7 +404,7 @@ void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, uint32_t
         //check to see if there's room for us.
         if (mode == YBP_MODE_WEBSOCKET)
         {
-          if (!logClientIn(client_id))
+          if (!logClientIn(connection))
             return generateErrorJSON(output, "Too many connections.");
         }
         else if (mode == YBP_MODE_SERIAL)
@@ -849,6 +867,7 @@ void generateConfigJSON(JsonVariant output)
   output["hardware_version"] = YB_HARDWARE_VERSION;
   output["name"] = board_name;
   output["hostname"] = local_hostname;
+  output["use_ssl"] = app_enable_https;
   output["uuid"] = uuid;
 
   //some debug info
@@ -958,6 +977,45 @@ void generateUpdateJSON(JsonVariant output)
   #endif
 }
 
+void generateFastUpdateJSON(JsonVariant output)
+{
+  output["msg"] = "update";
+  output["uptime"] = millis();
+
+  #ifdef YB_HAS_BUS_VOLTAGE
+    output["bus_voltage"] = busVoltage;
+  #endif
+
+  #ifdef YB_HAS_PWM_CHANNELS
+    for (byte i = 0; i < YB_PWM_CHANNEL_COUNT; i++) {
+      output["pwm"][i]["id"] = i;
+      output["pwm"][i]["state"] = pwm_channels[i].state;
+      if (pwm_channels[i].isDimmable)
+        output["pwm"][i]["duty"] = round2(pwm_channels[i].dutyCycle);
+
+      output["pwm"][i]["current"] = round2(pwm_channels[i].amperage);
+      output["pwm"][i]["aH"] = round3(pwm_channels[i].ampHours);
+      output["pwm"][i]["wH"] = round3(pwm_channels[i].wattHours);
+
+      if (pwm_channels[i].tripped)
+        output["pwm"][i]["soft_fuse_tripped"] = true;
+    }
+  #endif
+
+  #ifdef YB_HAS_INPUT_CHANNELS
+    byte j = 0;
+    for (byte i = 0; i < YB_INPUT_CHANNEL_COUNT; i++) {
+      if (input_channels[i].sendFastUpdate)
+      {
+        output["switches"][j]["id"] = i;
+        output["switches"][j]["isOpen"] = input_channels[i].state;
+        input_channels[i].sendFastUpdate = false;
+        j++;
+      }
+    }
+  #endif
+}
+
 void generateStatsJSON(JsonVariant output)
 {
   //some basic statistics and info
@@ -1026,6 +1084,9 @@ void generateAppConfigJSON(JsonVariant output)
   output["app_pass"] = app_pass;
   output["app_enable_api"] = app_enable_api;
   output["app_enable_serial"] = app_enable_serial;
+  output["app_enable_https"] = app_enable_https;
+  output["server_pem"] = server_pem;
+  output["server_key"] = server_key;
 }
 
 void generateOTAProgressUpdateJSON(JsonVariant output, float progress)
@@ -1053,23 +1114,6 @@ void generateSuccessJSON(JsonVariant output, const char* success)
   output["message"] = success;
 }
 
-bool isLoggedIn(JsonVariantConst input, byte mode, uint32_t client_id = 0)
-{
-  //also only if enabled
-  if (!require_login)
-    return true;
-
-  //login only required for websockets.
-  if (mode == YBP_MODE_WEBSOCKET)
-    return isWebsocketClientLoggedIn(input, client_id);
-  else if (mode == YBP_MODE_HTTP)
-    return isApiClientLoggedIn(input);
-  else if (mode == YBP_MODE_SERIAL)
-    return isSerialClientLoggedIn(input);
-  else
-    return false;
-}
-
 void generateLoginRequiredJSON(JsonVariant output)
 {
   generateErrorJSON(output, "You must be logged in.");
@@ -1079,6 +1123,23 @@ void generatePongJSON(JsonVariant output)
 {
   output["pong"] = millis();
 }
+
+void sendFastUpdate()
+{
+  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
+  DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
+
+  char jsonBuffer[YB_MAX_JSON_LENGTH];
+
+  generateFastUpdateJSON(output);
+
+  serializeJson(output, jsonBuffer);
+  sendToAll(jsonBuffer);
+
+  Serial.println("Fast Update: ");
+  Serial.println(jsonBuffer);
+}
+
 
 void sendUpdate()
 {
@@ -1123,66 +1184,3 @@ void sendToAll(const char * jsonString)
     Serial.println(jsonString);
 }
 
-bool isWebsocketClientLoggedIn(JsonVariantConst doc, uint32_t client_id)
-{
-  //are they in our auth array?
-  for (byte i=0; i<YB_CLIENT_LIMIT; i++)
-    if (authenticatedClientIDs[i] == client_id)
-      return true;
-
-  //okay check for passed-in credentials
-  return isApiClientLoggedIn(doc);
-}
-
-bool isApiClientLoggedIn(JsonVariantConst doc)
-{
-  if (!doc.containsKey("user"))
-    return false;
-  if (!doc.containsKey("pass"))
-    return false;
-
-  //init
-  char myuser[YB_USERNAME_LENGTH];
-  char mypass[YB_PASSWORD_LENGTH];
-  strlcpy(myuser, doc["user"] | "", sizeof(myuser));
-  strlcpy(mypass, doc["pass"] | "", sizeof(myuser));
-
-  //morpheus... i'm in.
-  if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
-    return true;
-
-  //default to fail then.
-  return false;  
-}
-
-bool isSerialClientLoggedIn(JsonVariantConst doc)
-{
-  if (is_serial_authenticated)
-    return true;
-  else
-    return isApiClientLoggedIn(doc);
-}
-
-bool addClientToAuthList(uint32_t client_id)
-{
-  byte i;
-  for (i=0; i<YB_CLIENT_LIMIT; i++)
-  {
-    //did we find an empty slot?
-    if (authenticatedClientIDs[i] == 0)
-    {
-      authenticatedClientIDs[i] = client_id;
-      break;
-    }
-
-    //are we already authenticated?
-    if (authenticatedClientIDs[i] == client_id)
-      break;
-  }
-
-  //did we not find a spot?
-  if (i == YB_CLIENT_LIMIT)
-    return false;
-  else
-   return true;
-}

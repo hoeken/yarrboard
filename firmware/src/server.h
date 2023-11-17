@@ -12,14 +12,12 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <CircularBuffer.h>
-
-#include <AsyncJson.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
+#include <MongooseCore.h>
+#include <MongooseHttpServer.h>
 
 #include "protocol.h"
 #include "prefs.h"
-#include "wifi.h"
+#include "network.h"
 #include "ota.h"
 #include "adchelper.h"
 
@@ -34,25 +32,38 @@
   #include "fans.h"
 #endif
 
+extern String server_pem;
+extern String server_key;
+
 typedef struct {
-  unsigned int client_id;
+  MongooseHttpWebSocketConnection *client;
   char buffer[YB_RECEIVE_BUFFER_LENGTH];
 } WebsocketRequest;
 
 void server_setup();
 void server_loop();
 
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client);
-void handleWebsocketMessageLoop(WebsocketRequest* request);
-void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request);
-void sendToAllWebsockets(const char * jsonString);
+bool isLoggedIn(JsonVariantConst input, byte mode, MongooseHttpWebSocketConnection *connection);
+bool logClientIn(MongooseHttpWebSocketConnection *connection);
+void closeClientConnection(MongooseHttpWebSocketConnection *connection);
+bool addClientToAuthList(MongooseHttpWebSocketConnection *connection);
+bool isWebsocketClientLoggedIn(JsonVariantConst input, MongooseHttpWebSocketConnection *connection);
+bool isApiClientLoggedIn(JsonVariantConst input);
+bool isSerialClientLoggedIn(JsonVariantConst input);
 
-
-bool logClientIn(uint32_t client_id);
-int getWebsocketRequestSlot();
-void closeClientConnection(AsyncWebSocketClient *client);
 
 int getFreeSlots();
+int getWebsocketRequestSlot();
+
+void sendToAllWebsockets(const char * jsonString);
+void handleWebsocketMessageLoop(WebsocketRequest* request);
+
+void handleWebServerRequest(JsonVariant input, MongooseHttpServerRequest *request);
+void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t *data, size_t len);
+
+/*
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
+*/
+
 
 #endif /* !YARR_SERVER_H */

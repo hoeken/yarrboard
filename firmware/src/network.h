@@ -6,8 +6,8 @@
   License: GPLv3
 */
 
-#ifndef YARR_WIFI_H
-#define YARR_WIFI_H
+#ifndef YARR_NETWORK_H
+#define YARR_NETWORK_H
 
 #include <WiFi.h>
 #include <DNSServer.h>
@@ -22,10 +22,10 @@ extern char local_hostname[YB_HOSTNAME_LENGTH];
 extern char uuid[13];
 extern bool is_first_boot;
 
-void wifi_setup();
-void wifi_loop();
+void network_setup();
+void network_loop();
 
 void setupWifi();
 bool connectToWifi(const char* ssid, const char* pass);
 
-#endif /* !YARR_WIFI_H */
+#endif /* !YARR_NETWORK_H */

@@ -1,31 +1,135 @@
 #include "server.h"
 
+MongooseHttpServer server;
+
 // Variable to hold the last modification datetime
 char last_modified[50];
 
 CircularBuffer<WebsocketRequest*, YB_RECEIVE_BUFFER_COUNT> wsRequests;
 
-AsyncWebSocket ws("/ws");
-AsyncWebServer server(80);
+MongooseHttpWebSocketConnection * authenticatedConnections[YB_CLIENT_LIMIT];
+
+String server_pem;
+String server_key;
 
 void server_setup()
 {
   // Populate the last modification date based on build datetime
   sprintf(last_modified, "%s %s GMT", __DATE__, __TIME__);
 
-  //config for our websocket server
-  ws.onEvent(onEvent);
-  server.addHandler(&ws);
+  //do we want https?
+  if (preferences.isKey("appEnableHttps"))
+    app_enable_https = preferences.getBool("appEnableHttps");
+  else
+    app_enable_https = false;
 
-  //main API endpoint
-  AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/endpoint", [](AsyncWebServerRequest *request, JsonVariant &json)
+  if (app_enable_https)
+    Serial.println("SSL enabled");
+  else
+    Serial.println("SSL disabled");
+
+  //look up our keys?
+  if (app_enable_https)
   {
+    File fp = LittleFS.open("/server.pem");
+    if (fp)
+    {
+      server_pem = fp.readString();
+
+      Serial.println("Server Cert:");
+      Serial.println(server_pem);
+    }
+    else
+    {
+      Serial.println("server.pem not found, SSL not available");
+      app_enable_https = false;
+    }
+    fp.close();
+
+    File fp2 = LittleFS.open("/server.key");
+    if (fp2)
+    {
+      server_key = fp2.readString();
+
+      Serial.println("Server Key:");
+      Serial.println(server_key);
+    }
+    else
+    {
+      Serial.println("server.key not found, SSL not available");
+      app_enable_https = false;
+    }
+    fp2.close();
+  }
+
+  Mongoose.begin();
+
+  //do we want secure or not?
+  if (app_enable_https)
+  {
+    if(false == server.begin(443, server_pem.c_str(), server_key.c_str())) {
+      Serial.print("Failed to start HTTPS server");
+      app_enable_https = false;
+    }
+  }
+  else
+  {
+    server.begin(80);
+  }
+
+  server.on("/$", HTTP_GET, [](MongooseHttpServerRequest *request) {
+    //Check if the client already has the same version and respond with a 304 (Not modified)
+    if (request->headers("If-Modified-Since").equals(last_modified)) {
+        request->send(304);
+    } else {
+        MongooseHttpServerResponseBasic *response = request->beginResponse();
+        response->setCode(200);
+        response->setContentType("text/html");
+
+        // Tell the browswer the contemnt is Gzipped
+        response->addHeader("Content-Encoding", "gzip");
+
+        // And set the last-modified datetime so we can check if we need to send it again next time or not
+        response->addHeader("Last-Modified", last_modified);
+
+        //add our actual content
+        response->setContent(index_html_gz, index_html_gz_len);
+
+        request->send(response);
+   }
+  });
+
+  // Test the stream response class
+  server.on("/ws$")->
+    onConnect([](MongooseHttpWebSocketConnection *connection) {
+      Serial.println("[socket] new connection");
+    })->
+    onClose([](MongooseHttpServerRequest *c) {
+      MongooseHttpWebSocketConnection *connection = static_cast<MongooseHttpWebSocketConnection *>(c);
+      Serial.println("[socket] connection closed");
+
+      //stop tracking the connection
+      if (require_login)
+        for (byte i=0; i<YB_CLIENT_LIMIT; i++)
+          if (authenticatedConnections[i] == connection)
+            authenticatedConnections[i] = NULL;
+    })->
+    onFrame([](MongooseHttpWebSocketConnection *connection, int flags, uint8_t *data, size_t len) {
+      handleWebSocketMessage(connection, data, len);
+    });
+
+  //our main api connection
+  server.on("/api/endpoint$", HTTP_GET, [](MongooseHttpServerRequest *request)
+  {
+    StaticJsonDocument<1024> json;
+    String body = request->body();
+    DeserializationError err = deserializeJson(json, body);
+
     handleWebServerRequest(json, request);
   });
-  server.addHandler(handler);
 
   //send config json
-  server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/api/config$", HTTP_GET, [](MongooseHttpServerRequest *request)
   {
     StaticJsonDocument<256> json;
     json["cmd"] = "get_config";
@@ -34,7 +138,7 @@ void server_setup()
   });
 
   //send stats json
-  server.on("/api/stats", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/api/stats$", HTTP_GET, [](MongooseHttpServerRequest *request)
   {
     StaticJsonDocument<256> json;
     json["cmd"] = "get_stats";
@@ -43,7 +147,7 @@ void server_setup()
   });
 
   //send update json
-  server.on("/api/update", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/api/update$", HTTP_GET, [](MongooseHttpServerRequest *request)
   {
     StaticJsonDocument<256> json;
     json["cmd"] = "get_update";
@@ -51,29 +155,8 @@ void server_setup()
     handleWebServerRequest(json, request);
   });
 
-  //our home page
-  server.rewrite("/", "/index.html");
-  server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest *request)
-  {
-    // Check if the client already has the same version and respond with a 304 (Not modified)
-    if (request->header("If-Modified-Since").equals(last_modified)) {
-        request->send(304);
-    } else {
-        // Dump the byte array in PROGMEM with a 200 HTTP code (OK)
-        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_html_gz, index_html_gz_len);
-
-        // Tell the browswer the contemnt is Gzipped
-        response->addHeader("Content-Encoding", "gzip");
-
-        // And set the last-modified datetime so we can check if we need to send it again next time or not
-        response->addHeader("Last-Modified", last_modified);
-
-        request->send(response);
-    }
-  });
-
   //downloadable coredump file
-  server.on("/coredump.txt", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/coredump.txt$", HTTP_GET, [](MongooseHttpServerRequest *request)
   {
     //delete the coredump here, but not from littlefs
 		deleteCoreDump();
@@ -81,51 +164,41 @@ void server_setup()
     //dont bug the client anymore
     has_coredump = false;
 
-    //send the file
-    request->send(LittleFS, "/coredump.txt", "text/plain");
+    MongooseHttpServerResponseBasic *response = request->beginResponse();
+    response->setContentType("text/plain");
+
+    if (LittleFS.exists("/coredump.txt"))
+    {
+      response->setCode(200);
+
+      //this feels a little bit hacky...
+      File fp = LittleFS.open("/coredump.txt");
+      String data = fp.readString();
+      response->setContent(data.c_str());
+    }
+    else
+    {
+      response->setCode(404);
+      response->setContent("Coredump not found.");
+    }
+
+    request->send(response);
   });
 
   //a 404 is nice
-  server.onNotFound([](AsyncWebServerRequest *request){ request->send(404, "text/plain", "Not found"); });
-
-  server.begin();
+  server.onNotFound([](MongooseHttpServerRequest *request)
+  {
+    request->send(404, "text/plain", "Not found");
+  });
 }
 
 void server_loop()
 {
-  //sometimes websocket clients die badly.
-  ws.cleanupClients();
+  Mongoose.poll(0);
 
   //process our websockets outside the callback.
   if (!wsRequests.isEmpty())
     handleWebsocketMessageLoop(wsRequests.shift());
-}
-
-void handleWebServerRequest(JsonVariant input, AsyncWebServerRequest *request)
-{
-  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
-  DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
-
-  if (request->hasParam("user"))
-    input["user"] = request->getParam("user")->value();
-  if (request->hasParam("pass"))
-    input["pass"] = request->getParam("pass")->value();
-
-  if (app_enable_api)
-    handleReceivedJSON(input, output, YBP_MODE_HTTP, 0);
-  else
-    generateErrorJSON(output, "Web API is disabled.");      
-
-  //we can have empty messages
-  if (output.size())
-  {
-    AsyncResponseStream *response = request->beginResponseStream("application/json");
-    serializeJson(output.as<JsonObject>(), *response);
-    request->send(response);
-  }
-  //give them valid json at least
-  else
-    request->send(200, "application/json", "{}");
 }
 
 void sendToAllWebsockets(const char * jsonString)
@@ -134,147 +207,87 @@ void sendToAllWebsockets(const char * jsonString)
   if (require_login)
   {
     for (byte i=0; i<YB_CLIENT_LIMIT; i++)
-      if (authenticatedClientIDs[i])
-        if (ws.availableForWrite(authenticatedClientIDs[i]))
-          ws.text(authenticatedClientIDs[i], jsonString);
-        else
-          Serial.println("[socket] client queue full");
+      if (authenticatedConnections[i] != NULL)
+        authenticatedConnections[i]->send(jsonString);
   }
   //nope, just sent it to all.
-  else {
-    ws.textAll(jsonString);
-    // if (ws.availableForWriteAll())
-    //   ws.textAll(jsonString);
-    // else
-    //   Serial.println("[socket] outbound queue full");
-  }
+  else
+    server.sendAll(jsonString);
 }
 
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+bool logClientIn(MongooseHttpWebSocketConnection *connection)
 {
-  switch (type) {
-    case WS_EVT_CONNECT:
-      Serial.printf("[socket] #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("[socket] #%u disconnected\n", client->id());
-
-      //clear this guy from our authenticated list.
-      if (require_login)
-        for (byte i=0; i<YB_CLIENT_LIMIT; i++)
-          if (authenticatedClientIDs[i] == client->id())
-            authenticatedClientIDs[i] = 0;
-
-      break;
-    case WS_EVT_DATA:
-      handleWebSocketMessage(arg, data, len, client);
-      break;
-    case WS_EVT_PONG:
-      Serial.printf("[socket] #%u pong", client->id());
-      break;
-    case WS_EVT_ERROR:
-      Serial.printf("[socket] #%u error", client->id());
-      break;
-  }
-}
-
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
-{
-  AwsFrameInfo *info = (AwsFrameInfo *)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
+  //did we not find a spot?
+  if (!addClientToAuthList(connection))
   {
-    //Special case for messages during OTA as the update is blocking and will cause
-    //all of our sockets to time out and won't let us have a nice little display bar.
-    if (doOTAUpdate)
-    {
-      char jsonBuffer[YB_MAX_JSON_LENGTH];
-      //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
-      DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
+    //TODO: is there a way to close a connection?
+    //TODO: we need to test the max connections, mongoose may just handle it for us.
+    // AsyncWebSocketClient* client = ws.client(client_id);
+    // client->close();
 
-      StaticJsonDocument<1024> input;
-      DeserializationError err = deserializeJson(input, data);
-
-      String mycmd = input["cmd"] | "???";
-
-      //was there a problem, officer?
-      if (err)
-      {
-        char error[64];
-        sprintf(error, "deserializeJson() failed with code %s", err.c_str());
-        generateErrorJSON(output, error);
-      }
-      else
-        handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, client->id());
-
-      //empty messages are valid, so don't send a response
-      if (output.size())
-      {
-        serializeJson(output, jsonBuffer);
-
-        //only send if we're empty.  Ignore it otherwise.
-        if (ws.availableForWrite(client->id()))
-          ws.text(client->id(), jsonBuffer);
-        else
-          Serial.println("[socket] client full");
-      }
-    }
-    else
-    {
-      if (!wsRequests.isFull())
-      {
-        WebsocketRequest* wr = new WebsocketRequest;
-        wr->client_id = client->id();
-        strlcpy(wr->buffer, (char*)data, YB_RECEIVE_BUFFER_LENGTH); 
-        wsRequests.push(wr);
-      }
-
-      //start throttling a little bit early so we don't miss anything
-      if (wsRequests.capacity <= YB_RECEIVE_BUFFER_COUNT/2)
-      {
-        StaticJsonDocument<128> output;
-        String jsonBuffer;
-        generateErrorJSON(output, "Websocket busy, throttle connection.");
-        serializeJson(output, jsonBuffer);
-
-        client->text(jsonBuffer);
-      }
-    }
+    return false;
   }
+
+  return true;
 }
 
-void closeClientConnection(AsyncWebSocketClient *client)
+void handleWebServerRequest(JsonVariant input, MongooseHttpServerRequest *request)
 {
-  //you lose your slots
-  //for (byte i=0; i<YB_RECEIVE_BUFFER_COUNT; i++)
-  //  if (receiveClientId[i] == client->id())
-  //    websocketRequestReady[i] = false;
+  DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
 
-  //no more auth for you
-  for (byte i=0; i<YB_CLIENT_LIMIT; i++)
-    if (authenticatedClientIDs[i] == client->id())
-      authenticatedClientIDs[i] = 0;
+  if (request->hasParam("user"))
+    input["user"] = request->getParam("user");
+  if (request->hasParam("pass"))
+    input["pass"] = request->getParam("pass");
 
-  //goodbye
-  client->close();
+  if (app_enable_api)
+    handleReceivedJSON(input, output, YBP_MODE_HTTP);
+  else
+    generateErrorJSON(output, "Web API is disabled.");      
+
+  //we can have empty messages
+  if (output.size())
+  {
+    MongooseHttpServerResponseStream *response = request->beginResponseStream();
+    response->setContentType("application/json");
+    serializeJson(output.as<JsonObject>(), *response);
+    request->send(response);
+  }
+  //give them valid json at least
+  else
+    request->send(200, "application/json", "{}");
+}
+
+void handleWebSocketMessage(MongooseHttpWebSocketConnection *connection, uint8_t *data, size_t len)
+{
+  if (!wsRequests.isFull())
+  {
+    WebsocketRequest* wr = new WebsocketRequest;
+    wr->client = connection;
+    strlcpy(wr->buffer, (char*)data, YB_RECEIVE_BUFFER_LENGTH); 
+    wsRequests.push(wr);
+  }
+
+  //start throttling a little bit early so we don't miss anything
+  if (wsRequests.capacity <= YB_RECEIVE_BUFFER_COUNT/2)
+  {
+    StaticJsonDocument<128> output;
+    String jsonBuffer;
+    generateErrorJSON(output, "Websocket busy, throttle connection.");
+    serializeJson(output, jsonBuffer);
+
+    connection->send(jsonBuffer);
+  }
 }
 
 void handleWebsocketMessageLoop(WebsocketRequest* request)
 {
-  unsigned long start = micros();
-  unsigned long t1, t2, t3, t4 = 0;
-
   char jsonBuffer[YB_MAX_JSON_LENGTH];
-  //StaticJsonDocument<YB_LARGE_JSON_SIZE> output;
   DynamicJsonDocument output(YB_LARGE_JSON_SIZE);
-
-  StaticJsonDocument<1024> input;
-  DeserializationError err = deserializeJson(input, request->buffer);
-
-  String mycmd = input["cmd"] | "???";
-
-  t1 = micros();
+  DynamicJsonDocument input(1024);
 
   //was there a problem, officer?
+  DeserializationError err = deserializeJson(input, request->buffer);
   if (err)
   {
     char error[64];
@@ -282,52 +295,95 @@ void handleWebsocketMessageLoop(WebsocketRequest* request)
     generateErrorJSON(output, error);
   }
   else
-    handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, request->client_id);
-
-  t2 = micros();
+    handleReceivedJSON(input, output, YBP_MODE_WEBSOCKET, request->client);
 
   //empty messages are valid, so don't send a response
   if (output.size())
   {
     serializeJson(output, jsonBuffer);
-    t3 = micros();
-
-    //only send if we're empty.  Ignore it otherwise.
-    if (ws.availableForWrite(request->client_id))
-      ws.text(request->client_id, jsonBuffer);
-    else
-      Serial.println("[socket] client full");
+    request->client->send(jsonBuffer);
   }
-  else
-    t3 = micros();
 
   delete request;
-
-  t4 = micros();
-  unsigned long finish = micros();
-
-  if (finish-start > 15000)
-  {
-    Serial.println(mycmd);
-    Serial.printf("deserialize: %dus\n", t1-start); 
-    Serial.printf("handle: %dus\n", t2-t1); 
-    Serial.printf("serialize: %dus\n", t3-t2); 
-    Serial.printf("transmit: %dus\n", t4-t3); 
-    Serial.printf("total: %dus\n", finish-start);
-    Serial.println();
-  }
 }
 
-bool logClientIn(uint32_t client_id)
+bool isLoggedIn(JsonVariantConst input, byte mode, MongooseHttpWebSocketConnection *connection)
 {
-  //did we not find a spot?
-  if (!addClientToAuthList(client_id))
-  {
-    AsyncWebSocketClient* client = ws.client(client_id);
-    client->close();
+  //also only if enabled
+  if (!require_login)
+    return true;
 
+  //login only required for websockets.
+  if (mode == YBP_MODE_WEBSOCKET)
+    return isWebsocketClientLoggedIn(input, connection);
+  else if (mode == YBP_MODE_HTTP)
+    return isApiClientLoggedIn(input);
+  else if (mode == YBP_MODE_SERIAL)
+    return isSerialClientLoggedIn(input);
+  else
     return false;
+}
+
+bool isWebsocketClientLoggedIn(JsonVariantConst doc, MongooseHttpWebSocketConnection *connection)
+{
+  //are they in our auth array?
+  for (byte i=0; i<YB_CLIENT_LIMIT; i++)
+    if (authenticatedConnections[i] == connection)
+      return true;
+
+  //okay check for passed-in credentials
+  return isApiClientLoggedIn(doc);
+}
+
+bool isApiClientLoggedIn(JsonVariantConst doc)
+{
+  if (!doc.containsKey("user"))
+    return false;
+  if (!doc.containsKey("pass"))
+    return false;
+
+  //init
+  char myuser[YB_USERNAME_LENGTH];
+  char mypass[YB_PASSWORD_LENGTH];
+  strlcpy(myuser, doc["user"] | "", sizeof(myuser));
+  strlcpy(mypass, doc["pass"] | "", sizeof(myuser));
+
+  //morpheus... i'm in.
+  if (!strcmp(app_user, myuser) && !strcmp(app_pass, mypass))
+    return true;
+
+  //default to fail then.
+  return false;  
+}
+
+bool isSerialClientLoggedIn(JsonVariantConst doc)
+{
+  if (is_serial_authenticated)
+    return true;
+  else
+    return isApiClientLoggedIn(doc);
+}
+
+bool addClientToAuthList(MongooseHttpWebSocketConnection *connection)
+{
+  byte i;
+  for (i=0; i<YB_CLIENT_LIMIT; i++)
+  {
+    //did we find an empty slot?
+    if (authenticatedConnections[i] == NULL)
+    {
+      authenticatedConnections[i] = connection;
+      break;
+    }
+
+    //are we already authenticated?
+    if (authenticatedConnections[i] == connection)
+      break;
   }
 
-  return true;
+  //did we not find a spot?
+  if (i == YB_CLIENT_LIMIT)
+    return false;
+  else
+   return true;
 }
