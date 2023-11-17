@@ -71,6 +71,7 @@ void protocol_loop()
     sendUpdate();
   
     //how fast are we?
+    //Serial.printf("Framerate: %f\n", framerate);
     //Serial.print(messageDelta);
     //Serial.print("ms | msg/s: ");
     //Serial.print(handledMessages - lastHandledMessages);
@@ -1022,6 +1023,7 @@ void generateStatsJSON(JsonVariant output)
   output["msg"] = "stats";
   output["uuid"] = uuid;
   output["messages"] = totalHandledMessages;
+  output["fps"] = (int)framerate;
   output["uptime"] = millis();
   output["heap_size"] = ESP.getHeapSize();
   output["free_heap"] = ESP.getFreeHeap();

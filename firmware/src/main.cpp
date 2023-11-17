@@ -40,11 +40,17 @@
   #include "bus_voltage.h"
 #endif
 
+unsigned long lastFrameMillis = 0;
+
 void setup()
 {
   //startup our serial
   Serial.begin(115200);
   Serial.setTimeout(50);
+
+  /* need to zero out the ticklist array before starting */
+  for (int i=0; i<YB_FPS_SAMPLES; i++)
+    ticklist[i] = 0;
 
   if(!LittleFS.begin(true)) {
     Serial.println("ERROR: Unable to mount LittleFS");
@@ -137,22 +143,7 @@ void loop()
   protocol_loop();
   ota_loop();
 
-  // if (millis() > lastRTCCheckMillis + 1000)
-  // {
-  //   DateTime now = rtc.now();
-  //   Serial.print(now.year(), DEC);
-  //   Serial.print('/');
-  //   Serial.print(now.month(), DEC);
-  //   Serial.print('/');
-  //   Serial.print(now.day(), DEC);
-  //   Serial.print(" ");
-  //   Serial.print(now.hour(), DEC);
-  //   Serial.print(':');
-  //   Serial.print(now.minute(), DEC);
-  //   Serial.print(':');
-  //   Serial.print(now.second(), DEC);
-  //   Serial.println();
-
-  //   lastRTCCheckMillis = millis();
-  // }
+  //calculate our framerate
+  framerate = calculateFramerate(millis() - lastFrameMillis);
+  lastFrameMillis = millis();
 }

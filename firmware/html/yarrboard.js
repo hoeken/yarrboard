@@ -762,6 +762,8 @@ function start_websocket()
 
       $("#uptime").html(secondsToDhms(Math.round(msg.uptime/1000)));
       $("#messages").html(msg.messages.toLocaleString("en-US"));
+      if (msg.fps)
+        $("#fps").html(msg.fps.toLocaleString("en-US"));
       $("#heap_size").html(formatBytes(msg.heap_size));
       $("#free_heap").html(formatBytes(msg.free_heap));
       $("#min_free_heap").html(formatBytes(msg.min_free_heap));

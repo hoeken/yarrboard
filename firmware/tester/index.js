@@ -11,6 +11,7 @@ commander
   .option('-u, --user <value>', 'Username', 'admin')
   .option('-p, --pass <value>', 'Password', 'admin')
   .option('-l, --login', 'Login or not')
+  .option('--rgb', 'RGB')
   .parse(process.argv);
 
 const options = commander.opts();
@@ -70,7 +71,8 @@ function main()
             //setTimeout(function (){togglePin(7, 1000)}, 1);
             //setTimeout(function (){fadePinManual(7, 25)}, 1);
         }
-        else if (options.host == "rgb1.local" || options.host == "rgb2.local")
+
+        if (options.rgb)
         {
             //setTimeout(function (){rgbFadeManual(1, 25)}, 1);
             //setTimeout(function (){rgbFade(1, 25)}, 1);
@@ -86,10 +88,6 @@ function main()
                     }
                 }    
             }, 1);
-        }
-        else
-        {
-            setTimeout(function (){togglePin(0, 250)}, 1);
         }
 
         let cmd;
