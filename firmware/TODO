@@ -1,11 +1,6 @@
 Firmware:
-    * mongoose conversion
-        * make sure we arent crashing
-        * test new https
-        * test new login auth system
-        * update to latest version of mongoose 6.x
-        * long term: update to mongoose 7.x
-    * change app_enable_https to app_enable_ssl
+    * on status (error, udpate, etc) focus/scroll the window to the alert.
+    * 3 column display extending outside main column
     * hacky semver implementation on client side js not working well.
     * add a "framerate" counter to the loop: https://stackoverflow.com/questions/87304/calculating-frames-per-second-in-a-game
     * add a total row to the mosfet stats page
@@ -13,6 +8,15 @@ Firmware:
         * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
     * protocol documentation
     * learn about building components for node-red, maybe make a yarrboard toolkit
+    * mongoose conversion
+        * make sure we arent crashing
+        * test new https
+        * test new login auth system
+        * update to latest version of mongoose 6.x
+        * long term: update to mongoose 7.x
+    * ssl
+        * change app_enable_https to app_enable_ssl
+        * global rename server_pem to server_cert
 
 Webserver Comparison:
     * arduinomongoose: https://github.com/jeremypoulter/ArduinoMongoose

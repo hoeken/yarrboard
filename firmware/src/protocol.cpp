@@ -365,14 +365,20 @@ void handleSetAppConfig(JsonVariantConst input, JsonVariant output)
     preferences.putBool("appEnableHttps", app_enable_https);
 
     //write our pem to local storage
-    File fp = LittleFS.open("server.pem", "w");
+    File fp = LittleFS.open("/server.pem", "w");
     fp.print(input["server_pem"] | "");
     fp.close();
 
+    Serial.println("ssl cert:");
+    Serial.println(input["server_pem"] | "");
+
     //write our key to local storage
-    File fp2 = LittleFS.open("server.key", "w");
+    File fp2 = LittleFS.open("/server.key", "w");
     fp2.print(input["server_key"] | "");
     fp2.close();
+
+    Serial.println("ssl key:");
+    Serial.println(input["server_key"] | "");
 }
 
 void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, MongooseHttpWebSocketConnection *connection)

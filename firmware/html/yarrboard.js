@@ -854,8 +854,8 @@ function start_websocket()
 
       //for our ssl stuff
       $("#app_enable_https").prop("checked", msg.app_enable_https);
-      $("#server_pem").value(msg.server_pem);
-      $("#server_key").value(msg.server_key);
+      $("#server_pem").val(msg.server_pem);
+      $("#server_key").val(msg.server_key);
 
       //hide/show these guys
       if (msg.app_enable_https)

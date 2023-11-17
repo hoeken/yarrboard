@@ -20,13 +20,25 @@ void server_setup()
   //do we want https?
   if (preferences.isKey("appEnableHttps"))
     app_enable_https = preferences.getBool("appEnableHttps");
+  else
+    app_enable_https = false;
+
+  if (app_enable_https)
+    Serial.println("SSL enabled");
+  else
+    Serial.println("SSL disabled");
 
   //look up our keys?
   if (app_enable_https)
   {
     File fp = LittleFS.open("/server.pem");
     if (fp)
+    {
       server_pem = fp.readString();
+
+      Serial.println("Server Cert:");
+      Serial.println(server_pem);
+    }
     else
     {
       Serial.println("server.pem not found, SSL not available");
@@ -36,7 +48,12 @@ void server_setup()
 
     File fp2 = LittleFS.open("/server.key");
     if (fp2)
+    {
       server_key = fp2.readString();
+
+      Serial.println("Server Key:");
+      Serial.println(server_key);
+    }
     else
     {
       Serial.println("server.key not found, SSL not available");
@@ -52,7 +69,7 @@ void server_setup()
   {
     if(false == server.begin(443, server_pem.c_str(), server_key.c_str())) {
       Serial.print("Failed to start HTTPS server");
-      return;
+      app_enable_https = false;
     }
   }
   else
@@ -191,9 +208,7 @@ void sendToAllWebsockets(const char * jsonString)
   {
     for (byte i=0; i<YB_CLIENT_LIMIT; i++)
       if (authenticatedConnections[i] != NULL)
-          authenticatedConnections[i]->send(jsonString);
-        else
-          Serial.println("[socket] client queue full");
+        authenticatedConnections[i]->send(jsonString);
   }
   //nope, just sent it to all.
   else

@@ -6,3 +6,5 @@ boards/8ch-mosfet/bom/ibom.html
 *.log
 *.DS_STORE
 **/bom/*
+firmware/cert.pem
+firmware/key.pem
