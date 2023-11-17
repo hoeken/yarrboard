@@ -1,5 +1,4 @@
 Firmware:
-    * on status (error, udpate, etc) focus/scroll the window to the alert.
     * 3 column display extending outside main column
     * hacky semver implementation on client side js not working well.
     * add a "framerate" counter to the loop: https://stackoverflow.com/questions/87304/calculating-frames-per-second-in-a-game

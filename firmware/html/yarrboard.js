@@ -1033,6 +1033,13 @@ function show_alert(message, type = 'danger')
 {
   //we only need one alert at a time.
   $('#liveAlertPlaceholder').html(AlertBox(message, type))
+
+  //make sure we can see it.
+  $('html').animate({
+      scrollTop: 0
+    },
+    750 //speed
+  );
 }
 
 function toggle_state(id)
