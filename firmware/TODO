@@ -1,17 +1,43 @@
 Firmware:
+    * mongoose conversion
+        * figure out why inital load isnt as snappy
+        * long term: update to mongoose 7.x
     * web ui
         * static height on switches / led / analog rows
         * add a total row to the mosfet stats page
     * ssl
+        * need to upgrade to latest mongoose before going further
         * explore using letsencrypt
-    * mongoose conversion
-        * figure out why inital load isnt as snappy
-        * long term: update to mongoose 7.x
     * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
         * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
     * protocol documentation
     * learn about building components for node-red, maybe make a yarrboard toolkit
     * more ui work and column sizing
+
+8ch MOSFET:
+    * remove CAN port - never going to use it.
+    * change fan2 tach to pin 4
+    * combine fan 1 pwm and fan 2 pwm to pin 16
+    * add voltage detector to each channel for run detection - another mcp3208 + bus voltage divider circuit
+    * maybe switch to "pcb welding terminal" connection like 74650073R or C5370858 or C3029538
+        * or at least a 9.5mm pitch barrier terminal like C496131 or C430699 or C430687 or C707586
+    * move to 4 layer design signal / gnd / gnd / signal
+
+RGB Input:
+    * move to 4 layer design signal / gnd / gnd / signal
+    * remove the MISO line completely, doesnt work.
+
+Electronics:
+    * update 3dp case for 8ch mosfet
+    * design case for input board
+    * design case for button board
+
+Long Term Maybe?
+    * Relay board - DC or AC?
+    * Motor driver / H bridge?
+
+
+
 
 Webserver Comparison:
     * arduinomongoose: https://github.com/jeremypoulter/ArduinoMongoose
@@ -40,25 +66,3 @@ Webserver Comparison:
         * should be pretty reliable... lot of time investment to find out though
         * supports https and sockets
         * somewhat cryptic and low level interface
-
-8ch MOSFET:
-    * remove CAN port - never going to use it.
-    * change fan2 tach to pin 4
-    * combine fan 1 pwm and fan 2 pwm to pin 16
-    * add voltage detector to each channel for run detection - another mcp3208 + bus voltage divider circuit
-    * maybe switch to "pcb welding terminal" connection like 74650073R or C5370858 or C3029538
-        * or at least a 9.5mm pitch barrier terminal like C496131 or C430699 or C430687 or C707586
-    * move to 4 layer design signal / gnd / gnd / signal
-
-RGB Input:
-    * move to 4 layer design signal / gnd / gnd / signal
-    * remove the MISO line completely, doesnt work.
-
-Electronics:
-    * update 3dp case for 8ch mosfet
-    * design case for input board
-    * design case for button board
-
-Long Term Maybe?
-    * Relay board - DC or AC?
-    * Motor driver / H bridge?

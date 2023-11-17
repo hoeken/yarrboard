@@ -9,7 +9,7 @@ var app_config;
 var socket_retries = 0;
 var retry_time = 0;
 var last_heartbeat = 0;
-const heartbeat_rate = 1000;
+const heartbeat_rate = 5000;
 var ota_started = false;
 
 var page_list = ["control", "config", "stats", "network", "settings", "system"];

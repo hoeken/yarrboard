@@ -328,58 +328,61 @@ void handleSetNetworkConfig(JsonVariantConst input, JsonVariant output)
 
 void handleSetAppConfig(JsonVariantConst input, JsonVariant output)
 {
-    if (!input.containsKey("app_user"))
-      return generateErrorJSON(output, "'app_user' is a required parameter");
-    if (!input.containsKey("app_pass"))
-      return generateErrorJSON(output, "'app_pass' is a required parameter");
+  if (!input.containsKey("app_user"))
+    return generateErrorJSON(output, "'app_user' is a required parameter");
+  if (!input.containsKey("app_pass"))
+    return generateErrorJSON(output, "'app_pass' is a required parameter");
 
-    //username length checker
-    if (strlen(input["app_user"]) > YB_USERNAME_LENGTH-1)
-    {
-      char error[50];
-      sprintf(error, "Maximum username length is %s characters.", YB_USERNAME_LENGTH-1);
-      return generateErrorJSON(output, error);
-    }
+  //username length checker
+  if (strlen(input["app_user"]) > YB_USERNAME_LENGTH-1)
+  {
+    char error[50];
+    sprintf(error, "Maximum username length is %s characters.", YB_USERNAME_LENGTH-1);
+    return generateErrorJSON(output, error);
+  }
 
-    //password length checker
-    if (strlen(input["app_pass"]) > YB_PASSWORD_LENGTH-1)
-    {
-      char error[50];
-      sprintf(error, "Maximum password length is %s characters.", YB_PASSWORD_LENGTH-1);
-      return generateErrorJSON(output, error);
-    }
+  //password length checker
+  if (strlen(input["app_pass"]) > YB_PASSWORD_LENGTH-1)
+  {
+    char error[50];
+    sprintf(error, "Maximum password length is %s characters.", YB_PASSWORD_LENGTH-1);
+    return generateErrorJSON(output, error);
+  }
 
-    //get our data
-    strlcpy(app_user, input["app_user"] | "admin", sizeof(app_user));
-    strlcpy(app_pass, input["app_pass"] | "admin", sizeof(app_pass));
-    require_login = input["require_login"];
-    app_enable_api = input["app_enable_api"];
-    app_enable_serial = input["app_enable_serial"];
-    app_enable_ssl = input["app_enable_ssl"];
+  //get our data
+  strlcpy(app_user, input["app_user"] | "admin", sizeof(app_user));
+  strlcpy(app_pass, input["app_pass"] | "admin", sizeof(app_pass));
+  require_login = input["require_login"];
+  app_enable_api = input["app_enable_api"];
+  app_enable_serial = input["app_enable_serial"];
+  app_enable_ssl = input["app_enable_ssl"];
 
-    //no special cases here.
-    preferences.putString("app_user", app_user);
-    preferences.putString("app_pass", app_pass);
-    preferences.putBool("require_login", require_login);  
-    preferences.putBool("appEnableApi", app_enable_api);
-    preferences.putBool("appEnableSerial", app_enable_serial);
-    preferences.putBool("appEnableSSL", app_enable_ssl);
+  //no special cases here.
+  preferences.putString("app_user", app_user);
+  preferences.putString("app_pass", app_pass);
+  preferences.putBool("require_login", require_login);  
+  preferences.putBool("appEnableApi", app_enable_api);
+  preferences.putBool("appEnableSerial", app_enable_serial);
+  preferences.putBool("appEnableSSL", app_enable_ssl);
 
-    //write our pem to local storage
-    File fp = LittleFS.open("/server.crt", "w");
-    fp.print(input["server_cert"] | "");
-    fp.close();
+  //write our pem to local storage
+  File fp = LittleFS.open("/server.crt", "w");
+  fp.print(input["server_cert"] | "");
+  fp.close();
 
-    Serial.println("ssl cert:");
-    Serial.println(input["server_cert"] | "");
+  // Serial.println("ssl cert:");
+  // Serial.println(input["server_cert"] | "");
 
-    //write our key to local storage
-    File fp2 = LittleFS.open("/server.key", "w");
-    fp2.print(input["server_key"] | "");
-    fp2.close();
+  //write our key to local storage
+  File fp2 = LittleFS.open("/server.key", "w");
+  fp2.print(input["server_key"] | "");
+  fp2.close();
 
-    Serial.println("ssl key:");
-    Serial.println(input["server_key"] | "");
+  // Serial.println("ssl key:");
+  // Serial.println(input["server_key"] | "");
+
+  //restart the board.
+  ESP.restart();
 }
 
 void handleLogin(JsonVariantConst input, JsonVariant output, byte mode, MongooseHttpWebSocketConnection *connection)
