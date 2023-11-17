@@ -1,20 +1,18 @@
 Firmware:
-    * add a "framerate" counter to the loop: 
-    * add a total row to the mosfet stats page
-    * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
-        * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
-    * protocol documentation
-    * learn about building components for node-red, maybe make a yarrboard toolkit
-    * more ui work and column sizing
+    * ssl
+        * explore using letsencrypt
     * mongoose conversion
         * make sure we arent crashing
         * test new https
         * test new login auth system
         * update to latest version of mongoose 6.x
         * long term: update to mongoose 7.x
-    * ssl
-        * change app_enable_https to app_enable_ssl
-        * global rename server_pem to server_cert
+    * add a total row to the mosfet stats page
+    * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
+        * I think the magic happens here: https://github.com/SignalK/signalk-server/blob/master/src/interfaces/mfd_webapp.ts
+    * protocol documentation
+    * learn about building components for node-red, maybe make a yarrboard toolkit
+    * more ui work and column sizing
 
 Webserver Comparison:
     * arduinomongoose: https://github.com/jeremypoulter/ArduinoMongoose

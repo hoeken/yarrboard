@@ -32,7 +32,7 @@
   #include "fans.h"
 #endif
 
-extern String server_pem;
+extern String server_cert;
 extern String server_key;
 
 typedef struct {

@@ -9,7 +9,7 @@ CircularBuffer<WebsocketRequest*, YB_RECEIVE_BUFFER_COUNT> wsRequests;
 
 MongooseHttpWebSocketConnection * authenticatedConnections[YB_CLIENT_LIMIT];
 
-String server_pem;
+String server_cert;
 String server_key;
 
 void server_setup()
@@ -18,31 +18,31 @@ void server_setup()
   sprintf(last_modified, "%s %s GMT", __DATE__, __TIME__);
 
   //do we want https?
-  if (preferences.isKey("appEnableHttps"))
-    app_enable_https = preferences.getBool("appEnableHttps");
+  if (preferences.isKey("appEnableSSL"))
+    app_enable_ssl = preferences.getBool("appEnableSSL");
   else
-    app_enable_https = false;
+    app_enable_ssl = false;
 
-  if (app_enable_https)
+  if (app_enable_ssl)
     Serial.println("SSL enabled");
   else
     Serial.println("SSL disabled");
 
   //look up our keys?
-  if (app_enable_https)
+  if (app_enable_ssl)
   {
-    File fp = LittleFS.open("/server.pem");
+    File fp = LittleFS.open("/server.crt");
     if (fp)
     {
-      server_pem = fp.readString();
+      server_cert = fp.readString();
 
       Serial.println("Server Cert:");
-      Serial.println(server_pem);
+      Serial.println(server_cert);
     }
     else
     {
       Serial.println("server.pem not found, SSL not available");
-      app_enable_https = false;
+      app_enable_ssl = false;
     }
     fp.close();
 
@@ -57,7 +57,7 @@ void server_setup()
     else
     {
       Serial.println("server.key not found, SSL not available");
-      app_enable_https = false;
+      app_enable_ssl = false;
     }
     fp2.close();
   }
@@ -65,11 +65,11 @@ void server_setup()
   Mongoose.begin();
 
   //do we want secure or not?
-  if (app_enable_https)
+  if (app_enable_ssl)
   {
-    if(false == server.begin(443, server_pem.c_str(), server_key.c_str())) {
+    if(false == server.begin(443, server_cert.c_str(), server_key.c_str())) {
       Serial.print("Failed to start HTTPS server");
-      app_enable_https = false;
+      app_enable_ssl = false;
     }
   }
   else

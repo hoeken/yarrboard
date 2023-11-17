@@ -90,7 +90,7 @@
                         <tbody id="pwmTableBody" class="table-group-divider"></tbody>
                     </table>
                 </div>
-                <div id="switchControlDiv" style="display:none" class="col-md-4">
+                <div id="switchControlDiv" style="display:none" class="col-md-6">
                     <h4 class="text-center">I/O Switches</h4>
                     <table id="switchTable" class="table table-hover">
                         <thead>
@@ -102,7 +102,7 @@
                         <tbody id="switchTableBody" class="table-group-divider"></tbody>
                     </table>
                 </div>
-                <div id="rgbControlDiv" style="display:none" class="col-md-4">
+                <div id="rgbControlDiv" style="display:none" class="col-md-6">
                     <h4 class="text-center">RGB LEDs</h4>
                     <table id="rgbTable" class="table table-hover">
                         <thead>
@@ -114,7 +114,7 @@
                         <tbody id="rgbTableBody" class="table-group-divider"></tbody>
                     </table>
                 </div>
-                <div id="adcControlDiv" style="display:none" class="col-md-4">
+                <div id="adcControlDiv" style="display:none" class="col-md-6">
                     <h4 class="text-center">Analog Inputs</h4>
                     <table id="adcTable" class="table table-hover">
                         <thead>
@@ -246,7 +246,7 @@
             </div>
             <div id="networkPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <div class="row justify-content-center">
-                    <div class="col-lg-6 col-md-6 col-10 mb-3">
+                    <div class="col-lg-9 col-md-12 col-10 mb-3">
                         <h5>Network Configuration</h5>
                         <div class="mb-3">
                             <label for="wifi_mode" class="col-form-label">Wifi Mode</label>
@@ -284,7 +284,7 @@
             </div>
             <div id="settingsPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <div class="row justify-content-center">
-                    <div class="col-lg-6 col-md-6 col-10 mb-3">
+                    <div class="col-lg-9 col-md-12 col-10 mb-3">
                         <h5>App Configuration</h5>
                         <div class="mb-3">
                             <label for="app_user" class="col-form-label">App Username</label>
@@ -324,16 +324,16 @@
                         </div>
                         <div class="mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="app_enable_https" checked>
-                                <label class="form-check-label" for="app_enable_https">
+                                <input class="form-check-input" type="checkbox" value="" id="app_enable_ssl" checked>
+                                <label class="form-check-label" for="app_enable_ssl">
                                     Enable SSL / HTTPS Encryption? (<a href="https://github.com/hoeken/yarrboard#enable-https">documentation</a>)
                                 </label>
                             </div>
                         </div>
-                        <div class="mb-3" style="display: none" id="server_pem_container">
-                            <label for="server_pem" class="col-form-label">Server PEM Certificate</label>
+                        <div class="mb-3" style="display: none" id="server_cert_container">
+                            <label for="server_cert" class="col-form-label">Server Certificate</label>
                             <div class="">
-                                <textarea class="form-control" id="server_pem" rows="4"></textarea>
+                                <textarea class="form-control" id="server_cert" rows="4"></textarea>
                             </div>
                         </div>
                         <div class="mb-3" style="display: none" id="server_key_container">
@@ -350,7 +350,7 @@
             </div>
             <div id="systemPage" style="display:none" class="pageContainer mt-3 mx-2">
                 <div class="row justify-content-center">
-                    <div class="col-lg-6 col-md-6 col-10 mb-3">
+                    <div class="col-lg-9 col-md-12 col-10 mb-3">
                         <div class="row">
                             <h5>Firmware</h5>
                             <div id="firmware_checking" class="alert alert-secondary" role="alert">

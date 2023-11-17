@@ -14,7 +14,7 @@ char app_pass[YB_PASSWORD_LENGTH] = "admin";
 bool require_login = true;
 bool app_enable_api = true;
 bool app_enable_serial = false;
-bool app_enable_https = false;
+bool app_enable_ssl = false;
 bool is_serial_authenticated = false;
 
 //for tracking our message loop
@@ -355,7 +355,7 @@ void handleSetAppConfig(JsonVariantConst input, JsonVariant output)
     require_login = input["require_login"];
     app_enable_api = input["app_enable_api"];
     app_enable_serial = input["app_enable_serial"];
-    app_enable_https = input["app_enable_https"];
+    app_enable_ssl = input["app_enable_ssl"];
 
     //no special cases here.
     preferences.putString("app_user", app_user);
@@ -363,15 +363,15 @@ void handleSetAppConfig(JsonVariantConst input, JsonVariant output)
     preferences.putBool("require_login", require_login);  
     preferences.putBool("appEnableApi", app_enable_api);
     preferences.putBool("appEnableSerial", app_enable_serial);
-    preferences.putBool("appEnableHttps", app_enable_https);
+    preferences.putBool("appEnableSSL", app_enable_ssl);
 
     //write our pem to local storage
-    File fp = LittleFS.open("/server.pem", "w");
-    fp.print(input["server_pem"] | "");
+    File fp = LittleFS.open("/server.crt", "w");
+    fp.print(input["server_cert"] | "");
     fp.close();
 
     Serial.println("ssl cert:");
-    Serial.println(input["server_pem"] | "");
+    Serial.println(input["server_cert"] | "");
 
     //write our key to local storage
     File fp2 = LittleFS.open("/server.key", "w");
@@ -868,7 +868,7 @@ void generateConfigJSON(JsonVariant output)
   output["hardware_version"] = YB_HARDWARE_VERSION;
   output["name"] = board_name;
   output["hostname"] = local_hostname;
-  output["use_ssl"] = app_enable_https;
+  output["use_ssl"] = app_enable_ssl;
   output["uuid"] = uuid;
 
   //some debug info
@@ -1086,8 +1086,8 @@ void generateAppConfigJSON(JsonVariant output)
   output["app_pass"] = app_pass;
   output["app_enable_api"] = app_enable_api;
   output["app_enable_serial"] = app_enable_serial;
-  output["app_enable_https"] = app_enable_https;
-  output["server_pem"] = server_pem;
+  output["app_enable_ssl"] = app_enable_ssl;
+  output["server_cert"] = server_cert;
   output["server_key"] = server_key;
 }
 
