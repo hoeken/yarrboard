@@ -53,6 +53,7 @@ Webserver Comparison:
 
 RGB Input:
     * move to 4 layer design signal / gnd / gnd / signal
+    * remove the MISO line completely, doesnt work.
 
 Electronics:
     * update 3dp case for 8ch mosfet

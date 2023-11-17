@@ -33,6 +33,12 @@ bool rgb_is_dirty = false;
 
 void rgb_channels_setup()
 {
+  #ifdef YB_RGB_TLC5947_BLANK
+    pinMode(YB_RGB_TLC5947_BLANK, OUTPUT);
+    digitalWrite(YB_RGB_TLC5947_BLANK, HIGH);
+    //digitalWrite(YB_RGB_TLC5947_BLANK, LOW);
+  #endif
+
   #ifdef YB_RGB_DRIVER_TLC5947
     tlc.begin();
   #endif
@@ -52,8 +58,16 @@ void rgb_channels_loop()
   {
     if (rgb_is_dirty)
     {
-      #ifdef YB_RGB_DRIVER_TLC5947
+       #ifdef YB_RGB_DRIVER_TLC5947
+        #ifdef YB_RGB_TLC5947_BLANK
+          digitalWrite(YB_RGB_TLC5947_BLANK, HIGH);
+        #endif
+
         tlc.write();
+
+        #ifdef YB_RGB_TLC5947_BLANK
+          digitalWrite(YB_RGB_TLC5947_BLANK, LOW);
+        #endif
       #endif
 
       rgb_is_dirty = false;
