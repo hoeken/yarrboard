@@ -15,7 +15,7 @@ double round2(double value);
 double round3(double value);
 double round4(double value);
 
-extern double framerate;
+extern unsigned int framerate;
 extern int ticklist[YB_FPS_SAMPLES];
 
 double calculateFramerate(int newtick);

@@ -344,7 +344,7 @@ function start_websocket()
         $("#last_reboot_reason").parent().hide();
   
       //populate our pwm control table
-      $('#pwmControlDiv').hide();
+      $('#controlDiv').hide();
       $('#pwmStatsDiv').hide();
       if (msg.pwm)
       {
@@ -399,7 +399,7 @@ function start_websocket()
           }
         }
 
-        $('#pwmControlDiv').show();
+        $('#controlDiv').show();
         $('#pwmStatsDiv').show();  
       }
 

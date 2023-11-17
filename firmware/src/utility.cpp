@@ -23,8 +23,8 @@ double round4(double value) {
 //variables for our framerate
 int tickindex = 0;
 int ticklist[YB_FPS_SAMPLES];
-double ticksum = 0;
-double framerate = 0;
+unsigned long ticksum = 0;
+unsigned int framerate = 0;
 
 // newtick is milliseconds since last frame
 // returns average ticks per frame over the MAXSAMPLES last frames
@@ -38,5 +38,5 @@ double calculateFramerate(int newtick)
   tickindex = (tickindex + 1) % YB_FPS_SAMPLES; /* inc buffer index */
 
   /* return average */
-  return((ticksum/YB_FPS_SAMPLES)*1000);
+  return((ticksum * 1000)/YB_FPS_SAMPLES);
 }
