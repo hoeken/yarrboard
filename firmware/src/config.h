@@ -11,7 +11,7 @@
 
 #include <ArduinoTrace.h>
 
-#define YB_FIRMWARE_VERSION "1.2.0"
+#define YB_FIRMWARE_VERSION "1.2.1"
 
 //#define CORE_DEBUG_LEVEL 5
 

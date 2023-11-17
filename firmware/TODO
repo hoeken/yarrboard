@@ -1,5 +1,4 @@
 Firmware:
-    * hacky semver implementation on client side js not working well.
     * add a "framerate" counter to the loop: https://stackoverflow.com/questions/87304/calculating-frames-per-second-in-a-game
     * add a total row to the mosfet stats page
     * find in signalk app where it sends the discovery info to mfd's and see if we can copy?
