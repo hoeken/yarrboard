@@ -1,13 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse, os, json, re
 
 #what boards / build targets to include in the release
 boards = [
-	"8CH_MOSFET_REV_B",
-#	"8CH_MOSFET_REV_C",
-	"RGB_INPUT_REV_A",
-#	"RGB_INPUT_REV_B"
+#	"8CH_MOSFET_REV_B",
+	"8CH_MOSFET_REV_C",
+#	"RGB_INPUT_REV_A",
+	"RGB_INPUT_REV_B"
 ]
 
 if __name__ == '__main__':
