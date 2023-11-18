@@ -67,10 +67,7 @@ void server_setup()
   //do we want secure or not?
   if (app_enable_ssl)
   {
-    if(false == server.begin(443, server_cert.c_str(), server_key.c_str())) {
-      Serial.print("Failed to start HTTPS server");
-      app_enable_ssl = false;
-    }
+    server.begin(443, server_cert.c_str(), server_key.c_str());
   }
   else
   {

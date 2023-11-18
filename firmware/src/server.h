@@ -9,6 +9,8 @@
 #ifndef YARR_SERVER_H
 #define YARR_SERVER_H
 
+#include "config.h"
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <CircularBuffer.h>

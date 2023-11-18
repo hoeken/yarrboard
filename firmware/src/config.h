@@ -14,6 +14,7 @@
 #define YB_FIRMWARE_VERSION "1.2.1"
 
 //#define CORE_DEBUG_LEVEL 5
+#define MG_COPY_HTTP_MESSAGE 0
 
 #if defined YB_CONFIG_8CH_MOSFET_REV_A
   #include "./configs/config.8ch-mosfet-reva.h"
