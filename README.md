@@ -6,6 +6,13 @@ The project is based around the amazing esp32 and currently consists of one boar
 
 Pronounced *yarrrrrrr * bird*.  Lots of r's and don't call it a board. ;)
 
+The project is broken into a few different repositories:
+
+* [Yarrboard Firmware](https://github.com/hoeken/yarrboard-firmware)
+* [Yarrboard Hardware](https://github.com/hoeken/yarrboard-hardware)
+* [Yarrboard Client](https://github.com/hoeken/yarrboard-client)
+* [SignalK Plugin](https://github.com/hoeken/signalk-yarrboard-plugin)
+
 ## 8 Channel Mosfet Driver
 
 The main (and only) board available is for driving DC loads.  It is designed with common DC loads in mind, such as: lights, pumps, motors, relays, and other electronics.  Here are some specifications:
