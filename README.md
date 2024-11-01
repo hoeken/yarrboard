@@ -1,19 +1,16 @@
 # Yarrboard
 
-An open hardware project for digital switching on boats, or anywhere with 12v-24v systems.
-
-The project is based around the amazing esp32 and currently consists of one board, an 8-channel mosfet driver.  With this board, you can control almost any DC load on your boat. There are future plans to design a relay board, an I/O board, etc.
-
-Pronounced *yarrrrrrr * bird*.  Lots of r's and don't call it a board. ;)
+An open hardware project for automation projects on your boat.
 
 The project is broken into a few different repositories:
 
 * [Yarrboard Firmware](https://github.com/hoeken/yarrboard-firmware)
-* [Yarrboard Hardware](https://github.com/hoeken/yarrboard-hardware)
+* [FrothFET - 8 Channel Digital Switching](https://github.com/hoeken/frothfet)
+* [Brineomatic - Watermaker Controller](https://github.com/hoeken/brineomatic)
 * [Yarrboard Client](https://github.com/hoeken/yarrboard-client)
 * [SignalK Plugin](https://github.com/hoeken/signalk-yarrboard-plugin)
 
-## 8 Channel Mosfet Driver
+## FrothFET - 8 Channel Mosfet Driver
 
 The main (and only) board available is for driving DC loads.  It is designed with common DC loads in mind, such as: lights, pumps, motors, relays, and other electronics.  Here are some specifications:
 
